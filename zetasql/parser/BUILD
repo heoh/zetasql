@@ -903,5 +903,6 @@ cc_binary(
     deps = [
         ":parser",
         "@com_google_absl//absl/status",
+        "@json//:json",
     ],
 )

@@ -5,16 +5,37 @@ ZetaSQLModule().then((module) => {
     console.log("Parsing SQL:", sql);
     try {
         // 1. ParseStatement 호출
+        console.log("--- ParseStatement ---");
         const parserOutput = module.parseStatement(sql);
-        console.log("Parse successful:", parserOutput);
         console.log("Debug String:", parserOutput.debugString());
-
-        // 2. Unparse 호출
-        const unparsedSql = module.unparse(parserOutput);
-        console.log("Unparsed SQL:", unparsedSql);
+        console.log("Unparsed SQL:", module.unparse(parserOutput));
         
-        // 메모리 해제 (JS GC가 처리하겠지만 명시적으로 delete 가능)
+        // 2. ParseScript 호출
+        console.log("\n--- ParseScript ---");
+        const scriptSql = "SELECT 1; SELECT 2;";
+        const scriptOutput = module.parseScript(scriptSql);
+        console.log("Script Debug String:", scriptOutput.debugString());
+        console.log("Script Unparsed SQL:", module.unparse(scriptOutput));
+
+        // 3. ParseExpression 호출
+        console.log("\n--- ParseExpression ---");
+        const exprSql = "1 + 2 * 3";
+        const exprOutput = module.parseExpression(exprSql);
+        console.log("Expression Debug String:", exprOutput.debugString());
+        console.log("Expression Unparsed SQL:", module.unparse(exprOutput));
+
+        // 4. ParseType 호출
+        console.log("\n--- ParseType ---");
+        const typeSql = "ARRAY<STRING>";
+        const typeOutput = module.parseType(typeSql);
+        console.log("Type Debug String:", typeOutput.debugString());
+        console.log("Type Unparsed SQL:", module.unparse(typeOutput));
+
+        // 메모리 해제
         parserOutput.delete();
+        scriptOutput.delete();
+        exprOutput.delete();
+        typeOutput.delete();
     } catch (e) {
         console.error("Error:", e);
     }
