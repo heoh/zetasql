@@ -618,7 +618,47 @@ QueryStatement [0-64] [select sum...by the_sum]
           Identifier(the_sum) [57-64] [the_sum]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [33, 2]
+  (statement [0, 0] - [0, 65]
+    (select_statement [0, 0] - [0, 65]
+      (select_clause [0, 0] - [0, 26]
+        (select_list [0, 7] - [0, 26]
+          (select_expression [0, 7] - [0, 26]
+            (expression [0, 7] - [0, 15]
+              (function_call [0, 7] - [0, 15]
+                (path_expression [0, 7] - [0, 10]
+                  (identifier [0, 7] - [0, 10]))
+                (function_arguments [0, 11] - [0, 14]
+                  (function_argument [0, 11] - [0, 14]
+                    (expression [0, 11] - [0, 14]
+                      (binary_expression [0, 11] - [0, 14]
+                        (expression [0, 11] - [0, 12]
+                          (path_expression [0, 11] - [0, 12]
+                            (identifier [0, 11] - [0, 12])))
+                        (expression [0, 13] - [0, 14]
+                          (path_expression [0, 13] - [0, 14]
+                            (identifier [0, 13] - [0, 14])))))))))
+            (identifier [0, 19] - [0, 26]))))
+      (from_clause [0, 27] - [0, 33]
+        (from_item [0, 32] - [0, 33]
+          (table_expression [0, 32] - [0, 33]
+            (path_expression [0, 32] - [0, 33]
+              (identifier [0, 32] - [0, 33])))))
+      (group_by_clause [0, 34] - [0, 47]
+        (expression_list [0, 43] - [0, 47]
+          (expression [0, 43] - [0, 44]
+            (path_expression [0, 43] - [0, 44]
+              (identifier [0, 43] - [0, 44])))
+          (expression [0, 46] - [0, 47]
+            (path_expression [0, 46] - [0, 47]
+              (identifier [0, 46] - [0, 47])))))
+      (order_by_clause [0, 48] - [0, 64]
+        (order_expression_list [0, 57] - [0, 64]
+          (order_expression [0, 57] - [0, 64]
+            (expression [0, 57] - [0, 64]
+              (path_expression [0, 57] - [0, 64]
+                (identifier [0, 57] - [0, 64]))))))))
+  (comment [2, 0] - [33, 2]))
 
 ==================
 Test Case 14

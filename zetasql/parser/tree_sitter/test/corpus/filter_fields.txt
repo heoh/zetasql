@@ -44,7 +44,30 @@ QueryStatement [0-46] [select filter_fie...t32_field)]
                 Identifier(int32_field) [34-45] [int32_field]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (statement [0, 0] - [0, 46]
+    (select_statement [0, 0] - [0, 46]
+      (select_clause [0, 0] - [0, 46]
+        (select_list [0, 7] - [0, 46]
+          (select_expression [0, 7] - [0, 46]
+            (expression [0, 7] - [0, 46]
+              (function_call [0, 7] - [0, 46]
+                (path_expression [0, 7] - [0, 20]
+                  (identifier [0, 7] - [0, 20]))
+                (function_arguments [0, 21] - [0, 45]
+                  (function_argument [0, 21] - [0, 31]
+                    (expression [0, 21] - [0, 31]
+                      (path_expression [0, 21] - [0, 31]
+                        (identifier [0, 21] - [0, 31]))))
+                  (function_argument [0, 32] - [0, 45]
+                    (expression [0, 32] - [0, 45]
+                      (binary_expression [0, 32] - [0, 45]
+                        (expression [0, 32] - [0, 32]
+                          (boolean_literal [0, 32] - [0, 32]))
+                        (expression [0, 34] - [0, 45]
+                          (path_expression [0, 34] - [0, 45]
+                            (identifier [0, 34] - [0, 45]))))))))))))))
+  (comment [2, 0] - [16, 2]))
 
 ==================
 Test Case 3
@@ -68,7 +91,31 @@ QueryStatement [0-58] [select filter_fie...t32_field)]
                 Identifier(int32_field) [46-57] [int32_field]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (statement [0, 0] - [0, 58]
+    (select_statement [0, 0] - [0, 58]
+      (select_clause [0, 0] - [0, 58]
+        (select_list [0, 7] - [0, 58]
+          (select_expression [0, 7] - [0, 58]
+            (expression [0, 7] - [0, 58]
+              (function_call [0, 7] - [0, 58]
+                (path_expression [0, 7] - [0, 20]
+                  (identifier [0, 7] - [0, 20]))
+                (function_arguments [0, 21] - [0, 57]
+                  (function_argument [0, 21] - [0, 31]
+                    (expression [0, 21] - [0, 31]
+                      (path_expression [0, 21] - [0, 31]
+                        (identifier [0, 21] - [0, 31]))))
+                  (function_argument [0, 32] - [0, 57]
+                    (expression [0, 32] - [0, 57]
+                      (binary_expression [0, 32] - [0, 57]
+                        (expression [0, 32] - [0, 32]
+                          (boolean_literal [0, 32] - [0, 32]))
+                        (expression [0, 34] - [0, 57]
+                          (path_expression [0, 34] - [0, 57]
+                            (identifier [0, 34] - [0, 45])
+                            (identifier [0, 46] - [0, 57]))))))))))))))
+  (comment [2, 0] - [17, 2]))
 
 ==================
 Test Case 4
@@ -123,7 +170,40 @@ QueryStatement [0-76] [select filter_fie...t32_field)]
                 Identifier(int32_field) [64-75] [int32_field]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 76]
+    (select_statement [0, 0] - [0, 76]
+      (select_clause [0, 0] - [0, 76]
+        (select_list [0, 7] - [0, 76]
+          (select_expression [0, 7] - [0, 76]
+            (expression [0, 7] - [0, 76]
+              (function_call [0, 7] - [0, 76]
+                (path_expression [0, 7] - [0, 20]
+                  (identifier [0, 7] - [0, 20]))
+                (function_arguments [0, 21] - [0, 63]
+                  (function_argument [0, 21] - [0, 31]
+                    (expression [0, 21] - [0, 31]
+                      (path_expression [0, 21] - [0, 31]
+                        (identifier [0, 21] - [0, 31]))))
+                  (function_argument [0, 32] - [0, 63]
+                    (expression [0, 32] - [0, 63]
+                      (binary_expression [0, 32] - [0, 63]
+                        (expression [0, 32] - [0, 32]
+                          (boolean_literal [0, 32] - [0, 32]))
+                        (expression [0, 34] - [0, 63]
+                          (function_call [0, 34] - [0, 63]
+                            (path_expression [0, 34] - [0, 45]
+                              (identifier [0, 34] - [0, 45]))
+                            (ERROR [0, 45] - [0, 46])
+                            (function_arguments [0, 47] - [0, 62]
+                              (function_argument [0, 47] - [0, 62]
+                                (expression [0, 47] - [0, 62]
+                                  (path_expression [0, 47] - [0, 62]
+                                    (identifier [0, 47] - [0, 62])))))))))))
+                (ERROR [0, 63] - [0, 75]
+                  (ERROR [0, 64] - [0, 67])
+                  (identifier [0, 67] - [0, 75])))))))))
+  (comment [2, 0] - [21, 2]))
 
 ==================
 Test Case 6
@@ -150,7 +230,38 @@ QueryStatement [0-82] [select filter_fie...on_field))]
                   Identifier(extension_field) [65-80] [extension_field]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (statement [0, 0] - [0, 82]
+    (select_statement [0, 0] - [0, 82]
+      (select_clause [0, 0] - [0, 82]
+        (select_list [0, 7] - [0, 82]
+          (select_expression [0, 7] - [0, 82]
+            (expression [0, 7] - [0, 82]
+              (function_call [0, 7] - [0, 82]
+                (path_expression [0, 7] - [0, 20]
+                  (identifier [0, 7] - [0, 20]))
+                (function_arguments [0, 21] - [0, 81]
+                  (function_argument [0, 21] - [0, 31]
+                    (expression [0, 21] - [0, 31]
+                      (path_expression [0, 21] - [0, 31]
+                        (identifier [0, 21] - [0, 31]))))
+                  (function_argument [0, 32] - [0, 81]
+                    (expression [0, 32] - [0, 81]
+                      (binary_expression [0, 32] - [0, 81]
+                        (expression [0, 32] - [0, 32]
+                          (boolean_literal [0, 32] - [0, 32]))
+                        (expression [0, 34] - [0, 81]
+                          (function_call [0, 34] - [0, 81]
+                            (path_expression [0, 34] - [0, 63]
+                              (identifier [0, 34] - [0, 45])
+                              (identifier [0, 46] - [0, 63]))
+                            (ERROR [0, 63] - [0, 64])
+                            (function_arguments [0, 65] - [0, 80]
+                              (function_argument [0, 65] - [0, 80]
+                                (expression [0, 65] - [0, 80]
+                                  (path_expression [0, 65] - [0, 80]
+                                    (identifier [0, 65] - [0, 80]))))))))))))))))))
+  (comment [2, 0] - [20, 2]))
 
 ==================
 Test Case 7
@@ -176,7 +287,38 @@ QueryStatement [0-60] [select filter_fie...oto_field)]
                 Identifier(proto_field) [48-59] [proto_field]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 60]
+    (select_statement [0, 0] - [0, 60]
+      (select_clause [0, 0] - [0, 60]
+        (select_list [0, 7] - [0, 60]
+          (select_expression [0, 7] - [0, 60]
+            (expression [0, 7] - [0, 60]
+              (function_call [0, 7] - [0, 60]
+                (path_expression [0, 7] - [0, 20]
+                  (identifier [0, 7] - [0, 20]))
+                (function_arguments [0, 21] - [0, 59]
+                  (function_argument [0, 21] - [0, 31]
+                    (expression [0, 21] - [0, 31]
+                      (path_expression [0, 21] - [0, 31]
+                        (identifier [0, 21] - [0, 31]))))
+                  (function_argument [0, 32] - [0, 45]
+                    (expression [0, 32] - [0, 45]
+                      (binary_expression [0, 32] - [0, 45]
+                        (expression [0, 32] - [0, 32]
+                          (boolean_literal [0, 32] - [0, 32]))
+                        (expression [0, 34] - [0, 45]
+                          (path_expression [0, 34] - [0, 45]
+                            (identifier [0, 34] - [0, 45]))))))
+                  (function_argument [0, 46] - [0, 59]
+                    (expression [0, 46] - [0, 59]
+                      (binary_expression [0, 46] - [0, 59]
+                        (expression [0, 46] - [0, 46]
+                          (boolean_literal [0, 46] - [0, 46]))
+                        (expression [0, 48] - [0, 59]
+                          (path_expression [0, 48] - [0, 59]
+                            (identifier [0, 48] - [0, 59]))))))))))))))
+  (comment [2, 0] - [19, 2]))
 
 ==================
 Test Case 8
@@ -202,7 +344,39 @@ QueryStatement [0-85] [select filter_fie...S => True)]
               BooleanLiteral(True) [80-84] [True]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 85]
+    (select_statement [0, 0] - [0, 85]
+      (select_clause [0, 0] - [0, 85]
+        (select_list [0, 7] - [0, 85]
+          (select_expression [0, 7] - [0, 85]
+            (expression [0, 7] - [0, 85]
+              (function_call [0, 7] - [0, 85]
+                (path_expression [0, 7] - [0, 20]
+                  (identifier [0, 7] - [0, 20]))
+                (function_arguments [0, 21] - [0, 84]
+                  (function_argument [0, 21] - [0, 31]
+                    (expression [0, 21] - [0, 31]
+                      (path_expression [0, 21] - [0, 31]
+                        (identifier [0, 21] - [0, 31]))))
+                  (function_argument [0, 32] - [0, 45]
+                    (expression [0, 32] - [0, 45]
+                      (binary_expression [0, 32] - [0, 45]
+                        (expression [0, 32] - [0, 32]
+                          (boolean_literal [0, 32] - [0, 32]))
+                        (expression [0, 34] - [0, 45]
+                          (path_expression [0, 34] - [0, 45]
+                            (identifier [0, 34] - [0, 45]))))))
+                  (function_argument [0, 47] - [0, 84]
+                    (expression [0, 47] - [0, 84]
+                      (binary_expression [0, 47] - [0, 84]
+                        (expression [0, 47] - [0, 76]
+                          (path_expression [0, 47] - [0, 76]
+                            (identifier [0, 47] - [0, 76])))
+                        (ERROR [0, 78] - [0, 79])
+                        (expression [0, 80] - [0, 84]
+                          (boolean_literal [0, 80] - [0, 84])))))))))))))
+  (comment [2, 0] - [19, 2]))
 
 ==================
 Test Case 9
@@ -228,7 +402,39 @@ QueryStatement [0-86] [select filter_fie...=> False)]
               BooleanLiteral(False) [80-85] [False]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 86]
+    (select_statement [0, 0] - [0, 86]
+      (select_clause [0, 0] - [0, 86]
+        (select_list [0, 7] - [0, 86]
+          (select_expression [0, 7] - [0, 86]
+            (expression [0, 7] - [0, 86]
+              (function_call [0, 7] - [0, 86]
+                (path_expression [0, 7] - [0, 20]
+                  (identifier [0, 7] - [0, 20]))
+                (function_arguments [0, 21] - [0, 85]
+                  (function_argument [0, 21] - [0, 31]
+                    (expression [0, 21] - [0, 31]
+                      (path_expression [0, 21] - [0, 31]
+                        (identifier [0, 21] - [0, 31]))))
+                  (function_argument [0, 32] - [0, 45]
+                    (expression [0, 32] - [0, 45]
+                      (binary_expression [0, 32] - [0, 45]
+                        (expression [0, 32] - [0, 32]
+                          (boolean_literal [0, 32] - [0, 32]))
+                        (expression [0, 34] - [0, 45]
+                          (path_expression [0, 34] - [0, 45]
+                            (identifier [0, 34] - [0, 45]))))))
+                  (function_argument [0, 47] - [0, 85]
+                    (expression [0, 47] - [0, 85]
+                      (binary_expression [0, 47] - [0, 85]
+                        (expression [0, 47] - [0, 76]
+                          (path_expression [0, 47] - [0, 76]
+                            (identifier [0, 47] - [0, 76])))
+                        (ERROR [0, 78] - [0, 79])
+                        (expression [0, 80] - [0, 85]
+                          (boolean_literal [0, 80] - [0, 85])))))))))))))
+  (comment [2, 0] - [19, 2]))
 
 ==================
 Test Case 10
@@ -254,5 +460,33 @@ QueryStatement [0-56] [select filter_fie...+`where`)]
                 Identifier(`where`) [48-55] [`where`]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 56]
+    (select_statement [0, 0] - [0, 56]
+      (select_clause [0, 0] - [0, 56]
+        (select_list [0, 7] - [0, 56]
+          (select_expression [0, 7] - [0, 56]
+            (expression [0, 7] - [0, 56]
+              (function_call [0, 7] - [0, 56]
+                (path_expression [0, 7] - [0, 20]
+                  (identifier [0, 7] - [0, 20]))
+                (function_arguments [0, 21] - [0, 55]
+                  (function_argument [0, 21] - [0, 31]
+                    (expression [0, 21] - [0, 31]
+                      (path_expression [0, 21] - [0, 31]
+                        (identifier [0, 21] - [0, 31]))))
+                  (function_argument [0, 32] - [0, 45]
+                    (expression [0, 32] - [0, 45]
+                      (binary_expression [0, 32] - [0, 45]
+                        (expression [0, 32] - [0, 32]
+                          (boolean_literal [0, 32] - [0, 32]))
+                        (expression [0, 34] - [0, 45]
+                          (path_expression [0, 34] - [0, 45]
+                            (identifier [0, 34] - [0, 45]))))))
+                  (ERROR [0, 47] - [0, 48])
+                  (function_argument [0, 48] - [0, 55]
+                    (expression [0, 48] - [0, 55]
+                      (path_expression [0, 48] - [0, 55]
+                        (identifier [0, 48] - [0, 55]))))))))))))
+  (comment [2, 0] - [19, 2]))
 

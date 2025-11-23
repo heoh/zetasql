@@ -461,7 +461,35 @@ QueryStatement [0-55] [select hll_count...) from bar]
             Identifier(bar) [52-55] [bar]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 56]
+    (select_statement [0, 0] - [0, 56]
+      (select_clause [0, 0] - [0, 46]
+        (select_list [0, 7] - [0, 46]
+          (select_expression [0, 7] - [0, 46]
+            (expression [0, 7] - [0, 46]
+              (function_call [0, 7] - [0, 46]
+                (path_expression [0, 7] - [0, 24]
+                  (identifier [0, 7] - [0, 16])
+                  (identifier [0, 17] - [0, 24]))
+                (function_arguments [0, 25] - [0, 45]
+                  (function_argument [0, 25] - [0, 45]
+                    (expression [0, 25] - [0, 45]
+                      (function_call [0, 25] - [0, 45]
+                        (path_expression [0, 25] - [0, 40]
+                          (identifier [0, 25] - [0, 34])
+                          (identifier [0, 35] - [0, 40]))
+                        (function_arguments [0, 41] - [0, 44]
+                          (function_argument [0, 41] - [0, 44]
+                            (expression [0, 41] - [0, 44]
+                              (path_expression [0, 41] - [0, 44]
+                                (identifier [0, 41] - [0, 44]))))))))))))))
+      (from_clause [0, 47] - [0, 55]
+        (from_item [0, 52] - [0, 55]
+          (table_expression [0, 52] - [0, 55]
+            (path_expression [0, 52] - [0, 55]
+              (identifier [0, 52] - [0, 55])))))))
+  (comment [2, 0] - [22, 2]))
 
 ==================
 Test Case 24
@@ -490,7 +518,35 @@ QueryStatement [0-55] [select d3a_count...) from bar]
             Identifier(bar) [52-55] [bar]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 56]
+    (select_statement [0, 0] - [0, 56]
+      (select_clause [0, 0] - [0, 46]
+        (select_list [0, 7] - [0, 46]
+          (select_expression [0, 7] - [0, 46]
+            (expression [0, 7] - [0, 46]
+              (function_call [0, 7] - [0, 46]
+                (path_expression [0, 7] - [0, 24]
+                  (identifier [0, 7] - [0, 16])
+                  (identifier [0, 17] - [0, 24]))
+                (function_arguments [0, 25] - [0, 45]
+                  (function_argument [0, 25] - [0, 45]
+                    (expression [0, 25] - [0, 45]
+                      (function_call [0, 25] - [0, 45]
+                        (path_expression [0, 25] - [0, 40]
+                          (identifier [0, 25] - [0, 34])
+                          (identifier [0, 35] - [0, 40]))
+                        (function_arguments [0, 41] - [0, 44]
+                          (function_argument [0, 41] - [0, 44]
+                            (expression [0, 41] - [0, 44]
+                              (path_expression [0, 41] - [0, 44]
+                                (identifier [0, 41] - [0, 44]))))))))))))))
+      (from_clause [0, 47] - [0, 55]
+        (from_item [0, 52] - [0, 55]
+          (table_expression [0, 52] - [0, 55]
+            (path_expression [0, 52] - [0, 55]
+              (identifier [0, 52] - [0, 55])))))))
+  (comment [2, 0] - [22, 2]))
 
 ==================
 Test Case 25
@@ -514,7 +570,26 @@ QueryStatement [0-21] [select a AND b from T]
             Identifier(T) [20-21] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (statement [0, 0] - [0, 22]
+    (select_statement [0, 0] - [0, 22]
+      (select_clause [0, 0] - [0, 14]
+        (select_list [0, 7] - [0, 14]
+          (select_expression [0, 7] - [0, 14]
+            (expression [0, 7] - [0, 14]
+              (binary_expression [0, 7] - [0, 14]
+                (expression [0, 7] - [0, 8]
+                  (path_expression [0, 7] - [0, 8]
+                    (identifier [0, 7] - [0, 8])))
+                (expression [0, 13] - [0, 14]
+                  (path_expression [0, 13] - [0, 14]
+                    (identifier [0, 13] - [0, 14]))))))))
+      (from_clause [0, 15] - [0, 21]
+        (from_item [0, 20] - [0, 21]
+          (table_expression [0, 20] - [0, 21]
+            (path_expression [0, 20] - [0, 21]
+              (identifier [0, 20] - [0, 21])))))))
+  (comment [2, 0] - [17, 2]))
 
 ==================
 Test Case 26
@@ -541,7 +616,32 @@ QueryStatement [0-22] [select f(x + y) from A]
             Identifier(A) [21-22] [A]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (statement [0, 0] - [0, 23]
+    (select_statement [0, 0] - [0, 23]
+      (select_clause [0, 0] - [0, 15]
+        (select_list [0, 7] - [0, 15]
+          (select_expression [0, 7] - [0, 15]
+            (expression [0, 7] - [0, 15]
+              (function_call [0, 7] - [0, 15]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 9] - [0, 14]
+                  (function_argument [0, 9] - [0, 14]
+                    (expression [0, 9] - [0, 14]
+                      (binary_expression [0, 9] - [0, 14]
+                        (expression [0, 9] - [0, 10]
+                          (path_expression [0, 9] - [0, 10]
+                            (identifier [0, 9] - [0, 10])))
+                        (expression [0, 13] - [0, 14]
+                          (path_expression [0, 13] - [0, 14]
+                            (identifier [0, 13] - [0, 14]))))))))))))
+      (from_clause [0, 16] - [0, 22]
+        (from_item [0, 21] - [0, 22]
+          (table_expression [0, 21] - [0, 22]
+            (path_expression [0, 21] - [0, 22]
+              (identifier [0, 21] - [0, 22])))))))
+  (comment [2, 0] - [20, 2]))
 
 ==================
 Test Case 27
@@ -605,7 +705,30 @@ QueryStatement [0-24] [select a.b.f(x.y) from T]
             Identifier(T) [23-24] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (statement [0, 0] - [0, 25]
+    (select_statement [0, 0] - [0, 25]
+      (select_clause [0, 0] - [0, 17]
+        (select_list [0, 7] - [0, 17]
+          (select_expression [0, 7] - [0, 17]
+            (expression [0, 7] - [0, 17]
+              (function_call [0, 7] - [0, 17]
+                (path_expression [0, 7] - [0, 12]
+                  (identifier [0, 7] - [0, 8])
+                  (identifier [0, 9] - [0, 10])
+                  (identifier [0, 11] - [0, 12]))
+                (function_arguments [0, 13] - [0, 16]
+                  (function_argument [0, 13] - [0, 16]
+                    (expression [0, 13] - [0, 16]
+                      (path_expression [0, 13] - [0, 16]
+                        (identifier [0, 13] - [0, 14])
+                        (identifier [0, 15] - [0, 16]))))))))))
+      (from_clause [0, 18] - [0, 24]
+        (from_item [0, 23] - [0, 24]
+          (table_expression [0, 23] - [0, 24]
+            (path_expression [0, 23] - [0, 24]
+              (identifier [0, 23] - [0, 24])))))))
+  (comment [2, 0] - [20, 2]))
 
 ==================
 Test Case 29
@@ -634,7 +757,31 @@ QueryStatement [0-27] [select *, a.b.f(x.y) from T]
             Identifier(T) [26-27] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 28]
+    (select_statement [0, 0] - [0, 28]
+      (select_clause [0, 0] - [0, 20]
+        (select_list [0, 7] - [0, 20]
+          (select_expression [0, 7] - [0, 8])
+          (select_expression [0, 10] - [0, 20]
+            (expression [0, 10] - [0, 20]
+              (function_call [0, 10] - [0, 20]
+                (path_expression [0, 10] - [0, 15]
+                  (identifier [0, 10] - [0, 11])
+                  (identifier [0, 12] - [0, 13])
+                  (identifier [0, 14] - [0, 15]))
+                (function_arguments [0, 16] - [0, 19]
+                  (function_argument [0, 16] - [0, 19]
+                    (expression [0, 16] - [0, 19]
+                      (path_expression [0, 16] - [0, 19]
+                        (identifier [0, 16] - [0, 17])
+                        (identifier [0, 18] - [0, 19]))))))))))
+      (from_clause [0, 21] - [0, 27]
+        (from_item [0, 26] - [0, 27]
+          (table_expression [0, 26] - [0, 27]
+            (path_expression [0, 26] - [0, 27]
+              (identifier [0, 26] - [0, 27])))))))
+  (comment [2, 0] - [22, 2]))
 
 ==================
 Test Case 30
@@ -672,7 +819,48 @@ QueryStatement [0-39] [select f(g...foo from T]
             Identifier(T) [38-39] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [31, 2]
+  (statement [0, 0] - [0, 40]
+    (select_statement [0, 0] - [0, 40]
+      (select_clause [0, 0] - [0, 32]
+        (select_list [0, 7] - [0, 32]
+          (select_expression [0, 7] - [0, 14]
+            (expression [0, 7] - [0, 14]
+              (function_call [0, 7] - [0, 14]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 9] - [0, 13]
+                  (function_argument [0, 9] - [0, 13]
+                    (expression [0, 9] - [0, 13]
+                      (function_call [0, 9] - [0, 13]
+                        (path_expression [0, 9] - [0, 10]
+                          (identifier [0, 9] - [0, 10]))
+                        (function_arguments [0, 11] - [0, 12]
+                          (function_argument [0, 11] - [0, 12]
+                            (expression [0, 11] - [0, 12]
+                              (path_expression [0, 11] - [0, 12]
+                                (identifier [0, 11] - [0, 12]))))))))))))
+          (select_expression [0, 16] - [0, 20]
+            (expression [0, 16] - [0, 20]
+              (function_call [0, 16] - [0, 20]
+                (path_expression [0, 16] - [0, 17]
+                  (identifier [0, 16] - [0, 17]))
+                (function_arguments [0, 18] - [0, 19]
+                  (function_argument [0, 18] - [0, 19]
+                    (expression [0, 18] - [0, 19]
+                      (number [0, 18] - [0, 19])))))))
+          (select_expression [0, 22] - [0, 32]
+            (expression [0, 22] - [0, 25]
+              (function_call [0, 22] - [0, 25]
+                (path_expression [0, 22] - [0, 23]
+                  (identifier [0, 22] - [0, 23]))))
+            (identifier [0, 29] - [0, 32]))))
+      (from_clause [0, 33] - [0, 39]
+        (from_item [0, 38] - [0, 39]
+          (table_expression [0, 38] - [0, 39]
+            (path_expression [0, 38] - [0, 39]
+              (identifier [0, 38] - [0, 39])))))))
+  (comment [2, 0] - [31, 2]))
 
 ==================
 Test Case 31
@@ -744,16 +932,14 @@ QueryStatement [0-27] [select -1, +2, NOT a from T]
             (expression [0, 6] - [0, 9]
               (binary_expression [0, 6] - [0, 9]
                 (expression [0, 6] - [0, 6]
-                  (path_expression [0, 6] - [0, 6]
-                    (identifier [0, 6] - [0, 6])))
+                  (boolean_literal [0, 6] - [0, 6]))
                 (expression [0, 8] - [0, 9]
                   (number [0, 8] - [0, 9])))))
           (select_expression [0, 10] - [0, 13]
             (expression [0, 10] - [0, 13]
               (binary_expression [0, 10] - [0, 13]
                 (expression [0, 10] - [0, 10]
-                  (path_expression [0, 10] - [0, 10]
-                    (identifier [0, 10] - [0, 10])))
+                  (boolean_literal [0, 10] - [0, 10]))
                 (expression [0, 12] - [0, 13]
                   (number [0, 12] - [0, 13])))))
           (select_expression [0, 15] - [0, 20]
@@ -1930,7 +2116,30 @@ QueryStatement [0-56] [select * from...AND value2]
             Identifier(value2) [50-56] [value2]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 57]
+    (select_statement [0, 0] - [0, 57]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 20]
+        (from_item [0, 14] - [0, 20]
+          (table_expression [0, 14] - [0, 20]
+            (path_expression [0, 14] - [0, 20]
+              (identifier [0, 14] - [0, 20])))))
+      (where_clause [0, 21] - [0, 56]
+        (expression [0, 27] - [0, 56]
+          (between_expression [0, 27] - [0, 56]
+            (expression [0, 27] - [0, 30]
+              (path_expression [0, 27] - [0, 30]
+                (identifier [0, 27] - [0, 30])))
+            (expression [0, 39] - [0, 45]
+              (path_expression [0, 39] - [0, 45]
+                (identifier [0, 39] - [0, 45])))
+            (expression [0, 50] - [0, 56]
+              (path_expression [0, 50] - [0, 56]
+                (identifier [0, 50] - [0, 56]))))))))
+  (comment [2, 0] - [22, 2]))
 
 ==================
 Test Case 70

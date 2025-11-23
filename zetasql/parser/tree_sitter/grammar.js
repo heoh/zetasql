@@ -107,8 +107,56 @@ module.exports = grammar({
       $.path_expression,
       $.number,
       $.string,
+      $.boolean_literal,
+      $.null_literal,
       $.binary_expression,
+      $.between_expression,
+      $.function_call,
       seq('(', $.expression, ')')
+    ),
+
+    boolean_literal: $ => choice(caseInsensitive('TRUE'), caseInsensitive('FALSE')),
+    null_literal: $ => caseInsensitive('NULL'),
+
+    between_expression: $ => prec.left(3, seq(
+      $.expression,
+      optional(caseInsensitive('NOT')),
+      caseInsensitive('BETWEEN'),
+      $.expression,
+      caseInsensitive('AND'),
+      $.expression
+    )),
+
+    function_call: $ => seq(
+      $.path_expression,
+      '(',
+      optional(choice(
+        '*',
+        seq(
+          optional(choice(caseInsensitive('DISTINCT'), caseInsensitive('ALL'))),
+          $.function_arguments,
+          optional($.clamped_between_modifier)
+        )
+      )),
+      ')'
+    ),
+
+    clamped_between_modifier: $ => seq(
+      caseInsensitive('CLAMPED'),
+      caseInsensitive('BETWEEN'),
+      $.expression,
+      caseInsensitive('AND'),
+      $.expression
+    ),
+
+    function_arguments: $ => seq(
+      $.function_argument,
+      repeat(seq(',', $.function_argument))
+    ),
+
+    function_argument: $ => seq(
+      optional(caseInsensitive('SEQUENCE')),
+      $.expression
     ),
 
     path_expression: $ => seq(
@@ -116,11 +164,13 @@ module.exports = grammar({
       repeat(seq('.', choice($.identifier, alias($._identifier_after_dot, $.identifier))))
     ),
 
-    binary_expression: $ => prec.left(1, seq(
-      $.expression,
-      choice('=', '<>', '<', '>', '<=', '>=', '+', '-', '*', '/'),
-      $.expression
-    )),
+    binary_expression: $ => choice(
+      prec.left(1, seq($.expression, caseInsensitive('OR'), $.expression)),
+      prec.left(2, seq($.expression, caseInsensitive('AND'), $.expression)),
+      prec.left(3, seq($.expression, choice('=', '<>', '<', '>', '<=', '>='), $.expression)),
+      prec.left(4, seq($.expression, choice('+', '-'), $.expression)),
+      prec.left(5, seq($.expression, choice('*', '/'), $.expression)),
+    ),
 
     identifier: $ => choice(
       /[a-zA-Z_][a-zA-Z0-9_]*/,

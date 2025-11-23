@@ -53,7 +53,7 @@ npm run generate
 ### Step 5: Verify Fixes
 Run the validation script again to see if the pass rate for your target file has improved.
 ```bash
-npm run validate
+npm run validate -- aggregation
 ```
 You can also run standard Tree-sitter tests if you want to check specific cases:
 ```bash
@@ -65,8 +65,8 @@ npm run test
 | Command | Description |
 | :--- | :--- |
 | `npm run generate` | Rebuilds the parser (C code) from `grammar.js`. Run this after **every** change to `grammar.js`. |
-| `npm run validate` | Parses all corpus files and reports the percentage of tests without errors. |
-| `npm run corpus` | Regenerates `test/corpus/*.txt` from the upstream ZetaSQL `*.test` files. Run this only if you need to refresh the test data. |
+| `npm run validate` | Parses all corpus files and reports the percentage of tests without errors. Can take a filter argument: `npm run validate -- aggregation` |
+| `npm run corpus` | Regenerates `test/corpus/*.txt` from the upstream ZetaSQL `*.test` files. Can take a filter argument: `npm run corpus -- aggregation` |
 | `npm run test` | Runs the standard Tree-sitter test suite (checks `test/corpus` against `grammar.js`). |
 
 ## 5. Instructions for AI Agents

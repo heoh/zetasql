@@ -368,5 +368,29 @@ QueryStatement [0-24] [select func(name=>INPUT)]
                 Identifier(INPUT) [18-23] [INPUT]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (statement [0, 0] - [0, 24]
+    (select_statement [0, 0] - [0, 24]
+      (select_clause [0, 0] - [0, 24]
+        (select_list [0, 7] - [0, 24]
+          (select_expression [0, 7] - [0, 24]
+            (expression [0, 7] - [0, 24]
+              (function_call [0, 7] - [0, 24]
+                (path_expression [0, 7] - [0, 11]
+                  (identifier [0, 7] - [0, 11]))
+                (function_arguments [0, 12] - [0, 23]
+                  (function_argument [0, 12] - [0, 23]
+                    (expression [0, 12] - [0, 23]
+                      (binary_expression [0, 12] - [0, 23]
+                        (expression [0, 12] - [0, 17]
+                          (binary_expression [0, 12] - [0, 17]
+                            (expression [0, 12] - [0, 16]
+                              (path_expression [0, 12] - [0, 16]
+                                (identifier [0, 12] - [0, 16])))
+                            (expression [0, 17] - [0, 17]
+                              (boolean_literal [0, 17] - [0, 17]))))
+                        (expression [0, 18] - [0, 23]
+                          (path_expression [0, 18] - [0, 23]
+                            (identifier [0, 18] - [0, 23]))))))))))))))
+  (comment [2, 0] - [15, 2]))
 

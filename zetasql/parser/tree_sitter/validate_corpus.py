@@ -1,7 +1,8 @@
 import os
 import re
+import argparse
 
-def validate_corpus(corpus_dir):
+def validate_corpus(corpus_dir, file_filter=None):
     total_cases = 0
     passed_cases = 0
     failed_files = {}
@@ -14,6 +15,9 @@ def validate_corpus(corpus_dir):
 
     for filename in sorted(os.listdir(corpus_dir)):
         if not filename.endswith(".txt"):
+            continue
+            
+        if file_filter and file_filter not in filename:
             continue
             
         filepath = os.path.join(corpus_dir, filename)
@@ -56,5 +60,9 @@ def validate_corpus(corpus_dir):
         print("\nNo test cases found.")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Validate Tree-sitter corpus.")
+    parser.add_argument("filter", nargs="?", help="Filter for corpus filenames (e.g., 'aggregation')")
+    args = parser.parse_args()
+
     CORPUS_DIR = os.path.join(os.path.dirname(__file__), "test/corpus")
-    validate_corpus(CORPUS_DIR)
+    validate_corpus(CORPUS_DIR, args.filter)

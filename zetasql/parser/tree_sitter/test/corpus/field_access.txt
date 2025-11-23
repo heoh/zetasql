@@ -153,8 +153,7 @@ QueryStatement [0-29] [select NULL, x from a.b.c.123]
         (select_list [0, 7] - [0, 14]
           (select_expression [0, 7] - [0, 11]
             (expression [0, 7] - [0, 11]
-              (path_expression [0, 7] - [0, 11]
-                (identifier [0, 7] - [0, 11]))))
+              (null_literal [0, 7] - [0, 11])))
           (select_expression [0, 13] - [0, 14]
             (expression [0, 13] - [0, 14]
               (path_expression [0, 13] - [0, 14]
@@ -200,8 +199,7 @@ QueryStatement [0-42] [select NULL....      456]
         (select_list [0, 7] - [0, 14]
           (select_expression [0, 7] - [0, 11]
             (expression [0, 7] - [0, 11]
-              (path_expression [0, 7] - [0, 11]
-                (identifier [0, 7] - [0, 11]))))
+              (null_literal [0, 7] - [0, 11])))
           (select_expression [0, 13] - [0, 14]
             (expression [0, 13] - [0, 14]
               (path_expression [0, 13] - [0, 14]
@@ -364,8 +362,7 @@ QueryStatement [0-35] [select NULL....31daysago]
         (select_list [0, 7] - [0, 14]
           (select_expression [0, 7] - [0, 11]
             (expression [0, 7] - [0, 11]
-              (path_expression [0, 7] - [0, 11]
-                (identifier [0, 7] - [0, 11]))))
+              (null_literal [0, 7] - [0, 11])))
           (select_expression [0, 13] - [0, 14]
             (expression [0, 13] - [0, 14]
               (path_expression [0, 13] - [0, 14]
@@ -413,8 +410,7 @@ QueryStatement [0-35] [select NULL....123 table]
         (select_list [0, 7] - [0, 14]
           (select_expression [0, 7] - [0, 11]
             (expression [0, 7] - [0, 11]
-              (path_expression [0, 7] - [0, 11]
-                (identifier [0, 7] - [0, 11]))))
+              (null_literal [0, 7] - [0, 11])))
           (select_expression [0, 13] - [0, 14]
             (expression [0, 13] - [0, 14]
               (path_expression [0, 13] - [0, 14]
@@ -634,8 +630,7 @@ QueryStatement [0-26] [select null from x.y. 2. z]
         (select_list [0, 7] - [0, 11]
           (select_expression [0, 7] - [0, 11]
             (expression [0, 7] - [0, 11]
-              (path_expression [0, 7] - [0, 11]
-                (identifier [0, 7] - [0, 11]))))))
+              (null_literal [0, 7] - [0, 11])))))
       (from_clause [0, 12] - [0, 26]
         (from_item [0, 17] - [0, 26]
           (table_expression [0, 17] - [0, 26]
@@ -675,8 +670,7 @@ QueryStatement [0-28] [select null from x.y. 2.0. z]
         (select_list [0, 7] - [0, 11]
           (select_expression [0, 7] - [0, 11]
             (expression [0, 7] - [0, 11]
-              (path_expression [0, 7] - [0, 11]
-                (identifier [0, 7] - [0, 11]))))))
+              (null_literal [0, 7] - [0, 11])))))
       (from_clause [0, 12] - [0, 28]
         (from_item [0, 17] - [0, 28]
           (table_expression [0, 17] - [0, 28]

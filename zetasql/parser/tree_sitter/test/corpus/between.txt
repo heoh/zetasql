@@ -51,7 +51,34 @@ QueryStatement [0-36]
               Identifier(D) [35-36]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 36]
+    (select_statement [0, 0] - [0, 36]
+      (select_clause [0, 0] - [0, 36]
+        (select_list [0, 7] - [0, 36]
+          (select_expression [0, 7] - [0, 36]
+            (expression [0, 7] - [0, 36]
+              (binary_expression [0, 7] - [0, 36]
+                (expression [0, 7] - [0, 30]
+                  (binary_expression [0, 7] - [0, 30]
+                    (expression [0, 7] - [0, 24]
+                      (between_expression [0, 7] - [0, 24]
+                        (expression [0, 7] - [0, 8]
+                          (path_expression [0, 7] - [0, 8]
+                            (identifier [0, 7] - [0, 8])))
+                        (expression [0, 17] - [0, 18]
+                          (path_expression [0, 17] - [0, 18]
+                            (identifier [0, 17] - [0, 18])))
+                        (expression [0, 23] - [0, 24]
+                          (path_expression [0, 23] - [0, 24]
+                            (identifier [0, 23] - [0, 24])))))
+                    (expression [0, 29] - [0, 30]
+                      (path_expression [0, 29] - [0, 30]
+                        (identifier [0, 29] - [0, 30])))))
+                (expression [0, 35] - [0, 36]
+                  (path_expression [0, 35] - [0, 36]
+                    (identifier [0, 35] - [0, 36]))))))))))
+  (comment [2, 0] - [21, 2]))
 
 ==================
 Test Case 3
@@ -80,7 +107,36 @@ QueryStatement [0-40]
                 Identifier(D) [38-39]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 40]
+    (select_statement [0, 0] - [0, 40]
+      (select_clause [0, 0] - [0, 40]
+        (select_list [0, 7] - [0, 40]
+          (select_expression [0, 7] - [0, 40]
+            (expression [0, 7] - [0, 40]
+              (between_expression [0, 7] - [0, 40]
+                (expression [0, 7] - [0, 8]
+                  (path_expression [0, 7] - [0, 8]
+                    (identifier [0, 7] - [0, 8])))
+                (expression [0, 17] - [0, 26]
+                  (expression [0, 18] - [0, 25]
+                    (binary_expression [0, 18] - [0, 25]
+                      (expression [0, 18] - [0, 19]
+                        (path_expression [0, 18] - [0, 19]
+                          (identifier [0, 18] - [0, 19])))
+                      (expression [0, 24] - [0, 25]
+                        (path_expression [0, 24] - [0, 25]
+                          (identifier [0, 24] - [0, 25]))))))
+                (expression [0, 31] - [0, 40]
+                  (expression [0, 32] - [0, 39]
+                    (binary_expression [0, 32] - [0, 39]
+                      (expression [0, 32] - [0, 33]
+                        (path_expression [0, 32] - [0, 33]
+                          (identifier [0, 32] - [0, 33])))
+                      (expression [0, 38] - [0, 39]
+                        (path_expression [0, 38] - [0, 39]
+                          (identifier [0, 38] - [0, 39])))))))))))))
+  (comment [2, 0] - [22, 2]))
 
 ==================
 Test Case 4
@@ -109,7 +165,33 @@ QueryStatement [0-42]
               Identifier(d) [41-42]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 42]
+    (select_statement [0, 0] - [0, 42]
+      (select_clause [0, 0] - [0, 42]
+        (select_list [0, 7] - [0, 42]
+          (select_expression [0, 7] - [0, 42]
+            (expression [0, 7] - [0, 42]
+              (between_expression [0, 7] - [0, 42]
+                (expression [0, 7] - [0, 8]
+                  (path_expression [0, 7] - [0, 8]
+                    (identifier [0, 7] - [0, 8])))
+                (expression [0, 17] - [0, 36]
+                  (expression [0, 18] - [0, 35]
+                    (between_expression [0, 18] - [0, 35]
+                      (expression [0, 18] - [0, 19]
+                        (path_expression [0, 18] - [0, 19]
+                          (identifier [0, 18] - [0, 19])))
+                      (expression [0, 28] - [0, 29]
+                        (path_expression [0, 28] - [0, 29]
+                          (identifier [0, 28] - [0, 29])))
+                      (expression [0, 34] - [0, 35]
+                        (path_expression [0, 34] - [0, 35]
+                          (identifier [0, 34] - [0, 35]))))))
+                (expression [0, 41] - [0, 42]
+                  (path_expression [0, 41] - [0, 42]
+                    (identifier [0, 41] - [0, 42]))))))))))
+  (comment [2, 0] - [22, 2]))
 
 ==================
 Test Case 5
@@ -164,7 +246,29 @@ QueryStatement [0-48]
             StringLiteralComponent('B') [45-48]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [23, 2]
+  (statement [0, 0] - [0, 48]
+    (select_statement [0, 0] - [0, 48]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (where_clause [0, 16] - [0, 48]
+        (expression [0, 22] - [0, 48]
+          (between_expression [0, 22] - [0, 48]
+            (expression [0, 22] - [0, 28]
+              (path_expression [0, 22] - [0, 28]
+                (identifier [0, 22] - [0, 23])
+                (identifier [0, 24] - [0, 28])))
+            (expression [0, 37] - [0, 40]
+              (string [0, 37] - [0, 40]))
+            (expression [0, 45] - [0, 48]
+              (string [0, 45] - [0, 48])))))))
+  (comment [2, 0] - [23, 2]))
 
 ==================
 Test Case 7
@@ -187,7 +291,24 @@ QueryStatement [0-24]
               Identifier(z) [23-24]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (statement [0, 0] - [0, 24]
+    (select_statement [0, 0] - [0, 24]
+      (select_clause [0, 0] - [0, 24]
+        (select_list [0, 7] - [0, 24]
+          (select_expression [0, 7] - [0, 24]
+            (expression [0, 7] - [0, 24]
+              (between_expression [0, 7] - [0, 24]
+                (expression [0, 7] - [0, 8]
+                  (path_expression [0, 7] - [0, 8]
+                    (identifier [0, 7] - [0, 8])))
+                (expression [0, 17] - [0, 18]
+                  (path_expression [0, 17] - [0, 18]
+                    (identifier [0, 17] - [0, 18])))
+                (expression [0, 23] - [0, 24]
+                  (path_expression [0, 23] - [0, 24]
+                    (identifier [0, 23] - [0, 24]))))))))))
+  (comment [2, 0] - [16, 2]))
 
 ==================
 Test Case 8

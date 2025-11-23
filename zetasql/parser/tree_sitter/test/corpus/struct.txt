@@ -403,7 +403,24 @@ QueryStatement [0-18] [select struct(1,2)]
               IntLiteral(2) [16-17] [2]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 18]
+    (select_statement [0, 0] - [0, 18]
+      (select_clause [0, 0] - [0, 18]
+        (select_list [0, 7] - [0, 18]
+          (select_expression [0, 7] - [0, 18]
+            (expression [0, 7] - [0, 18]
+              (function_call [0, 7] - [0, 18]
+                (path_expression [0, 7] - [0, 13]
+                  (identifier [0, 7] - [0, 13]))
+                (function_arguments [0, 14] - [0, 17]
+                  (function_argument [0, 14] - [0, 15]
+                    (expression [0, 14] - [0, 15]
+                      (number [0, 14] - [0, 15])))
+                  (function_argument [0, 16] - [0, 17]
+                    (expression [0, 16] - [0, 17]
+                      (number [0, 16] - [0, 17])))))))))))
+  (comment [2, 0] - [13, 2]))
 
 ==================
 Test Case 15
@@ -451,7 +468,26 @@ QueryStatement [0-27] [select struct(), struct<>()]
             StructType [17-25] [struct<>]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [12, 2]
+  (statement [0, 0] - [0, 27]
+    (select_statement [0, 0] - [0, 27]
+      (select_clause [0, 0] - [0, 27]
+        (select_list [0, 7] - [0, 27]
+          (select_expression [0, 7] - [0, 15]
+            (expression [0, 7] - [0, 15]
+              (function_call [0, 7] - [0, 15]
+                (path_expression [0, 7] - [0, 13]
+                  (identifier [0, 7] - [0, 13])))))
+          (select_expression [0, 17] - [0, 27]
+            (expression [0, 17] - [0, 27]
+              (binary_expression [0, 17] - [0, 27]
+                (expression [0, 17] - [0, 23]
+                  (path_expression [0, 17] - [0, 23]
+                    (identifier [0, 17] - [0, 23])))
+                (expression [0, 25] - [0, 27]
+                  (expression [0, 26] - [0, 26]
+                    (boolean_literal [0, 26] - [0, 26]))))))))))
+  (comment [2, 0] - [12, 2]))
 
 ==================
 Test Case 17

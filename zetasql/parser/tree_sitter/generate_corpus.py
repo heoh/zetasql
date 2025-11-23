@@ -1,6 +1,7 @@
 import os
 import subprocess
 import tempfile
+import argparse
 
 def parse_test_file(filepath):
     with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
@@ -67,12 +68,15 @@ def get_tree_sitter_sexp(sql):
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
 
-def generate_corpus(test_dir, output_dir):
+def generate_corpus(test_dir, output_dir, file_filter=None):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     for filename in os.listdir(test_dir):
         if filename.endswith(".test"):
+            if file_filter and file_filter not in filename:
+                continue
+
             filepath = os.path.join(test_dir, filename)
             cases = parse_test_file(filepath)
             
@@ -101,6 +105,10 @@ def generate_corpus(test_dir, output_dir):
                     f.write(f"\n")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate Tree-sitter corpus from ZetaSQL tests.")
+    parser.add_argument("filter", nargs="?", help="Filter for test filenames (e.g., 'aggregation')")
+    args = parser.parse_args()
+
     TEST_DIR = "/mnt/shared/workspaces/opensource/zetasql2/zetasql/zetasql/parser/testdata"
     OUTPUT_DIR = "/mnt/shared/workspaces/opensource/zetasql2/zetasql/zetasql/parser/tree_sitter/test/corpus"
-    generate_corpus(TEST_DIR, OUTPUT_DIR)
+    generate_corpus(TEST_DIR, OUTPUT_DIR, args.filter)

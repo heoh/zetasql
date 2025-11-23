@@ -141,8 +141,7 @@ QueryStatement [0-39] [select f1,...WHERE true]
           (identifier [0, 21] - [0, 28])))
       (where_clause [0, 29] - [0, 39]
         (expression [0, 35] - [0, 39]
-          (path_expression [0, 35] - [0, 39]
-            (identifier [0, 35] - [0, 39]))))))
+          (boolean_literal [0, 35] - [0, 39])))))
   (comment [2, 0] - [21, 2]))
 
 ==================
@@ -192,8 +191,7 @@ QueryStatement [0-43] [select f1,...WHERE false]
           (identifier [0, 24] - [0, 31])))
       (where_clause [0, 32] - [0, 43]
         (expression [0, 38] - [0, 43]
-          (path_expression [0, 38] - [0, 43]
-            (identifier [0, 38] - [0, 43]))))))
+          (boolean_literal [0, 38] - [0, 43])))))
   (comment [2, 0] - [21, 2]))
 
 ==================
