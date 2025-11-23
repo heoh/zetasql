@@ -4,20 +4,582 @@ Test Case 1
 # The parser permits usage of {ROLLUP|CUBE|GROUPING SETS} in the grouping
 # modifier and GROUP_ROWS() in the aggregate expression, but the resolver will
 # not.
-[language_features=NONE,+WITH_GROUP_ROWS]
 select sum(avg(value)
-group by {{key1|key1,key2|()|rollup (key1)|cube (key1)|grouping sets (key1)}}
+group by key1
 ) with group rows(select 1)
 from T group by key3
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: key1
+QueryStatement [0-84] [select sum...group by key3]
+  Query [0-84] [select sum...group by key3]
+    Select [0-84] [select sum...group by key3]
+      SelectList [7-63] [sum(avg(value...(select 1)]
+        SelectColumn [7-63] [sum(avg(value...(select 1)]
+          FunctionCall [7-63] [sum(avg(value...(select 1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            FunctionCall [11-21] [avg(value)]
+              PathExpression [11-14] [avg]
+                Identifier(avg) [11-14] [avg]
+              PathExpression [15-20] [value]
+                Identifier(value) [15-20] [value]
+            GroupBy [22-35] [group by key1]
+              GroupingItem [31-35] [key1]
+                PathExpression [31-35] [key1]
+                  Identifier(key1) [31-35] [key1]
+            WithGroupRows [7-63] [sum(avg(value...(select 1)]
+              Query [54-62] [select 1]
+                Select [54-62] [select 1]
+                  SelectList [61-62] [1]
+                    SelectColumn [61-62] [1]
+                      IntLiteral(1) [61-62] [1]
+      FromClause [64-70] [from T]
+        TablePathExpression [69-70] [T]
+          PathExpression [69-70] [T]
+            Identifier(T) [69-70] [T]
+      GroupBy [71-84] [group by key3]
+        GroupingItem [80-84] [key3]
+          PathExpression [80-84] [key3]
+            Identifier(key3) [80-84] [key3]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [40, 2]
+  (comment [0, 0] - [0, 73])
+  (comment [1, 0] - [1, 78])
+  (comment [2, 0] - [2, 6])
+  (statement [3, 0] - [6, 20]
+    (select_statement [3, 0] - [6, 20]
+      (select_clause [3, 0] - [5, 27]
+        (select_list [3, 7] - [5, 27]
+          (select_expression [3, 7] - [5, 27]
+            (expression [3, 7] - [5, 27]
+              (function_call [3, 7] - [5, 27]
+                (path_expression [3, 7] - [3, 10]
+                  (identifier [3, 7] - [3, 10]))
+                (function_arguments [3, 11] - [3, 21]
+                  (function_argument [3, 11] - [3, 21]
+                    (expression [3, 11] - [3, 21]
+                      (function_call [3, 11] - [3, 21]
+                        (path_expression [3, 11] - [3, 14]
+                          (identifier [3, 11] - [3, 14]))
+                        (function_arguments [3, 15] - [3, 20]
+                          (function_argument [3, 15] - [3, 20]
+                            (expression [3, 15] - [3, 20]
+                              (path_expression [3, 15] - [3, 20]
+                                (identifier [3, 15] - [3, 20])))))))))
+                (group_by_clause [4, 0] - [4, 13]
+                  (grouping_item_list [4, 9] - [4, 13]
+                    (grouping_item [4, 9] - [4, 13]
+                      (expression [4, 9] - [4, 13]
+                        (path_expression [4, 9] - [4, 13]
+                          (identifier [4, 9] - [4, 13]))))))
+                (with_group_rows_modifier [5, 2] - [5, 27]
+                  (select_statement [5, 18] - [5, 26]
+                    (select_clause [5, 18] - [5, 26]
+                      (select_list [5, 25] - [5, 26]
+                        (select_expression [5, 25] - [5, 26]
+                          (expression [5, 25] - [5, 26]
+                            (number [5, 25] - [5, 26]))))))))))))
+      (from_clause [6, 0] - [6, 6]
+        (from_item [6, 5] - [6, 6]
+          (table_expression [6, 5] - [6, 6]
+            (path_expression [6, 5] - [6, 6]
+              (identifier [6, 5] - [6, 6])))))
+      (group_by_clause [6, 7] - [6, 20]
+        (grouping_item_list [6, 16] - [6, 20]
+          (grouping_item [6, 16] - [6, 20]
+            (expression [6, 16] - [6, 20]
+              (path_expression [6, 16] - [6, 20]
+                (identifier [6, 16] - [6, 20]))))))))
+  (comment [8, 0] - [40, 2]))
 
 ==================
 Test Case 2
+==================
+# The parser permits usage of {ROLLUP|CUBE|GROUPING SETS} in the grouping
+# modifier and GROUP_ROWS() in the aggregate expression, but the resolver will
+# not.
+select sum(avg(value)
+group by key1,key2
+) with group rows(select 1)
+from T group by key3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-89] [select sum...group by key3]
+  Query [0-89] [select sum...group by key3]
+    Select [0-89] [select sum...group by key3]
+      SelectList [7-68] [sum(avg(value...(select 1)]
+        SelectColumn [7-68] [sum(avg(value...(select 1)]
+          FunctionCall [7-68] [sum(avg(value...(select 1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            FunctionCall [11-21] [avg(value)]
+              PathExpression [11-14] [avg]
+                Identifier(avg) [11-14] [avg]
+              PathExpression [15-20] [value]
+                Identifier(value) [15-20] [value]
+            GroupBy [22-40] [group by key1,key2]
+              GroupingItem [31-35] [key1]
+                PathExpression [31-35] [key1]
+                  Identifier(key1) [31-35] [key1]
+              GroupingItem [36-40] [key2]
+                PathExpression [36-40] [key2]
+                  Identifier(key2) [36-40] [key2]
+            WithGroupRows [7-68] [sum(avg(value...(select 1)]
+              Query [59-67] [select 1]
+                Select [59-67] [select 1]
+                  SelectList [66-67] [1]
+                    SelectColumn [66-67] [1]
+                      IntLiteral(1) [66-67] [1]
+      FromClause [69-75] [from T]
+        TablePathExpression [74-75] [T]
+          PathExpression [74-75] [T]
+            Identifier(T) [74-75] [T]
+      GroupBy [76-89] [group by key3]
+        GroupingItem [85-89] [key3]
+          PathExpression [85-89] [key3]
+            Identifier(key3) [85-89] [key3]
+*/
+---
+(source_file [0, 0] - [43, 2]
+  (comment [0, 0] - [0, 73])
+  (comment [1, 0] - [1, 78])
+  (comment [2, 0] - [2, 6])
+  (statement [3, 0] - [6, 20]
+    (select_statement [3, 0] - [6, 20]
+      (select_clause [3, 0] - [5, 27]
+        (select_list [3, 7] - [5, 27]
+          (select_expression [3, 7] - [5, 27]
+            (expression [3, 7] - [5, 27]
+              (function_call [3, 7] - [5, 27]
+                (path_expression [3, 7] - [3, 10]
+                  (identifier [3, 7] - [3, 10]))
+                (function_arguments [3, 11] - [3, 21]
+                  (function_argument [3, 11] - [3, 21]
+                    (expression [3, 11] - [3, 21]
+                      (function_call [3, 11] - [3, 21]
+                        (path_expression [3, 11] - [3, 14]
+                          (identifier [3, 11] - [3, 14]))
+                        (function_arguments [3, 15] - [3, 20]
+                          (function_argument [3, 15] - [3, 20]
+                            (expression [3, 15] - [3, 20]
+                              (path_expression [3, 15] - [3, 20]
+                                (identifier [3, 15] - [3, 20])))))))))
+                (group_by_clause [4, 0] - [4, 18]
+                  (grouping_item_list [4, 9] - [4, 18]
+                    (grouping_item [4, 9] - [4, 13]
+                      (expression [4, 9] - [4, 13]
+                        (path_expression [4, 9] - [4, 13]
+                          (identifier [4, 9] - [4, 13]))))
+                    (grouping_item [4, 14] - [4, 18]
+                      (expression [4, 14] - [4, 18]
+                        (path_expression [4, 14] - [4, 18]
+                          (identifier [4, 14] - [4, 18]))))))
+                (with_group_rows_modifier [5, 2] - [5, 27]
+                  (select_statement [5, 18] - [5, 26]
+                    (select_clause [5, 18] - [5, 26]
+                      (select_list [5, 25] - [5, 26]
+                        (select_expression [5, 25] - [5, 26]
+                          (expression [5, 25] - [5, 26]
+                            (number [5, 25] - [5, 26]))))))))))))
+      (from_clause [6, 0] - [6, 6]
+        (from_item [6, 5] - [6, 6]
+          (table_expression [6, 5] - [6, 6]
+            (path_expression [6, 5] - [6, 6]
+              (identifier [6, 5] - [6, 6])))))
+      (group_by_clause [6, 7] - [6, 20]
+        (grouping_item_list [6, 16] - [6, 20]
+          (grouping_item [6, 16] - [6, 20]
+            (expression [6, 16] - [6, 20]
+              (path_expression [6, 16] - [6, 20]
+                (identifier [6, 16] - [6, 20]))))))))
+  (comment [8, 0] - [43, 2]))
+
+==================
+Test Case 3
+==================
+# The parser permits usage of {ROLLUP|CUBE|GROUPING SETS} in the grouping
+# modifier and GROUP_ROWS() in the aggregate expression, but the resolver will
+# not.
+select sum(avg(value)
+group by ()
+) with group rows(select 1)
+from T group by key3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-82] [select sum...group by key3]
+  Query [0-82] [select sum...group by key3]
+    Select [0-82] [select sum...group by key3]
+      SelectList [7-61] [sum(avg(value...(select 1)]
+        SelectColumn [7-61] [sum(avg(value...(select 1)]
+          FunctionCall [7-61] [sum(avg(value...(select 1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            FunctionCall [11-21] [avg(value)]
+              PathExpression [11-14] [avg]
+                Identifier(avg) [11-14] [avg]
+              PathExpression [15-20] [value]
+                Identifier(value) [15-20] [value]
+            GroupBy [22-33] [group by ()]
+              GroupingItem [31-33] [()]
+            WithGroupRows [7-61] [sum(avg(value...(select 1)]
+              Query [52-60] [select 1]
+                Select [52-60] [select 1]
+                  SelectList [59-60] [1]
+                    SelectColumn [59-60] [1]
+                      IntLiteral(1) [59-60] [1]
+      FromClause [62-68] [from T]
+        TablePathExpression [67-68] [T]
+          PathExpression [67-68] [T]
+            Identifier(T) [67-68] [T]
+      GroupBy [69-82] [group by key3]
+        GroupingItem [78-82] [key3]
+          PathExpression [78-82] [key3]
+            Identifier(key3) [78-82] [key3]
+*/
+---
+(source_file [0, 0] - [38, 2]
+  (comment [0, 0] - [0, 73])
+  (comment [1, 0] - [1, 78])
+  (comment [2, 0] - [2, 6])
+  (statement [3, 0] - [6, 20]
+    (select_statement [3, 0] - [6, 20]
+      (select_clause [3, 0] - [5, 27]
+        (select_list [3, 7] - [5, 27]
+          (select_expression [3, 7] - [5, 27]
+            (expression [3, 7] - [5, 27]
+              (function_call [3, 7] - [5, 27]
+                (path_expression [3, 7] - [3, 10]
+                  (identifier [3, 7] - [3, 10]))
+                (function_arguments [3, 11] - [3, 21]
+                  (function_argument [3, 11] - [3, 21]
+                    (expression [3, 11] - [3, 21]
+                      (function_call [3, 11] - [3, 21]
+                        (path_expression [3, 11] - [3, 14]
+                          (identifier [3, 11] - [3, 14]))
+                        (function_arguments [3, 15] - [3, 20]
+                          (function_argument [3, 15] - [3, 20]
+                            (expression [3, 15] - [3, 20]
+                              (path_expression [3, 15] - [3, 20]
+                                (identifier [3, 15] - [3, 20])))))))))
+                (group_by_clause [4, 0] - [4, 11]
+                  (grouping_item_list [4, 9] - [4, 11]
+                    (grouping_item [4, 9] - [4, 11])))
+                (with_group_rows_modifier [5, 2] - [5, 27]
+                  (select_statement [5, 18] - [5, 26]
+                    (select_clause [5, 18] - [5, 26]
+                      (select_list [5, 25] - [5, 26]
+                        (select_expression [5, 25] - [5, 26]
+                          (expression [5, 25] - [5, 26]
+                            (number [5, 25] - [5, 26]))))))))))))
+      (from_clause [6, 0] - [6, 6]
+        (from_item [6, 5] - [6, 6]
+          (table_expression [6, 5] - [6, 6]
+            (path_expression [6, 5] - [6, 6]
+              (identifier [6, 5] - [6, 6])))))
+      (group_by_clause [6, 7] - [6, 20]
+        (grouping_item_list [6, 16] - [6, 20]
+          (grouping_item [6, 16] - [6, 20]
+            (expression [6, 16] - [6, 20]
+              (path_expression [6, 16] - [6, 20]
+                (identifier [6, 16] - [6, 20]))))))))
+  (comment [8, 0] - [38, 2]))
+
+==================
+Test Case 4
+==================
+# The parser permits usage of {ROLLUP|CUBE|GROUPING SETS} in the grouping
+# modifier and GROUP_ROWS() in the aggregate expression, but the resolver will
+# not.
+select sum(avg(value)
+group by rollup (key1)
+) with group rows(select 1)
+from T group by key3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-93] [select sum...group by key3]
+  Query [0-93] [select sum...group by key3]
+    Select [0-93] [select sum...group by key3]
+      SelectList [7-72] [sum(avg(value...(select 1)]
+        SelectColumn [7-72] [sum(avg(value...(select 1)]
+          FunctionCall [7-72] [sum(avg(value...(select 1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            FunctionCall [11-21] [avg(value)]
+              PathExpression [11-14] [avg]
+                Identifier(avg) [11-14] [avg]
+              PathExpression [15-20] [value]
+                Identifier(value) [15-20] [value]
+            GroupBy [22-44] [group by rollup (key1)]
+              GroupingItem [31-44] [rollup (key1)]
+                Rollup [31-44] [rollup (key1)]
+                  PathExpression [39-43] [key1]
+                    Identifier(key1) [39-43] [key1]
+            WithGroupRows [7-72] [sum(avg(value...(select 1)]
+              Query [63-71] [select 1]
+                Select [63-71] [select 1]
+                  SelectList [70-71] [1]
+                    SelectColumn [70-71] [1]
+                      IntLiteral(1) [70-71] [1]
+      FromClause [73-79] [from T]
+        TablePathExpression [78-79] [T]
+          PathExpression [78-79] [T]
+            Identifier(T) [78-79] [T]
+      GroupBy [80-93] [group by key3]
+        GroupingItem [89-93] [key3]
+          PathExpression [89-93] [key3]
+            Identifier(key3) [89-93] [key3]
+*/
+---
+(source_file [0, 0] - [41, 2]
+  (comment [0, 0] - [0, 73])
+  (comment [1, 0] - [1, 78])
+  (comment [2, 0] - [2, 6])
+  (statement [3, 0] - [6, 20]
+    (select_statement [3, 0] - [6, 20]
+      (select_clause [3, 0] - [5, 27]
+        (select_list [3, 7] - [5, 27]
+          (select_expression [3, 7] - [5, 27]
+            (expression [3, 7] - [5, 27]
+              (function_call [3, 7] - [5, 27]
+                (path_expression [3, 7] - [3, 10]
+                  (identifier [3, 7] - [3, 10]))
+                (function_arguments [3, 11] - [3, 21]
+                  (function_argument [3, 11] - [3, 21]
+                    (expression [3, 11] - [3, 21]
+                      (function_call [3, 11] - [3, 21]
+                        (path_expression [3, 11] - [3, 14]
+                          (identifier [3, 11] - [3, 14]))
+                        (function_arguments [3, 15] - [3, 20]
+                          (function_argument [3, 15] - [3, 20]
+                            (expression [3, 15] - [3, 20]
+                              (path_expression [3, 15] - [3, 20]
+                                (identifier [3, 15] - [3, 20])))))))))
+                (group_by_clause [4, 0] - [4, 22]
+                  (grouping_item_list [4, 9] - [4, 22]
+                    (grouping_item [4, 9] - [4, 22]
+                      (expression_list [4, 17] - [4, 21]
+                        (expression [4, 17] - [4, 21]
+                          (path_expression [4, 17] - [4, 21]
+                            (identifier [4, 17] - [4, 21])))))))
+                (with_group_rows_modifier [5, 2] - [5, 27]
+                  (select_statement [5, 18] - [5, 26]
+                    (select_clause [5, 18] - [5, 26]
+                      (select_list [5, 25] - [5, 26]
+                        (select_expression [5, 25] - [5, 26]
+                          (expression [5, 25] - [5, 26]
+                            (number [5, 25] - [5, 26]))))))))))))
+      (from_clause [6, 0] - [6, 6]
+        (from_item [6, 5] - [6, 6]
+          (table_expression [6, 5] - [6, 6]
+            (path_expression [6, 5] - [6, 6]
+              (identifier [6, 5] - [6, 6])))))
+      (group_by_clause [6, 7] - [6, 20]
+        (grouping_item_list [6, 16] - [6, 20]
+          (grouping_item [6, 16] - [6, 20]
+            (expression [6, 16] - [6, 20]
+              (path_expression [6, 16] - [6, 20]
+                (identifier [6, 16] - [6, 20]))))))))
+  (comment [8, 0] - [41, 2]))
+
+==================
+Test Case 5
+==================
+# The parser permits usage of {ROLLUP|CUBE|GROUPING SETS} in the grouping
+# modifier and GROUP_ROWS() in the aggregate expression, but the resolver will
+# not.
+select sum(avg(value)
+group by cube (key1)
+) with group rows(select 1)
+from T group by key3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-91] [select sum...group by key3]
+  Query [0-91] [select sum...group by key3]
+    Select [0-91] [select sum...group by key3]
+      SelectList [7-70] [sum(avg(value...(select 1)]
+        SelectColumn [7-70] [sum(avg(value...(select 1)]
+          FunctionCall [7-70] [sum(avg(value...(select 1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            FunctionCall [11-21] [avg(value)]
+              PathExpression [11-14] [avg]
+                Identifier(avg) [11-14] [avg]
+              PathExpression [15-20] [value]
+                Identifier(value) [15-20] [value]
+            GroupBy [22-42] [group by cube (key1)]
+              GroupingItem [31-42] [cube (key1)]
+                Cube [31-42] [cube (key1)]
+                  PathExpression [37-41] [key1]
+                    Identifier(key1) [37-41] [key1]
+            WithGroupRows [7-70] [sum(avg(value...(select 1)]
+              Query [61-69] [select 1]
+                Select [61-69] [select 1]
+                  SelectList [68-69] [1]
+                    SelectColumn [68-69] [1]
+                      IntLiteral(1) [68-69] [1]
+      FromClause [71-77] [from T]
+        TablePathExpression [76-77] [T]
+          PathExpression [76-77] [T]
+            Identifier(T) [76-77] [T]
+      GroupBy [78-91] [group by key3]
+        GroupingItem [87-91] [key3]
+          PathExpression [87-91] [key3]
+            Identifier(key3) [87-91] [key3]
+*/
+---
+(source_file [0, 0] - [41, 2]
+  (comment [0, 0] - [0, 73])
+  (comment [1, 0] - [1, 78])
+  (comment [2, 0] - [2, 6])
+  (statement [3, 0] - [6, 20]
+    (select_statement [3, 0] - [6, 20]
+      (select_clause [3, 0] - [5, 27]
+        (select_list [3, 7] - [5, 27]
+          (select_expression [3, 7] - [5, 27]
+            (expression [3, 7] - [5, 27]
+              (function_call [3, 7] - [5, 27]
+                (path_expression [3, 7] - [3, 10]
+                  (identifier [3, 7] - [3, 10]))
+                (function_arguments [3, 11] - [3, 21]
+                  (function_argument [3, 11] - [3, 21]
+                    (expression [3, 11] - [3, 21]
+                      (function_call [3, 11] - [3, 21]
+                        (path_expression [3, 11] - [3, 14]
+                          (identifier [3, 11] - [3, 14]))
+                        (function_arguments [3, 15] - [3, 20]
+                          (function_argument [3, 15] - [3, 20]
+                            (expression [3, 15] - [3, 20]
+                              (path_expression [3, 15] - [3, 20]
+                                (identifier [3, 15] - [3, 20])))))))))
+                (group_by_clause [4, 0] - [4, 20]
+                  (grouping_item_list [4, 9] - [4, 20]
+                    (grouping_item [4, 9] - [4, 20]
+                      (expression_list [4, 15] - [4, 19]
+                        (expression [4, 15] - [4, 19]
+                          (path_expression [4, 15] - [4, 19]
+                            (identifier [4, 15] - [4, 19])))))))
+                (with_group_rows_modifier [5, 2] - [5, 27]
+                  (select_statement [5, 18] - [5, 26]
+                    (select_clause [5, 18] - [5, 26]
+                      (select_list [5, 25] - [5, 26]
+                        (select_expression [5, 25] - [5, 26]
+                          (expression [5, 25] - [5, 26]
+                            (number [5, 25] - [5, 26]))))))))))))
+      (from_clause [6, 0] - [6, 6]
+        (from_item [6, 5] - [6, 6]
+          (table_expression [6, 5] - [6, 6]
+            (path_expression [6, 5] - [6, 6]
+              (identifier [6, 5] - [6, 6])))))
+      (group_by_clause [6, 7] - [6, 20]
+        (grouping_item_list [6, 16] - [6, 20]
+          (grouping_item [6, 16] - [6, 20]
+            (expression [6, 16] - [6, 20]
+              (path_expression [6, 16] - [6, 20]
+                (identifier [6, 16] - [6, 20]))))))))
+  (comment [8, 0] - [41, 2]))
+
+==================
+Test Case 6
+==================
+# The parser permits usage of {ROLLUP|CUBE|GROUPING SETS} in the grouping
+# modifier and GROUP_ROWS() in the aggregate expression, but the resolver will
+# not.
+select sum(avg(value)
+group by grouping sets (key1)
+) with group rows(select 1)
+from T group by key3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-100] [select sum...group by key3]
+  Query [0-100] [select sum...group by key3]
+    Select [0-100] [select sum...group by key3]
+      SelectList [7-79] [sum(avg(value...(select 1)]
+        SelectColumn [7-79] [sum(avg(value...(select 1)]
+          FunctionCall [7-79] [sum(avg(value...(select 1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            FunctionCall [11-21] [avg(value)]
+              PathExpression [11-14] [avg]
+                Identifier(avg) [11-14] [avg]
+              PathExpression [15-20] [value]
+                Identifier(value) [15-20] [value]
+            GroupBy [22-51] [group by grouping sets (key1)]
+              GroupingItem [31-51] [grouping sets (key1)]
+                GroupingSetList [31-51] [grouping sets (key1)]
+                  GroupingSet [46-50] [key1]
+                    PathExpression [46-50] [key1]
+                      Identifier(key1) [46-50] [key1]
+            WithGroupRows [7-79] [sum(avg(value...(select 1)]
+              Query [70-78] [select 1]
+                Select [70-78] [select 1]
+                  SelectList [77-78] [1]
+                    SelectColumn [77-78] [1]
+                      IntLiteral(1) [77-78] [1]
+      FromClause [80-86] [from T]
+        TablePathExpression [85-86] [T]
+          PathExpression [85-86] [T]
+            Identifier(T) [85-86] [T]
+      GroupBy [87-100] [group by key3]
+        GroupingItem [96-100] [key3]
+          PathExpression [96-100] [key3]
+            Identifier(key3) [96-100] [key3]
+*/
+---
+(source_file [0, 0] - [42, 2]
+  (comment [0, 0] - [0, 73])
+  (comment [1, 0] - [1, 78])
+  (comment [2, 0] - [2, 6])
+  (statement [3, 0] - [6, 20]
+    (select_statement [3, 0] - [6, 20]
+      (select_clause [3, 0] - [5, 27]
+        (select_list [3, 7] - [5, 27]
+          (select_expression [3, 7] - [5, 27]
+            (expression [3, 7] - [5, 27]
+              (function_call [3, 7] - [5, 27]
+                (path_expression [3, 7] - [3, 10]
+                  (identifier [3, 7] - [3, 10]))
+                (function_arguments [3, 11] - [3, 21]
+                  (function_argument [3, 11] - [3, 21]
+                    (expression [3, 11] - [3, 21]
+                      (function_call [3, 11] - [3, 21]
+                        (path_expression [3, 11] - [3, 14]
+                          (identifier [3, 11] - [3, 14]))
+                        (function_arguments [3, 15] - [3, 20]
+                          (function_argument [3, 15] - [3, 20]
+                            (expression [3, 15] - [3, 20]
+                              (path_expression [3, 15] - [3, 20]
+                                (identifier [3, 15] - [3, 20])))))))))
+                (group_by_clause [4, 0] - [4, 29]
+                  (grouping_item_list [4, 9] - [4, 29]
+                    (grouping_item [4, 9] - [4, 29]
+                      (grouping_item_list [4, 24] - [4, 28]
+                        (grouping_item [4, 24] - [4, 28]
+                          (expression [4, 24] - [4, 28]
+                            (path_expression [4, 24] - [4, 28]
+                              (identifier [4, 24] - [4, 28]))))))))
+                (with_group_rows_modifier [5, 2] - [5, 27]
+                  (select_statement [5, 18] - [5, 26]
+                    (select_clause [5, 18] - [5, 26]
+                      (select_list [5, 25] - [5, 26]
+                        (select_expression [5, 25] - [5, 26]
+                          (expression [5, 25] - [5, 26]
+                            (number [5, 25] - [5, 26]))))))))))))
+      (from_clause [6, 0] - [6, 6]
+        (from_item [6, 5] - [6, 6]
+          (table_expression [6, 5] - [6, 6]
+            (path_expression [6, 5] - [6, 6]
+              (identifier [6, 5] - [6, 6])))))
+      (group_by_clause [6, 7] - [6, 20]
+        (grouping_item_list [6, 16] - [6, 20]
+          (grouping_item [6, 16] - [6, 20]
+            (expression [6, 16] - [6, 20]
+              (path_expression [6, 16] - [6, 20]
+                (identifier [6, 16] - [6, 20]))))))))
+  (comment [8, 0] - [42, 2]))
+
+==================
+Test Case 7
 ==================
 # The parser allows group by with a hint, but the resolver will not.
 select sum(avg(value) group @1 by key1) from T
@@ -48,22 +610,189 @@ QueryStatement [0-46] [select sum...key1) from T]
             Identifier(T) [45-46] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [27, 2]
+  (comment [0, 0] - [0, 68])
+  (statement [1, 0] - [1, 46]
+    (select_statement [1, 0] - [1, 46]
+      (select_clause [1, 0] - [1, 39]
+        (select_list [1, 7] - [1, 39]
+          (select_expression [1, 7] - [1, 39]
+            (expression [1, 7] - [1, 39]
+              (function_call [1, 7] - [1, 39]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 11] - [1, 21]
+                  (function_argument [1, 11] - [1, 21]
+                    (expression [1, 11] - [1, 21]
+                      (function_call [1, 11] - [1, 21]
+                        (path_expression [1, 11] - [1, 14]
+                          (identifier [1, 11] - [1, 14]))
+                        (function_arguments [1, 15] - [1, 20]
+                          (function_argument [1, 15] - [1, 20]
+                            (expression [1, 15] - [1, 20]
+                              (path_expression [1, 15] - [1, 20]
+                                (identifier [1, 15] - [1, 20])))))))))
+                (group_by_clause [1, 22] - [1, 38]
+                  (hint [1, 28] - [1, 30]
+                    (number [1, 29] - [1, 30]))
+                  (grouping_item_list [1, 34] - [1, 38]
+                    (grouping_item [1, 34] - [1, 38]
+                      (expression [1, 34] - [1, 38]
+                        (path_expression [1, 34] - [1, 38]
+                          (identifier [1, 34] - [1, 38])))))))))))
+      (from_clause [1, 40] - [1, 46]
+        (from_item [1, 45] - [1, 46]
+          (table_expression [1, 45] - [1, 46]
+            (path_expression [1, 45] - [1, 46]
+              (identifier [1, 45] - [1, 46])))))))
+  (comment [3, 0] - [27, 2]))
 
 ==================
-Test Case 3
+Test Case 8
 ==================
 # The parser allows group by alongside having min/max but the resolver will not.
-select sum(avg(value) having {{max|min}} value2 group by key1) from T
+select sum(avg(value) having max value2 group by key1) from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: max
+QueryStatement [0-61] [select sum...key1) from T]
+  Query [0-61] [select sum...key1) from T]
+    Select [0-61] [select sum...key1) from T]
+      SelectList [7-54] [sum(avg(value...group by key1)]
+        SelectColumn [7-54] [sum(avg(value...group by key1)]
+          FunctionCall [7-54] [sum(avg(value...group by key1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            FunctionCall [11-21] [avg(value)]
+              PathExpression [11-14] [avg]
+                Identifier(avg) [11-14] [avg]
+              PathExpression [15-20] [value]
+                Identifier(value) [15-20] [value]
+            HavingModifier [22-39] [having max value2]
+              PathExpression [33-39] [value2]
+                Identifier(value2) [33-39] [value2]
+            GroupBy [40-53] [group by key1]
+              GroupingItem [49-53] [key1]
+                PathExpression [49-53] [key1]
+                  Identifier(key1) [49-53] [key1]
+      FromClause [55-61] [from T]
+        TablePathExpression [60-61] [T]
+          PathExpression [60-61] [T]
+            Identifier(T) [60-61] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [28, 2]
+  (comment [0, 0] - [0, 80])
+  (statement [1, 0] - [1, 61]
+    (select_statement [1, 0] - [1, 61]
+      (select_clause [1, 0] - [1, 54]
+        (select_list [1, 7] - [1, 54]
+          (select_expression [1, 7] - [1, 54]
+            (expression [1, 7] - [1, 54]
+              (function_call [1, 7] - [1, 54]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 11] - [1, 21]
+                  (function_argument [1, 11] - [1, 21]
+                    (expression [1, 11] - [1, 21]
+                      (function_call [1, 11] - [1, 21]
+                        (path_expression [1, 11] - [1, 14]
+                          (identifier [1, 11] - [1, 14]))
+                        (function_arguments [1, 15] - [1, 20]
+                          (function_argument [1, 15] - [1, 20]
+                            (expression [1, 15] - [1, 20]
+                              (path_expression [1, 15] - [1, 20]
+                                (identifier [1, 15] - [1, 20])))))))))
+                (having_modifier [1, 22] - [1, 39]
+                  (expression [1, 33] - [1, 39]
+                    (path_expression [1, 33] - [1, 39]
+                      (identifier [1, 33] - [1, 39]))))
+                (group_by_clause [1, 40] - [1, 53]
+                  (grouping_item_list [1, 49] - [1, 53]
+                    (grouping_item [1, 49] - [1, 53]
+                      (expression [1, 49] - [1, 53]
+                        (path_expression [1, 49] - [1, 53]
+                          (identifier [1, 49] - [1, 53])))))))))))
+      (from_clause [1, 55] - [1, 61]
+        (from_item [1, 60] - [1, 61]
+          (table_expression [1, 60] - [1, 61]
+            (path_expression [1, 60] - [1, 61]
+              (identifier [1, 60] - [1, 61])))))))
+  (comment [3, 0] - [28, 2]))
 
 ==================
-Test Case 4
+Test Case 9
+==================
+# The parser allows group by alongside having min/max but the resolver will not.
+select sum(avg(value) having min value2 group by key1) from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-61] [select sum...key1) from T]
+  Query [0-61] [select sum...key1) from T]
+    Select [0-61] [select sum...key1) from T]
+      SelectList [7-54] [sum(avg(value...group by key1)]
+        SelectColumn [7-54] [sum(avg(value...group by key1)]
+          FunctionCall [7-54] [sum(avg(value...group by key1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            FunctionCall [11-21] [avg(value)]
+              PathExpression [11-14] [avg]
+                Identifier(avg) [11-14] [avg]
+              PathExpression [15-20] [value]
+                Identifier(value) [15-20] [value]
+            HavingModifier [22-39] [having min value2]
+              PathExpression [33-39] [value2]
+                Identifier(value2) [33-39] [value2]
+            GroupBy [40-53] [group by key1]
+              GroupingItem [49-53] [key1]
+                PathExpression [49-53] [key1]
+                  Identifier(key1) [49-53] [key1]
+      FromClause [55-61] [from T]
+        TablePathExpression [60-61] [T]
+          PathExpression [60-61] [T]
+            Identifier(T) [60-61] [T]
+*/
+---
+(source_file [0, 0] - [28, 2]
+  (comment [0, 0] - [0, 80])
+  (statement [1, 0] - [1, 61]
+    (select_statement [1, 0] - [1, 61]
+      (select_clause [1, 0] - [1, 54]
+        (select_list [1, 7] - [1, 54]
+          (select_expression [1, 7] - [1, 54]
+            (expression [1, 7] - [1, 54]
+              (function_call [1, 7] - [1, 54]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 11] - [1, 21]
+                  (function_argument [1, 11] - [1, 21]
+                    (expression [1, 11] - [1, 21]
+                      (function_call [1, 11] - [1, 21]
+                        (path_expression [1, 11] - [1, 14]
+                          (identifier [1, 11] - [1, 14]))
+                        (function_arguments [1, 15] - [1, 20]
+                          (function_argument [1, 15] - [1, 20]
+                            (expression [1, 15] - [1, 20]
+                              (path_expression [1, 15] - [1, 20]
+                                (identifier [1, 15] - [1, 20])))))))))
+                (having_modifier [1, 22] - [1, 39]
+                  (expression [1, 33] - [1, 39]
+                    (path_expression [1, 33] - [1, 39]
+                      (identifier [1, 33] - [1, 39]))))
+                (group_by_clause [1, 40] - [1, 53]
+                  (grouping_item_list [1, 49] - [1, 53]
+                    (grouping_item [1, 49] - [1, 53]
+                      (expression [1, 49] - [1, 53]
+                        (path_expression [1, 49] - [1, 53]
+                          (identifier [1, 49] - [1, 53])))))))))))
+      (from_clause [1, 55] - [1, 61]
+        (from_item [1, 60] - [1, 61]
+          (table_expression [1, 60] - [1, 61]
+            (path_expression [1, 60] - [1, 61]
+              (identifier [1, 60] - [1, 61])))))))
+  (comment [3, 0] - [28, 2]))
+
+==================
+Test Case 10
 ==================
 # Aggregate modifiers are allowed at any nesting of a multi-level aggregate
 # function call. The resolver permits these clauses, but disallows the group by
@@ -129,10 +858,84 @@ QueryStatement [0-211] [select   sum...() from T]
             Identifier(T) [210-211] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [62, 2]
+  (comment [0, 0] - [0, 75])
+  (comment [1, 0] - [1, 79])
+  (comment [2, 0] - [2, 71])
+  (statement [3, 0] - [10, 6]
+    (select_statement [3, 0] - [10, 6]
+      (select_clause [3, 0] - [9, 11]
+        (select_list [4, 2] - [9, 11]
+          (select_expression [4, 2] - [9, 11]
+            (expression [4, 2] - [9, 11]
+              (function_call [4, 2] - [9, 11]
+                (path_expression [4, 2] - [4, 5]
+                  (identifier [4, 2] - [4, 5]))
+                (function_arguments [6, 6] - [7, 64]
+                  (function_argument [6, 6] - [7, 64]
+                    (expression [6, 6] - [7, 64]
+                      (function_call [6, 6] - [7, 64]
+                        (path_expression [6, 6] - [6, 9]
+                          (identifier [6, 6] - [6, 9]))
+                        (function_arguments [6, 19] - [6, 24]
+                          (function_argument [6, 19] - [6, 24]
+                            (expression [6, 19] - [6, 24]
+                              (path_expression [6, 19] - [6, 24]
+                                (identifier [6, 19] - [6, 24])))))
+                        (null_handling_modifier [6, 25] - [6, 38])
+                        (where_clause [6, 39] - [6, 55]
+                          (expression [6, 45] - [6, 55]
+                            (binary_expression [6, 45] - [6, 55]
+                              (expression [6, 45] - [6, 50]
+                                (path_expression [6, 45] - [6, 50]
+                                  (identifier [6, 45] - [6, 50])))
+                              (expression [6, 53] - [6, 55]
+                                (number [6, 53] - [6, 55])))))
+                        (group_by_clause [7, 6] - [7, 19]
+                          (grouping_item_list [7, 15] - [7, 19]
+                            (grouping_item [7, 15] - [7, 19]
+                              (expression [7, 15] - [7, 19]
+                                (path_expression [7, 15] - [7, 19]
+                                  (identifier [7, 15] - [7, 19]))))))
+                        (having_clause [7, 20] - [7, 41]
+                          (expression [7, 27] - [7, 41]
+                            (binary_expression [7, 27] - [7, 41]
+                              (expression [7, 27] - [7, 35]
+                                (function_call [7, 27] - [7, 35]
+                                  (path_expression [7, 27] - [7, 32]
+                                    (identifier [7, 27] - [7, 32]))))
+                              (expression [7, 38] - [7, 41]
+                                (number [7, 38] - [7, 41])))))
+                        (order_by_clause [7, 42] - [7, 55]
+                          (order_expression_list [7, 51] - [7, 55]
+                            (order_expression [7, 51] - [7, 55]
+                              (expression [7, 51] - [7, 55]
+                                (path_expression [7, 51] - [7, 55]
+                                  (identifier [7, 51] - [7, 55]))))))
+                        (over_clause [7, 57] - [7, 64])))))
+                (null_handling_modifier [8, 4] - [8, 16])
+                (group_by_clause [8, 17] - [8, 30]
+                  (grouping_item_list [8, 26] - [8, 30]
+                    (grouping_item [8, 26] - [8, 30]
+                      (expression [8, 26] - [8, 30]
+                        (path_expression [8, 26] - [8, 30]
+                          (identifier [8, 26] - [8, 30]))))))
+                (order_by_clause [8, 31] - [8, 44]
+                  (order_expression_list [8, 40] - [8, 44]
+                    (order_expression [8, 40] - [8, 44]
+                      (expression [8, 40] - [8, 44]
+                        (path_expression [8, 40] - [8, 44]
+                          (identifier [8, 40] - [8, 44]))))))
+                (over_clause [9, 4] - [9, 11]))))))
+      (from_clause [10, 0] - [10, 6]
+        (from_item [10, 5] - [10, 6]
+          (table_expression [10, 5] - [10, 6]
+            (path_expression [10, 5] - [10, 6]
+              (identifier [10, 5] - [10, 6])))))))
+  (comment [12, 0] - [62, 2]))
 
 ==================
-Test Case 5
+Test Case 11
 ==================
 # The parser allows this, but the resolver will not.
 select count(* group by key2)
@@ -153,10 +956,27 @@ QueryStatement [0-29] [select count(* group by key2)]
                   Identifier(key2) [24-28] [key2]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 52])
+  (statement [1, 0] - [1, 29]
+    (select_statement [1, 0] - [1, 29]
+      (select_clause [1, 0] - [1, 29]
+        (select_list [1, 7] - [1, 29]
+          (select_expression [1, 7] - [1, 29]
+            (expression [1, 7] - [1, 29]
+              (function_call [1, 7] - [1, 29]
+                (path_expression [1, 7] - [1, 12]
+                  (identifier [1, 7] - [1, 12]))
+                (group_by_clause [1, 15] - [1, 28]
+                  (grouping_item_list [1, 24] - [1, 28]
+                    (grouping_item [1, 24] - [1, 28]
+                      (expression [1, 24] - [1, 28]
+                        (path_expression [1, 24] - [1, 28]
+                          (identifier [1, 24] - [1, 28])))))))))))))
+  (comment [3, 0] - [17, 2]))
 
 ==================
-Test Case 6
+Test Case 12
 ==================
 # 3-level aggregate
 select sum(avg(max(value) group by key1) group by key2) from T
@@ -192,10 +1012,55 @@ QueryStatement [0-62] [select sum...key2) from T]
             Identifier(T) [61-62] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [32, 2]
+  (comment [0, 0] - [0, 19])
+  (statement [1, 0] - [1, 62]
+    (select_statement [1, 0] - [1, 62]
+      (select_clause [1, 0] - [1, 55]
+        (select_list [1, 7] - [1, 55]
+          (select_expression [1, 7] - [1, 55]
+            (expression [1, 7] - [1, 55]
+              (function_call [1, 7] - [1, 55]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 11] - [1, 40]
+                  (function_argument [1, 11] - [1, 40]
+                    (expression [1, 11] - [1, 40]
+                      (function_call [1, 11] - [1, 40]
+                        (path_expression [1, 11] - [1, 14]
+                          (identifier [1, 11] - [1, 14]))
+                        (function_arguments [1, 15] - [1, 25]
+                          (function_argument [1, 15] - [1, 25]
+                            (expression [1, 15] - [1, 25]
+                              (function_call [1, 15] - [1, 25]
+                                (path_expression [1, 15] - [1, 18]
+                                  (identifier [1, 15] - [1, 18]))
+                                (function_arguments [1, 19] - [1, 24]
+                                  (function_argument [1, 19] - [1, 24]
+                                    (expression [1, 19] - [1, 24]
+                                      (path_expression [1, 19] - [1, 24]
+                                        (identifier [1, 19] - [1, 24])))))))))
+                        (group_by_clause [1, 26] - [1, 39]
+                          (grouping_item_list [1, 35] - [1, 39]
+                            (grouping_item [1, 35] - [1, 39]
+                              (expression [1, 35] - [1, 39]
+                                (path_expression [1, 35] - [1, 39]
+                                  (identifier [1, 35] - [1, 39]))))))))))
+                (group_by_clause [1, 41] - [1, 54]
+                  (grouping_item_list [1, 50] - [1, 54]
+                    (grouping_item [1, 50] - [1, 54]
+                      (expression [1, 50] - [1, 54]
+                        (path_expression [1, 50] - [1, 54]
+                          (identifier [1, 50] - [1, 54])))))))))))
+      (from_clause [1, 56] - [1, 62]
+        (from_item [1, 61] - [1, 62]
+          (table_expression [1, 61] - [1, 62]
+            (path_expression [1, 61] - [1, 62]
+              (identifier [1, 61] - [1, 62])))))))
+  (comment [3, 0] - [32, 2]))
 
 ==================
-Test Case 7
+Test Case 13
 ==================
 # WHERE and HAVING expressions are allowed at any nesting of a multi-level
 # aggregate function call.
@@ -284,5 +1149,108 @@ QueryStatement [0-243] [select sum...100) from T]
             Identifier(T) [242-243] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [85, 2]
+  (comment [0, 0] - [0, 74])
+  (comment [1, 0] - [1, 26])
+  (statement [2, 0] - [14, 31]
+    (select_statement [2, 0] - [14, 31]
+      (select_clause [2, 0] - [14, 24]
+        (select_list [2, 7] - [14, 24]
+          (select_expression [2, 7] - [14, 24]
+            (expression [2, 7] - [14, 24]
+              (function_call [2, 7] - [14, 24]
+                (path_expression [2, 7] - [2, 10]
+                  (identifier [2, 7] - [2, 10]))
+                (function_arguments [3, 2] - [11, 25]
+                  (function_argument [3, 2] - [11, 25]
+                    (expression [3, 2] - [11, 25]
+                      (function_call [3, 2] - [11, 25]
+                        (path_expression [3, 2] - [3, 5]
+                          (identifier [3, 2] - [3, 5]))
+                        (function_arguments [4, 4] - [8, 26]
+                          (function_argument [4, 4] - [8, 26]
+                            (expression [4, 4] - [8, 26]
+                              (function_call [4, 4] - [8, 26]
+                                (path_expression [4, 4] - [4, 7]
+                                  (identifier [4, 4] - [4, 7]))
+                                (function_arguments [5, 6] - [5, 11]
+                                  (function_argument [5, 6] - [5, 11]
+                                    (expression [5, 6] - [5, 11]
+                                      (path_expression [5, 6] - [5, 11]
+                                        (identifier [5, 6] - [5, 11])))))
+                                (where_clause [6, 6] - [6, 21]
+                                  (expression [6, 12] - [6, 21]
+                                    (binary_expression [6, 12] - [6, 21]
+                                      (expression [6, 12] - [6, 17]
+                                        (path_expression [6, 12] - [6, 17]
+                                          (identifier [6, 12] - [6, 17])))
+                                      (expression [6, 20] - [6, 21]
+                                        (number [6, 20] - [6, 21])))))
+                                (group_by_clause [7, 6] - [7, 19]
+                                  (grouping_item_list [7, 15] - [7, 19]
+                                    (grouping_item [7, 15] - [7, 19]
+                                      (expression [7, 15] - [7, 19]
+                                        (path_expression [7, 15] - [7, 19]
+                                          (identifier [7, 15] - [7, 19]))))))
+                                (having_clause [8, 6] - [8, 25]
+                                  (expression [8, 13] - [8, 25]
+                                    (binary_expression [8, 13] - [8, 25]
+                                      (expression [8, 13] - [8, 21]
+                                        (function_call [8, 13] - [8, 21]
+                                          (path_expression [8, 13] - [8, 18]
+                                            (identifier [8, 13] - [8, 18]))))
+                                      (expression [8, 24] - [8, 25]
+                                        (number [8, 24] - [8, 25])))))))))
+                        (where_clause [9, 4] - [9, 21]
+                          (expression [9, 10] - [9, 21]
+                            (binary_expression [9, 10] - [9, 21]
+                              (expression [9, 10] - [9, 16]
+                                (path_expression [9, 10] - [9, 16]
+                                  (identifier [9, 10] - [9, 16])))
+                              (expression [9, 19] - [9, 21]
+                                (number [9, 19] - [9, 21])))))
+                        (group_by_clause [10, 4] - [10, 17]
+                          (grouping_item_list [10, 13] - [10, 17]
+                            (grouping_item [10, 13] - [10, 17]
+                              (expression [10, 13] - [10, 17]
+                                (path_expression [10, 13] - [10, 17]
+                                  (identifier [10, 13] - [10, 17]))))))
+                        (having_clause [11, 4] - [11, 24]
+                          (expression [11, 11] - [11, 24]
+                            (binary_expression [11, 11] - [11, 24]
+                              (expression [11, 11] - [11, 19]
+                                (function_call [11, 11] - [11, 19]
+                                  (path_expression [11, 11] - [11, 16]
+                                    (identifier [11, 11] - [11, 16]))))
+                              (expression [11, 22] - [11, 24]
+                                (number [11, 22] - [11, 24])))))))))
+                (where_clause [12, 2] - [12, 20]
+                  (expression [12, 8] - [12, 20]
+                    (binary_expression [12, 8] - [12, 20]
+                      (expression [12, 8] - [12, 14]
+                        (path_expression [12, 8] - [12, 14]
+                          (identifier [12, 8] - [12, 14])))
+                      (expression [12, 17] - [12, 20]
+                        (number [12, 17] - [12, 20])))))
+                (group_by_clause [13, 2] - [13, 15]
+                  (grouping_item_list [13, 11] - [13, 15]
+                    (grouping_item [13, 11] - [13, 15]
+                      (expression [13, 11] - [13, 15]
+                        (path_expression [13, 11] - [13, 15]
+                          (identifier [13, 11] - [13, 15]))))))
+                (having_clause [14, 2] - [14, 23]
+                  (expression [14, 9] - [14, 23]
+                    (binary_expression [14, 9] - [14, 23]
+                      (expression [14, 9] - [14, 17]
+                        (function_call [14, 9] - [14, 17]
+                          (path_expression [14, 9] - [14, 14]
+                            (identifier [14, 9] - [14, 14]))))
+                      (expression [14, 20] - [14, 23]
+                        (number [14, 20] - [14, 23]))))))))))
+      (from_clause [14, 25] - [14, 31]
+        (from_item [14, 30] - [14, 31]
+          (table_expression [14, 30] - [14, 31]
+            (path_expression [14, 30] - [14, 31]
+              (identifier [14, 30] - [14, 31])))))))
+  (comment [16, 0] - [85, 2]))
 

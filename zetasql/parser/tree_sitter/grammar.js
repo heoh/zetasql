@@ -41,7 +41,8 @@ module.exports = grammar({
 
     select_list: $ => seq(
       $.select_expression,
-      repeat(seq(',', $.select_expression))
+      repeat(seq(',', $.select_expression)),
+      optional(',')
     ),
 
     select_expression: $ => choice(
@@ -61,7 +62,10 @@ module.exports = grammar({
       optional(seq(optional(caseInsensitive('AS')), $.identifier))
     ),
 
-    table_expression: $ => $.path_expression,
+    table_expression: $ => choice(
+      $.path_expression,
+      seq('(', $.select_statement, ')')
+    ),
 
     where_clause: $ => seq(
       caseInsensitive('WHERE'),
@@ -69,8 +73,23 @@ module.exports = grammar({
     ),
 
     group_by_clause: $ => seq(
-      caseInsensitive('GROUP'), caseInsensitive('BY'),
-      $.expression_list
+      caseInsensitive('GROUP'),
+      optional($.hint),
+      caseInsensitive('BY'),
+      $.grouping_item_list
+    ),
+
+    grouping_item_list: $ => seq(
+      $.grouping_item,
+      repeat(seq(',', $.grouping_item))
+    ),
+
+    grouping_item: $ => choice(
+      seq(caseInsensitive('ROLLUP'), '(', $.expression_list, ')'),
+      seq(caseInsensitive('CUBE'), '(', $.expression_list, ')'),
+      seq(caseInsensitive('GROUPING'), caseInsensitive('SETS'), '(', $.grouping_item_list, ')'),
+      seq('(', ')'),
+      $.expression
     ),
 
     having_clause: $ => seq(
@@ -79,13 +98,24 @@ module.exports = grammar({
     ),
 
     order_by_clause: $ => seq(
-      caseInsensitive('ORDER'), caseInsensitive('BY'),
+      caseInsensitive('ORDER'),
+      optional($.hint),
+      caseInsensitive('BY'),
       $.order_expression_list
+    ),
+
+    hint: $ => seq(
+      '@',
+      choice($.identifier, $.number)
     ),
 
     limit_clause: $ => seq(
       caseInsensitive('LIMIT'),
-      $.number
+      choice($.number, caseInsensitive('ALL')),
+      optional(seq(
+        caseInsensitive('OFFSET'),
+        $.number
+      ))
     ),
 
     expression_list: $ => seq(
@@ -100,7 +130,8 @@ module.exports = grammar({
 
     order_expression: $ => seq(
       $.expression,
-      optional(choice(caseInsensitive('ASC'), caseInsensitive('DESC')))
+      optional(choice(caseInsensitive('ASC'), caseInsensitive('DESC'))),
+      optional(seq(caseInsensitive('NULLS'), choice(caseInsensitive('FIRST'), caseInsensitive('LAST'))))
     ),
 
     expression: $ => choice(
@@ -110,10 +141,18 @@ module.exports = grammar({
       $.boolean_literal,
       $.null_literal,
       $.binary_expression,
+      $.is_expression,
       $.between_expression,
+      $.collate_expression,
       $.function_call,
       seq('(', $.expression, ')')
     ),
+
+    collate_expression: $ => prec.left(6, seq(
+      $.expression,
+      caseInsensitive('COLLATE'),
+      $.string
+    )),
 
     boolean_literal: $ => choice(caseInsensitive('TRUE'), caseInsensitive('FALSE')),
     null_literal: $ => caseInsensitive('NULL'),
@@ -127,18 +166,97 @@ module.exports = grammar({
       $.expression
     )),
 
-    function_call: $ => seq(
+    function_call: $ => prec.right(seq(
       $.path_expression,
       '(',
       optional(choice(
-        '*',
+        seq(
+          '*',
+          optional(seq(',', $.function_arguments)),
+          optional($._function_modifiers)
+        ),
         seq(
           optional(choice(caseInsensitive('DISTINCT'), caseInsensitive('ALL'))),
           $.function_arguments,
-          optional($.clamped_between_modifier)
+          optional($._function_modifiers)
+        ),
+        seq(
+          optional(choice(caseInsensitive('DISTINCT'), caseInsensitive('ALL'))),
+          optional($._function_modifiers)
         )
       )),
+      ')',
+      optional($.with_group_rows_modifier),
+      optional($.over_clause)
+    )),
+
+    over_clause: $ => seq(
+      caseInsensitive('OVER'),
+      choice(
+        $.identifier,
+        seq(
+          '(',
+          optional($.partition_by_clause),
+          optional($.order_by_clause),
+          ')'
+        )
+      )
+    ),
+
+    partition_by_clause: $ => seq(
+      caseInsensitive('PARTITION'), caseInsensitive('BY'),
+      $.expression_list
+    ),
+
+    _function_modifiers: $ => repeat1(choice(
+      $.null_handling_modifier,
+      $.where_clause,
+      $.group_by_clause,
+      $.having_modifier,
+      $.having_clause,
+      $.clamped_between_modifier,
+      $.with_report_modifier,
+      $.order_by_clause,
+      $.limit_clause
+    )),
+
+    null_handling_modifier: $ => seq(
+      choice(caseInsensitive('IGNORE'), caseInsensitive('RESPECT')),
+      caseInsensitive('NULLS')
+    ),
+
+    having_modifier: $ => seq(
+      caseInsensitive('HAVING'),
+      choice(caseInsensitive('MIN'), caseInsensitive('MAX')),
+      $.expression
+    ),
+
+    with_report_modifier: $ => seq(
+      caseInsensitive('WITH'),
+      caseInsensitive('REPORT'),
+      optional($.options_list)
+    ),
+
+    with_group_rows_modifier: $ => seq(
+      caseInsensitive('WITH'),
+      caseInsensitive('GROUP'),
+      caseInsensitive('ROWS'),
+      '(',
+      $.select_statement,
       ')'
+    ),
+
+    options_list: $ => seq(
+      '(',
+      $.options_entry,
+      repeat(seq(',', $.options_entry)),
+      ')'
+    ),
+
+    options_entry: $ => seq(
+      $.identifier,
+      '=',
+      $.expression
     ),
 
     clamped_between_modifier: $ => seq(
@@ -164,6 +282,16 @@ module.exports = grammar({
       repeat(seq('.', choice($.identifier, alias($._identifier_after_dot, $.identifier))))
     ),
 
+    is_expression: $ => prec.left(3, seq(
+      $.expression,
+      caseInsensitive('IS'),
+      optional(caseInsensitive('NOT')),
+      choice(
+        $.null_literal,
+        $.boolean_literal
+      )
+    )),
+
     binary_expression: $ => choice(
       prec.left(1, seq($.expression, caseInsensitive('OR'), $.expression)),
       prec.left(2, seq($.expression, caseInsensitive('AND'), $.expression)),
@@ -178,9 +306,13 @@ module.exports = grammar({
     ),
     _identifier_after_dot: $ => /[0-9][a-zA-Z0-9_]*/,
     number: $ => /\d+/,
-    string: $ => /'[^']*'/,
+    string: $ => choice(
+      /'[^']*'/,
+      /"[^"]*"/
+    ),
     comment: $ => token(choice(
       seq('--', /.*/),
+      seq('#', /.*/),
       seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/')
     )),
   }

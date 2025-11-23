@@ -3,6 +3,47 @@ import subprocess
 import tempfile
 import argparse
 
+import re
+import itertools
+
+def expand_alternations(sql):
+    # Find all {{...}} patterns
+    pattern = re.compile(r'\{\{(.*?)\}\}')
+    parts = pattern.split(sql)
+    # parts will be [text, alternation, text, alternation, text]
+    
+    if len(parts) == 1:
+        return [(sql, None)]
+        
+    options_list = []
+    
+    for i, part in enumerate(parts):
+        if i % 2 == 0:
+            # Static text
+            options_list.append([(part, None)])
+        else:
+            # Alternation content: "a|b|c"
+            options = part.split('|')
+            # We store (text, option_value)
+            options_list.append([(opt, opt) for opt in options])
+            
+    # Cartesian product
+    expanded_results = []
+    for combination in itertools.product(*options_list):
+        # combination is a tuple of (text, option_value)
+        full_sql = "".join(c[0] for c in combination)
+        
+        # Build signature
+        # We only care about the option_values from the alternation parts
+        sig_parts = [c[1] for c in combination if c[1] is not None]
+        # Join with comma, but we need to be careful about spaces?
+        # Based on observation, it seems to be just comma separated.
+        signature = ",".join(sig_parts)
+        
+        expanded_results.append((full_sql, signature))
+        
+    return expanded_results
+
 def parse_test_file(filepath):
     with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
         content = f.read()
@@ -14,19 +55,58 @@ def parse_test_file(filepath):
     for case in cases:
         # Each case has SQL input, then "--", then expected AST/Error
         parts = case.split('--')
-        if len(parts) >= 2:
-            sql = parts[0].strip()
-            # Skip if it's an error case (Tree-sitter should parse valid SQL)
-            expected = parts[1].strip()
-            if expected.startswith("ERROR:"):
-                continue
-                
-            # Also skip if it has [no_test_get_parse_tokens] or similar markers in SQL
-            if "[no_test" in sql:
-                continue
+        if len(parts) < 2:
+            continue
+            
+        raw_sql = parts[0].strip()
+        if not raw_sql or "[no_test" in raw_sql:
+            continue
 
-            if sql:
+        # Remove [language_features...] lines
+        raw_sql = re.sub(r'^\[.*?\]\n?', '', raw_sql, flags=re.MULTILINE)
+        # print(f"DEBUG SQL: {raw_sql[:100]}")
+
+        # Parse expected outputs
+        expected_map = {}
+        
+        if len(parts) == 2:
+            expected_map[None] = parts[1].strip()
+        else:
+            current_idx = 1
+            while current_idx < len(parts):
+                header = parts[current_idx].strip()
+                if header.startswith("ALTERNATION GROUP:"):
+                    sig = header.replace("ALTERNATION GROUP:", "").strip()
+                    if current_idx + 1 < len(parts):
+                        output = parts[current_idx+1].strip()
+                        expected_map[sig] = output
+                        current_idx += 2
+                    else:
+                        break
+                else:
+                    # Default output
+                    if current_idx == 1:
+                        expected_map[None] = header
+                        current_idx += 1
+                    else:
+                        # Unexpected structure, skip
+                        current_idx += 1
+
+        # Expand SQL
+        expanded_sqls = expand_alternations(raw_sql)
+        for sql, sig in expanded_sqls:
+            expected = None
+            if sig in expected_map:
+                expected = expected_map[sig]
+            elif None in expected_map:
+                expected = expected_map[None]
+            
+            if expected:
+                if expected.startswith("ERROR:"):
+                    continue
                 parsed_cases.append((sql, expected))
+            # If no expectation found, we skip (it might be an invalid combination or not tested)
+
     return parsed_cases
 
 def get_tree_sitter_sexp(sql):
@@ -60,6 +140,9 @@ def get_tree_sitter_sexp(sql):
                 lines.pop()
             return '\n'.join(lines)
         else:
+            print(f"Tree-sitter failed for SQL: {sql[:50]}...")
+            print(f"Return code: {result.returncode}")
+            print(f"Stderr: {result.stderr}")
             return "(source_file (ERROR))"
     except Exception as e:
         print(f"Error running tree-sitter: {e}")

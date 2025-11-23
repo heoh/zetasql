@@ -626,7 +626,36 @@ QueryStatement [0-44] [select * from...having a > 5)]
                   IntLiteral(5) [42-43] [5]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [26, 2]
+  (statement [0, 0] - [0, 45]
+    (select_statement [0, 0] - [0, 45]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 44]
+        (from_item [0, 14] - [0, 44]
+          (table_expression [0, 14] - [0, 44]
+            (select_statement [0, 15] - [0, 43]
+              (select_clause [0, 15] - [0, 23]
+                (select_list [0, 22] - [0, 23]
+                  (select_expression [0, 22] - [0, 23]
+                    (expression [0, 22] - [0, 23]
+                      (path_expression [0, 22] - [0, 23]
+                        (identifier [0, 22] - [0, 23]))))))
+              (from_clause [0, 24] - [0, 30]
+                (from_item [0, 29] - [0, 30]
+                  (table_expression [0, 29] - [0, 30]
+                    (path_expression [0, 29] - [0, 30]
+                      (identifier [0, 29] - [0, 30])))))
+              (having_clause [0, 31] - [0, 43]
+                (expression [0, 38] - [0, 43]
+                  (binary_expression [0, 38] - [0, 43]
+                    (expression [0, 38] - [0, 39]
+                      (path_expression [0, 38] - [0, 39]
+                        (identifier [0, 38] - [0, 39])))
+                    (expression [0, 42] - [0, 43]
+                      (number [0, 42] - [0, 43])))))))))))
+  (comment [2, 0] - [26, 2]))
 
 ==================
 Test Case 13
@@ -656,7 +685,34 @@ QueryStatement [0-42] [select array_agg...as a from T]
             Identifier(T) [41-42] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [23, 2]
+  (statement [0, 0] - [0, 43]
+    (select_statement [0, 0] - [0, 43]
+      (select_clause [0, 0] - [0, 35]
+        (select_list [0, 7] - [0, 35]
+          (select_expression [0, 7] - [0, 35]
+            (expression [0, 7] - [0, 30]
+              (function_call [0, 7] - [0, 30]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 18]
+                  (function_argument [0, 17] - [0, 18]
+                    (expression [0, 17] - [0, 18]
+                      (path_expression [0, 17] - [0, 18]
+                        (identifier [0, 17] - [0, 18])))))
+                (order_by_clause [0, 19] - [0, 29]
+                  (order_expression_list [0, 28] - [0, 29]
+                    (order_expression [0, 28] - [0, 29]
+                      (expression [0, 28] - [0, 29]
+                        (path_expression [0, 28] - [0, 29]
+                          (identifier [0, 28] - [0, 29]))))))))
+            (identifier [0, 34] - [0, 35]))))
+      (from_clause [0, 36] - [0, 42]
+        (from_item [0, 41] - [0, 42]
+          (table_expression [0, 41] - [0, 42]
+            (path_expression [0, 41] - [0, 42]
+              (identifier [0, 41] - [0, 42])))))))
+  (comment [2, 0] - [23, 2]))
 
 ==================
 Test Case 14
@@ -693,7 +749,42 @@ QueryStatement [0-59] [select array_agg...as a from T]
             Identifier(T) [58-59] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (statement [0, 0] - [0, 60]
+    (select_statement [0, 0] - [0, 60]
+      (select_clause [0, 0] - [0, 52]
+        (select_list [0, 7] - [0, 52]
+          (select_expression [0, 7] - [0, 52]
+            (expression [0, 7] - [0, 47]
+              (function_call [0, 7] - [0, 47]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 18]
+                  (function_argument [0, 17] - [0, 18]
+                    (expression [0, 17] - [0, 18]
+                      (path_expression [0, 17] - [0, 18]
+                        (identifier [0, 17] - [0, 18])))))
+                (order_by_clause [0, 19] - [0, 46]
+                  (order_expression_list [0, 28] - [0, 46]
+                    (order_expression [0, 28] - [0, 29]
+                      (expression [0, 28] - [0, 29]
+                        (path_expression [0, 28] - [0, 29]
+                          (identifier [0, 28] - [0, 29]))))
+                    (order_expression [0, 31] - [0, 43]
+                      (expression [0, 31] - [0, 32]
+                        (path_expression [0, 31] - [0, 32]
+                          (identifier [0, 31] - [0, 32]))))
+                    (order_expression [0, 45] - [0, 46]
+                      (expression [0, 45] - [0, 46]
+                        (path_expression [0, 45] - [0, 46]
+                          (identifier [0, 45] - [0, 46]))))))))
+            (identifier [0, 51] - [0, 52]))))
+      (from_clause [0, 53] - [0, 59]
+        (from_item [0, 58] - [0, 59]
+          (table_expression [0, 58] - [0, 59]
+            (path_expression [0, 58] - [0, 59]
+              (identifier [0, 58] - [0, 59])))))))
+  (comment [2, 0] - [30, 2]))
 
 ==================
 Test Case 15
@@ -723,7 +814,34 @@ QueryStatement [0-51] [select array_agg...as a from T]
             Identifier(T) [50-51] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [23, 2]
+  (statement [0, 0] - [0, 52]
+    (select_statement [0, 0] - [0, 52]
+      (select_clause [0, 0] - [0, 44]
+        (select_list [0, 7] - [0, 44]
+          (select_expression [0, 7] - [0, 44]
+            (expression [0, 7] - [0, 39]
+              (function_call [0, 7] - [0, 39]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 26] - [0, 27]
+                  (function_argument [0, 26] - [0, 27]
+                    (expression [0, 26] - [0, 27]
+                      (path_expression [0, 26] - [0, 27]
+                        (identifier [0, 26] - [0, 27])))))
+                (order_by_clause [0, 28] - [0, 38]
+                  (order_expression_list [0, 37] - [0, 38]
+                    (order_expression [0, 37] - [0, 38]
+                      (expression [0, 37] - [0, 38]
+                        (path_expression [0, 37] - [0, 38]
+                          (identifier [0, 37] - [0, 38]))))))))
+            (identifier [0, 43] - [0, 44]))))
+      (from_clause [0, 45] - [0, 51]
+        (from_item [0, 50] - [0, 51]
+          (table_expression [0, 50] - [0, 51]
+            (path_expression [0, 50] - [0, 51]
+              (identifier [0, 50] - [0, 51])))))))
+  (comment [2, 0] - [23, 2]))
 
 ==================
 Test Case 16
@@ -761,7 +879,47 @@ QueryStatement [0-53] [select array_agg...as a from T]
             Identifier(T) [52-53] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [31, 2]
+  (statement [0, 0] - [0, 54]
+    (select_statement [0, 0] - [0, 54]
+      (select_clause [0, 0] - [0, 46]
+        (select_list [0, 7] - [0, 46]
+          (select_expression [0, 7] - [0, 46]
+            (expression [0, 7] - [0, 41]
+              (function_call [0, 7] - [0, 41]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 18]
+                  (function_argument [0, 17] - [0, 18]
+                    (expression [0, 17] - [0, 18]
+                      (path_expression [0, 17] - [0, 18]
+                        (identifier [0, 17] - [0, 18])))))
+                (order_by_clause [0, 19] - [0, 40]
+                  (order_expression_list [0, 28] - [0, 40]
+                    (order_expression [0, 28] - [0, 33]
+                      (expression [0, 28] - [0, 33]
+                        (binary_expression [0, 28] - [0, 33]
+                          (expression [0, 28] - [0, 29]
+                            (path_expression [0, 28] - [0, 29]
+                              (identifier [0, 28] - [0, 29])))
+                          (expression [0, 32] - [0, 33]
+                            (number [0, 32] - [0, 33])))))
+                    (order_expression [0, 35] - [0, 40]
+                      (expression [0, 35] - [0, 40]
+                        (binary_expression [0, 35] - [0, 40]
+                          (expression [0, 35] - [0, 36]
+                            (path_expression [0, 35] - [0, 36]
+                              (identifier [0, 35] - [0, 36])))
+                          (expression [0, 39] - [0, 40]
+                            (path_expression [0, 39] - [0, 40]
+                              (identifier [0, 39] - [0, 40]))))))))))
+            (identifier [0, 45] - [0, 46]))))
+      (from_clause [0, 47] - [0, 53]
+        (from_item [0, 52] - [0, 53]
+          (table_expression [0, 52] - [0, 53]
+            (path_expression [0, 52] - [0, 53]
+              (identifier [0, 52] - [0, 53])))))))
+  (comment [2, 0] - [31, 2]))
 
 ==================
 Test Case 17
@@ -796,7 +954,42 @@ QueryStatement [0-60] [select x,...group by x]
             Identifier(x) [59-60] [x]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [28, 2]
+  (statement [0, 0] - [0, 60]
+    (select_statement [0, 0] - [0, 60]
+      (select_clause [0, 0] - [0, 42]
+        (select_list [0, 7] - [0, 42]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))
+          (select_expression [0, 10] - [0, 42]
+            (expression [0, 10] - [0, 42]
+              (function_call [0, 10] - [0, 42]
+                (path_expression [0, 10] - [0, 19]
+                  (identifier [0, 10] - [0, 19]))
+                (function_arguments [0, 29] - [0, 30]
+                  (function_argument [0, 29] - [0, 30]
+                    (expression [0, 29] - [0, 30]
+                      (path_expression [0, 29] - [0, 30]
+                        (identifier [0, 29] - [0, 30])))))
+                (order_by_clause [0, 31] - [0, 41]
+                  (order_expression_list [0, 40] - [0, 41]
+                    (order_expression [0, 40] - [0, 41]
+                      (expression [0, 40] - [0, 41]
+                        (path_expression [0, 40] - [0, 41]
+                          (identifier [0, 40] - [0, 41])))))))))))
+      (from_clause [0, 43] - [0, 49]
+        (from_item [0, 48] - [0, 49]
+          (table_expression [0, 48] - [0, 49]
+            (path_expression [0, 48] - [0, 49]
+              (identifier [0, 48] - [0, 49])))))
+      (group_by_clause [0, 50] - [0, 60]
+        (expression_list [0, 59] - [0, 60]
+          (expression [0, 59] - [0, 60]
+            (path_expression [0, 59] - [0, 60]
+              (identifier [0, 59] - [0, 60])))))))
+  (comment [2, 0] - [28, 2]))
 
 ==================
 Test Case 18
@@ -834,7 +1027,46 @@ QueryStatement [0-64] [select x,...group by x]
             Identifier(x) [63-64] [x]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [31, 2]
+  (statement [0, 0] - [0, 64]
+    (select_statement [0, 0] - [0, 64]
+      (select_clause [0, 0] - [0, 46]
+        (select_list [0, 7] - [0, 46]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))
+          (select_expression [0, 10] - [0, 46]
+            (expression [0, 10] - [0, 46]
+              (function_call [0, 10] - [0, 46]
+                (path_expression [0, 10] - [0, 19]
+                  (identifier [0, 10] - [0, 19]))
+                (function_arguments [0, 20] - [0, 21]
+                  (function_argument [0, 20] - [0, 21]
+                    (expression [0, 20] - [0, 21]
+                      (path_expression [0, 20] - [0, 21]
+                        (identifier [0, 20] - [0, 21])))))
+                (order_by_clause [0, 22] - [0, 45]
+                  (order_expression_list [0, 31] - [0, 45]
+                    (order_expression [0, 31] - [0, 37]
+                      (expression [0, 31] - [0, 32]
+                        (path_expression [0, 31] - [0, 32]
+                          (identifier [0, 31] - [0, 32]))))
+                    (order_expression [0, 39] - [0, 45]
+                      (expression [0, 39] - [0, 40]
+                        (path_expression [0, 39] - [0, 40]
+                          (identifier [0, 39] - [0, 40])))))))))))
+      (from_clause [0, 47] - [0, 53]
+        (from_item [0, 52] - [0, 53]
+          (table_expression [0, 52] - [0, 53]
+            (path_expression [0, 52] - [0, 53]
+              (identifier [0, 52] - [0, 53])))))
+      (group_by_clause [0, 54] - [0, 64]
+        (expression_list [0, 63] - [0, 64]
+          (expression [0, 63] - [0, 64]
+            (path_expression [0, 63] - [0, 64]
+              (identifier [0, 63] - [0, 64])))))))
+  (comment [2, 0] - [31, 2]))
 
 ==================
 Test Case 19
@@ -872,7 +1104,45 @@ QueryStatement [0-73] [select x,...group by x]
             Identifier(x) [72-73] [x]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [31, 2]
+  (statement [0, 0] - [0, 73]
+    (select_statement [0, 0] - [0, 73]
+      (select_clause [0, 0] - [0, 55]
+        (select_list [0, 7] - [0, 55]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))
+          (select_expression [0, 10] - [0, 55]
+            (expression [0, 10] - [0, 55]
+              (function_call [0, 10] - [0, 55]
+                (path_expression [0, 10] - [0, 20]
+                  (identifier [0, 10] - [0, 20]))
+                (function_arguments [0, 21] - [0, 22]
+                  (function_argument [0, 21] - [0, 22]
+                    (expression [0, 21] - [0, 22]
+                      (path_expression [0, 21] - [0, 22]
+                        (identifier [0, 21] - [0, 22])))))
+                (order_by_clause [0, 23] - [0, 54]
+                  (order_expression_list [0, 32] - [0, 54]
+                    (order_expression [0, 32] - [0, 54]
+                      (expression [0, 32] - [0, 49]
+                        (collate_expression [0, 32] - [0, 49]
+                          (expression [0, 32] - [0, 33]
+                            (path_expression [0, 32] - [0, 33]
+                              (identifier [0, 32] - [0, 33])))
+                          (string [0, 42] - [0, 49])))))))))))
+      (from_clause [0, 56] - [0, 62]
+        (from_item [0, 61] - [0, 62]
+          (table_expression [0, 61] - [0, 62]
+            (path_expression [0, 61] - [0, 62]
+              (identifier [0, 61] - [0, 62])))))
+      (group_by_clause [0, 63] - [0, 73]
+        (expression_list [0, 72] - [0, 73]
+          (expression [0, 72] - [0, 73]
+            (path_expression [0, 72] - [0, 73]
+              (identifier [0, 72] - [0, 73])))))))
+  (comment [2, 0] - [31, 2]))
 
 ==================
 Test Case 20
@@ -899,7 +1169,28 @@ QueryStatement [0-33] [select count...x) from T]
             Identifier(T) [32-33] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (statement [0, 0] - [0, 34]
+    (select_statement [0, 0] - [0, 34]
+      (select_clause [0, 0] - [0, 26]
+        (select_list [0, 7] - [0, 26]
+          (select_expression [0, 7] - [0, 26]
+            (expression [0, 7] - [0, 26]
+              (function_call [0, 7] - [0, 26]
+                (path_expression [0, 7] - [0, 12]
+                  (identifier [0, 7] - [0, 12]))
+                (order_by_clause [0, 15] - [0, 25]
+                  (order_expression_list [0, 24] - [0, 25]
+                    (order_expression [0, 24] - [0, 25]
+                      (expression [0, 24] - [0, 25]
+                        (path_expression [0, 24] - [0, 25]
+                          (identifier [0, 24] - [0, 25])))))))))))
+      (from_clause [0, 27] - [0, 33]
+        (from_item [0, 32] - [0, 33]
+          (table_expression [0, 32] - [0, 33]
+            (path_expression [0, 32] - [0, 33]
+              (identifier [0, 32] - [0, 33])))))))
+  (comment [2, 0] - [20, 2]))
 
 ==================
 Test Case 21
@@ -928,7 +1219,35 @@ QueryStatement [0-44] [select anon_count...x) from T]
             Identifier(T) [43-44] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 45]
+    (select_statement [0, 0] - [0, 45]
+      (select_clause [0, 0] - [0, 37]
+        (select_list [0, 7] - [0, 37]
+          (select_expression [0, 7] - [0, 37]
+            (expression [0, 7] - [0, 37]
+              (function_call [0, 7] - [0, 37]
+                (path_expression [0, 7] - [0, 17]
+                  (identifier [0, 7] - [0, 17]))
+                (function_arguments [0, 21] - [0, 25]
+                  (function_argument [0, 21] - [0, 22]
+                    (expression [0, 21] - [0, 22]
+                      (number [0, 21] - [0, 22])))
+                  (function_argument [0, 24] - [0, 25]
+                    (expression [0, 24] - [0, 25]
+                      (number [0, 24] - [0, 25]))))
+                (order_by_clause [0, 26] - [0, 36]
+                  (order_expression_list [0, 35] - [0, 36]
+                    (order_expression [0, 35] - [0, 36]
+                      (expression [0, 35] - [0, 36]
+                        (path_expression [0, 35] - [0, 36]
+                          (identifier [0, 35] - [0, 36])))))))))))
+      (from_clause [0, 38] - [0, 44]
+        (from_item [0, 43] - [0, 44]
+          (table_expression [0, 43] - [0, 44]
+            (path_expression [0, 43] - [0, 44]
+              (identifier [0, 43] - [0, 44])))))))
+  (comment [2, 0] - [22, 2]))
 
 ==================
 Test Case 22
@@ -965,7 +1284,44 @@ QueryStatement [0-53] [select x,...group by x]
             Identifier(x) [52-53] [x]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (statement [0, 0] - [0, 53]
+    (select_statement [0, 0] - [0, 53]
+      (select_clause [0, 0] - [0, 35]
+        (select_list [0, 7] - [0, 35]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))
+          (select_expression [0, 10] - [0, 35]
+            (expression [0, 10] - [0, 35]
+              (function_call [0, 10] - [0, 35]
+                (path_expression [0, 10] - [0, 19]
+                  (identifier [0, 10] - [0, 19]))
+                (function_arguments [0, 20] - [0, 21]
+                  (function_argument [0, 20] - [0, 21]
+                    (expression [0, 20] - [0, 21]
+                      (path_expression [0, 20] - [0, 21]
+                        (identifier [0, 20] - [0, 21])))))
+                (order_by_clause [0, 22] - [0, 34]
+                  (hint [0, 27] - [0, 29]
+                    (number [0, 28] - [0, 29]))
+                  (order_expression_list [0, 33] - [0, 34]
+                    (order_expression [0, 33] - [0, 34]
+                      (expression [0, 33] - [0, 34]
+                        (path_expression [0, 33] - [0, 34]
+                          (identifier [0, 33] - [0, 34])))))))))))
+      (from_clause [0, 36] - [0, 42]
+        (from_item [0, 41] - [0, 42]
+          (table_expression [0, 41] - [0, 42]
+            (path_expression [0, 41] - [0, 42]
+              (identifier [0, 41] - [0, 42])))))
+      (group_by_clause [0, 43] - [0, 53]
+        (expression_list [0, 52] - [0, 53]
+          (expression [0, 52] - [0, 53]
+            (path_expression [0, 52] - [0, 53]
+              (identifier [0, 52] - [0, 53])))))))
+  (comment [2, 0] - [30, 2]))
 
 ==================
 Test Case 23
@@ -987,7 +1343,22 @@ QueryStatement [0-29] [select count(distinct) from T]
             Identifier(T) [28-29] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (statement [0, 0] - [0, 29]
+    (select_statement [0, 0] - [0, 29]
+      (select_clause [0, 0] - [0, 22]
+        (select_list [0, 7] - [0, 22]
+          (select_expression [0, 7] - [0, 22]
+            (expression [0, 7] - [0, 22]
+              (function_call [0, 7] - [0, 22]
+                (path_expression [0, 7] - [0, 12]
+                  (identifier [0, 7] - [0, 12])))))))
+      (from_clause [0, 23] - [0, 29]
+        (from_item [0, 28] - [0, 29]
+          (table_expression [0, 28] - [0, 29]
+            (path_expression [0, 28] - [0, 29]
+              (identifier [0, 28] - [0, 29])))))))
+  (comment [2, 0] - [15, 2]))
 
 ==================
 Test Case 24
@@ -1009,7 +1380,22 @@ QueryStatement [0-34] [select anon_count...ct) from T]
             Identifier(T) [33-34] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (statement [0, 0] - [0, 34]
+    (select_statement [0, 0] - [0, 34]
+      (select_clause [0, 0] - [0, 27]
+        (select_list [0, 7] - [0, 27]
+          (select_expression [0, 7] - [0, 27]
+            (expression [0, 7] - [0, 27]
+              (function_call [0, 7] - [0, 27]
+                (path_expression [0, 7] - [0, 17]
+                  (identifier [0, 7] - [0, 17])))))))
+      (from_clause [0, 28] - [0, 34]
+        (from_item [0, 33] - [0, 34]
+          (table_expression [0, 33] - [0, 34]
+            (path_expression [0, 33] - [0, 34]
+              (identifier [0, 33] - [0, 34])))))))
+  (comment [2, 0] - [15, 2]))
 
 ==================
 Test Case 25
@@ -1037,7 +1423,29 @@ QueryStatement [0-43] [select sort_count...s c from T]
             Identifier(T) [42-43] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 44]
+    (select_statement [0, 0] - [0, 44]
+      (select_clause [0, 0] - [0, 36]
+        (select_list [0, 7] - [0, 36]
+          (select_expression [0, 7] - [0, 36]
+            (expression [0, 7] - [0, 31]
+              (function_call [0, 7] - [0, 31]
+                (path_expression [0, 7] - [0, 17]
+                  (identifier [0, 7] - [0, 17]))
+                (order_by_clause [0, 18] - [0, 30]
+                  (order_expression_list [0, 27] - [0, 30]
+                    (order_expression [0, 27] - [0, 30]
+                      (expression [0, 27] - [0, 30]
+                        (path_expression [0, 27] - [0, 30]
+                          (identifier [0, 27] - [0, 30]))))))))
+            (identifier [0, 35] - [0, 36]))))
+      (from_clause [0, 37] - [0, 43]
+        (from_item [0, 42] - [0, 43]
+          (table_expression [0, 42] - [0, 43]
+            (path_expression [0, 42] - [0, 43]
+              (identifier [0, 42] - [0, 43])))))))
+  (comment [2, 0] - [21, 2]))
 
 ==================
 Test Case 26
@@ -1065,7 +1473,32 @@ QueryStatement [0-47] [select array_agg...TestTable]
             Identifier(TestTable) [38-47] [TestTable]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [1, 14]
+    (select_statement [0, 0] - [1, 14]
+      (select_clause [0, 0] - [0, 32]
+        (select_list [0, 7] - [0, 32]
+          (select_expression [0, 7] - [0, 32]
+            (expression [0, 7] - [0, 32]
+              (function_call [0, 7] - [0, 32]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 20]
+                  (function_argument [0, 17] - [0, 20]
+                    (expression [0, 17] - [0, 20]
+                      (path_expression [0, 17] - [0, 20]
+                        (identifier [0, 17] - [0, 20])))))
+                (order_by_clause [0, 21] - [0, 31]
+                  (order_expression_list [0, 30] - [0, 31]
+                    (order_expression [0, 30] - [0, 31]
+                      (expression [0, 30] - [0, 31]
+                        (number [0, 30] - [0, 31]))))))))))
+      (from_clause [1, 0] - [1, 14]
+        (from_item [1, 5] - [1, 14]
+          (table_expression [1, 5] - [1, 14]
+            (path_expression [1, 5] - [1, 14]
+              (identifier [1, 5] - [1, 14])))))))
+  (comment [3, 0] - [21, 2]))
 
 ==================
 Test Case 27
@@ -1098,7 +1531,36 @@ QueryStatement [0-50] [select array_agg...as a from T]
             Identifier(T) [49-50] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [26, 2]
+  (statement [0, 0] - [0, 50]
+    (select_statement [0, 0] - [0, 50]
+      (select_clause [0, 0] - [0, 43]
+        (select_list [0, 7] - [0, 43]
+          (select_expression [0, 7] - [0, 43]
+            (expression [0, 7] - [0, 38]
+              (function_call [0, 7] - [0, 38]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 18]
+                  (function_argument [0, 17] - [0, 18]
+                    (expression [0, 17] - [0, 18]
+                      (path_expression [0, 17] - [0, 18]
+                        (identifier [0, 17] - [0, 18])))))
+                (order_by_clause [0, 19] - [0, 29]
+                  (order_expression_list [0, 28] - [0, 29]
+                    (order_expression [0, 28] - [0, 29]
+                      (expression [0, 28] - [0, 29]
+                        (path_expression [0, 28] - [0, 29]
+                          (identifier [0, 28] - [0, 29]))))))
+                (limit_clause [0, 30] - [0, 37]
+                  (number [0, 36] - [0, 37]))))
+            (identifier [0, 42] - [0, 43]))))
+      (from_clause [0, 44] - [0, 50]
+        (from_item [0, 49] - [0, 50]
+          (table_expression [0, 49] - [0, 50]
+            (path_expression [0, 49] - [0, 50]
+              (identifier [0, 49] - [0, 50])))))))
+  (comment [2, 0] - [26, 2]))
 
 ==================
 Test Case 28
@@ -1132,7 +1594,37 @@ QueryStatement [0-59] [select array_agg...as a from T]
             Identifier(T) [58-59] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [27, 2]
+  (statement [0, 0] - [0, 59]
+    (select_statement [0, 0] - [0, 59]
+      (select_clause [0, 0] - [0, 52]
+        (select_list [0, 7] - [0, 52]
+          (select_expression [0, 7] - [0, 52]
+            (expression [0, 7] - [0, 47]
+              (function_call [0, 7] - [0, 47]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 18]
+                  (function_argument [0, 17] - [0, 18]
+                    (expression [0, 17] - [0, 18]
+                      (path_expression [0, 17] - [0, 18]
+                        (identifier [0, 17] - [0, 18])))))
+                (order_by_clause [0, 19] - [0, 29]
+                  (order_expression_list [0, 28] - [0, 29]
+                    (order_expression [0, 28] - [0, 29]
+                      (expression [0, 28] - [0, 29]
+                        (path_expression [0, 28] - [0, 29]
+                          (identifier [0, 28] - [0, 29]))))))
+                (limit_clause [0, 30] - [0, 46]
+                  (number [0, 36] - [0, 37])
+                  (number [0, 45] - [0, 46]))))
+            (identifier [0, 51] - [0, 52]))))
+      (from_clause [0, 53] - [0, 59]
+        (from_item [0, 58] - [0, 59]
+          (table_expression [0, 58] - [0, 59]
+            (path_expression [0, 58] - [0, 59]
+              (identifier [0, 58] - [0, 59])))))))
+  (comment [2, 0] - [27, 2]))
 
 ==================
 Test Case 29
@@ -1161,7 +1653,30 @@ QueryStatement [0-39] [select array_agg...as a from T]
             Identifier(T) [38-39] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 39]
+    (select_statement [0, 0] - [0, 39]
+      (select_clause [0, 0] - [0, 32]
+        (select_list [0, 7] - [0, 32]
+          (select_expression [0, 7] - [0, 32]
+            (expression [0, 7] - [0, 27]
+              (function_call [0, 7] - [0, 27]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 18]
+                  (function_argument [0, 17] - [0, 18]
+                    (expression [0, 17] - [0, 18]
+                      (path_expression [0, 17] - [0, 18]
+                        (identifier [0, 17] - [0, 18])))))
+                (limit_clause [0, 19] - [0, 26]
+                  (number [0, 25] - [0, 26]))))
+            (identifier [0, 31] - [0, 32]))))
+      (from_clause [0, 33] - [0, 39]
+        (from_item [0, 38] - [0, 39]
+          (table_expression [0, 38] - [0, 39]
+            (path_expression [0, 38] - [0, 39]
+              (identifier [0, 38] - [0, 39])))))))
+  (comment [2, 0] - [22, 2]))
 
 ==================
 Test Case 30
@@ -1196,7 +1711,37 @@ QueryStatement [0-52] [select array_agg...as a from T]
             Identifier(T) [51-52] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [28, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 17])
+  (statement [2, 0] - [2, 52]
+    (select_statement [2, 0] - [2, 52]
+      (select_clause [2, 0] - [2, 45]
+        (select_list [2, 7] - [2, 45]
+          (select_expression [2, 7] - [2, 45]
+            (expression [2, 7] - [2, 40]
+              (function_call [2, 7] - [2, 40]
+                (path_expression [2, 7] - [2, 16]
+                  (identifier [2, 7] - [2, 16]))
+                (function_arguments [2, 17] - [2, 18]
+                  (function_argument [2, 17] - [2, 18]
+                    (expression [2, 17] - [2, 18]
+                      (path_expression [2, 17] - [2, 18]
+                        (identifier [2, 17] - [2, 18])))))
+                (order_by_clause [2, 19] - [2, 29]
+                  (order_expression_list [2, 28] - [2, 29]
+                    (order_expression [2, 28] - [2, 29]
+                      (expression [2, 28] - [2, 29]
+                        (path_expression [2, 28] - [2, 29]
+                          (identifier [2, 28] - [2, 29]))))))
+                (limit_clause [2, 30] - [2, 39])))
+            (identifier [2, 44] - [2, 45]))))
+      (from_clause [2, 46] - [2, 52]
+        (from_item [2, 51] - [2, 52]
+          (table_expression [2, 51] - [2, 52]
+            (path_expression [2, 51] - [2, 52]
+              (identifier [2, 51] - [2, 52])))))))
+  (comment [4, 0] - [28, 2]))
 
 ==================
 Test Case 31
@@ -1237,7 +1782,48 @@ QueryStatement [0-73] [select x,...group by x]
             Identifier(x) [72-73] [x]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [34, 2]
+  (statement [0, 0] - [0, 73]
+    (select_statement [0, 0] - [0, 73]
+      (select_clause [0, 0] - [0, 55]
+        (select_list [0, 7] - [0, 55]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))
+          (select_expression [0, 10] - [0, 55]
+            (expression [0, 10] - [0, 55]
+              (function_call [0, 10] - [0, 55]
+                (path_expression [0, 10] - [0, 19]
+                  (identifier [0, 10] - [0, 19]))
+                (function_arguments [0, 20] - [0, 21]
+                  (function_argument [0, 20] - [0, 21]
+                    (expression [0, 20] - [0, 21]
+                      (path_expression [0, 20] - [0, 21]
+                        (identifier [0, 20] - [0, 21])))))
+                (order_by_clause [0, 22] - [0, 45]
+                  (order_expression_list [0, 31] - [0, 45]
+                    (order_expression [0, 31] - [0, 37]
+                      (expression [0, 31] - [0, 32]
+                        (path_expression [0, 31] - [0, 32]
+                          (identifier [0, 31] - [0, 32]))))
+                    (order_expression [0, 39] - [0, 45]
+                      (expression [0, 39] - [0, 40]
+                        (path_expression [0, 39] - [0, 40]
+                          (identifier [0, 39] - [0, 40]))))))
+                (limit_clause [0, 46] - [0, 54]
+                  (number [0, 52] - [0, 54])))))))
+      (from_clause [0, 56] - [0, 62]
+        (from_item [0, 61] - [0, 62]
+          (table_expression [0, 61] - [0, 62]
+            (path_expression [0, 61] - [0, 62]
+              (identifier [0, 61] - [0, 62])))))
+      (group_by_clause [0, 63] - [0, 73]
+        (expression_list [0, 72] - [0, 73]
+          (expression [0, 72] - [0, 73]
+            (path_expression [0, 72] - [0, 73]
+              (identifier [0, 72] - [0, 73])))))))
+  (comment [2, 0] - [34, 2]))
 
 ==================
 Test Case 32
@@ -1267,7 +1853,34 @@ QueryStatement [0-56] [select ANY_VALUE...T having a]
           Identifier(a) [55-56] [a]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [23, 2]
+  (statement [0, 0] - [0, 57]
+    (select_statement [0, 0] - [0, 57]
+      (select_clause [0, 0] - [0, 40]
+        (select_list [0, 7] - [0, 40]
+          (select_expression [0, 7] - [0, 40]
+            (expression [0, 7] - [0, 35]
+              (function_call [0, 7] - [0, 35]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 21]
+                  (function_argument [0, 17] - [0, 21]
+                    (expression [0, 17] - [0, 21]
+                      (boolean_literal [0, 17] - [0, 21]))))
+                (having_modifier [0, 22] - [0, 34]
+                  (expression [0, 33] - [0, 34]
+                    (number [0, 33] - [0, 34])))))
+            (identifier [0, 39] - [0, 40]))))
+      (from_clause [0, 41] - [0, 47]
+        (from_item [0, 46] - [0, 47]
+          (table_expression [0, 46] - [0, 47]
+            (path_expression [0, 46] - [0, 47]
+              (identifier [0, 46] - [0, 47])))))
+      (having_clause [0, 48] - [0, 56]
+        (expression [0, 55] - [0, 56]
+          (path_expression [0, 55] - [0, 56]
+            (identifier [0, 55] - [0, 56]))))))
+  (comment [2, 0] - [23, 2]))
 
 ==================
 Test Case 33
@@ -1298,7 +1911,31 @@ QueryStatement [0-49] [select COUNT...T having a]
           Identifier(a) [48-49] [a]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [24, 2]
+  (comment [0, 0] - [0, 41])
+  (statement [1, 0] - [1, 50]
+    (select_statement [1, 0] - [1, 50]
+      (select_clause [1, 0] - [1, 33]
+        (select_list [1, 7] - [1, 33]
+          (select_expression [1, 7] - [1, 33]
+            (expression [1, 7] - [1, 28]
+              (function_call [1, 7] - [1, 28]
+                (path_expression [1, 7] - [1, 12]
+                  (identifier [1, 7] - [1, 12]))
+                (having_modifier [1, 15] - [1, 27]
+                  (expression [1, 26] - [1, 27]
+                    (number [1, 26] - [1, 27])))))
+            (identifier [1, 32] - [1, 33]))))
+      (from_clause [1, 34] - [1, 40]
+        (from_item [1, 39] - [1, 40]
+          (table_expression [1, 39] - [1, 40]
+            (path_expression [1, 39] - [1, 40]
+              (identifier [1, 39] - [1, 40])))))
+      (having_clause [1, 41] - [1, 49]
+        (expression [1, 48] - [1, 49]
+          (path_expression [1, 48] - [1, 49]
+            (identifier [1, 48] - [1, 49]))))))
+  (comment [3, 0] - [24, 2]))
 
 ==================
 Test Case 34
@@ -1331,7 +1968,38 @@ QueryStatement [0-60] [select ANON_COUNT...T having a]
           Identifier(a) [59-60] [a]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [26, 2]
+  (comment [0, 0] - [0, 41])
+  (statement [1, 0] - [1, 61]
+    (select_statement [1, 0] - [1, 61]
+      (select_clause [1, 0] - [1, 44]
+        (select_list [1, 7] - [1, 44]
+          (select_expression [1, 7] - [1, 44]
+            (expression [1, 7] - [1, 39]
+              (function_call [1, 7] - [1, 39]
+                (path_expression [1, 7] - [1, 17]
+                  (identifier [1, 7] - [1, 17]))
+                (function_arguments [1, 21] - [1, 25]
+                  (function_argument [1, 21] - [1, 22]
+                    (expression [1, 21] - [1, 22]
+                      (number [1, 21] - [1, 22])))
+                  (function_argument [1, 24] - [1, 25]
+                    (expression [1, 24] - [1, 25]
+                      (number [1, 24] - [1, 25]))))
+                (having_modifier [1, 26] - [1, 38]
+                  (expression [1, 37] - [1, 38]
+                    (number [1, 37] - [1, 38])))))
+            (identifier [1, 43] - [1, 44]))))
+      (from_clause [1, 45] - [1, 51]
+        (from_item [1, 50] - [1, 51]
+          (table_expression [1, 50] - [1, 51]
+            (path_expression [1, 50] - [1, 51]
+              (identifier [1, 50] - [1, 51])))))
+      (having_clause [1, 52] - [1, 60]
+        (expression [1, 59] - [1, 60]
+          (path_expression [1, 59] - [1, 60]
+            (identifier [1, 59] - [1, 60]))))))
+  (comment [3, 0] - [26, 2]))
 
 ==================
 Test Case 35
@@ -1361,7 +2029,31 @@ QueryStatement [0-45] [select SUM...T having a]
           Identifier(a) [44-45] [a]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [23, 2]
+  (comment [0, 0] - [0, 52])
+  (statement [1, 0] - [1, 46]
+    (select_statement [1, 0] - [1, 46]
+      (select_clause [1, 0] - [1, 29]
+        (select_list [1, 7] - [1, 29]
+          (select_expression [1, 7] - [1, 29]
+            (expression [1, 7] - [1, 24]
+              (function_call [1, 7] - [1, 24]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (having_modifier [1, 11] - [1, 23]
+                  (expression [1, 22] - [1, 23]
+                    (number [1, 22] - [1, 23])))))
+            (identifier [1, 28] - [1, 29]))))
+      (from_clause [1, 30] - [1, 36]
+        (from_item [1, 35] - [1, 36]
+          (table_expression [1, 35] - [1, 36]
+            (path_expression [1, 35] - [1, 36]
+              (identifier [1, 35] - [1, 36])))))
+      (having_clause [1, 37] - [1, 45]
+        (expression [1, 44] - [1, 45]
+          (path_expression [1, 44] - [1, 45]
+            (identifier [1, 44] - [1, 45]))))))
+  (comment [3, 0] - [23, 2]))
 
 ==================
 Test Case 36
@@ -1393,7 +2085,36 @@ QueryStatement [0-51] [select max...T having a]
           Identifier(a) [50-51] [a]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [25, 2]
+  (statement [0, 0] - [0, 52]
+    (select_statement [0, 0] - [0, 52]
+      (select_clause [0, 0] - [0, 35]
+        (select_list [0, 7] - [0, 35]
+          (select_expression [0, 7] - [0, 35]
+            (expression [0, 7] - [0, 30]
+              (function_call [0, 7] - [0, 30]
+                (path_expression [0, 7] - [0, 10]
+                  (identifier [0, 7] - [0, 10]))
+                (function_arguments [0, 11] - [0, 14]
+                  (function_argument [0, 11] - [0, 14]
+                    (expression [0, 11] - [0, 14]
+                      (path_expression [0, 11] - [0, 14]
+                        (identifier [0, 11] - [0, 14])))))
+                (having_modifier [0, 15] - [0, 29]
+                  (expression [0, 26] - [0, 29]
+                    (path_expression [0, 26] - [0, 29]
+                      (identifier [0, 26] - [0, 29]))))))
+            (identifier [0, 34] - [0, 35]))))
+      (from_clause [0, 36] - [0, 42]
+        (from_item [0, 41] - [0, 42]
+          (table_expression [0, 41] - [0, 42]
+            (path_expression [0, 41] - [0, 42]
+              (identifier [0, 41] - [0, 42])))))
+      (having_clause [0, 43] - [0, 51]
+        (expression [0, 50] - [0, 51]
+          (path_expression [0, 50] - [0, 51]
+            (identifier [0, 50] - [0, 51]))))))
+  (comment [2, 0] - [25, 2]))
 
 ==================
 Test Case 37
@@ -1433,31 +2154,190 @@ QueryStatement [0-81] [select array_agg...T having a]
           Identifier(a) [80-81] [a]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [33, 2]
+  (statement [0, 0] - [0, 82]
+    (select_statement [0, 0] - [0, 82]
+      (select_clause [0, 0] - [0, 65]
+        (select_list [0, 7] - [0, 65]
+          (select_expression [0, 7] - [0, 65]
+            (expression [0, 7] - [0, 60]
+              (function_call [0, 7] - [0, 60]
+                (path_expression [0, 7] - [0, 16]
+                  (identifier [0, 7] - [0, 16]))
+                (function_arguments [0, 17] - [0, 18]
+                  (function_argument [0, 17] - [0, 18]
+                    (expression [0, 17] - [0, 18]
+                      (path_expression [0, 17] - [0, 18]
+                        (identifier [0, 17] - [0, 18])))))
+                (having_modifier [0, 19] - [0, 31]
+                  (expression [0, 30] - [0, 31]
+                    (path_expression [0, 30] - [0, 31]
+                      (identifier [0, 30] - [0, 31]))))
+                (order_by_clause [0, 32] - [0, 42]
+                  (order_expression_list [0, 41] - [0, 42]
+                    (order_expression [0, 41] - [0, 42]
+                      (expression [0, 41] - [0, 42]
+                        (path_expression [0, 41] - [0, 42]
+                          (identifier [0, 41] - [0, 42]))))))
+                (limit_clause [0, 43] - [0, 59]
+                  (number [0, 49] - [0, 50])
+                  (number [0, 58] - [0, 59]))))
+            (identifier [0, 64] - [0, 65]))))
+      (from_clause [0, 66] - [0, 72]
+        (from_item [0, 71] - [0, 72]
+          (table_expression [0, 71] - [0, 72]
+            (path_expression [0, 71] - [0, 72]
+              (identifier [0, 71] - [0, 72])))))
+      (having_clause [0, 73] - [0, 81]
+        (expression [0, 80] - [0, 81]
+          (path_expression [0, 80] - [0, 81]
+            (identifier [0, 80] - [0, 81]))))))
+  (comment [2, 0] - [33, 2]))
 
 ==================
 Test Case 38
 ==================
 # CLAMPED BETWEEN is ordered between HAVING and ORDER BY
-select array_agg(x having min y clamped between 1 and 2 {{order by z|limit 1 offset 2}}) as a from T;
+select array_agg(x having min y clamped between 1 and 2 order by z) as a from T;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: order by z
+QueryStatement [0-79] [select array_agg...as a from T]
+  Query [0-79] [select array_agg...as a from T]
+    Select [0-79] [select array_agg...as a from T]
+      SelectList [7-72] [array_agg(...by z) as a]
+        SelectColumn [7-72] [array_agg(...by z) as a]
+          FunctionCall [7-67] [array_agg(...order by z)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            HavingModifier [19-31] [having min y]
+              PathExpression [30-31] [y]
+                Identifier(y) [30-31] [y]
+            ClampedBetweenModifier [32-55] [clamped between 1 and 2]
+              IntLiteral(1) [48-49] [1]
+              IntLiteral(2) [54-55] [2]
+            OrderBy [56-66] [order by z]
+              OrderingExpression(ASC) [65-66] [z]
+                PathExpression [65-66] [z]
+                  Identifier(z) [65-66] [z]
+          Alias [68-72] [as a]
+            Identifier(a) [71-72] [a]
+      FromClause [73-79] [from T]
+        TablePathExpression [78-79] [T]
+          PathExpression [78-79] [T]
+            Identifier(T) [78-79] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (comment [0, 0] - [0, 56])
+  (statement [1, 0] - [1, 80]
+    (select_statement [1, 0] - [1, 80]
+      (select_clause [1, 0] - [1, 72]
+        (select_list [1, 7] - [1, 72]
+          (select_expression [1, 7] - [1, 72]
+            (expression [1, 7] - [1, 67]
+              (function_call [1, 7] - [1, 67]
+                (path_expression [1, 7] - [1, 16]
+                  (identifier [1, 7] - [1, 16]))
+                (function_arguments [1, 17] - [1, 18]
+                  (function_argument [1, 17] - [1, 18]
+                    (expression [1, 17] - [1, 18]
+                      (path_expression [1, 17] - [1, 18]
+                        (identifier [1, 17] - [1, 18])))))
+                (having_modifier [1, 19] - [1, 31]
+                  (expression [1, 30] - [1, 31]
+                    (path_expression [1, 30] - [1, 31]
+                      (identifier [1, 30] - [1, 31]))))
+                (clamped_between_modifier [1, 32] - [1, 55]
+                  (expression [1, 48] - [1, 49]
+                    (number [1, 48] - [1, 49]))
+                  (expression [1, 54] - [1, 55]
+                    (number [1, 54] - [1, 55])))
+                (order_by_clause [1, 56] - [1, 66]
+                  (order_expression_list [1, 65] - [1, 66]
+                    (order_expression [1, 65] - [1, 66]
+                      (expression [1, 65] - [1, 66]
+                        (path_expression [1, 65] - [1, 66]
+                          (identifier [1, 65] - [1, 66]))))))))
+            (identifier [1, 71] - [1, 72]))))
+      (from_clause [1, 73] - [1, 79]
+        (from_item [1, 78] - [1, 79]
+          (table_expression [1, 78] - [1, 79]
+            (path_expression [1, 78] - [1, 79]
+              (identifier [1, 78] - [1, 79])))))))
+  (comment [3, 0] - [30, 2]))
 
 ==================
 Test Case 39
 ==================
-# Appearance of a trailing modifier as a leading modifier is not allowed.
-select array_agg({{x order by z|limit 1 offset 2}} clamped between 1 and 2 having min y) as a from T;
+# CLAMPED BETWEEN is ordered between HAVING and ORDER BY
+select array_agg(x having min y clamped between 1 and 2 limit 1 offset 2) as a from T;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: x order by z
+QueryStatement [0-85] [select array_agg...as a from T]
+  Query [0-85] [select array_agg...as a from T]
+    Select [0-85] [select array_agg...as a from T]
+      SelectList [7-78] [array_agg(...offset 2) as a]
+        SelectColumn [7-78] [array_agg(...offset 2) as a]
+          FunctionCall [7-73] [array_agg(...offset 2)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            HavingModifier [19-31] [having min y]
+              PathExpression [30-31] [y]
+                Identifier(y) [30-31] [y]
+            ClampedBetweenModifier [32-55] [clamped between 1 and 2]
+              IntLiteral(1) [48-49] [1]
+              IntLiteral(2) [54-55] [2]
+            LimitOffset [56-72] [limit 1 offset 2]
+              Limit [56-63] [limit 1]
+                IntLiteral(1) [62-63] [1]
+              IntLiteral(2) [71-72] [2]
+          Alias [74-78] [as a]
+            Identifier(a) [77-78] [a]
+      FromClause [79-85] [from T]
+        TablePathExpression [84-85] [T]
+          PathExpression [84-85] [T]
+            Identifier(T) [84-85] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (comment [0, 0] - [0, 56])
+  (statement [1, 0] - [1, 86]
+    (select_statement [1, 0] - [1, 86]
+      (select_clause [1, 0] - [1, 78]
+        (select_list [1, 7] - [1, 78]
+          (select_expression [1, 7] - [1, 78]
+            (expression [1, 7] - [1, 73]
+              (function_call [1, 7] - [1, 73]
+                (path_expression [1, 7] - [1, 16]
+                  (identifier [1, 7] - [1, 16]))
+                (function_arguments [1, 17] - [1, 18]
+                  (function_argument [1, 17] - [1, 18]
+                    (expression [1, 17] - [1, 18]
+                      (path_expression [1, 17] - [1, 18]
+                        (identifier [1, 17] - [1, 18])))))
+                (having_modifier [1, 19] - [1, 31]
+                  (expression [1, 30] - [1, 31]
+                    (path_expression [1, 30] - [1, 31]
+                      (identifier [1, 30] - [1, 31]))))
+                (clamped_between_modifier [1, 32] - [1, 55]
+                  (expression [1, 48] - [1, 49]
+                    (number [1, 48] - [1, 49]))
+                  (expression [1, 54] - [1, 55]
+                    (number [1, 54] - [1, 55])))
+                (limit_clause [1, 56] - [1, 72]
+                  (number [1, 62] - [1, 63])
+                  (number [1, 71] - [1, 72]))))
+            (identifier [1, 77] - [1, 78]))))
+      (from_clause [1, 79] - [1, 85]
+        (from_item [1, 84] - [1, 85]
+          (table_expression [1, 84] - [1, 85]
+            (path_expression [1, 84] - [1, 85]
+              (identifier [1, 84] - [1, 85])))))))
+  (comment [3, 0] - [30, 2]))
 
 ==================
 Test Case 40
@@ -1485,7 +2365,30 @@ QueryStatement [0-47] [select anon_count...s a from T]
             Identifier(T) [46-47] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (comment [0, 0] - [0, 19])
+  (statement [1, 0] - [1, 48]
+    (select_statement [1, 0] - [1, 48]
+      (select_clause [1, 0] - [1, 40]
+        (select_list [1, 7] - [1, 40]
+          (select_expression [1, 7] - [1, 40]
+            (expression [1, 7] - [1, 35]
+              (function_call [1, 7] - [1, 35]
+                (path_expression [1, 7] - [1, 17]
+                  (identifier [1, 7] - [1, 17]))
+                (function_arguments [1, 18] - [1, 22]
+                  (function_argument [1, 18] - [1, 22]
+                    (expression [1, 18] - [1, 22]
+                      (path_expression [1, 18] - [1, 22]
+                        (identifier [1, 18] - [1, 22])))))
+                (with_report_modifier [1, 23] - [1, 34])))
+            (identifier [1, 39] - [1, 40]))))
+      (from_clause [1, 41] - [1, 47]
+        (from_item [1, 46] - [1, 47]
+          (table_expression [1, 46] - [1, 47]
+            (path_expression [1, 46] - [1, 47]
+              (identifier [1, 46] - [1, 47])))))))
+  (comment [3, 0] - [21, 2]))
 
 ==================
 Test Case 41
@@ -1524,7 +2427,48 @@ QueryStatement [0-73] [select anon_count...s a from T]
             Identifier(T) [72-73] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [32, 2]
+  (comment [0, 0] - [0, 31])
+  (comment [1, 0] - [1, 13])
+  (statement [2, 0] - [2, 74]
+    (select_statement [2, 0] - [2, 74]
+      (select_clause [2, 0] - [2, 66]
+        (select_list [2, 7] - [2, 66]
+          (select_expression [2, 7] - [2, 66]
+            (expression [2, 7] - [2, 61]
+              (function_call [2, 7] - [2, 61]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 32]
+                  (function_argument [2, 18] - [2, 32]
+                    (expression [2, 18] - [2, 32]
+                      (function_call [2, 18] - [2, 32]
+                        (path_expression [2, 18] - [2, 20]
+                          (identifier [2, 18] - [2, 20]))
+                        (function_arguments [2, 21] - [2, 31]
+                          (function_argument [2, 21] - [2, 25]
+                            (expression [2, 21] - [2, 25]
+                              (path_expression [2, 21] - [2, 25]
+                                (identifier [2, 21] - [2, 25]))))
+                          (function_argument [2, 27] - [2, 28]
+                            (expression [2, 27] - [2, 28]
+                              (number [2, 27] - [2, 28])))
+                          (function_argument [2, 30] - [2, 31]
+                            (expression [2, 30] - [2, 31]
+                              (number [2, 30] - [2, 31]))))))))
+                (with_report_modifier [2, 33] - [2, 60]
+                  (options_list [2, 44] - [2, 60]
+                    (options_entry [2, 45] - [2, 59]
+                      (identifier [2, 45] - [2, 51])
+                      (expression [2, 52] - [2, 59]
+                        (string [2, 52] - [2, 59])))))))
+            (identifier [2, 65] - [2, 66]))))
+      (from_clause [2, 67] - [2, 73]
+        (from_item [2, 72] - [2, 73]
+          (table_expression [2, 72] - [2, 73]
+            (path_expression [2, 72] - [2, 73]
+              (identifier [2, 72] - [2, 73])))))))
+  (comment [4, 0] - [32, 2]))
 
 ==================
 Test Case 42
@@ -1560,38 +2504,1631 @@ QueryStatement [0-81] [select anon_count...z)) from t]
             Identifier(t) [80-81] [t]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [29, 2]
+  (comment [0, 0] - [0, 34])
+  (statement [1, 0] - [3, 6]
+    (select_statement [1, 0] - [3, 6]
+      (select_clause [1, 0] - [2, 42]
+        (select_list [1, 7] - [2, 42]
+          (select_expression [1, 7] - [1, 30]
+            (expression [1, 7] - [1, 30]
+              (function_call [1, 7] - [1, 30]
+                (path_expression [1, 7] - [1, 17]
+                  (identifier [1, 7] - [1, 17]))
+                (with_report_modifier [1, 18] - [1, 29]))))
+          (select_expression [2, 7] - [2, 42]
+            (expression [2, 7] - [2, 42]
+              (function_call [2, 7] - [2, 42]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (with_report_modifier [2, 18] - [2, 41]
+                  (options_list [2, 29] - [2, 41]
+                    (options_entry [2, 30] - [2, 40]
+                      (identifier [2, 30] - [2, 36])
+                      (expression [2, 37] - [2, 40]
+                        (path_expression [2, 37] - [2, 40]
+                          (identifier [2, 37] - [2, 40])))))))))))
+      (from_clause [3, 0] - [3, 6]
+        (from_item [3, 5] - [3, 6]
+          (table_expression [3, 5] - [3, 6]
+            (path_expression [3, 5] - [3, 6]
+              (identifier [3, 5] - [3, 6])))))))
+  (comment [5, 0] - [29, 2]))
 
 ==================
 Test Case 43
 ==================
 # WITH REPORT with/without FORMAT with leading identifier or star argument and
 # optionally multiple arguments.
-select anon_count({{*|expr}} {{|clamped between 1 and 2}}
-with report{{|(format = json)|(format = proto)}} {{|order by 5}}) as a from T;
+select anon_count(* 
+with report ) as a from T;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: *,,,
+QueryStatement [0-46] [select anon_count...s a from T]
+  Query [0-46] [select anon_count...s a from T]
+    Select [0-46] [select anon_count...s a from T]
+      SelectList [7-39] [anon_count...report ) as a]
+        SelectColumn [7-39] [anon_count...report ) as a]
+          FunctionCall [7-34] [anon_count(*  with report )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            WithReportModifier [21-32] [with report]
+          Alias [35-39] [as a]
+            Identifier(a) [38-39] [a]
+      FromClause [40-46] [from T]
+        TablePathExpression [45-46] [T]
+          PathExpression [45-46] [T]
+            Identifier(T) [45-46] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [22, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 26]
+    (select_statement [2, 0] - [3, 26]
+      (select_clause [2, 0] - [3, 18]
+        (select_list [2, 7] - [3, 18]
+          (select_expression [2, 7] - [3, 18]
+            (expression [2, 7] - [3, 13]
+              (function_call [2, 7] - [3, 13]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (with_report_modifier [3, 0] - [3, 11])))
+            (identifier [3, 17] - [3, 18]))))
+      (from_clause [3, 19] - [3, 25]
+        (from_item [3, 24] - [3, 25]
+          (table_expression [3, 24] - [3, 25]
+            (path_expression [3, 24] - [3, 25]
+              (identifier [3, 24] - [3, 25])))))))
+  (comment [5, 0] - [22, 2]))
 
 ==================
 Test Case 44
 ==================
-# GROUPING_SETS, etc, don't support aliases.
-select COUNT(*)
-from t
-GROUP BY {{ROLLUP|CUBE|GROUPING SETS}}(x,y) AS z
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* 
+with report order by 5) as a from T;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ROLLUP
+QueryStatement [0-56] [select anon_count...s a from T]
+  Query [0-56] [select anon_count...s a from T]
+    Select [0-56] [select anon_count...s a from T]
+      SelectList [7-49] [anon_count...by 5) as a]
+        SelectColumn [7-49] [anon_count...by 5) as a]
+          FunctionCall [7-44] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            WithReportModifier [21-32] [with report]
+            OrderBy [33-43] [order by 5]
+              OrderingExpression(ASC) [42-43] [5]
+                IntLiteral(5) [42-43] [5]
+          Alias [45-49] [as a]
+            Identifier(a) [48-49] [a]
+      FromClause [50-56] [from T]
+        TablePathExpression [55-56] [T]
+          PathExpression [55-56] [T]
+            Identifier(T) [55-56] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [25, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 36]
+    (select_statement [2, 0] - [3, 36]
+      (select_clause [2, 0] - [3, 28]
+        (select_list [2, 7] - [3, 28]
+          (select_expression [2, 7] - [3, 28]
+            (expression [2, 7] - [3, 23]
+              (function_call [2, 7] - [3, 23]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (with_report_modifier [3, 0] - [3, 11])
+                (order_by_clause [3, 12] - [3, 22]
+                  (order_expression_list [3, 21] - [3, 22]
+                    (order_expression [3, 21] - [3, 22]
+                      (expression [3, 21] - [3, 22]
+                        (number [3, 21] - [3, 22])))))))
+            (identifier [3, 27] - [3, 28]))))
+      (from_clause [3, 29] - [3, 35]
+        (from_item [3, 34] - [3, 35]
+          (table_expression [3, 34] - [3, 35]
+            (path_expression [3, 34] - [3, 35]
+              (identifier [3, 34] - [3, 35])))))))
+  (comment [5, 0] - [25, 2]))
 
 ==================
 Test Case 45
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* 
+with report(format = json) ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-61] [select anon_count...s a from T]
+  Query [0-61] [select anon_count...s a from T]
+    Select [0-61] [select anon_count...s a from T]
+      SelectList [7-54] [anon_count...json) ) as a]
+        SelectColumn [7-54] [anon_count...json) ) as a]
+          FunctionCall [7-49] [anon_count...= json) )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            WithReportModifier [21-47] [with report(format = json)]
+              OptionsList [32-47] [(format = json)]
+                OptionsEntry [33-46] [format = json]
+                  Identifier(format) [33-39] [format]
+                  PathExpression [42-46] [json]
+                    Identifier(json) [42-46] [json]
+          Alias [50-54] [as a]
+            Identifier(a) [53-54] [a]
+      FromClause [55-61] [from T]
+        TablePathExpression [60-61] [T]
+          PathExpression [60-61] [T]
+            Identifier(T) [60-61] [T]
+*/
+---
+(source_file [0, 0] - [27, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 41]
+    (select_statement [2, 0] - [3, 41]
+      (select_clause [2, 0] - [3, 33]
+        (select_list [2, 7] - [3, 33]
+          (select_expression [2, 7] - [3, 33]
+            (expression [2, 7] - [3, 28]
+              (function_call [2, 7] - [3, 28]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (with_report_modifier [3, 0] - [3, 26]
+                  (options_list [3, 11] - [3, 26]
+                    (options_entry [3, 12] - [3, 25]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 25]
+                        (path_expression [3, 21] - [3, 25]
+                          (identifier [3, 21] - [3, 25]))))))))
+            (identifier [3, 32] - [3, 33]))))
+      (from_clause [3, 34] - [3, 40]
+        (from_item [3, 39] - [3, 40]
+          (table_expression [3, 39] - [3, 40]
+            (path_expression [3, 39] - [3, 40]
+              (identifier [3, 39] - [3, 40])))))))
+  (comment [5, 0] - [27, 2]))
+
+==================
+Test Case 46
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* 
+with report(format = json) order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-71] [select anon_count...s a from T]
+  Query [0-71] [select anon_count...s a from T]
+    Select [0-71] [select anon_count...s a from T]
+      SelectList [7-64] [anon_count...by 5) as a]
+        SelectColumn [7-64] [anon_count...by 5) as a]
+          FunctionCall [7-59] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            WithReportModifier [21-47] [with report(format = json)]
+              OptionsList [32-47] [(format = json)]
+                OptionsEntry [33-46] [format = json]
+                  Identifier(format) [33-39] [format]
+                  PathExpression [42-46] [json]
+                    Identifier(json) [42-46] [json]
+            OrderBy [48-58] [order by 5]
+              OrderingExpression(ASC) [57-58] [5]
+                IntLiteral(5) [57-58] [5]
+          Alias [60-64] [as a]
+            Identifier(a) [63-64] [a]
+      FromClause [65-71] [from T]
+        TablePathExpression [70-71] [T]
+          PathExpression [70-71] [T]
+            Identifier(T) [70-71] [T]
+*/
+---
+(source_file [0, 0] - [30, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 51]
+    (select_statement [2, 0] - [3, 51]
+      (select_clause [2, 0] - [3, 43]
+        (select_list [2, 7] - [3, 43]
+          (select_expression [2, 7] - [3, 43]
+            (expression [2, 7] - [3, 38]
+              (function_call [2, 7] - [3, 38]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (with_report_modifier [3, 0] - [3, 26]
+                  (options_list [3, 11] - [3, 26]
+                    (options_entry [3, 12] - [3, 25]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 25]
+                        (path_expression [3, 21] - [3, 25]
+                          (identifier [3, 21] - [3, 25]))))))
+                (order_by_clause [3, 27] - [3, 37]
+                  (order_expression_list [3, 36] - [3, 37]
+                    (order_expression [3, 36] - [3, 37]
+                      (expression [3, 36] - [3, 37]
+                        (number [3, 36] - [3, 37])))))))
+            (identifier [3, 42] - [3, 43]))))
+      (from_clause [3, 44] - [3, 50]
+        (from_item [3, 49] - [3, 50]
+          (table_expression [3, 49] - [3, 50]
+            (path_expression [3, 49] - [3, 50]
+              (identifier [3, 49] - [3, 50])))))))
+  (comment [5, 0] - [30, 2]))
+
+==================
+Test Case 47
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* 
+with report(format = proto) ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-62] [select anon_count...s a from T]
+  Query [0-62] [select anon_count...s a from T]
+    Select [0-62] [select anon_count...s a from T]
+      SelectList [7-55] [anon_count...proto) ) as a]
+        SelectColumn [7-55] [anon_count...proto) ) as a]
+          FunctionCall [7-50] [anon_count...= proto) )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            WithReportModifier [21-48] [with report(format = proto)]
+              OptionsList [32-48] [(format = proto)]
+                OptionsEntry [33-47] [format = proto]
+                  Identifier(format) [33-39] [format]
+                  PathExpression [42-47] [proto]
+                    Identifier(`PROTO`) [42-47] [proto]
+          Alias [51-55] [as a]
+            Identifier(a) [54-55] [a]
+      FromClause [56-62] [from T]
+        TablePathExpression [61-62] [T]
+          PathExpression [61-62] [T]
+            Identifier(T) [61-62] [T]
+*/
+---
+(source_file [0, 0] - [27, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 42]
+    (select_statement [2, 0] - [3, 42]
+      (select_clause [2, 0] - [3, 34]
+        (select_list [2, 7] - [3, 34]
+          (select_expression [2, 7] - [3, 34]
+            (expression [2, 7] - [3, 29]
+              (function_call [2, 7] - [3, 29]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (with_report_modifier [3, 0] - [3, 27]
+                  (options_list [3, 11] - [3, 27]
+                    (options_entry [3, 12] - [3, 26]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 26]
+                        (path_expression [3, 21] - [3, 26]
+                          (identifier [3, 21] - [3, 26]))))))))
+            (identifier [3, 33] - [3, 34]))))
+      (from_clause [3, 35] - [3, 41]
+        (from_item [3, 40] - [3, 41]
+          (table_expression [3, 40] - [3, 41]
+            (path_expression [3, 40] - [3, 41]
+              (identifier [3, 40] - [3, 41])))))))
+  (comment [5, 0] - [27, 2]))
+
+==================
+Test Case 48
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* 
+with report(format = proto) order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-72] [select anon_count...s a from T]
+  Query [0-72] [select anon_count...s a from T]
+    Select [0-72] [select anon_count...s a from T]
+      SelectList [7-65] [anon_count...by 5) as a]
+        SelectColumn [7-65] [anon_count...by 5) as a]
+          FunctionCall [7-60] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            WithReportModifier [21-48] [with report(format = proto)]
+              OptionsList [32-48] [(format = proto)]
+                OptionsEntry [33-47] [format = proto]
+                  Identifier(format) [33-39] [format]
+                  PathExpression [42-47] [proto]
+                    Identifier(`PROTO`) [42-47] [proto]
+            OrderBy [49-59] [order by 5]
+              OrderingExpression(ASC) [58-59] [5]
+                IntLiteral(5) [58-59] [5]
+          Alias [61-65] [as a]
+            Identifier(a) [64-65] [a]
+      FromClause [66-72] [from T]
+        TablePathExpression [71-72] [T]
+          PathExpression [71-72] [T]
+            Identifier(T) [71-72] [T]
+*/
+---
+(source_file [0, 0] - [30, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 52]
+    (select_statement [2, 0] - [3, 52]
+      (select_clause [2, 0] - [3, 44]
+        (select_list [2, 7] - [3, 44]
+          (select_expression [2, 7] - [3, 44]
+            (expression [2, 7] - [3, 39]
+              (function_call [2, 7] - [3, 39]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (with_report_modifier [3, 0] - [3, 27]
+                  (options_list [3, 11] - [3, 27]
+                    (options_entry [3, 12] - [3, 26]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 26]
+                        (path_expression [3, 21] - [3, 26]
+                          (identifier [3, 21] - [3, 26]))))))
+                (order_by_clause [3, 28] - [3, 38]
+                  (order_expression_list [3, 37] - [3, 38]
+                    (order_expression [3, 37] - [3, 38]
+                      (expression [3, 37] - [3, 38]
+                        (number [3, 37] - [3, 38])))))))
+            (identifier [3, 43] - [3, 44]))))
+      (from_clause [3, 45] - [3, 51]
+        (from_item [3, 50] - [3, 51]
+          (table_expression [3, 50] - [3, 51]
+            (path_expression [3, 50] - [3, 51]
+              (identifier [3, 50] - [3, 51])))))))
+  (comment [5, 0] - [30, 2]))
+
+==================
+Test Case 49
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* clamped between 1 and 2
+with report ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-69] [select anon_count...s a from T]
+  Query [0-69] [select anon_count...s a from T]
+    Select [0-69] [select anon_count...s a from T]
+      SelectList [7-62] [anon_count...report ) as a]
+        SelectColumn [7-62] [anon_count...report ) as a]
+          FunctionCall [7-57] [anon_count...with report )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            ClampedBetweenModifier [20-43] [clamped between 1 and 2]
+              IntLiteral(1) [36-37] [1]
+              IntLiteral(2) [42-43] [2]
+            WithReportModifier [44-55] [with report]
+          Alias [58-62] [as a]
+            Identifier(a) [61-62] [a]
+      FromClause [63-69] [from T]
+        TablePathExpression [68-69] [T]
+          PathExpression [68-69] [T]
+            Identifier(T) [68-69] [T]
+*/
+---
+(source_file [0, 0] - [25, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 26]
+    (select_statement [2, 0] - [3, 26]
+      (select_clause [2, 0] - [3, 18]
+        (select_list [2, 7] - [3, 18]
+          (select_expression [2, 7] - [3, 18]
+            (expression [2, 7] - [3, 13]
+              (function_call [2, 7] - [3, 13]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (clamped_between_modifier [2, 20] - [2, 43]
+                  (expression [2, 36] - [2, 37]
+                    (number [2, 36] - [2, 37]))
+                  (expression [2, 42] - [2, 43]
+                    (number [2, 42] - [2, 43])))
+                (with_report_modifier [3, 0] - [3, 11])))
+            (identifier [3, 17] - [3, 18]))))
+      (from_clause [3, 19] - [3, 25]
+        (from_item [3, 24] - [3, 25]
+          (table_expression [3, 24] - [3, 25]
+            (path_expression [3, 24] - [3, 25]
+              (identifier [3, 24] - [3, 25])))))))
+  (comment [5, 0] - [25, 2]))
+
+==================
+Test Case 50
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* clamped between 1 and 2
+with report order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-79] [select anon_count...s a from T]
+  Query [0-79] [select anon_count...s a from T]
+    Select [0-79] [select anon_count...s a from T]
+      SelectList [7-72] [anon_count...by 5) as a]
+        SelectColumn [7-72] [anon_count...by 5) as a]
+          FunctionCall [7-67] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            ClampedBetweenModifier [20-43] [clamped between 1 and 2]
+              IntLiteral(1) [36-37] [1]
+              IntLiteral(2) [42-43] [2]
+            WithReportModifier [44-55] [with report]
+            OrderBy [56-66] [order by 5]
+              OrderingExpression(ASC) [65-66] [5]
+                IntLiteral(5) [65-66] [5]
+          Alias [68-72] [as a]
+            Identifier(a) [71-72] [a]
+      FromClause [73-79] [from T]
+        TablePathExpression [78-79] [T]
+          PathExpression [78-79] [T]
+            Identifier(T) [78-79] [T]
+*/
+---
+(source_file [0, 0] - [28, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 36]
+    (select_statement [2, 0] - [3, 36]
+      (select_clause [2, 0] - [3, 28]
+        (select_list [2, 7] - [3, 28]
+          (select_expression [2, 7] - [3, 28]
+            (expression [2, 7] - [3, 23]
+              (function_call [2, 7] - [3, 23]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (clamped_between_modifier [2, 20] - [2, 43]
+                  (expression [2, 36] - [2, 37]
+                    (number [2, 36] - [2, 37]))
+                  (expression [2, 42] - [2, 43]
+                    (number [2, 42] - [2, 43])))
+                (with_report_modifier [3, 0] - [3, 11])
+                (order_by_clause [3, 12] - [3, 22]
+                  (order_expression_list [3, 21] - [3, 22]
+                    (order_expression [3, 21] - [3, 22]
+                      (expression [3, 21] - [3, 22]
+                        (number [3, 21] - [3, 22])))))))
+            (identifier [3, 27] - [3, 28]))))
+      (from_clause [3, 29] - [3, 35]
+        (from_item [3, 34] - [3, 35]
+          (table_expression [3, 34] - [3, 35]
+            (path_expression [3, 34] - [3, 35]
+              (identifier [3, 34] - [3, 35])))))))
+  (comment [5, 0] - [28, 2]))
+
+==================
+Test Case 51
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* clamped between 1 and 2
+with report(format = json) ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-84] [select anon_count...s a from T]
+  Query [0-84] [select anon_count...s a from T]
+    Select [0-84] [select anon_count...s a from T]
+      SelectList [7-77] [anon_count...json) ) as a]
+        SelectColumn [7-77] [anon_count...json) ) as a]
+          FunctionCall [7-72] [anon_count...= json) )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            ClampedBetweenModifier [20-43] [clamped between 1 and 2]
+              IntLiteral(1) [36-37] [1]
+              IntLiteral(2) [42-43] [2]
+            WithReportModifier [44-70] [with report(format = json)]
+              OptionsList [55-70] [(format = json)]
+                OptionsEntry [56-69] [format = json]
+                  Identifier(format) [56-62] [format]
+                  PathExpression [65-69] [json]
+                    Identifier(json) [65-69] [json]
+          Alias [73-77] [as a]
+            Identifier(a) [76-77] [a]
+      FromClause [78-84] [from T]
+        TablePathExpression [83-84] [T]
+          PathExpression [83-84] [T]
+            Identifier(T) [83-84] [T]
+*/
+---
+(source_file [0, 0] - [30, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 41]
+    (select_statement [2, 0] - [3, 41]
+      (select_clause [2, 0] - [3, 33]
+        (select_list [2, 7] - [3, 33]
+          (select_expression [2, 7] - [3, 33]
+            (expression [2, 7] - [3, 28]
+              (function_call [2, 7] - [3, 28]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (clamped_between_modifier [2, 20] - [2, 43]
+                  (expression [2, 36] - [2, 37]
+                    (number [2, 36] - [2, 37]))
+                  (expression [2, 42] - [2, 43]
+                    (number [2, 42] - [2, 43])))
+                (with_report_modifier [3, 0] - [3, 26]
+                  (options_list [3, 11] - [3, 26]
+                    (options_entry [3, 12] - [3, 25]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 25]
+                        (path_expression [3, 21] - [3, 25]
+                          (identifier [3, 21] - [3, 25]))))))))
+            (identifier [3, 32] - [3, 33]))))
+      (from_clause [3, 34] - [3, 40]
+        (from_item [3, 39] - [3, 40]
+          (table_expression [3, 39] - [3, 40]
+            (path_expression [3, 39] - [3, 40]
+              (identifier [3, 39] - [3, 40])))))))
+  (comment [5, 0] - [30, 2]))
+
+==================
+Test Case 52
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* clamped between 1 and 2
+with report(format = json) order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-94] [select anon_count...s a from T]
+  Query [0-94] [select anon_count...s a from T]
+    Select [0-94] [select anon_count...s a from T]
+      SelectList [7-87] [anon_count...by 5) as a]
+        SelectColumn [7-87] [anon_count...by 5) as a]
+          FunctionCall [7-82] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            ClampedBetweenModifier [20-43] [clamped between 1 and 2]
+              IntLiteral(1) [36-37] [1]
+              IntLiteral(2) [42-43] [2]
+            WithReportModifier [44-70] [with report(format = json)]
+              OptionsList [55-70] [(format = json)]
+                OptionsEntry [56-69] [format = json]
+                  Identifier(format) [56-62] [format]
+                  PathExpression [65-69] [json]
+                    Identifier(json) [65-69] [json]
+            OrderBy [71-81] [order by 5]
+              OrderingExpression(ASC) [80-81] [5]
+                IntLiteral(5) [80-81] [5]
+          Alias [83-87] [as a]
+            Identifier(a) [86-87] [a]
+      FromClause [88-94] [from T]
+        TablePathExpression [93-94] [T]
+          PathExpression [93-94] [T]
+            Identifier(T) [93-94] [T]
+*/
+---
+(source_file [0, 0] - [33, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 51]
+    (select_statement [2, 0] - [3, 51]
+      (select_clause [2, 0] - [3, 43]
+        (select_list [2, 7] - [3, 43]
+          (select_expression [2, 7] - [3, 43]
+            (expression [2, 7] - [3, 38]
+              (function_call [2, 7] - [3, 38]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (clamped_between_modifier [2, 20] - [2, 43]
+                  (expression [2, 36] - [2, 37]
+                    (number [2, 36] - [2, 37]))
+                  (expression [2, 42] - [2, 43]
+                    (number [2, 42] - [2, 43])))
+                (with_report_modifier [3, 0] - [3, 26]
+                  (options_list [3, 11] - [3, 26]
+                    (options_entry [3, 12] - [3, 25]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 25]
+                        (path_expression [3, 21] - [3, 25]
+                          (identifier [3, 21] - [3, 25]))))))
+                (order_by_clause [3, 27] - [3, 37]
+                  (order_expression_list [3, 36] - [3, 37]
+                    (order_expression [3, 36] - [3, 37]
+                      (expression [3, 36] - [3, 37]
+                        (number [3, 36] - [3, 37])))))))
+            (identifier [3, 42] - [3, 43]))))
+      (from_clause [3, 44] - [3, 50]
+        (from_item [3, 49] - [3, 50]
+          (table_expression [3, 49] - [3, 50]
+            (path_expression [3, 49] - [3, 50]
+              (identifier [3, 49] - [3, 50])))))))
+  (comment [5, 0] - [33, 2]))
+
+==================
+Test Case 53
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* clamped between 1 and 2
+with report(format = proto) ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-85] [select anon_count...s a from T]
+  Query [0-85] [select anon_count...s a from T]
+    Select [0-85] [select anon_count...s a from T]
+      SelectList [7-78] [anon_count...proto) ) as a]
+        SelectColumn [7-78] [anon_count...proto) ) as a]
+          FunctionCall [7-73] [anon_count...= proto) )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            ClampedBetweenModifier [20-43] [clamped between 1 and 2]
+              IntLiteral(1) [36-37] [1]
+              IntLiteral(2) [42-43] [2]
+            WithReportModifier [44-71] [with report(format = proto)]
+              OptionsList [55-71] [(format = proto)]
+                OptionsEntry [56-70] [format = proto]
+                  Identifier(format) [56-62] [format]
+                  PathExpression [65-70] [proto]
+                    Identifier(`PROTO`) [65-70] [proto]
+          Alias [74-78] [as a]
+            Identifier(a) [77-78] [a]
+      FromClause [79-85] [from T]
+        TablePathExpression [84-85] [T]
+          PathExpression [84-85] [T]
+            Identifier(T) [84-85] [T]
+*/
+---
+(source_file [0, 0] - [30, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 42]
+    (select_statement [2, 0] - [3, 42]
+      (select_clause [2, 0] - [3, 34]
+        (select_list [2, 7] - [3, 34]
+          (select_expression [2, 7] - [3, 34]
+            (expression [2, 7] - [3, 29]
+              (function_call [2, 7] - [3, 29]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (clamped_between_modifier [2, 20] - [2, 43]
+                  (expression [2, 36] - [2, 37]
+                    (number [2, 36] - [2, 37]))
+                  (expression [2, 42] - [2, 43]
+                    (number [2, 42] - [2, 43])))
+                (with_report_modifier [3, 0] - [3, 27]
+                  (options_list [3, 11] - [3, 27]
+                    (options_entry [3, 12] - [3, 26]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 26]
+                        (path_expression [3, 21] - [3, 26]
+                          (identifier [3, 21] - [3, 26]))))))))
+            (identifier [3, 33] - [3, 34]))))
+      (from_clause [3, 35] - [3, 41]
+        (from_item [3, 40] - [3, 41]
+          (table_expression [3, 40] - [3, 41]
+            (path_expression [3, 40] - [3, 41]
+              (identifier [3, 40] - [3, 41])))))))
+  (comment [5, 0] - [30, 2]))
+
+==================
+Test Case 54
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(* clamped between 1 and 2
+with report(format = proto) order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-95] [select anon_count...s a from T]
+  Query [0-95] [select anon_count...s a from T]
+    Select [0-95] [select anon_count...s a from T]
+      SelectList [7-88] [anon_count...by 5) as a]
+        SelectColumn [7-88] [anon_count...by 5) as a]
+          FunctionCall [7-83] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            ClampedBetweenModifier [20-43] [clamped between 1 and 2]
+              IntLiteral(1) [36-37] [1]
+              IntLiteral(2) [42-43] [2]
+            WithReportModifier [44-71] [with report(format = proto)]
+              OptionsList [55-71] [(format = proto)]
+                OptionsEntry [56-70] [format = proto]
+                  Identifier(format) [56-62] [format]
+                  PathExpression [65-70] [proto]
+                    Identifier(`PROTO`) [65-70] [proto]
+            OrderBy [72-82] [order by 5]
+              OrderingExpression(ASC) [81-82] [5]
+                IntLiteral(5) [81-82] [5]
+          Alias [84-88] [as a]
+            Identifier(a) [87-88] [a]
+      FromClause [89-95] [from T]
+        TablePathExpression [94-95] [T]
+          PathExpression [94-95] [T]
+            Identifier(T) [94-95] [T]
+*/
+---
+(source_file [0, 0] - [33, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 52]
+    (select_statement [2, 0] - [3, 52]
+      (select_clause [2, 0] - [3, 44]
+        (select_list [2, 7] - [3, 44]
+          (select_expression [2, 7] - [3, 44]
+            (expression [2, 7] - [3, 39]
+              (function_call [2, 7] - [3, 39]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (clamped_between_modifier [2, 20] - [2, 43]
+                  (expression [2, 36] - [2, 37]
+                    (number [2, 36] - [2, 37]))
+                  (expression [2, 42] - [2, 43]
+                    (number [2, 42] - [2, 43])))
+                (with_report_modifier [3, 0] - [3, 27]
+                  (options_list [3, 11] - [3, 27]
+                    (options_entry [3, 12] - [3, 26]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 26]
+                        (path_expression [3, 21] - [3, 26]
+                          (identifier [3, 21] - [3, 26]))))))
+                (order_by_clause [3, 28] - [3, 38]
+                  (order_expression_list [3, 37] - [3, 38]
+                    (order_expression [3, 37] - [3, 38]
+                      (expression [3, 37] - [3, 38]
+                        (number [3, 37] - [3, 38])))))))
+            (identifier [3, 43] - [3, 44]))))
+      (from_clause [3, 45] - [3, 51]
+        (from_item [3, 50] - [3, 51]
+          (table_expression [3, 50] - [3, 51]
+            (path_expression [3, 50] - [3, 51]
+              (identifier [3, 50] - [3, 51])))))))
+  (comment [5, 0] - [33, 2]))
+
+==================
+Test Case 55
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr 
+with report ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [select anon_count...s a from T]
+  Query [0-49] [select anon_count...s a from T]
+    Select [0-49] [select anon_count...s a from T]
+      SelectList [7-42] [anon_count...report ) as a]
+        SelectColumn [7-42] [anon_count...report ) as a]
+          FunctionCall [7-37] [anon_count(expr  with report )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            WithReportModifier [24-35] [with report]
+          Alias [38-42] [as a]
+            Identifier(a) [41-42] [a]
+      FromClause [43-49] [from T]
+        TablePathExpression [48-49] [T]
+          PathExpression [48-49] [T]
+            Identifier(T) [48-49] [T]
+*/
+---
+(source_file [0, 0] - [23, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 26]
+    (select_statement [2, 0] - [3, 26]
+      (select_clause [2, 0] - [3, 18]
+        (select_list [2, 7] - [3, 18]
+          (select_expression [2, 7] - [3, 18]
+            (expression [2, 7] - [3, 13]
+              (function_call [2, 7] - [3, 13]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (with_report_modifier [3, 0] - [3, 11])))
+            (identifier [3, 17] - [3, 18]))))
+      (from_clause [3, 19] - [3, 25]
+        (from_item [3, 24] - [3, 25]
+          (table_expression [3, 24] - [3, 25]
+            (path_expression [3, 24] - [3, 25]
+              (identifier [3, 24] - [3, 25])))))))
+  (comment [5, 0] - [23, 2]))
+
+==================
+Test Case 56
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr 
+with report order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [select anon_count...s a from T]
+  Query [0-59] [select anon_count...s a from T]
+    Select [0-59] [select anon_count...s a from T]
+      SelectList [7-52] [anon_count...by 5) as a]
+        SelectColumn [7-52] [anon_count...by 5) as a]
+          FunctionCall [7-47] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            WithReportModifier [24-35] [with report]
+            OrderBy [36-46] [order by 5]
+              OrderingExpression(ASC) [45-46] [5]
+                IntLiteral(5) [45-46] [5]
+          Alias [48-52] [as a]
+            Identifier(a) [51-52] [a]
+      FromClause [53-59] [from T]
+        TablePathExpression [58-59] [T]
+          PathExpression [58-59] [T]
+            Identifier(T) [58-59] [T]
+*/
+---
+(source_file [0, 0] - [26, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 36]
+    (select_statement [2, 0] - [3, 36]
+      (select_clause [2, 0] - [3, 28]
+        (select_list [2, 7] - [3, 28]
+          (select_expression [2, 7] - [3, 28]
+            (expression [2, 7] - [3, 23]
+              (function_call [2, 7] - [3, 23]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (with_report_modifier [3, 0] - [3, 11])
+                (order_by_clause [3, 12] - [3, 22]
+                  (order_expression_list [3, 21] - [3, 22]
+                    (order_expression [3, 21] - [3, 22]
+                      (expression [3, 21] - [3, 22]
+                        (number [3, 21] - [3, 22])))))))
+            (identifier [3, 27] - [3, 28]))))
+      (from_clause [3, 29] - [3, 35]
+        (from_item [3, 34] - [3, 35]
+          (table_expression [3, 34] - [3, 35]
+            (path_expression [3, 34] - [3, 35]
+              (identifier [3, 34] - [3, 35])))))))
+  (comment [5, 0] - [26, 2]))
+
+==================
+Test Case 57
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr 
+with report(format = json) ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-64] [select anon_count...s a from T]
+  Query [0-64] [select anon_count...s a from T]
+    Select [0-64] [select anon_count...s a from T]
+      SelectList [7-57] [anon_count...json) ) as a]
+        SelectColumn [7-57] [anon_count...json) ) as a]
+          FunctionCall [7-52] [anon_count...= json) )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            WithReportModifier [24-50] [with report(format = json)]
+              OptionsList [35-50] [(format = json)]
+                OptionsEntry [36-49] [format = json]
+                  Identifier(format) [36-42] [format]
+                  PathExpression [45-49] [json]
+                    Identifier(json) [45-49] [json]
+          Alias [53-57] [as a]
+            Identifier(a) [56-57] [a]
+      FromClause [58-64] [from T]
+        TablePathExpression [63-64] [T]
+          PathExpression [63-64] [T]
+            Identifier(T) [63-64] [T]
+*/
+---
+(source_file [0, 0] - [28, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 41]
+    (select_statement [2, 0] - [3, 41]
+      (select_clause [2, 0] - [3, 33]
+        (select_list [2, 7] - [3, 33]
+          (select_expression [2, 7] - [3, 33]
+            (expression [2, 7] - [3, 28]
+              (function_call [2, 7] - [3, 28]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (with_report_modifier [3, 0] - [3, 26]
+                  (options_list [3, 11] - [3, 26]
+                    (options_entry [3, 12] - [3, 25]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 25]
+                        (path_expression [3, 21] - [3, 25]
+                          (identifier [3, 21] - [3, 25]))))))))
+            (identifier [3, 32] - [3, 33]))))
+      (from_clause [3, 34] - [3, 40]
+        (from_item [3, 39] - [3, 40]
+          (table_expression [3, 39] - [3, 40]
+            (path_expression [3, 39] - [3, 40]
+              (identifier [3, 39] - [3, 40])))))))
+  (comment [5, 0] - [28, 2]))
+
+==================
+Test Case 58
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr 
+with report(format = json) order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-74] [select anon_count...s a from T]
+  Query [0-74] [select anon_count...s a from T]
+    Select [0-74] [select anon_count...s a from T]
+      SelectList [7-67] [anon_count...by 5) as a]
+        SelectColumn [7-67] [anon_count...by 5) as a]
+          FunctionCall [7-62] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            WithReportModifier [24-50] [with report(format = json)]
+              OptionsList [35-50] [(format = json)]
+                OptionsEntry [36-49] [format = json]
+                  Identifier(format) [36-42] [format]
+                  PathExpression [45-49] [json]
+                    Identifier(json) [45-49] [json]
+            OrderBy [51-61] [order by 5]
+              OrderingExpression(ASC) [60-61] [5]
+                IntLiteral(5) [60-61] [5]
+          Alias [63-67] [as a]
+            Identifier(a) [66-67] [a]
+      FromClause [68-74] [from T]
+        TablePathExpression [73-74] [T]
+          PathExpression [73-74] [T]
+            Identifier(T) [73-74] [T]
+*/
+---
+(source_file [0, 0] - [31, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 51]
+    (select_statement [2, 0] - [3, 51]
+      (select_clause [2, 0] - [3, 43]
+        (select_list [2, 7] - [3, 43]
+          (select_expression [2, 7] - [3, 43]
+            (expression [2, 7] - [3, 38]
+              (function_call [2, 7] - [3, 38]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (with_report_modifier [3, 0] - [3, 26]
+                  (options_list [3, 11] - [3, 26]
+                    (options_entry [3, 12] - [3, 25]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 25]
+                        (path_expression [3, 21] - [3, 25]
+                          (identifier [3, 21] - [3, 25]))))))
+                (order_by_clause [3, 27] - [3, 37]
+                  (order_expression_list [3, 36] - [3, 37]
+                    (order_expression [3, 36] - [3, 37]
+                      (expression [3, 36] - [3, 37]
+                        (number [3, 36] - [3, 37])))))))
+            (identifier [3, 42] - [3, 43]))))
+      (from_clause [3, 44] - [3, 50]
+        (from_item [3, 49] - [3, 50]
+          (table_expression [3, 49] - [3, 50]
+            (path_expression [3, 49] - [3, 50]
+              (identifier [3, 49] - [3, 50])))))))
+  (comment [5, 0] - [31, 2]))
+
+==================
+Test Case 59
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr 
+with report(format = proto) ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-65] [select anon_count...s a from T]
+  Query [0-65] [select anon_count...s a from T]
+    Select [0-65] [select anon_count...s a from T]
+      SelectList [7-58] [anon_count...proto) ) as a]
+        SelectColumn [7-58] [anon_count...proto) ) as a]
+          FunctionCall [7-53] [anon_count...= proto) )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            WithReportModifier [24-51] [with report(format = proto)]
+              OptionsList [35-51] [(format = proto)]
+                OptionsEntry [36-50] [format = proto]
+                  Identifier(format) [36-42] [format]
+                  PathExpression [45-50] [proto]
+                    Identifier(`PROTO`) [45-50] [proto]
+          Alias [54-58] [as a]
+            Identifier(a) [57-58] [a]
+      FromClause [59-65] [from T]
+        TablePathExpression [64-65] [T]
+          PathExpression [64-65] [T]
+            Identifier(T) [64-65] [T]
+*/
+---
+(source_file [0, 0] - [28, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 42]
+    (select_statement [2, 0] - [3, 42]
+      (select_clause [2, 0] - [3, 34]
+        (select_list [2, 7] - [3, 34]
+          (select_expression [2, 7] - [3, 34]
+            (expression [2, 7] - [3, 29]
+              (function_call [2, 7] - [3, 29]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (with_report_modifier [3, 0] - [3, 27]
+                  (options_list [3, 11] - [3, 27]
+                    (options_entry [3, 12] - [3, 26]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 26]
+                        (path_expression [3, 21] - [3, 26]
+                          (identifier [3, 21] - [3, 26]))))))))
+            (identifier [3, 33] - [3, 34]))))
+      (from_clause [3, 35] - [3, 41]
+        (from_item [3, 40] - [3, 41]
+          (table_expression [3, 40] - [3, 41]
+            (path_expression [3, 40] - [3, 41]
+              (identifier [3, 40] - [3, 41])))))))
+  (comment [5, 0] - [28, 2]))
+
+==================
+Test Case 60
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr 
+with report(format = proto) order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-75] [select anon_count...s a from T]
+  Query [0-75] [select anon_count...s a from T]
+    Select [0-75] [select anon_count...s a from T]
+      SelectList [7-68] [anon_count...by 5) as a]
+        SelectColumn [7-68] [anon_count...by 5) as a]
+          FunctionCall [7-63] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            WithReportModifier [24-51] [with report(format = proto)]
+              OptionsList [35-51] [(format = proto)]
+                OptionsEntry [36-50] [format = proto]
+                  Identifier(format) [36-42] [format]
+                  PathExpression [45-50] [proto]
+                    Identifier(`PROTO`) [45-50] [proto]
+            OrderBy [52-62] [order by 5]
+              OrderingExpression(ASC) [61-62] [5]
+                IntLiteral(5) [61-62] [5]
+          Alias [64-68] [as a]
+            Identifier(a) [67-68] [a]
+      FromClause [69-75] [from T]
+        TablePathExpression [74-75] [T]
+          PathExpression [74-75] [T]
+            Identifier(T) [74-75] [T]
+*/
+---
+(source_file [0, 0] - [31, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 52]
+    (select_statement [2, 0] - [3, 52]
+      (select_clause [2, 0] - [3, 44]
+        (select_list [2, 7] - [3, 44]
+          (select_expression [2, 7] - [3, 44]
+            (expression [2, 7] - [3, 39]
+              (function_call [2, 7] - [3, 39]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (with_report_modifier [3, 0] - [3, 27]
+                  (options_list [3, 11] - [3, 27]
+                    (options_entry [3, 12] - [3, 26]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 26]
+                        (path_expression [3, 21] - [3, 26]
+                          (identifier [3, 21] - [3, 26]))))))
+                (order_by_clause [3, 28] - [3, 38]
+                  (order_expression_list [3, 37] - [3, 38]
+                    (order_expression [3, 37] - [3, 38]
+                      (expression [3, 37] - [3, 38]
+                        (number [3, 37] - [3, 38])))))))
+            (identifier [3, 43] - [3, 44]))))
+      (from_clause [3, 45] - [3, 51]
+        (from_item [3, 50] - [3, 51]
+          (table_expression [3, 50] - [3, 51]
+            (path_expression [3, 50] - [3, 51]
+              (identifier [3, 50] - [3, 51])))))))
+  (comment [5, 0] - [31, 2]))
+
+==================
+Test Case 61
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr clamped between 1 and 2
+with report ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-72] [select anon_count...s a from T]
+  Query [0-72] [select anon_count...s a from T]
+    Select [0-72] [select anon_count...s a from T]
+      SelectList [7-65] [anon_count...report ) as a]
+        SelectColumn [7-65] [anon_count...report ) as a]
+          FunctionCall [7-60] [anon_count...with report )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            ClampedBetweenModifier [23-46] [clamped between 1 and 2]
+              IntLiteral(1) [39-40] [1]
+              IntLiteral(2) [45-46] [2]
+            WithReportModifier [47-58] [with report]
+          Alias [61-65] [as a]
+            Identifier(a) [64-65] [a]
+      FromClause [66-72] [from T]
+        TablePathExpression [71-72] [T]
+          PathExpression [71-72] [T]
+            Identifier(T) [71-72] [T]
+*/
+---
+(source_file [0, 0] - [26, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 26]
+    (select_statement [2, 0] - [3, 26]
+      (select_clause [2, 0] - [3, 18]
+        (select_list [2, 7] - [3, 18]
+          (select_expression [2, 7] - [3, 18]
+            (expression [2, 7] - [3, 13]
+              (function_call [2, 7] - [3, 13]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (clamped_between_modifier [2, 23] - [2, 46]
+                  (expression [2, 39] - [2, 40]
+                    (number [2, 39] - [2, 40]))
+                  (expression [2, 45] - [2, 46]
+                    (number [2, 45] - [2, 46])))
+                (with_report_modifier [3, 0] - [3, 11])))
+            (identifier [3, 17] - [3, 18]))))
+      (from_clause [3, 19] - [3, 25]
+        (from_item [3, 24] - [3, 25]
+          (table_expression [3, 24] - [3, 25]
+            (path_expression [3, 24] - [3, 25]
+              (identifier [3, 24] - [3, 25])))))))
+  (comment [5, 0] - [26, 2]))
+
+==================
+Test Case 62
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr clamped between 1 and 2
+with report order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-82] [select anon_count...s a from T]
+  Query [0-82] [select anon_count...s a from T]
+    Select [0-82] [select anon_count...s a from T]
+      SelectList [7-75] [anon_count...by 5) as a]
+        SelectColumn [7-75] [anon_count...by 5) as a]
+          FunctionCall [7-70] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            ClampedBetweenModifier [23-46] [clamped between 1 and 2]
+              IntLiteral(1) [39-40] [1]
+              IntLiteral(2) [45-46] [2]
+            WithReportModifier [47-58] [with report]
+            OrderBy [59-69] [order by 5]
+              OrderingExpression(ASC) [68-69] [5]
+                IntLiteral(5) [68-69] [5]
+          Alias [71-75] [as a]
+            Identifier(a) [74-75] [a]
+      FromClause [76-82] [from T]
+        TablePathExpression [81-82] [T]
+          PathExpression [81-82] [T]
+            Identifier(T) [81-82] [T]
+*/
+---
+(source_file [0, 0] - [29, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 36]
+    (select_statement [2, 0] - [3, 36]
+      (select_clause [2, 0] - [3, 28]
+        (select_list [2, 7] - [3, 28]
+          (select_expression [2, 7] - [3, 28]
+            (expression [2, 7] - [3, 23]
+              (function_call [2, 7] - [3, 23]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (clamped_between_modifier [2, 23] - [2, 46]
+                  (expression [2, 39] - [2, 40]
+                    (number [2, 39] - [2, 40]))
+                  (expression [2, 45] - [2, 46]
+                    (number [2, 45] - [2, 46])))
+                (with_report_modifier [3, 0] - [3, 11])
+                (order_by_clause [3, 12] - [3, 22]
+                  (order_expression_list [3, 21] - [3, 22]
+                    (order_expression [3, 21] - [3, 22]
+                      (expression [3, 21] - [3, 22]
+                        (number [3, 21] - [3, 22])))))))
+            (identifier [3, 27] - [3, 28]))))
+      (from_clause [3, 29] - [3, 35]
+        (from_item [3, 34] - [3, 35]
+          (table_expression [3, 34] - [3, 35]
+            (path_expression [3, 34] - [3, 35]
+              (identifier [3, 34] - [3, 35])))))))
+  (comment [5, 0] - [29, 2]))
+
+==================
+Test Case 63
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr clamped between 1 and 2
+with report(format = json) ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-87] [select anon_count...s a from T]
+  Query [0-87] [select anon_count...s a from T]
+    Select [0-87] [select anon_count...s a from T]
+      SelectList [7-80] [anon_count...json) ) as a]
+        SelectColumn [7-80] [anon_count...json) ) as a]
+          FunctionCall [7-75] [anon_count...= json) )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            ClampedBetweenModifier [23-46] [clamped between 1 and 2]
+              IntLiteral(1) [39-40] [1]
+              IntLiteral(2) [45-46] [2]
+            WithReportModifier [47-73] [with report(format = json)]
+              OptionsList [58-73] [(format = json)]
+                OptionsEntry [59-72] [format = json]
+                  Identifier(format) [59-65] [format]
+                  PathExpression [68-72] [json]
+                    Identifier(json) [68-72] [json]
+          Alias [76-80] [as a]
+            Identifier(a) [79-80] [a]
+      FromClause [81-87] [from T]
+        TablePathExpression [86-87] [T]
+          PathExpression [86-87] [T]
+            Identifier(T) [86-87] [T]
+*/
+---
+(source_file [0, 0] - [31, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 41]
+    (select_statement [2, 0] - [3, 41]
+      (select_clause [2, 0] - [3, 33]
+        (select_list [2, 7] - [3, 33]
+          (select_expression [2, 7] - [3, 33]
+            (expression [2, 7] - [3, 28]
+              (function_call [2, 7] - [3, 28]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (clamped_between_modifier [2, 23] - [2, 46]
+                  (expression [2, 39] - [2, 40]
+                    (number [2, 39] - [2, 40]))
+                  (expression [2, 45] - [2, 46]
+                    (number [2, 45] - [2, 46])))
+                (with_report_modifier [3, 0] - [3, 26]
+                  (options_list [3, 11] - [3, 26]
+                    (options_entry [3, 12] - [3, 25]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 25]
+                        (path_expression [3, 21] - [3, 25]
+                          (identifier [3, 21] - [3, 25]))))))))
+            (identifier [3, 32] - [3, 33]))))
+      (from_clause [3, 34] - [3, 40]
+        (from_item [3, 39] - [3, 40]
+          (table_expression [3, 39] - [3, 40]
+            (path_expression [3, 39] - [3, 40]
+              (identifier [3, 39] - [3, 40])))))))
+  (comment [5, 0] - [31, 2]))
+
+==================
+Test Case 64
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr clamped between 1 and 2
+with report(format = json) order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-97] [select anon_count...s a from T]
+  Query [0-97] [select anon_count...s a from T]
+    Select [0-97] [select anon_count...s a from T]
+      SelectList [7-90] [anon_count...by 5) as a]
+        SelectColumn [7-90] [anon_count...by 5) as a]
+          FunctionCall [7-85] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            ClampedBetweenModifier [23-46] [clamped between 1 and 2]
+              IntLiteral(1) [39-40] [1]
+              IntLiteral(2) [45-46] [2]
+            WithReportModifier [47-73] [with report(format = json)]
+              OptionsList [58-73] [(format = json)]
+                OptionsEntry [59-72] [format = json]
+                  Identifier(format) [59-65] [format]
+                  PathExpression [68-72] [json]
+                    Identifier(json) [68-72] [json]
+            OrderBy [74-84] [order by 5]
+              OrderingExpression(ASC) [83-84] [5]
+                IntLiteral(5) [83-84] [5]
+          Alias [86-90] [as a]
+            Identifier(a) [89-90] [a]
+      FromClause [91-97] [from T]
+        TablePathExpression [96-97] [T]
+          PathExpression [96-97] [T]
+            Identifier(T) [96-97] [T]
+*/
+---
+(source_file [0, 0] - [34, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 51]
+    (select_statement [2, 0] - [3, 51]
+      (select_clause [2, 0] - [3, 43]
+        (select_list [2, 7] - [3, 43]
+          (select_expression [2, 7] - [3, 43]
+            (expression [2, 7] - [3, 38]
+              (function_call [2, 7] - [3, 38]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (clamped_between_modifier [2, 23] - [2, 46]
+                  (expression [2, 39] - [2, 40]
+                    (number [2, 39] - [2, 40]))
+                  (expression [2, 45] - [2, 46]
+                    (number [2, 45] - [2, 46])))
+                (with_report_modifier [3, 0] - [3, 26]
+                  (options_list [3, 11] - [3, 26]
+                    (options_entry [3, 12] - [3, 25]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 25]
+                        (path_expression [3, 21] - [3, 25]
+                          (identifier [3, 21] - [3, 25]))))))
+                (order_by_clause [3, 27] - [3, 37]
+                  (order_expression_list [3, 36] - [3, 37]
+                    (order_expression [3, 36] - [3, 37]
+                      (expression [3, 36] - [3, 37]
+                        (number [3, 36] - [3, 37])))))))
+            (identifier [3, 42] - [3, 43]))))
+      (from_clause [3, 44] - [3, 50]
+        (from_item [3, 49] - [3, 50]
+          (table_expression [3, 49] - [3, 50]
+            (path_expression [3, 49] - [3, 50]
+              (identifier [3, 49] - [3, 50])))))))
+  (comment [5, 0] - [34, 2]))
+
+==================
+Test Case 65
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr clamped between 1 and 2
+with report(format = proto) ) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-88] [select anon_count...s a from T]
+  Query [0-88] [select anon_count...s a from T]
+    Select [0-88] [select anon_count...s a from T]
+      SelectList [7-81] [anon_count...proto) ) as a]
+        SelectColumn [7-81] [anon_count...proto) ) as a]
+          FunctionCall [7-76] [anon_count...= proto) )]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            ClampedBetweenModifier [23-46] [clamped between 1 and 2]
+              IntLiteral(1) [39-40] [1]
+              IntLiteral(2) [45-46] [2]
+            WithReportModifier [47-74] [with report(format = proto)]
+              OptionsList [58-74] [(format = proto)]
+                OptionsEntry [59-73] [format = proto]
+                  Identifier(format) [59-65] [format]
+                  PathExpression [68-73] [proto]
+                    Identifier(`PROTO`) [68-73] [proto]
+          Alias [77-81] [as a]
+            Identifier(a) [80-81] [a]
+      FromClause [82-88] [from T]
+        TablePathExpression [87-88] [T]
+          PathExpression [87-88] [T]
+            Identifier(T) [87-88] [T]
+*/
+---
+(source_file [0, 0] - [31, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 42]
+    (select_statement [2, 0] - [3, 42]
+      (select_clause [2, 0] - [3, 34]
+        (select_list [2, 7] - [3, 34]
+          (select_expression [2, 7] - [3, 34]
+            (expression [2, 7] - [3, 29]
+              (function_call [2, 7] - [3, 29]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (clamped_between_modifier [2, 23] - [2, 46]
+                  (expression [2, 39] - [2, 40]
+                    (number [2, 39] - [2, 40]))
+                  (expression [2, 45] - [2, 46]
+                    (number [2, 45] - [2, 46])))
+                (with_report_modifier [3, 0] - [3, 27]
+                  (options_list [3, 11] - [3, 27]
+                    (options_entry [3, 12] - [3, 26]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 26]
+                        (path_expression [3, 21] - [3, 26]
+                          (identifier [3, 21] - [3, 26]))))))))
+            (identifier [3, 33] - [3, 34]))))
+      (from_clause [3, 35] - [3, 41]
+        (from_item [3, 40] - [3, 41]
+          (table_expression [3, 40] - [3, 41]
+            (path_expression [3, 40] - [3, 41]
+              (identifier [3, 40] - [3, 41])))))))
+  (comment [5, 0] - [31, 2]))
+
+==================
+Test Case 66
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count(expr clamped between 1 and 2
+with report(format = proto) order by 5) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-98] [select anon_count...s a from T]
+  Query [0-98] [select anon_count...s a from T]
+    Select [0-98] [select anon_count...s a from T]
+      SelectList [7-91] [anon_count...by 5) as a]
+        SelectColumn [7-91] [anon_count...by 5) as a]
+          FunctionCall [7-86] [anon_count...order by 5)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            ClampedBetweenModifier [23-46] [clamped between 1 and 2]
+              IntLiteral(1) [39-40] [1]
+              IntLiteral(2) [45-46] [2]
+            WithReportModifier [47-74] [with report(format = proto)]
+              OptionsList [58-74] [(format = proto)]
+                OptionsEntry [59-73] [format = proto]
+                  Identifier(format) [59-65] [format]
+                  PathExpression [68-73] [proto]
+                    Identifier(`PROTO`) [68-73] [proto]
+            OrderBy [75-85] [order by 5]
+              OrderingExpression(ASC) [84-85] [5]
+                IntLiteral(5) [84-85] [5]
+          Alias [87-91] [as a]
+            Identifier(a) [90-91] [a]
+      FromClause [92-98] [from T]
+        TablePathExpression [97-98] [T]
+          PathExpression [97-98] [T]
+            Identifier(T) [97-98] [T]
+*/
+---
+(source_file [0, 0] - [34, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 32])
+  (statement [2, 0] - [3, 52]
+    (select_statement [2, 0] - [3, 52]
+      (select_clause [2, 0] - [3, 44]
+        (select_list [2, 7] - [3, 44]
+          (select_expression [2, 7] - [3, 44]
+            (expression [2, 7] - [3, 39]
+              (function_call [2, 7] - [3, 39]
+                (path_expression [2, 7] - [2, 17]
+                  (identifier [2, 7] - [2, 17]))
+                (function_arguments [2, 18] - [2, 22]
+                  (function_argument [2, 18] - [2, 22]
+                    (expression [2, 18] - [2, 22]
+                      (path_expression [2, 18] - [2, 22]
+                        (identifier [2, 18] - [2, 22])))))
+                (clamped_between_modifier [2, 23] - [2, 46]
+                  (expression [2, 39] - [2, 40]
+                    (number [2, 39] - [2, 40]))
+                  (expression [2, 45] - [2, 46]
+                    (number [2, 45] - [2, 46])))
+                (with_report_modifier [3, 0] - [3, 27]
+                  (options_list [3, 11] - [3, 27]
+                    (options_entry [3, 12] - [3, 26]
+                      (identifier [3, 12] - [3, 18])
+                      (expression [3, 21] - [3, 26]
+                        (path_expression [3, 21] - [3, 26]
+                          (identifier [3, 21] - [3, 26]))))))
+                (order_by_clause [3, 28] - [3, 38]
+                  (order_expression_list [3, 37] - [3, 38]
+                    (order_expression [3, 37] - [3, 38]
+                      (expression [3, 37] - [3, 38]
+                        (number [3, 37] - [3, 38])))))))
+            (identifier [3, 43] - [3, 44]))))
+      (from_clause [3, 45] - [3, 51]
+        (from_item [3, 50] - [3, 51]
+          (table_expression [3, 50] - [3, 51]
+            (path_expression [3, 50] - [3, 51]
+              (identifier [3, 50] - [3, 51])))))))
+  (comment [5, 0] - [34, 2]))
+
+==================
+Test Case 67
 ==================
 # Simple WHERE expressions as part of an aggregate function.
 select sum(value where value is not null)
@@ -1619,10 +4156,38 @@ QueryStatement [0-48] [select sum...null) from T]
             Identifier(T) [47-48] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [24, 2]
+  (comment [0, 0] - [0, 60])
+  (statement [1, 0] - [2, 6]
+    (select_statement [1, 0] - [2, 6]
+      (select_clause [1, 0] - [1, 41]
+        (select_list [1, 7] - [1, 41]
+          (select_expression [1, 7] - [1, 41]
+            (expression [1, 7] - [1, 41]
+              (function_call [1, 7] - [1, 41]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 11] - [1, 16]
+                  (function_argument [1, 11] - [1, 16]
+                    (expression [1, 11] - [1, 16]
+                      (path_expression [1, 11] - [1, 16]
+                        (identifier [1, 11] - [1, 16])))))
+                (where_clause [1, 17] - [1, 40]
+                  (expression [1, 23] - [1, 40]
+                    (is_expression [1, 23] - [1, 40]
+                      (expression [1, 23] - [1, 28]
+                        (path_expression [1, 23] - [1, 28]
+                          (identifier [1, 23] - [1, 28])))
+                      (null_literal [1, 36] - [1, 40])))))))))
+      (from_clause [2, 0] - [2, 6]
+        (from_item [2, 5] - [2, 6]
+          (table_expression [2, 5] - [2, 6]
+            (path_expression [2, 5] - [2, 6]
+              (identifier [2, 5] - [2, 6])))))))
+  (comment [4, 0] - [24, 2]))
 
 ==================
-Test Case 46
+Test Case 68
 ==================
 # Simple HAVING expression as part of an aggregate function.
 select sum(value group by key1 having count(*) > 10)
@@ -1656,29 +4221,473 @@ QueryStatement [0-59] [select sum...10) from T]
             Identifier(T) [58-59] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (comment [0, 0] - [0, 60])
+  (statement [1, 0] - [2, 6]
+    (select_statement [1, 0] - [2, 6]
+      (select_clause [1, 0] - [1, 52]
+        (select_list [1, 7] - [1, 52]
+          (select_expression [1, 7] - [1, 52]
+            (expression [1, 7] - [1, 52]
+              (function_call [1, 7] - [1, 52]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 11] - [1, 16]
+                  (function_argument [1, 11] - [1, 16]
+                    (expression [1, 11] - [1, 16]
+                      (path_expression [1, 11] - [1, 16]
+                        (identifier [1, 11] - [1, 16])))))
+                (group_by_clause [1, 17] - [1, 30]
+                  (expression_list [1, 26] - [1, 30]
+                    (expression [1, 26] - [1, 30]
+                      (path_expression [1, 26] - [1, 30]
+                        (identifier [1, 26] - [1, 30])))))
+                (having_clause [1, 31] - [1, 51]
+                  (expression [1, 38] - [1, 51]
+                    (binary_expression [1, 38] - [1, 51]
+                      (expression [1, 38] - [1, 46]
+                        (function_call [1, 38] - [1, 46]
+                          (path_expression [1, 38] - [1, 43]
+                            (identifier [1, 38] - [1, 43]))))
+                      (expression [1, 49] - [1, 51]
+                        (number [1, 49] - [1, 51]))))))))))
+      (from_clause [2, 0] - [2, 6]
+        (from_item [2, 5] - [2, 6]
+          (table_expression [2, 5] - [2, 6]
+            (path_expression [2, 5] - [2, 6]
+              (identifier [2, 5] - [2, 6])))))))
+  (comment [4, 0] - [30, 2]))
 
 ==================
-Test Case 47
+Test Case 69
 ==================
 # WHERE and HAVING expressions are permitted with other modifiers
 select sum(distinct value
-    {{respect|ignore}} nulls
+    respect nulls
     where value > 10
     group by key1
     having count(*) < 100
-    order by key2 {{desc|asc}}
+    order by key2 desc
     limit 10
   ) from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: respect,desc
+QueryStatement [0-155] [select sum...) from T]
+  Query [0-155] [select sum...) from T]
+    Select [0-155] [select sum...) from T]
+      SelectList [7-148] [sum(distinct...limit 10   )]
+        SelectColumn [7-148] [sum(distinct...limit 10   )]
+          FunctionCall(distinct=true) [7-148] [sum(distinct...limit 10   )]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            PathExpression [20-25] [value]
+              Identifier(value) [20-25] [value]
+            WhereClause [48-64] [where value > 10]
+              BinaryExpression(>) [54-64] [value > 10]
+                PathExpression [54-59] [value]
+                  Identifier(value) [54-59] [value]
+                IntLiteral(10) [62-64] [10]
+            GroupBy [69-82] [group by key1]
+              GroupingItem [78-82] [key1]
+                PathExpression [78-82] [key1]
+                  Identifier(key1) [78-82] [key1]
+            Having [87-108] [having count(*) < 100]
+              BinaryExpression(<) [94-108] [count(*) < 100]
+                FunctionCall [94-102] [count(*)]
+                  PathExpression [94-99] [count]
+                    Identifier(count) [94-99] [count]
+                  Star(*) [100-101] [*]
+                IntLiteral(100) [105-108] [100]
+            OrderBy [113-131] [order by key2 desc]
+              OrderingExpression(DESC) [122-131] [key2 desc]
+                PathExpression [122-126] [key2]
+                  Identifier(key2) [122-126] [key2]
+            LimitOffset [136-144] [limit 10]
+              Limit [136-144] [limit 10]
+                IntLiteral(10) [142-144] [10]
+      FromClause [149-155] [from T]
+        TablePathExpression [154-155] [T]
+          PathExpression [154-155] [T]
+            Identifier(T) [154-155] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [48, 2]
+  (comment [0, 0] - [0, 65])
+  (statement [1, 0] - [8, 10]
+    (select_statement [1, 0] - [8, 10]
+      (select_clause [1, 0] - [8, 3]
+        (select_list [1, 7] - [8, 3]
+          (select_expression [1, 7] - [8, 3]
+            (expression [1, 7] - [8, 3]
+              (function_call [1, 7] - [8, 3]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 20] - [1, 25]
+                  (function_argument [1, 20] - [1, 25]
+                    (expression [1, 20] - [1, 25]
+                      (path_expression [1, 20] - [1, 25]
+                        (identifier [1, 20] - [1, 25])))))
+                (null_handling_modifier [2, 4] - [2, 17])
+                (where_clause [3, 4] - [3, 20]
+                  (expression [3, 10] - [3, 20]
+                    (binary_expression [3, 10] - [3, 20]
+                      (expression [3, 10] - [3, 15]
+                        (path_expression [3, 10] - [3, 15]
+                          (identifier [3, 10] - [3, 15])))
+                      (expression [3, 18] - [3, 20]
+                        (number [3, 18] - [3, 20])))))
+                (group_by_clause [4, 4] - [4, 17]
+                  (expression_list [4, 13] - [4, 17]
+                    (expression [4, 13] - [4, 17]
+                      (path_expression [4, 13] - [4, 17]
+                        (identifier [4, 13] - [4, 17])))))
+                (having_clause [5, 4] - [5, 25]
+                  (expression [5, 11] - [5, 25]
+                    (binary_expression [5, 11] - [5, 25]
+                      (expression [5, 11] - [5, 19]
+                        (function_call [5, 11] - [5, 19]
+                          (path_expression [5, 11] - [5, 16]
+                            (identifier [5, 11] - [5, 16]))))
+                      (expression [5, 22] - [5, 25]
+                        (number [5, 22] - [5, 25])))))
+                (order_by_clause [6, 4] - [6, 22]
+                  (order_expression_list [6, 13] - [6, 22]
+                    (order_expression [6, 13] - [6, 22]
+                      (expression [6, 13] - [6, 17]
+                        (path_expression [6, 13] - [6, 17]
+                          (identifier [6, 13] - [6, 17]))))))
+                (limit_clause [7, 4] - [7, 12]
+                  (number [7, 10] - [7, 12])))))))
+      (from_clause [8, 4] - [8, 10]
+        (from_item [8, 9] - [8, 10]
+          (table_expression [8, 9] - [8, 10]
+            (path_expression [8, 9] - [8, 10]
+              (identifier [8, 9] - [8, 10])))))))
+  (comment [10, 0] - [48, 2]))
 
 ==================
-Test Case 48
+Test Case 70
+==================
+# WHERE and HAVING expressions are permitted with other modifiers
+select sum(distinct value
+    respect nulls
+    where value > 10
+    group by key1
+    having count(*) < 100
+    order by key2 asc
+    limit 10
+  ) from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-154] [select sum...) from T]
+  Query [0-154] [select sum...) from T]
+    Select [0-154] [select sum...) from T]
+      SelectList [7-147] [sum(distinct...limit 10   )]
+        SelectColumn [7-147] [sum(distinct...limit 10   )]
+          FunctionCall(distinct=true) [7-147] [sum(distinct...limit 10   )]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            PathExpression [20-25] [value]
+              Identifier(value) [20-25] [value]
+            WhereClause [48-64] [where value > 10]
+              BinaryExpression(>) [54-64] [value > 10]
+                PathExpression [54-59] [value]
+                  Identifier(value) [54-59] [value]
+                IntLiteral(10) [62-64] [10]
+            GroupBy [69-82] [group by key1]
+              GroupingItem [78-82] [key1]
+                PathExpression [78-82] [key1]
+                  Identifier(key1) [78-82] [key1]
+            Having [87-108] [having count(*) < 100]
+              BinaryExpression(<) [94-108] [count(*) < 100]
+                FunctionCall [94-102] [count(*)]
+                  PathExpression [94-99] [count]
+                    Identifier(count) [94-99] [count]
+                  Star(*) [100-101] [*]
+                IntLiteral(100) [105-108] [100]
+            OrderBy [113-130] [order by key2 asc]
+              OrderingExpression(ASC EXPLICITLY) [122-130] [key2 asc]
+                PathExpression [122-126] [key2]
+                  Identifier(key2) [122-126] [key2]
+            LimitOffset [135-143] [limit 10]
+              Limit [135-143] [limit 10]
+                IntLiteral(10) [141-143] [10]
+      FromClause [148-154] [from T]
+        TablePathExpression [153-154] [T]
+          PathExpression [153-154] [T]
+            Identifier(T) [153-154] [T]
+*/
+---
+(source_file [0, 0] - [48, 2]
+  (comment [0, 0] - [0, 65])
+  (statement [1, 0] - [8, 10]
+    (select_statement [1, 0] - [8, 10]
+      (select_clause [1, 0] - [8, 3]
+        (select_list [1, 7] - [8, 3]
+          (select_expression [1, 7] - [8, 3]
+            (expression [1, 7] - [8, 3]
+              (function_call [1, 7] - [8, 3]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 20] - [1, 25]
+                  (function_argument [1, 20] - [1, 25]
+                    (expression [1, 20] - [1, 25]
+                      (path_expression [1, 20] - [1, 25]
+                        (identifier [1, 20] - [1, 25])))))
+                (null_handling_modifier [2, 4] - [2, 17])
+                (where_clause [3, 4] - [3, 20]
+                  (expression [3, 10] - [3, 20]
+                    (binary_expression [3, 10] - [3, 20]
+                      (expression [3, 10] - [3, 15]
+                        (path_expression [3, 10] - [3, 15]
+                          (identifier [3, 10] - [3, 15])))
+                      (expression [3, 18] - [3, 20]
+                        (number [3, 18] - [3, 20])))))
+                (group_by_clause [4, 4] - [4, 17]
+                  (expression_list [4, 13] - [4, 17]
+                    (expression [4, 13] - [4, 17]
+                      (path_expression [4, 13] - [4, 17]
+                        (identifier [4, 13] - [4, 17])))))
+                (having_clause [5, 4] - [5, 25]
+                  (expression [5, 11] - [5, 25]
+                    (binary_expression [5, 11] - [5, 25]
+                      (expression [5, 11] - [5, 19]
+                        (function_call [5, 11] - [5, 19]
+                          (path_expression [5, 11] - [5, 16]
+                            (identifier [5, 11] - [5, 16]))))
+                      (expression [5, 22] - [5, 25]
+                        (number [5, 22] - [5, 25])))))
+                (order_by_clause [6, 4] - [6, 21]
+                  (order_expression_list [6, 13] - [6, 21]
+                    (order_expression [6, 13] - [6, 21]
+                      (expression [6, 13] - [6, 17]
+                        (path_expression [6, 13] - [6, 17]
+                          (identifier [6, 13] - [6, 17]))))))
+                (limit_clause [7, 4] - [7, 12]
+                  (number [7, 10] - [7, 12])))))))
+      (from_clause [8, 4] - [8, 10]
+        (from_item [8, 9] - [8, 10]
+          (table_expression [8, 9] - [8, 10]
+            (path_expression [8, 9] - [8, 10]
+              (identifier [8, 9] - [8, 10])))))))
+  (comment [10, 0] - [48, 2]))
+
+==================
+Test Case 71
+==================
+# WHERE and HAVING expressions are permitted with other modifiers
+select sum(distinct value
+    ignore nulls
+    where value > 10
+    group by key1
+    having count(*) < 100
+    order by key2 desc
+    limit 10
+  ) from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-154] [select sum...) from T]
+  Query [0-154] [select sum...) from T]
+    Select [0-154] [select sum...) from T]
+      SelectList [7-147] [sum(distinct...limit 10   )]
+        SelectColumn [7-147] [sum(distinct...limit 10   )]
+          FunctionCall(distinct=true) [7-147] [sum(distinct...limit 10   )]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            PathExpression [20-25] [value]
+              Identifier(value) [20-25] [value]
+            WhereClause [47-63] [where value > 10]
+              BinaryExpression(>) [53-63] [value > 10]
+                PathExpression [53-58] [value]
+                  Identifier(value) [53-58] [value]
+                IntLiteral(10) [61-63] [10]
+            GroupBy [68-81] [group by key1]
+              GroupingItem [77-81] [key1]
+                PathExpression [77-81] [key1]
+                  Identifier(key1) [77-81] [key1]
+            Having [86-107] [having count(*) < 100]
+              BinaryExpression(<) [93-107] [count(*) < 100]
+                FunctionCall [93-101] [count(*)]
+                  PathExpression [93-98] [count]
+                    Identifier(count) [93-98] [count]
+                  Star(*) [99-100] [*]
+                IntLiteral(100) [104-107] [100]
+            OrderBy [112-130] [order by key2 desc]
+              OrderingExpression(DESC) [121-130] [key2 desc]
+                PathExpression [121-125] [key2]
+                  Identifier(key2) [121-125] [key2]
+            LimitOffset [135-143] [limit 10]
+              Limit [135-143] [limit 10]
+                IntLiteral(10) [141-143] [10]
+      FromClause [148-154] [from T]
+        TablePathExpression [153-154] [T]
+          PathExpression [153-154] [T]
+            Identifier(T) [153-154] [T]
+*/
+---
+(source_file [0, 0] - [48, 2]
+  (comment [0, 0] - [0, 65])
+  (statement [1, 0] - [8, 10]
+    (select_statement [1, 0] - [8, 10]
+      (select_clause [1, 0] - [8, 3]
+        (select_list [1, 7] - [8, 3]
+          (select_expression [1, 7] - [8, 3]
+            (expression [1, 7] - [8, 3]
+              (function_call [1, 7] - [8, 3]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 20] - [1, 25]
+                  (function_argument [1, 20] - [1, 25]
+                    (expression [1, 20] - [1, 25]
+                      (path_expression [1, 20] - [1, 25]
+                        (identifier [1, 20] - [1, 25])))))
+                (null_handling_modifier [2, 4] - [2, 16])
+                (where_clause [3, 4] - [3, 20]
+                  (expression [3, 10] - [3, 20]
+                    (binary_expression [3, 10] - [3, 20]
+                      (expression [3, 10] - [3, 15]
+                        (path_expression [3, 10] - [3, 15]
+                          (identifier [3, 10] - [3, 15])))
+                      (expression [3, 18] - [3, 20]
+                        (number [3, 18] - [3, 20])))))
+                (group_by_clause [4, 4] - [4, 17]
+                  (expression_list [4, 13] - [4, 17]
+                    (expression [4, 13] - [4, 17]
+                      (path_expression [4, 13] - [4, 17]
+                        (identifier [4, 13] - [4, 17])))))
+                (having_clause [5, 4] - [5, 25]
+                  (expression [5, 11] - [5, 25]
+                    (binary_expression [5, 11] - [5, 25]
+                      (expression [5, 11] - [5, 19]
+                        (function_call [5, 11] - [5, 19]
+                          (path_expression [5, 11] - [5, 16]
+                            (identifier [5, 11] - [5, 16]))))
+                      (expression [5, 22] - [5, 25]
+                        (number [5, 22] - [5, 25])))))
+                (order_by_clause [6, 4] - [6, 22]
+                  (order_expression_list [6, 13] - [6, 22]
+                    (order_expression [6, 13] - [6, 22]
+                      (expression [6, 13] - [6, 17]
+                        (path_expression [6, 13] - [6, 17]
+                          (identifier [6, 13] - [6, 17]))))))
+                (limit_clause [7, 4] - [7, 12]
+                  (number [7, 10] - [7, 12])))))))
+      (from_clause [8, 4] - [8, 10]
+        (from_item [8, 9] - [8, 10]
+          (table_expression [8, 9] - [8, 10]
+            (path_expression [8, 9] - [8, 10]
+              (identifier [8, 9] - [8, 10])))))))
+  (comment [10, 0] - [48, 2]))
+
+==================
+Test Case 72
+==================
+# WHERE and HAVING expressions are permitted with other modifiers
+select sum(distinct value
+    ignore nulls
+    where value > 10
+    group by key1
+    having count(*) < 100
+    order by key2 asc
+    limit 10
+  ) from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-153] [select sum...) from T]
+  Query [0-153] [select sum...) from T]
+    Select [0-153] [select sum...) from T]
+      SelectList [7-146] [sum(distinct...limit 10   )]
+        SelectColumn [7-146] [sum(distinct...limit 10   )]
+          FunctionCall(distinct=true) [7-146] [sum(distinct...limit 10   )]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            PathExpression [20-25] [value]
+              Identifier(value) [20-25] [value]
+            WhereClause [47-63] [where value > 10]
+              BinaryExpression(>) [53-63] [value > 10]
+                PathExpression [53-58] [value]
+                  Identifier(value) [53-58] [value]
+                IntLiteral(10) [61-63] [10]
+            GroupBy [68-81] [group by key1]
+              GroupingItem [77-81] [key1]
+                PathExpression [77-81] [key1]
+                  Identifier(key1) [77-81] [key1]
+            Having [86-107] [having count(*) < 100]
+              BinaryExpression(<) [93-107] [count(*) < 100]
+                FunctionCall [93-101] [count(*)]
+                  PathExpression [93-98] [count]
+                    Identifier(count) [93-98] [count]
+                  Star(*) [99-100] [*]
+                IntLiteral(100) [104-107] [100]
+            OrderBy [112-129] [order by key2 asc]
+              OrderingExpression(ASC EXPLICITLY) [121-129] [key2 asc]
+                PathExpression [121-125] [key2]
+                  Identifier(key2) [121-125] [key2]
+            LimitOffset [134-142] [limit 10]
+              Limit [134-142] [limit 10]
+                IntLiteral(10) [140-142] [10]
+      FromClause [147-153] [from T]
+        TablePathExpression [152-153] [T]
+          PathExpression [152-153] [T]
+            Identifier(T) [152-153] [T]
+*/
+---
+(source_file [0, 0] - [48, 2]
+  (comment [0, 0] - [0, 65])
+  (statement [1, 0] - [8, 10]
+    (select_statement [1, 0] - [8, 10]
+      (select_clause [1, 0] - [8, 3]
+        (select_list [1, 7] - [8, 3]
+          (select_expression [1, 7] - [8, 3]
+            (expression [1, 7] - [8, 3]
+              (function_call [1, 7] - [8, 3]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 20] - [1, 25]
+                  (function_argument [1, 20] - [1, 25]
+                    (expression [1, 20] - [1, 25]
+                      (path_expression [1, 20] - [1, 25]
+                        (identifier [1, 20] - [1, 25])))))
+                (null_handling_modifier [2, 4] - [2, 16])
+                (where_clause [3, 4] - [3, 20]
+                  (expression [3, 10] - [3, 20]
+                    (binary_expression [3, 10] - [3, 20]
+                      (expression [3, 10] - [3, 15]
+                        (path_expression [3, 10] - [3, 15]
+                          (identifier [3, 10] - [3, 15])))
+                      (expression [3, 18] - [3, 20]
+                        (number [3, 18] - [3, 20])))))
+                (group_by_clause [4, 4] - [4, 17]
+                  (expression_list [4, 13] - [4, 17]
+                    (expression [4, 13] - [4, 17]
+                      (path_expression [4, 13] - [4, 17]
+                        (identifier [4, 13] - [4, 17])))))
+                (having_clause [5, 4] - [5, 25]
+                  (expression [5, 11] - [5, 25]
+                    (binary_expression [5, 11] - [5, 25]
+                      (expression [5, 11] - [5, 19]
+                        (function_call [5, 11] - [5, 19]
+                          (path_expression [5, 11] - [5, 16]
+                            (identifier [5, 11] - [5, 16]))))
+                      (expression [5, 22] - [5, 25]
+                        (number [5, 22] - [5, 25])))))
+                (order_by_clause [6, 4] - [6, 21]
+                  (order_expression_list [6, 13] - [6, 21]
+                    (order_expression [6, 13] - [6, 21]
+                      (expression [6, 13] - [6, 17]
+                        (path_expression [6, 13] - [6, 17]
+                          (identifier [6, 13] - [6, 17]))))))
+                (limit_clause [7, 4] - [7, 12]
+                  (number [7, 10] - [7, 12])))))))
+      (from_clause [8, 4] - [8, 10]
+        (from_item [8, 9] - [8, 10]
+          (table_expression [8, 9] - [8, 10]
+            (path_expression [8, 9] - [8, 10]
+              (identifier [8, 9] - [8, 10])))))))
+  (comment [10, 0] - [48, 2]))
+
+==================
+Test Case 73
 ==================
 # Test these modifiers without having an argument.
 select sum(distinct),
@@ -1709,5 +4718,34 @@ QueryStatement [0-109] [select sum...ignore nulls),]
               Identifier(sum) [82-85] [sum]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [27, 2]
+  (comment [0, 0] - [0, 50])
+  (statement [1, 0] - [4, 34]
+    (select_statement [1, 0] - [4, 34]
+      (select_clause [1, 0] - [4, 34]
+        (select_list [1, 7] - [4, 34]
+          (select_expression [1, 7] - [1, 20]
+            (expression [1, 7] - [1, 20]
+              (function_call [1, 7] - [1, 20]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10])))))
+          (select_expression [2, 7] - [2, 24]
+            (expression [2, 7] - [2, 24]
+              (function_call [2, 7] - [2, 24]
+                (path_expression [2, 7] - [2, 10]
+                  (identifier [2, 7] - [2, 10]))
+                (null_handling_modifier [2, 11] - [2, 23]))))
+          (select_expression [3, 7] - [3, 25]
+            (expression [3, 7] - [3, 25]
+              (function_call [3, 7] - [3, 25]
+                (path_expression [3, 7] - [3, 10]
+                  (identifier [3, 7] - [3, 10]))
+                (null_handling_modifier [3, 11] - [3, 24]))))
+          (select_expression [4, 7] - [4, 33]
+            (expression [4, 7] - [4, 33]
+              (function_call [4, 7] - [4, 33]
+                (path_expression [4, 7] - [4, 10]
+                  (identifier [4, 7] - [4, 10]))
+                (null_handling_modifier [4, 20] - [4, 32]))))))))
+  (comment [6, 0] - [27, 2]))
 

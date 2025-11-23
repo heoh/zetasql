@@ -34,17 +34,20 @@ def validate_corpus(corpus_dir, file_filter=None):
             if not case.strip():
                 continue
                 
-            file_total += 1
-            
             # Check for (ERROR ...) or (MISSING ...) in the S-expression part
             # S-expression is after "---"
             parts = case.split('---')
             if len(parts) < 2:
                 continue
                 
+            file_total += 1
+            
             sexp = parts[1]
             if "(ERROR" not in sexp and "(MISSING" not in sexp:
                 file_passed += 1
+            else:
+                print(f"Failed case in {filename}: {sexp[:50]}...")
+
         
         total_cases += file_total
         passed_cases += file_passed
