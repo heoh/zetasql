@@ -1,0 +1,120 @@
+==================
+Test Case 1
+==================
+# CREATE SCHEMA
+CREATE SCHEMA foo;
+
+/* Expected ZetaSQL AST:
+CreateSchemaStatement [0-17] [CREATE SCHEMA foo]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+CREATE {{|or replace}} SCHEMA {{|if not exists}} foo.bar
+options()
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+CREATE SCHEMA foo options(x='a',y='b')
+
+/* Expected ZetaSQL AST:
+CreateSchemaStatement [0-38] [CREATE SCHEMA...'a',y='b')]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  OptionsList [25-38] [(x='a',y='b')]
+    OptionsEntry [26-31] [x='a']
+      Identifier(x) [26-27] [x]
+      StringLiteral [28-31] ['a']
+        StringLiteralComponent('a') [28-31] ['a']
+    OptionsEntry [32-37] [y='b']
+      Identifier(y) [32-33] [y]
+      StringLiteral [34-37] ['b']
+        StringLiteralComponent('b') [34-37] ['b']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+CREATE {{|or replace}} SCHEMA {{|if not exists}} foo.bar DEFAULT COLLATE 'unicode:ci'
+options()
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+CREATE SCHEMA foo DEFAULT COLLATE 'unicode:ci' options(x='a',y='b')
+
+/* Expected ZetaSQL AST:
+CreateSchemaStatement [0-67] [CREATE SCHEMA...'a',y='b')]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  Collate [26-46] [COLLATE 'unicode:ci']
+    StringLiteral [34-46] ['unicode:ci']
+      StringLiteralComponent('unicode:ci') [34-46] ['unicode:ci']
+  OptionsList [54-67] [(x='a',y='b')]
+    OptionsEntry [55-60] [x='a']
+      Identifier(x) [55-56] [x]
+      StringLiteral [57-60] ['a']
+        StringLiteralComponent('a') [57-60] ['a']
+    OptionsEntry [61-66] [y='b']
+      Identifier(y) [61-62] [y]
+      StringLiteral [63-66] ['b']
+        StringLiteralComponent('b') [63-66] ['b']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+CREATE SCHEMA foo DEFAULT COLLATE {{@|@@}}a options(x='a',y='b')
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: @
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+CREATE SCHEMA foo DEFAULT COLLATE ? options(x='a',y='b')
+
+/* Expected ZetaSQL AST:
+CreateSchemaStatement [0-56] [CREATE SCHEMA...'a',y='b')]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  Collate [26-35] [COLLATE ?]
+    ParameterExpr(1) [34-35] [?]
+  OptionsList [43-56] [(x='a',y='b')]
+    OptionsEntry [44-49] [x='a']
+      Identifier(x) [44-45] [x]
+      StringLiteral [46-49] ['a']
+        StringLiteralComponent('a') [46-49] ['a']
+    OptionsEntry [50-55] [y='b']
+      Identifier(y) [50-51] [y]
+      StringLiteral [52-55] ['b']
+        StringLiteralComponent('b') [52-55] ['b']
+*/
+---
+(source_file (ERROR))
+

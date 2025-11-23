@@ -1,0 +1,12 @@
+==================
+Test Case 1
+==================
+# CREATE SEQUENCE
+CREATE {{|OR REPLACE}} SEQUENCE {{|IF NOT EXISTS}} foo.bar.baz {{|OPTIONS ()|OPTIONS(start_with=0,increment_by=5)}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

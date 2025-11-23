@@ -1,0 +1,194 @@
+==================
+Test Case 1
+==================
+START TRANSACTION
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-17] [START TRANSACTION]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+Begin Transaction
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-17] [Begin Transaction]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+begin
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-5] [begin]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+begin transaction read only
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-27] [begin transaction read only]
+  TransactionModeList [18-27] [read only]
+    TransactionReadWriteMode [18-27] [read only]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+BEGIN TRANSACTION ISOLATION LEVEL read uncommited
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-49] [BEGIN TRANSACTION...uncommited]
+  TransactionModeList [18-49] [ISOLATION...uncommited]
+    TransactionIsolationLevel [18-49] [ISOLATION...uncommited]
+      Identifier(read) [34-38] [read]
+      Identifier(uncommited) [39-49] [uncommited]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+start transaction READ WRITE, ISOLATION LEVEL READ COMMITED
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-59] [start transaction...D COMMITED]
+  TransactionModeList [18-59] [READ WRITE...READ COMMITED]
+    TransactionReadWriteMode [18-28] [READ WRITE]
+    TransactionIsolationLevel [30-59] [ISOLATION LEVEL READ COMMITED]
+      Identifier(READ) [46-50] [READ]
+      Identifier(COMMITED) [51-59] [COMMITED]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+BEGIN isolation level READ repeatable
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-37] [BEGIN isolation...repeatable]
+  TransactionModeList [6-37] [isolation...repeatable]
+    TransactionIsolationLevel [6-37] [isolation...repeatable]
+      Identifier(READ) [22-26] [READ]
+      Identifier(repeatable) [27-37] [repeatable]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+BEGIN transaction Isolation Level Serializable
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-46] [BEGIN transaction...rializable]
+  TransactionModeList [18-46] [Isolation Level Serializable]
+    TransactionIsolationLevel [18-46] [Isolation Level Serializable]
+      Identifier(Serializable) [34-46] [Serializable]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# Arbitrary isolation levels are allowed.
+BEGIN TRANSACTION ISOLATION LEVEL FOO bar
+
+/* Expected ZetaSQL AST:
+BeginStatement [0-41] [BEGIN TRANSACTION...EL FOO bar]
+  TransactionModeList [18-41] [ISOLATION LEVEL FOO bar]
+    TransactionIsolationLevel [18-41] [ISOLATION LEVEL FOO bar]
+      Identifier(FOO) [34-37] [FOO]
+      Identifier(bar) [38-41] [bar]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+SET TRANSACTION READ ONLY
+
+/* Expected ZetaSQL AST:
+SetTransactionStatement [0-25] [SET TRANSACTION READ ONLY]
+  TransactionModeList [16-25] [READ ONLY]
+    TransactionReadWriteMode [16-25] [READ ONLY]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+SET TRANSACTION READ WRITE, ISOLATION LEVEL foo
+
+/* Expected ZetaSQL AST:
+SetTransactionStatement [0-47] [SET TRANSACTION...LEVEL foo]
+  TransactionModeList [16-47] [READ WRITE...LEVEL foo]
+    TransactionReadWriteMode [16-26] [READ WRITE]
+    TransactionIsolationLevel [28-47] [ISOLATION LEVEL foo]
+      Identifier(foo) [44-47] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+COMMIT
+
+/* Expected ZetaSQL AST:
+CommitStatement [0-6] [COMMIT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+commit transaction
+
+/* Expected ZetaSQL AST:
+CommitStatement [0-18] [commit transaction]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+ROLLBACK
+
+/* Expected ZetaSQL AST:
+RollbackStatement [0-8] [ROLLBACK]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+Rollback Transaction
+
+/* Expected ZetaSQL AST:
+RollbackStatement [0-20] [Rollback Transaction]
+*/
+---
+(source_file (ERROR))
+

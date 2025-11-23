@@ -1,0 +1,14 @@
+==================
+Test Case 1
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+{{|FULL|FULL OUTER|LEFT|LEFT OUTER|INNER}} {{UNION|INTERSECT|EXCEPT}} {{ALL|DISTINCT}} {{|STRICT}} {{|CORRESPONDING|CORRESPONDING BY (a)|BY NAME|BY NAME ON (a)}}
+SELECT 2
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: UNION,ALL,,
+*/
+---
+(source_file (ERROR))
+

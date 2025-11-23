@@ -1,0 +1,402 @@
+==================
+Test Case 1
+==================
+# Valid rename to action succeeds.
+
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+[default no_show_parse_location_text]
+alter row access policy p1 on t1 rename to p2;
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-45]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-45]
+    RenameToClause [33-45]
+      PathExpression [43-45]
+        Identifier(p2) [43-45]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Valid grant action succeeds.
+alter row access policy p1 on t1 grant to ('foo@google.com');
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-60]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-60]
+    GrantToClause [33-60]
+      GranteeList [43-59]
+        StringLiteral [43-59]
+          StringLiteralComponent('foo@google.com') [43-59]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Valid filter using action succeeds.
+alter row access policy p1 on t1 filter using(c1 > 0);
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-53]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-53]
+    FilterUsingClause [33-53]
+      BinaryExpression(>) [46-52]
+        PathExpression [46-48]
+          Identifier(c1) [46-48]
+        IntLiteral(0) [51-52]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Valid revoke from action succeeds.
+alter row access policy p1 on t1 revoke from ('bar@google.com');
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-63]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-63]
+    RevokeFromClause [33-63]
+      GranteeList [46-62]
+        StringLiteral [46-62]
+          StringLiteralComponent('bar@google.com') [46-62]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Valid revoke from all action succeeds.
+alter row access policy p1 on t1 revoke from all;
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-48]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-48]
+    RevokeFromClause(is_revoke_from_all) [33-48]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Test multiple actions 1.
+alter row access policy p1 on t1 {{rename to p2,|}} {{grant to ("foo@google.com"),|}}
+{{revoke from ("bar@google.com"),|revoke from all,|}} filter using (c = "foo");
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: rename to p2,,grant to ("foo@google.com"),,revoke from ("bar@google.com"),
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Test multiple actions 2.
+alter row access policy p1 on t1
+{{revoke from ("bar@google.com"),|revoke from all,|}} {{rename to p2,|}}
+{{filter using (c = "foo"),|}} grant to ("foo@google.com");
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: revoke from ("bar@google.com"),,rename to p2,,filter using (c = "foo"),
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# ROW ACCESS POLICY keywords must be present.
+alter {{row|}} {{access|}} {{policy|}} p1 on t1 filter using(true);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: row,access,policy
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# If exists is supported.
+alter row access policy if exists t1 on t2 revoke from all;
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement(is_if_exists) [0-58]
+  Identifier(t1) [34-36]
+  PathExpression [40-42]
+    Identifier(t2) [40-42]
+  AlterActionList [43-58]
+    RevokeFromClause(is_revoke_from_all) [43-58]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# Old syntax is not supported.
+alter row {{access|}} policy p1 {{rename to p2|}} on t1 {{grant|}} to {{"foo@google.com"|("foo@google.com"),}}
+{{filter|}} using (c1 = 1);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    access,rename to p2,grant,"foo@google.com",filter
+    access,rename to p2,grant,"foo@google.com",
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Namespaced table identifier is valid.
+alter row access policy p1 on n1.t1 grant to ('foo@google.com', 'mdbgroup/bar');
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-79]
+  Identifier(p1) [24-26]
+  PathExpression [30-35]
+    Identifier(n1) [30-32]
+    Identifier(t1) [33-35]
+  AlterActionList [36-79]
+    GrantToClause [36-79]
+      GranteeList [46-78]
+        StringLiteral [46-62]
+          StringLiteralComponent('foo@google.com') [46-62]
+        StringLiteral [64-78]
+          StringLiteralComponent('mdbgroup/bar') [64-78]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# Grant to: accepts multiple grantees.
+alter row access policy p1 on t1 grant to ('foo@google.com', "mdbuser/bar");
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-75]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-75]
+    GrantToClause [33-75]
+      GranteeList [43-74]
+        StringLiteral [43-59]
+          StringLiteralComponent('foo@google.com') [43-59]
+        StringLiteral [61-74]
+          StringLiteralComponent("mdbuser/bar") [61-74]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# Grant to: parameters are valid.
+alter row access policy p1 on t1 grant to (@param_user);
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-55]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-55]
+    GrantToClause [33-55]
+      GranteeList [43-54]
+        ParameterExpr [43-54]
+          Identifier(param_user) [44-54]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+alter row access policy p1 on t1 grant to (@@sysvar);
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-52]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-52]
+    GrantToClause [33-52]
+      GranteeList [43-51]
+        SystemVariableExpr [43-51]
+          PathExpression [45-51]
+            Identifier(sysvar) [45-51]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+# Filter using: string literal.
+alter row access policy p1 on t1 filter using(c1 = 'foo');
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-57]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-57]
+    FilterUsingClause [33-57]
+      BinaryExpression(=) [46-56]
+        PathExpression [46-48]
+          Identifier(c1) [46-48]
+        StringLiteral [51-56]
+          StringLiteralComponent('foo') [51-56]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+# Revoke from: accepts multiple grantees.
+alter row access policy p1 on t1 revoke from ('foo@google.com', "mdbuser/bar");
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-78]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-78]
+    RevokeFromClause [33-78]
+      GranteeList [46-77]
+        StringLiteral [46-62]
+          StringLiteralComponent('foo@google.com') [46-62]
+        StringLiteral [64-77]
+          StringLiteralComponent("mdbuser/bar") [64-77]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+# Revoke from: Parameters are valid.
+alter row access policy p1 on t1 revoke from (@param_user);
+
+/* Expected ZetaSQL AST:
+AlterRowAccessPolicyStatement [0-58]
+  Identifier(p1) [24-26]
+  PathExpression [30-32]
+    Identifier(t1) [30-32]
+  AlterActionList [33-58]
+    RevokeFromClause [33-58]
+      GranteeList [46-57]
+        ParameterExpr [46-57]
+          Identifier(param_user) [47-57]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# Constraints are not supported.
+alter row access policy p1 on t1 {{add|drop|alter}} constraint c1;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: add
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+# Columns are not supported.
+alter row access policy p1 on t1 {{add|drop|alter}} column;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: add
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+# ALTER ALL with multiple revokees.
+alter all row access policies on t1
+revoke from ("foo@google.com", "bar@google.com");
+
+/* Expected ZetaSQL AST:
+AlterAllRowAccessPoliciesStatement [0-84]
+  PathExpression [33-35]
+    Identifier(t1) [33-35]
+  RevokeFromClause [36-84]
+    GranteeList [49-83]
+      StringLiteral [49-65]
+        StringLiteralComponent("foo@google.com") [49-65]
+      StringLiteral [67-83]
+        StringLiteralComponent("bar@google.com") [67-83]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# ALTER ALL with revoke all.
+alter all row access policies on t1 revoke from all;
+
+/* Expected ZetaSQL AST:
+AlterAllRowAccessPoliciesStatement [0-51]
+  PathExpression [33-35]
+    Identifier(t1) [33-35]
+  RevokeFromClause(is_revoke_from_all) [36-51]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+# ALTER ALL with table name as path.
+alter all row access policies on namespace.`all`.t1
+revoke from ("foo@google.com");
+
+/* Expected ZetaSQL AST:
+AlterAllRowAccessPoliciesStatement [0-82]
+  PathExpression [33-51]
+    Identifier(namespace) [33-42]
+    Identifier(`all`) [43-48]
+    Identifier(t1) [49-51]
+  RevokeFromClause [52-82]
+    GranteeList [65-81]
+      StringLiteral [65-81]
+        StringLiteralComponent("foo@google.com") [65-81]
+*/
+---
+(source_file (ERROR))
+

@@ -1,0 +1,98 @@
+==================
+Test Case 1
+==================
+[default macro_expansion_mode=lenient]
+DEFINE MACRO m1 FROM $group.tbl_$suffix a, r'b;"c'
+
+/* Expected ZetaSQL AST:
+DefineMacroStatement [0-50] [DEFINE MACRO...a, r'b;"c']
+  Identifier(m1) [13-15] [m1]
+  MacroBody(FROM $group.tbl_$suffix a, r'b;"c') [16-50] [FROM $group...a, r'b;"c']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# With semicolon at the end
+DEFINE MACRO m1 FROM $group.tbl_$suffix a, r'b;"c';
+
+/* Expected ZetaSQL AST:
+DefineMacroStatement [0-50] [DEFINE MACRO...a, r'b;"c']
+  Identifier(m1) [13-15] [m1]
+  MacroBody(FROM $group.tbl_$suffix a, r'b;"c') [16-50] [FROM $group...a, r'b;"c']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Complex case with multiline, comments, and symbols
+DEFINE MACRO m a$1$other$2, "a$3;"
+
+/* Expected ZetaSQL AST:
+Ignore the rest of this line
+# hash comment
+$x + /* ;intermediate comment; * / $y
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+DEFINE MACRO m1 .3m
+
+/* Expected ZetaSQL AST:
+DefineMacroStatement [0-19] [DEFINE MACRO m1 .3m]
+  Identifier(m1) [13-15] [m1]
+  MacroBody(.3m) [16-19] [.3m]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Tokens do now splice, so * and / are acceptable as 2 tokens here
+DEFINE MACRO m1 */
+
+/* Expected ZetaSQL AST:
+DefineMacroStatement [0-18] [DEFINE MACRO m1 * /]
+  Identifier(m1) [13-15] [m1]
+  MacroBody(* /) [16-18] [* /]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# The macro name cannot be a reserved keyword
+DEFINE macro EXCEPT $subquery;
+
+/* Expected ZetaSQL AST:
+DefineMacroStatement [0-29] [DEFINE macro EXCEPT $subquery]
+  Identifier(`EXCEPT`) [13-19] [EXCEPT]
+  MacroBody($subquery) [20-29] [$subquery]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# This looks like a bug. The EXCEPT keyword has some special magic in the lexer
+# that accomodates statement kind, but not macros.
+DEFINE macro foo EXCEPT $subquery;
+
+/* Expected ZetaSQL AST:
+DefineMacroStatement [0-33] [DEFINE macro...$subquery]
+  Identifier(foo) [13-16] [foo]
+  MacroBody(EXCEPT $subquery) [17-33] [EXCEPT $subquery]
+*/
+---
+(source_file (ERROR))
+

@@ -1,0 +1,1033 @@
+==================
+Test Case 1
+==================
+# Tests that various non-reserved keywords can still be used as identifiers.
+
+# IF is a reserved keyword, but also works like a function call.
+select if(x), if(x,y,if(z,1,2)), `if`(x, y, z), 123 as `if`
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [select if(...123 as `if`]
+  Query [0-59] [select if(...123 as `if`]
+    Select [0-59] [select if(...123 as `if`]
+      SelectList [7-59] [if(x), if(...123 as `if`]
+        SelectColumn [7-12] [if(x)]
+          FunctionCall [7-12] [if(x)]
+            PathExpression [7-9] [if]
+              Identifier(`if`) [7-9] [if]
+            PathExpression [10-11] [x]
+              Identifier(x) [10-11] [x]
+        SelectColumn [14-31] [if(x,y,if(z,1,2))]
+          FunctionCall [14-31] [if(x,y,if(z,1,2))]
+            PathExpression [14-16] [if]
+              Identifier(`if`) [14-16] [if]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            PathExpression [19-20] [y]
+              Identifier(y) [19-20] [y]
+            FunctionCall [21-30] [if(z,1,2)]
+              PathExpression [21-23] [if]
+                Identifier(`if`) [21-23] [if]
+              PathExpression [24-25] [z]
+                Identifier(z) [24-25] [z]
+              IntLiteral(1) [26-27] [1]
+              IntLiteral(2) [28-29] [2]
+        SelectColumn [33-46] [`if`(x, y, z)]
+          FunctionCall [33-46] [`if`(x, y, z)]
+            PathExpression [33-37] [`if`]
+              Identifier(`if`) [33-37] [`if`]
+            PathExpression [38-39] [x]
+              Identifier(x) [38-39] [x]
+            PathExpression [41-42] [y]
+              Identifier(y) [41-42] [y]
+            PathExpression [44-45] [z]
+              Identifier(z) [44-45] [z]
+        SelectColumn [48-59] [123 as `if`]
+          IntLiteral(123) [48-51] [123]
+          Alias [52-59] [as `if`]
+            Identifier(`if`) [55-59] [`if`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# DISTINCT will parse on functions like IF but will fail analysis.
+select if(distinct 1, 2, 3)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-27] [select if(distinct 1, 2, 3)]
+  Query [0-27] [select if(distinct 1, 2, 3)]
+    Select [0-27] [select if(distinct 1, 2, 3)]
+      SelectList [7-27] [if(distinct 1, 2, 3)]
+        SelectColumn [7-27] [if(distinct 1, 2, 3)]
+          FunctionCall(distinct=true) [7-27] [if(distinct 1, 2, 3)]
+            PathExpression [7-9] [if]
+              Identifier(`if`) [7-9] [if]
+            IntLiteral(1) [19-20] [1]
+            IntLiteral(2) [22-23] [2]
+            IntLiteral(3) [25-26] [3]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# LANGUAGE is a keyword in CREATE FUNCTION statements; make sure it still works
+# elsewhere in a query.
+select lang as language, count(*)
+from language
+where language like 'sv%'
+group by language
+order by language
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-109] [select lang...by language]
+  Query [0-109] [select lang...by language]
+    Select [0-91] [select lang...by language]
+      SelectList [7-33] [lang as language, count(*)]
+        SelectColumn [7-23] [lang as language]
+          PathExpression [7-11] [lang]
+            Identifier(lang) [7-11] [lang]
+          Alias [12-23] [as language]
+            Identifier(language) [15-23] [language]
+        SelectColumn [25-33] [count(*)]
+          FunctionCall [25-33] [count(*)]
+            PathExpression [25-30] [count]
+              Identifier(count) [25-30] [count]
+            Star(*) [31-32] [*]
+      FromClause [34-47] [from language]
+        TablePathExpression [39-47] [language]
+          PathExpression [39-47] [language]
+            Identifier(language) [39-47] [language]
+      WhereClause [48-73] [where language like 'sv%']
+        BinaryExpression(LIKE) [54-73] [language like 'sv%']
+          PathExpression [54-62] [language]
+            Identifier(language) [54-62] [language]
+          StringLiteral [68-73] ['sv%']
+            StringLiteralComponent('sv%') [68-73] ['sv%']
+      GroupBy [74-91] [group by language]
+        GroupingItem [83-91] [language]
+          PathExpression [83-91] [language]
+            Identifier(language) [83-91] [language]
+    OrderBy [92-109] [order by language]
+      OrderingExpression(ASC) [101-109] [language]
+        PathExpression [101-109] [language]
+          Identifier(language) [101-109] [language]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# FUNCTION is a keyword in CREATE FUNCTION statements; make sure it still works
+# elsewhere in a query.
+select func as function, count(*)
+from function
+where function like 'sv%'
+group by function
+order by function
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-109] [select func...by function]
+  Query [0-109] [select func...by function]
+    Select [0-91] [select func...by function]
+      SelectList [7-33] [func as function, count(*)]
+        SelectColumn [7-23] [func as function]
+          PathExpression [7-11] [func]
+            Identifier(func) [7-11] [func]
+          Alias [12-23] [as function]
+            Identifier(`function`) [15-23] [function]
+        SelectColumn [25-33] [count(*)]
+          FunctionCall [25-33] [count(*)]
+            PathExpression [25-30] [count]
+              Identifier(count) [25-30] [count]
+            Star(*) [31-32] [*]
+      FromClause [34-47] [from function]
+        TablePathExpression [39-47] [function]
+          PathExpression [39-47] [function]
+            Identifier(`function`) [39-47] [function]
+      WhereClause [48-73] [where function like 'sv%']
+        BinaryExpression(LIKE) [54-73] [function like 'sv%']
+          PathExpression [54-62] [function]
+            Identifier(`function`) [54-62] [function]
+          StringLiteral [68-73] ['sv%']
+            StringLiteralComponent('sv%') [68-73] ['sv%']
+      GroupBy [74-91] [group by function]
+        GroupingItem [83-91] [function]
+          PathExpression [83-91] [function]
+            Identifier(`function`) [83-91] [function]
+    OrderBy [92-109] [order by function]
+      OrderingExpression(ASC) [101-109] [function]
+        PathExpression [101-109] [function]
+          Identifier(`function`) [101-109] [function]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# RETURNS is a keyword in CREATE FUNCTION statements; make sure it still works
+# elsewhere in a query.
+select func as returns, count(*)
+from returns
+where returns like 'sv%'
+group by returns
+order by returns
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-104] [select func...by returns]
+  Query [0-104] [select func...by returns]
+    Select [0-87] [select func...by returns]
+      SelectList [7-32] [func as returns, count(*)]
+        SelectColumn [7-22] [func as returns]
+          PathExpression [7-11] [func]
+            Identifier(func) [7-11] [func]
+          Alias [12-22] [as returns]
+            Identifier(returns) [15-22] [returns]
+        SelectColumn [24-32] [count(*)]
+          FunctionCall [24-32] [count(*)]
+            PathExpression [24-29] [count]
+              Identifier(count) [24-29] [count]
+            Star(*) [30-31] [*]
+      FromClause [33-45] [from returns]
+        TablePathExpression [38-45] [returns]
+          PathExpression [38-45] [returns]
+            Identifier(returns) [38-45] [returns]
+      WhereClause [46-70] [where returns like 'sv%']
+        BinaryExpression(LIKE) [52-70] [returns like 'sv%']
+          PathExpression [52-59] [returns]
+            Identifier(returns) [52-59] [returns]
+          StringLiteral [65-70] ['sv%']
+            StringLiteralComponent('sv%') [65-70] ['sv%']
+      GroupBy [71-87] [group by returns]
+        GroupingItem [80-87] [returns]
+          PathExpression [80-87] [returns]
+            Identifier(returns) [80-87] [returns]
+    OrderBy [88-104] [order by returns]
+      OrderingExpression(ASC) [97-104] [returns]
+        PathExpression [97-104] [returns]
+          Identifier(returns) [97-104] [returns]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# safe_cast should still be used as column or path name.
+select safe_cast from (select 1 as safe_cast)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-45] [select safe_cast...safe_cast)]
+  Query [0-45] [select safe_cast...safe_cast)]
+    Select [0-45] [select safe_cast...safe_cast)]
+      SelectList [7-16] [safe_cast]
+        SelectColumn [7-16] [safe_cast]
+          PathExpression [7-16] [safe_cast]
+            Identifier(`safe_cast`) [7-16] [safe_cast]
+      FromClause [17-45] [from (select 1 as safe_cast)]
+        TableSubquery [22-45] [(select 1 as safe_cast)]
+          Query [23-44] [select 1 as safe_cast]
+            Select [23-44] [select 1 as safe_cast]
+              SelectList [30-44] [1 as safe_cast]
+                SelectColumn [30-44] [1 as safe_cast]
+                  IntLiteral(1) [30-31] [1]
+                  Alias [32-44] [as safe_cast]
+                    Identifier(`safe_cast`) [35-44] [safe_cast]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Test that unreserved keyword DATE_ADD and similar keywords can be used as an
+# alias and column name.
+select date_add, date_sub, timestamp_add, timestamp_sub,
+       datetime_add, datetime_sub, time_add, time_sub
+from (select 1 as date_add, 1 as date_sub, 1 as timestamp_add,
+      1 as timestamp_sub, 1 as datetime_add, 1 as datetime_sub,
+      1 as time_ad, 1 as time_sub);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-272] [select date_add...time_sub)]
+  Query [0-272] [select date_add...time_sub)]
+    Select [0-272] [select date_add...time_sub)]
+      SelectList [7-110] [date_add,..., time_sub]
+        SelectColumn [7-15] [date_add]
+          PathExpression [7-15] [date_add]
+            Identifier(date_add) [7-15] [date_add]
+        SelectColumn [17-25] [date_sub]
+          PathExpression [17-25] [date_sub]
+            Identifier(date_sub) [17-25] [date_sub]
+        SelectColumn [27-40] [timestamp_add]
+          PathExpression [27-40] [timestamp_add]
+            Identifier(timestamp_add) [27-40] [timestamp_add]
+        SelectColumn [42-55] [timestamp_sub]
+          PathExpression [42-55] [timestamp_sub]
+            Identifier(timestamp_sub) [42-55] [timestamp_sub]
+        SelectColumn [64-76] [datetime_add]
+          PathExpression [64-76] [datetime_add]
+            Identifier(datetime_add) [64-76] [datetime_add]
+        SelectColumn [78-90] [datetime_sub]
+          PathExpression [78-90] [datetime_sub]
+            Identifier(datetime_sub) [78-90] [datetime_sub]
+        SelectColumn [92-100] [time_add]
+          PathExpression [92-100] [time_add]
+            Identifier(time_add) [92-100] [time_add]
+        SelectColumn [102-110] [time_sub]
+          PathExpression [102-110] [time_sub]
+            Identifier(time_sub) [102-110] [time_sub]
+      FromClause [111-272] [from (select...time_sub)]
+        TableSubquery [116-272] [(select 1...time_sub)]
+          Query [117-271] [select 1 as...as time_sub]
+            Select [117-271] [select 1 as...as time_sub]
+              SelectList [124-271] [1 as date_add...as time_sub]
+                SelectColumn [124-137] [1 as date_add]
+                  IntLiteral(1) [124-125] [1]
+                  Alias [126-137] [as date_add]
+                    Identifier(date_add) [129-137] [date_add]
+                SelectColumn [139-152] [1 as date_sub]
+                  IntLiteral(1) [139-140] [1]
+                  Alias [141-152] [as date_sub]
+                    Identifier(date_sub) [144-152] [date_sub]
+                SelectColumn [154-172] [1 as timestamp_add]
+                  IntLiteral(1) [154-155] [1]
+                  Alias [156-172] [as timestamp_add]
+                    Identifier(timestamp_add) [159-172] [timestamp_add]
+                SelectColumn [180-198] [1 as timestamp_sub]
+                  IntLiteral(1) [180-181] [1]
+                  Alias [182-198] [as timestamp_sub]
+                    Identifier(timestamp_sub) [185-198] [timestamp_sub]
+                SelectColumn [200-217] [1 as datetime_add]
+                  IntLiteral(1) [200-201] [1]
+                  Alias [202-217] [as datetime_add]
+                    Identifier(datetime_add) [205-217] [datetime_add]
+                SelectColumn [219-236] [1 as datetime_sub]
+                  IntLiteral(1) [219-220] [1]
+                  Alias [221-236] [as datetime_sub]
+                    Identifier(datetime_sub) [224-236] [datetime_sub]
+                SelectColumn [244-256] [1 as time_ad]
+                  IntLiteral(1) [244-245] [1]
+                  Alias [246-256] [as time_ad]
+                    Identifier(time_ad) [249-256] [time_ad]
+                SelectColumn [258-271] [1 as time_sub]
+                  IntLiteral(1) [258-259] [1]
+                  Alias [260-271] [as time_sub]
+                    Identifier(time_sub) [263-271] [time_sub]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Most unquoted reserved keywords (KeywordInfo::kReserved) cannot be used
+# as an identifier or in a path expression (at the start, middle, or end).
+select 1 as {{array|`array`}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: array
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+select {{array|`array`}} from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: array
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+select foo.{{array|`array`}} from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: array
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Reserved keywords as identifiers work after a closing parenthesis or square
+# bracket followed by a dot.
+select FOO().array, (foo).array, foo[3].array, ?.array, @param.array, @@sysvar.array from foo;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-93] [select FOO...array from foo]
+  Query [0-93] [select FOO...array from foo]
+    Select [0-93] [select FOO...array from foo]
+      SelectList [7-84] [FOO().array...sysvar.array]
+        SelectColumn [7-18] [FOO().array]
+          DotIdentifier [7-18] [FOO().array]
+            FunctionCall [7-12] [FOO()]
+              PathExpression [7-10] [FOO]
+                Identifier(FOO) [7-10] [FOO]
+            Identifier(`array`) [13-18] [array]
+        SelectColumn [20-31] [(foo).array]
+          DotIdentifier [20-31] [(foo).array]
+            PathExpression [21-24] [foo]
+              Identifier(foo) [21-24] [foo]
+            Identifier(`array`) [26-31] [array]
+        SelectColumn [33-45] [foo[3].array]
+          DotIdentifier [33-45] [foo[3].array]
+            ArrayElement [33-39] [foo[3]]
+              PathExpression [33-36] [foo]
+                Identifier(foo) [33-36] [foo]
+              Location [36-37] [[]
+              IntLiteral(3) [37-38] [3]
+            Identifier(`array`) [40-45] [array]
+        SelectColumn [47-54] [?.array]
+          DotIdentifier [47-54] [?.array]
+            ParameterExpr(1) [47-48] [?]
+            Identifier(`array`) [49-54] [array]
+        SelectColumn [56-68] [@param.array]
+          DotIdentifier [56-68] [@param.array]
+            ParameterExpr [56-62] [@param]
+              Identifier(param) [57-62] [param]
+            Identifier(`array`) [63-68] [array]
+        SelectColumn [70-84] [@@sysvar.array]
+          SystemVariableExpr [70-84] [@@sysvar.array]
+            PathExpression [72-84] [sysvar.array]
+              Identifier(sysvar) [72-78] [sysvar]
+              Identifier(`array`) [79-84] [array]
+      FromClause [85-93] [from foo]
+        TablePathExpression [90-93] [foo]
+          PathExpression [90-93] [foo]
+            Identifier(foo) [90-93] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# Identifiers that start with a digit work after a closing parenthesis or square
+# bracket followed by a dot. Even if they look like floating point numbers, like
+# ".1e2".
+select FOO().123, (foo).123, foo[3].123, ?.123, @param.123, @@sysvar.123,
+       FOO().1e2, (foo).1e2, foo[3].1e2, ?.1e2, @param.1e2, @@sysvar.1e2 from foo;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-155] [select FOO...1e2 from foo]
+  Query [0-155] [select FOO...1e2 from foo]
+    Select [0-155] [select FOO...1e2 from foo]
+      SelectList [7-146] [FOO().123,...sysvar.1e2]
+        SelectColumn [7-16] [FOO().123]
+          DotIdentifier [7-16] [FOO().123]
+            FunctionCall [7-12] [FOO()]
+              PathExpression [7-10] [FOO]
+                Identifier(FOO) [7-10] [FOO]
+            Identifier(`123`) [13-16] [123]
+        SelectColumn [18-27] [(foo).123]
+          DotIdentifier [18-27] [(foo).123]
+            PathExpression [19-22] [foo]
+              Identifier(foo) [19-22] [foo]
+            Identifier(`123`) [24-27] [123]
+        SelectColumn [29-39] [foo[3].123]
+          DotIdentifier [29-39] [foo[3].123]
+            ArrayElement [29-35] [foo[3]]
+              PathExpression [29-32] [foo]
+                Identifier(foo) [29-32] [foo]
+              Location [32-33] [[]
+              IntLiteral(3) [33-34] [3]
+            Identifier(`123`) [36-39] [123]
+        SelectColumn [41-46] [?.123]
+          DotIdentifier [41-46] [?.123]
+            ParameterExpr(1) [41-42] [?]
+            Identifier(`123`) [43-46] [123]
+        SelectColumn [48-58] [@param.123]
+          DotIdentifier [48-58] [@param.123]
+            ParameterExpr [48-54] [@param]
+              Identifier(param) [49-54] [param]
+            Identifier(`123`) [55-58] [123]
+        SelectColumn [60-72] [@@sysvar.123]
+          SystemVariableExpr [60-72] [@@sysvar.123]
+            PathExpression [62-72] [sysvar.123]
+              Identifier(sysvar) [62-68] [sysvar]
+              Identifier(`123`) [69-72] [123]
+        SelectColumn [81-90] [FOO().1e2]
+          DotIdentifier [81-90] [FOO().1e2]
+            FunctionCall [81-86] [FOO()]
+              PathExpression [81-84] [FOO]
+                Identifier(FOO) [81-84] [FOO]
+            Identifier(`1e2`) [87-90] [1e2]
+        SelectColumn [92-101] [(foo).1e2]
+          DotIdentifier [92-101] [(foo).1e2]
+            PathExpression [93-96] [foo]
+              Identifier(foo) [93-96] [foo]
+            Identifier(`1e2`) [98-101] [1e2]
+        SelectColumn [103-113] [foo[3].1e2]
+          DotIdentifier [103-113] [foo[3].1e2]
+            ArrayElement [103-109] [foo[3]]
+              PathExpression [103-106] [foo]
+                Identifier(foo) [103-106] [foo]
+              Location [106-107] [[]
+              IntLiteral(3) [107-108] [3]
+            Identifier(`1e2`) [110-113] [1e2]
+        SelectColumn [115-120] [?.1e2]
+          DotIdentifier [115-120] [?.1e2]
+            ParameterExpr(2) [115-116] [?]
+            Identifier(`1e2`) [117-120] [1e2]
+        SelectColumn [122-132] [@param.1e2]
+          DotIdentifier [122-132] [@param.1e2]
+            ParameterExpr [122-128] [@param]
+              Identifier(param) [123-128] [param]
+            Identifier(`1e2`) [129-132] [1e2]
+        SelectColumn [134-146] [@@sysvar.1e2]
+          SystemVariableExpr [134-146] [@@sysvar.1e2]
+            PathExpression [136-146] [sysvar.1e2]
+              Identifier(sysvar) [136-142] [sysvar]
+              Identifier(`1e2`) [143-146] [1e2]
+      FromClause [147-155] [from foo]
+        TablePathExpression [152-155] [foo]
+          PathExpression [152-155] [foo]
+            Identifier(foo) [152-155] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# Reserved keywords as identifiers work after an identifier followed by a dot,
+# even when the path epxression does not consist of only identifiers.
+select FOO().bar.array from foo;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-31] [select FOO...array from foo]
+  Query [0-31] [select FOO...array from foo]
+    Select [0-31] [select FOO...array from foo]
+      SelectList [7-22] [FOO().bar.array]
+        SelectColumn [7-22] [FOO().bar.array]
+          DotIdentifier [7-22] [FOO().bar.array]
+            DotIdentifier [7-16] [FOO().bar]
+              FunctionCall [7-12] [FOO()]
+                PathExpression [7-10] [FOO]
+                  Identifier(FOO) [7-10] [FOO]
+              Identifier(bar) [13-16] [bar]
+            Identifier(`array`) [17-22] [array]
+      FromClause [23-31] [from foo]
+        TablePathExpression [28-31] [foo]
+          PathExpression [28-31] [foo]
+            Identifier(foo) [28-31] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+select {{array|`array`}}.foo from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: array
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+select * from {{foo.|}}`array`;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: foo.
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+# Some unquoted reserved keywords
+# (KeywordInfo::kReservedGeneralizedIdentifierAllowed) cannot be used alone
+# as an identifier or at the start of a path expression, but can be used as a
+# trailing part of a path expression.
+select 1 as {{all|`all`}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: all
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+select {{all|`all`}} from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: all
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+select foo.{{all|`all`}} from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: all
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+select {{all|`all`}}.foo from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: all
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+select * from {{foo.|}}`all`;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: foo.
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# Unreserved keywords can be used as identifiers and anywhere in a
+# path expression.
+select 1 as {{call|`call`}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: call
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+select {{call|`call`}} from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: call
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+select foo.{{call|`call`}} from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: call
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
+==================
+select {{call|`call`}}.foo from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: call
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+select * from {{foo.|}}`call`;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: foo.
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+# Path expressions like kUnreserved.kReserved are allowed, as are
+# arbitrary_identifier.kReserved. "foo" is an arbitrary identifier, "call" is
+# a reserved word.
+select {{foo|call}}.array from bar;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: foo
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+# Path expressions like kUnreserved.kReservedGeneralizedIdentifierAllowed
+# are ok.  This test mixes unreserved keywords, reserved keywords, and
+# non-keywords in various orders.
+select call.{{all.|}}{{call.|}}{{foo.|}}all from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: all.,call.,foo.
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+# Other supported trailing generalized identifiers can start with numbers.
+select {{foo|call}}.123{{|.bar}} from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: foo,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
+==================
+select {{foo|call}}.123bar{{|.baz}} from foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: foo,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 30
+==================
+# IMPORT and MODULE are recently added non-reserved keywords that can
+# still be used as identifiers and in path expressions.
+select module, module.import as import
+from datascape.import.module as module
+where module.intcol = 0
+group by import;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-117] [select module...by import]
+  Query [0-117] [select module...by import]
+    Select [0-117] [select module...by import]
+      SelectList [7-38] [module, module...as import]
+        SelectColumn [7-13] [module]
+          PathExpression [7-13] [module]
+            Identifier(module) [7-13] [module]
+        SelectColumn [15-38] [module.import as import]
+          PathExpression [15-28] [module.import]
+            Identifier(module) [15-21] [module]
+            Identifier(import) [22-28] [import]
+          Alias [29-38] [as import]
+            Identifier(import) [32-38] [import]
+      FromClause [39-77] [from datascape...as module]
+        TablePathExpression [44-77] [datascape....as module]
+          PathExpression [44-67] [datascape.import.module]
+            Identifier(datascape) [44-53] [datascape]
+            Identifier(import) [54-60] [import]
+            Identifier(module) [61-67] [module]
+          Alias [68-77] [as module]
+            Identifier(module) [71-77] [module]
+      WhereClause [78-101] [where module.intcol = 0]
+        BinaryExpression(=) [84-101] [module.intcol = 0]
+          PathExpression [84-97] [module.intcol]
+            Identifier(module) [84-90] [module]
+            Identifier(intcol) [91-97] [intcol]
+          IntLiteral(0) [100-101] [0]
+      GroupBy [102-117] [group by import]
+        GroupingItem [111-117] [import]
+          PathExpression [111-117] [import]
+            Identifier(import) [111-117] [import]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 31
+==================
+create table module as select 1 as foo;
+
+/* Expected ZetaSQL AST:
+CreateTableStatement [0-38] [create table...select 1 as foo]
+  PathExpression [13-19] [module]
+    Identifier(module) [13-19] [module]
+  Query [23-38] [select 1 as foo]
+    Select [23-38] [select 1 as foo]
+      SelectList [30-38] [1 as foo]
+        SelectColumn [30-38] [1 as foo]
+          IntLiteral(1) [30-31] [1]
+          Alias [32-38] [as foo]
+            Identifier(foo) [35-38] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 32
+==================
+define table import(a=1);
+
+/* Expected ZetaSQL AST:
+DefineTableStatement [0-24] [define table import(a=1)]
+  PathExpression [13-19] [import]
+    Identifier(import) [13-19] [import]
+  OptionsList [19-24] [(a=1)]
+    OptionsEntry [20-23] [a=1]
+      Identifier(a) [20-21] [a]
+      IntLiteral(1) [22-23] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 33
+==================
+create function {{import|module}}() as (1);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: import
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
+==================
+select {{|import.}}module();
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 35
+==================
+# SYSTEM is not reserved keyword, and can be used as identifier.
+# Contrast different usages of SYSTEM, TIME, SYSTEM_TIME, AS keywords in
+# different contexts.
+select system as `of`, system_time as system
+from (select time '10:20:30' as system, cast(system as time) as system_time
+      from system.table cross join
+           important.system for system time as of @system)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-214] [select system...of @system)]
+  Query [0-214] [select system...of @system)]
+    Select [0-214] [select system...of @system)]
+      SelectList [7-44] [system as...as system]
+        SelectColumn [7-21] [system as `of`]
+          PathExpression [7-13] [system]
+            Identifier(system) [7-13] [system]
+          Alias [14-21] [as `of`]
+            Identifier(`of`) [17-21] [`of`]
+        SelectColumn [23-44] [system_time as system]
+          PathExpression [23-34] [system_time]
+            Identifier(system_time) [23-34] [system_time]
+          Alias [35-44] [as system]
+            Identifier(system) [38-44] [system]
+      FromClause [45-214] [from (select...of @system)]
+        TableSubquery [50-214] [(select time...of @system)]
+          Query [51-213] [select time...of @system]
+            Select [51-213] [select time...of @system]
+              SelectList [58-120] [time '10:20...system_time]
+                SelectColumn [58-83] [time '10:20:30' as system]
+                  DateOrTimeLiteral(TYPE_TIME) [58-73] [time '10:20:30']
+                    StringLiteral [63-73] ['10:20:30']
+                      StringLiteralComponent('10:20:30') [63-73] ['10:20:30']
+                  Alias [74-83] [as system]
+                    Identifier(system) [77-83] [system]
+                SelectColumn [85-120] [cast(system...system_time]
+                  CastExpression [85-105] [cast(system as time)]
+                    PathExpression [90-96] [system]
+                      Identifier(system) [90-96] [system]
+                    SimpleType [100-104] [time]
+                      PathExpression [100-104] [time]
+                        Identifier(time) [100-104] [time]
+                  Alias [106-120] [as system_time]
+                    Identifier(system_time) [109-120] [system_time]
+              FromClause [127-213] [from system...of @system]
+                Join(CROSS) [132-213] [system.table...of @system]
+                  TablePathExpression [132-144] [system.table]
+                    PathExpression [132-144] [system.table]
+                      Identifier(system) [132-138] [system]
+                      Identifier(table) [139-144] [table]
+                  Location [145-155] [cross join]
+                  TablePathExpression [167-213] [important....of @system]
+                    PathExpression [167-183] [important.system]
+                      Identifier(important) [167-176] [important]
+                      Identifier(system) [177-183] [system]
+                    ForSystemTime [184-213] [for system time as of @system]
+                      ParameterExpr [206-213] [@system]
+                        Identifier(system) [207-213] [system]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 36
+==================
+# Test reserved keyword that also works as function name.
+select {{if|grouping|left|right|collate}}(x)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: if
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 37
+==================
+# Test reserved keyword that also works as function name.
+select `{{if|grouping|left|right|collate}}`(x, y, z)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: if
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 38
+==================
+# Test reserved keyword that also works as function name
+# in a chained function call.
+select
+  "abc".if(),
+  "abc".grouping(),
+  "abc".left(),
+  "abc".right(),
+  "abc".collate(),
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-92] [select   "...collate(),]
+  Query [0-92] [select   "...collate(),]
+    Select [0-92] [select   "...collate(),]
+      SelectList [9-92] ["abc".if()...collate(),]
+        SelectColumn [9-19] ["abc".if()]
+          FunctionCall(is_chained_call=true) [9-19] ["abc".if()]
+            PathExpression [15-17] [if]
+              Identifier(`if`) [15-17] [if]
+            StringLiteral [9-14] ["abc"]
+              StringLiteralComponent("abc") [9-14] ["abc"]
+        SelectColumn [23-39] ["abc".grouping()]
+          FunctionCall(is_chained_call=true) [23-39] ["abc".grouping()]
+            PathExpression [29-37] [grouping]
+              Identifier(`grouping`) [29-37] [grouping]
+            StringLiteral [23-28] ["abc"]
+              StringLiteralComponent("abc") [23-28] ["abc"]
+        SelectColumn [43-55] ["abc".left()]
+          FunctionCall(is_chained_call=true) [43-55] ["abc".left()]
+            PathExpression [49-53] [left]
+              Identifier(`left`) [49-53] [left]
+            StringLiteral [43-48] ["abc"]
+              StringLiteralComponent("abc") [43-48] ["abc"]
+        SelectColumn [59-72] ["abc".right()]
+          FunctionCall(is_chained_call=true) [59-72] ["abc".right()]
+            PathExpression [65-70] [right]
+              Identifier(`right`) [65-70] [right]
+            StringLiteral [59-64] ["abc"]
+              StringLiteralComponent("abc") [59-64] ["abc"]
+        SelectColumn [76-91] ["abc".collate()]
+          FunctionCall(is_chained_call=true) [76-91] ["abc".collate()]
+            PathExpression [82-89] [collate]
+              Identifier(`collate`) [82-89] [collate]
+            StringLiteral [76-81] ["abc"]
+              StringLiteralComponent("abc") [76-81] ["abc"]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 39
+==================
+# Test reserved keyword that also works as function name,
+# as a dot-identifier.
+select
+  "abc".if,
+  "abc".grouping,
+  "abc".left,
+  "abc".right,
+  "abc".collate,
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-82] [select   "...".collate,]
+  Query [0-82] [select   "...".collate,]
+    Select [0-82] [select   "...".collate,]
+      SelectList [9-82] ["abc".if,...".collate,]
+        SelectColumn [9-17] ["abc".if]
+          DotIdentifier [9-17] ["abc".if]
+            StringLiteral [9-14] ["abc"]
+              StringLiteralComponent("abc") [9-14] ["abc"]
+            Identifier(`if`) [15-17] [if]
+        SelectColumn [21-35] ["abc".grouping]
+          DotIdentifier [21-35] ["abc".grouping]
+            StringLiteral [21-26] ["abc"]
+              StringLiteralComponent("abc") [21-26] ["abc"]
+            Identifier(`grouping`) [27-35] [grouping]
+        SelectColumn [39-49] ["abc".left]
+          DotIdentifier [39-49] ["abc".left]
+            StringLiteral [39-44] ["abc"]
+              StringLiteralComponent("abc") [39-44] ["abc"]
+            Identifier(`left`) [45-49] [left]
+        SelectColumn [53-64] ["abc".right]
+          DotIdentifier [53-64] ["abc".right]
+            StringLiteral [53-58] ["abc"]
+              StringLiteralComponent("abc") [53-58] ["abc"]
+            Identifier(`right`) [59-64] [right]
+        SelectColumn [68-81] ["abc".collate]
+          DotIdentifier [68-81] ["abc".collate]
+            StringLiteral [68-73] ["abc"]
+              StringLiteralComponent("abc") [68-73] ["abc"]
+            Identifier(`collate`) [74-81] [collate]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 40
+==================
+# Paths or function names cannot start with these reserved keywords.
+select {{if|grouping|left|right|collate}}{{|.x|.x()}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: if,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 41
+==================
+# REPLACE is allowed to be a keyword after INSERT
+INSERT {{foo|REPLACE foo|REPLACE|replace.foo|`replace`.foo|UPDATE foo|UPDATE|update.foo|`update`.foo}} VALUES(1, 2, 3)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: foo
+*/
+---
+(source_file (ERROR))
+

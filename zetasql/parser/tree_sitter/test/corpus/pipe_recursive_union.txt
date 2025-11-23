@@ -1,0 +1,230 @@
+==================
+Test Case 1
+==================
+[default language_features=NONE,+PIPES]
+# Input is a subquery.
+from t
+|> recursive union all (select 1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [23-63] [from t |>...(select 1)]
+  Query [23-63] [from t |>...(select 1)]
+    FromQuery [23-29] [from t]
+      FromClause [23-29] [from t]
+        TablePathExpression [28-29] [t]
+          PathExpression [28-29] [t]
+            Identifier(t) [28-29] [t]
+    PipeRecursiveUnion [30-63] [|> recursive...(select 1)]
+      SetOperationMetadata [43-52] [union all]
+        SetOperationType [43-48] [union]
+        SetOperationAllOrDistinct [49-52] [all]
+      Query [53-63] [(select 1)]
+        Select [54-62] [select 1]
+          SelectList [61-62] [1]
+            SelectColumn [61-62] [1]
+              IntLiteral(1) [61-62] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Input is a subpipeline.
+from t
+|> recursive union all (
+  |> extend 1
+)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [from t |>...extend 1 )]
+  Query [0-47] [from t |>...extend 1 )]
+    FromQuery [0-6] [from t]
+      FromClause [0-6] [from t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeRecursiveUnion [7-47] [|> recursive...extend 1 )]
+      SetOperationMetadata [20-29] [union all]
+        SetOperationType [20-25] [union]
+        SetOperationAllOrDistinct [26-29] [all]
+      Subpipeline [30-47] [(   |> extend 1 )]
+        PipeExtend [34-45] [|> extend 1]
+          Select [37-45] [extend 1]
+            SelectList [44-45] [1]
+              SelectColumn [44-45] [1]
+                IntLiteral(1) [44-45] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Parser does not reject non union set operations; the check will happen in
+# the resolver.
+from t
+|> recursive {{union|intersect|except}} {{all|distinct}} (select 1)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: union,all
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Depth modifiers are allowed.
+from t
+|> recursive union all
+  with depth {{|as d|max 10|between 10 and 12|between 10 and unbounded}}
+  (select 1)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Set operation modifiers are allowed.
+from t
+|> recursive union all
+  {{|strict}} {{corresponding|corresponding by (a)}}
+  (|> extend 1)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: corresponding
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Set operation modifiers are allowed.
+from t
+|> {{full|left}} union distinct (select 1)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: full
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Set operation modifiers are allowed.
+from t
+|> recursive union distinct by name (from t)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [from t |>...name (from t)]
+  Query [0-51] [from t |>...name (from t)]
+    FromQuery [0-6] [from t]
+      FromClause [0-6] [from t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeRecursiveUnion [7-51] [|> recursive...name (from t)]
+      SetOperationMetadata [20-42] [union distinct by name]
+        SetOperationType [20-25] [union]
+        SetOperationAllOrDistinct [26-34] [distinct]
+        SetOperationColumnMatchMode [35-42] [by name]
+      Query [43-51] [(from t)]
+        FromQuery [44-50] [from t]
+          FromClause [44-50] [from t]
+            TablePathExpression [49-50] [t]
+              PathExpression [49-50] [t]
+                Identifier(t) [49-50] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Trailing alias is allowed.
+from t
+|> recursive union distinct (|> where false) as alias
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [from t |>...) as alias]
+  Query [0-60] [from t |>...) as alias]
+    FromQuery [0-6] [from t]
+      FromClause [0-6] [from t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeRecursiveUnion [7-60] [|> recursive...) as alias]
+      SetOperationMetadata [20-34] [union distinct]
+        SetOperationType [20-25] [union]
+        SetOperationAllOrDistinct [26-34] [distinct]
+      Subpipeline [35-51] [(|> where false)]
+        PipeWhere [36-50] [|> where false]
+          WhereClause [39-50] [where false]
+            BooleanLiteral(false) [45-50] [false]
+      Alias [52-60] [as alias]
+        Identifier(alias) [55-60] [alias]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# Empty subpipeline is allowed by the parser, but will be rejected by the
+# resolver.
+from t
+|> recursive union distinct ()
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-37] [from t |>...distinct ()]
+  Query [0-37] [from t |>...distinct ()]
+    FromQuery [0-6] [from t]
+      FromClause [0-6] [from t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeRecursiveUnion [7-37] [|> recursive union distinct ()]
+      SetOperationMetadata [20-34] [union distinct]
+        SetOperationType [20-25] [union]
+        SetOperationAllOrDistinct [26-34] [distinct]
+      Subpipeline [35-37] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# FROM clause is interpreted as a subquery, not an invalid subpipeline.
+from t
+|> recursive union distinct (from t)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [from t |>...distinct (from t)]
+  Query [0-43] [from t |>...distinct (from t)]
+    FromQuery [0-6] [from t]
+      FromClause [0-6] [from t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeRecursiveUnion [7-43] [|> recursive...stinct (from t)]
+      SetOperationMetadata [20-34] [union distinct]
+        SetOperationType [20-25] [union]
+        SetOperationAllOrDistinct [26-34] [distinct]
+      Query [35-43] [(from t)]
+        FromQuery [36-42] [from t]
+          FromClause [36-42] [from t]
+            TablePathExpression [41-42] [t]
+              PathExpression [41-42] [t]
+                Identifier(t) [41-42] [t]
+*/
+---
+(source_file (ERROR))
+

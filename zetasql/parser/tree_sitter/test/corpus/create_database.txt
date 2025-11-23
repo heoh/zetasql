@@ -1,0 +1,126 @@
+==================
+Test Case 1
+==================
+create database db;
+
+/* Expected ZetaSQL AST:
+CreateDatabaseStatement [0-18] [create database db]
+  PathExpression [16-18] [db]
+    Identifier(db) [16-18] [db]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Database name is a path.
+create database a.b.c.db;
+
+/* Expected ZetaSQL AST:
+CreateDatabaseStatement [0-24] [create database a.b.c.db]
+  PathExpression [16-24] [a.b.c.db]
+    Identifier(a) [16-17] [a]
+    Identifier(b) [18-19] [b]
+    Identifier(c) [20-21] [c]
+    Identifier(db) [22-24] [db]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Create a database named "database".
+create database database;
+
+/* Expected ZetaSQL AST:
+CreateDatabaseStatement [0-24] [create database database]
+  PathExpression [16-24] [database]
+    Identifier(database) [16-24] [database]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Create a database with an option.
+create database db options(db_option=1);
+
+/* Expected ZetaSQL AST:
+CreateDatabaseStatement [0-39] [create database...db_option=1)]
+  PathExpression [16-18] [db]
+    Identifier(db) [16-18] [db]
+  OptionsList [26-39] [(db_option=1)]
+    OptionsEntry [27-38] [db_option=1]
+      Identifier(db_option) [27-36] [db_option]
+      IntLiteral(1) [37-38] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Create a database with an option and database name is a path
+create database a.b.c.db options(db_option=1);
+
+/* Expected ZetaSQL AST:
+CreateDatabaseStatement [0-45] [create database...db_option=1)]
+  PathExpression [16-24] [a.b.c.db]
+    Identifier(a) [16-17] [a]
+    Identifier(b) [18-19] [b]
+    Identifier(c) [20-21] [c]
+    Identifier(db) [22-24] [db]
+  OptionsList [32-45] [(db_option=1)]
+    OptionsEntry [33-44] [db_option=1]
+      Identifier(db_option) [33-42] [db_option]
+      IntLiteral(1) [43-44] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Create a database with two options.
+create database db options(option_1=1,option_2='2');
+
+/* Expected ZetaSQL AST:
+CreateDatabaseStatement [0-51] [create database...ption_2='2')]
+  PathExpression [16-18] [db]
+    Identifier(db) [16-18] [db]
+  OptionsList [26-51] [(option_1=1,option_2='2')]
+    OptionsEntry [27-37] [option_1=1]
+      Identifier(option_1) [27-35] [option_1]
+      IntLiteral(1) [36-37] [1]
+    OptionsEntry [38-50] [option_2='2']
+      Identifier(option_2) [38-46] [option_2]
+      StringLiteral [47-50] ['2']
+        StringLiteralComponent('2') [47-50] ['2']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+CREATE DATABASE OPTIONS OPTIONS(option_1=1,option_2='2');
+
+/* Expected ZetaSQL AST:
+CreateDatabaseStatement [0-56] [CREATE DATABASE...ption_2='2')]
+  PathExpression [16-23] [OPTIONS]
+    Identifier(OPTIONS) [16-23] [OPTIONS]
+  OptionsList [31-56] [(option_1=1,option_2='2')]
+    OptionsEntry [32-42] [option_1=1]
+      Identifier(option_1) [32-40] [option_1]
+      IntLiteral(1) [41-42] [1]
+    OptionsEntry [43-55] [option_2='2']
+      Identifier(option_2) [43-51] [option_2]
+      StringLiteral [52-55] ['2']
+        StringLiteralComponent('2') [52-55] ['2']
+*/
+---
+(source_file (ERROR))
+

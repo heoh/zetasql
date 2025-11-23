@@ -1,0 +1,666 @@
+==================
+Test Case 1
+==================
+select a from t order by 1;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-26] [select a from t order by 1]
+  Query [0-26] [select a from t order by 1]
+    Select [0-15] [select a from t]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from t]
+        TablePathExpression [14-15] [t]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+    OrderBy [16-26] [order by 1]
+      OrderingExpression(ASC) [25-26] [1]
+        IntLiteral(1) [25-26] [1]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (statement [0, 0] - [0, 27]
+    (select_statement [0, 0] - [0, 27]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 26]
+        (order_expression_list [0, 25] - [0, 26]
+          (order_expression [0, 25] - [0, 26]
+            (expression [0, 25] - [0, 26]
+              (number [0, 25] - [0, 26])))))))
+  (comment [2, 0] - [17, 2]))
+
+==================
+Test Case 2
+==================
+select a from t order by a, b;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-29] [select a from t order by a, b]
+  Query [0-29] [select a from t order by a, b]
+    Select [0-15] [select a from t]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from t]
+        TablePathExpression [14-15] [t]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+    OrderBy [16-29] [order by a, b]
+      OrderingExpression(ASC) [25-26] [a]
+        PathExpression [25-26] [a]
+          Identifier(a) [25-26] [a]
+      OrderingExpression(ASC) [28-29] [b]
+        PathExpression [28-29] [b]
+          Identifier(b) [28-29] [b]
+*/
+---
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 30]
+    (select_statement [0, 0] - [0, 30]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 29]
+        (order_expression_list [0, 25] - [0, 29]
+          (order_expression [0, 25] - [0, 26]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))
+          (order_expression [0, 28] - [0, 29]
+            (expression [0, 28] - [0, 29]
+              (path_expression [0, 28] - [0, 29]
+                (identifier [0, 28] - [0, 29]))))))))
+  (comment [2, 0] - [21, 2]))
+
+==================
+Test Case 3
+==================
+select a from t order by a+b
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28] [select a from t order by a+b]
+  Query [0-28] [select a from t order by a+b]
+    Select [0-15] [select a from t]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from t]
+        TablePathExpression [14-15] [t]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+    OrderBy [16-28] [order by a+b]
+      OrderingExpression(ASC) [25-28] [a+b]
+        BinaryExpression(+) [25-28] [a+b]
+          PathExpression [25-26] [a]
+            Identifier(a) [25-26] [a]
+          PathExpression [27-28] [b]
+            Identifier(b) [27-28] [b]
+*/
+---
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 28]
+    (select_statement [0, 0] - [0, 28]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 28]
+        (order_expression_list [0, 25] - [0, 28]
+          (order_expression [0, 25] - [0, 28]
+            (expression [0, 25] - [0, 28]
+              (binary_expression [0, 25] - [0, 28]
+                (expression [0, 25] - [0, 26]
+                  (path_expression [0, 25] - [0, 26]
+                    (identifier [0, 25] - [0, 26])))
+                (expression [0, 27] - [0, 28]
+                  (path_expression [0, 27] - [0, 28]
+                    (identifier [0, 27] - [0, 28]))))))))))
+  (comment [2, 0] - [21, 2]))
+
+==================
+Test Case 4
+==================
+select * from t order by 1;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-26] [select * from t order by 1]
+  Query [0-26] [select * from t order by 1]
+    Select [0-15] [select * from t]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from t]
+        TablePathExpression [14-15] [t]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+    OrderBy [16-26] [order by 1]
+      OrderingExpression(ASC) [25-26] [1]
+        IntLiteral(1) [25-26] [1]
+*/
+---
+(source_file [0, 0] - [16, 2]
+  (statement [0, 0] - [0, 27]
+    (select_statement [0, 0] - [0, 27]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 26]
+        (order_expression_list [0, 25] - [0, 26]
+          (order_expression [0, 25] - [0, 26]
+            (expression [0, 25] - [0, 26]
+              (number [0, 25] - [0, 26])))))))
+  (comment [2, 0] - [16, 2]))
+
+==================
+Test Case 5
+==================
+select a from t group by a order by 1;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-37] [select a from...order by 1]
+  Query [0-37] [select a from...order by 1]
+    Select [0-26] [select a from t group by a]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from t]
+        TablePathExpression [14-15] [t]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+      GroupBy [16-26] [group by a]
+        GroupingItem [25-26] [a]
+          PathExpression [25-26] [a]
+            Identifier(a) [25-26] [a]
+    OrderBy [27-37] [order by 1]
+      OrderingExpression(ASC) [36-37] [1]
+        IntLiteral(1) [36-37] [1]
+*/
+---
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 38]
+    (select_statement [0, 0] - [0, 38]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (group_by_clause [0, 16] - [0, 26]
+        (expression_list [0, 25] - [0, 26]
+          (expression [0, 25] - [0, 26]
+            (path_expression [0, 25] - [0, 26]
+              (identifier [0, 25] - [0, 26])))))
+      (order_by_clause [0, 27] - [0, 37]
+        (order_expression_list [0, 36] - [0, 37]
+          (order_expression [0, 36] - [0, 37]
+            (expression [0, 36] - [0, 37]
+              (number [0, 36] - [0, 37])))))))
+  (comment [2, 0] - [21, 2]))
+
+==================
+Test Case 6
+==================
+select a from t group by a having a > 5 order by 1;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-50] [select a from...order by 1]
+  Query [0-50] [select a from...order by 1]
+    Select [0-39] [select a from...having a > 5]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from t]
+        TablePathExpression [14-15] [t]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+      GroupBy [16-26] [group by a]
+        GroupingItem [25-26] [a]
+          PathExpression [25-26] [a]
+            Identifier(a) [25-26] [a]
+      Having [27-39] [having a > 5]
+        BinaryExpression(>) [34-39] [a > 5]
+          PathExpression [34-35] [a]
+            Identifier(a) [34-35] [a]
+          IntLiteral(5) [38-39] [5]
+    OrderBy [40-50] [order by 1]
+      OrderingExpression(ASC) [49-50] [1]
+        IntLiteral(1) [49-50] [1]
+*/
+---
+(source_file [0, 0] - [26, 2]
+  (statement [0, 0] - [0, 51]
+    (select_statement [0, 0] - [0, 51]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (group_by_clause [0, 16] - [0, 26]
+        (expression_list [0, 25] - [0, 26]
+          (expression [0, 25] - [0, 26]
+            (path_expression [0, 25] - [0, 26]
+              (identifier [0, 25] - [0, 26])))))
+      (having_clause [0, 27] - [0, 39]
+        (expression [0, 34] - [0, 39]
+          (binary_expression [0, 34] - [0, 39]
+            (expression [0, 34] - [0, 35]
+              (path_expression [0, 34] - [0, 35]
+                (identifier [0, 34] - [0, 35])))
+            (expression [0, 38] - [0, 39]
+              (number [0, 38] - [0, 39])))))
+      (order_by_clause [0, 40] - [0, 50]
+        (order_expression_list [0, 49] - [0, 50]
+          (order_expression [0, 49] - [0, 50]
+            (expression [0, 49] - [0, 50]
+              (number [0, 49] - [0, 50])))))))
+  (comment [2, 0] - [26, 2]))
+
+==================
+Test Case 7
+==================
+# ORDER BY attaches outside of the UNION ALL
+select a from t
+union all
+select b from t
+order by 1
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [select a from...order by 1]
+  Query [0-52] [select a from...order by 1]
+    SetOperation(UNION ALL) [0-41] [select a from...elect b from t]
+      SetOperationMetadataList [16-25] [union all]
+        SetOperationMetadata [16-25] [union all]
+          SetOperationType [16-21] [union]
+          SetOperationAllOrDistinct [22-25] [all]
+      Select [0-15] [select a from t]
+        SelectList [7-8] [a]
+          SelectColumn [7-8] [a]
+            PathExpression [7-8] [a]
+              Identifier(a) [7-8] [a]
+        FromClause [9-15] [from t]
+          TablePathExpression [14-15] [t]
+            PathExpression [14-15] [t]
+              Identifier(t) [14-15] [t]
+      Select [26-41] [select b from t]
+        SelectList [33-34] [b]
+          SelectColumn [33-34] [b]
+            PathExpression [33-34] [b]
+              Identifier(b) [33-34] [b]
+        FromClause [35-41] [from t]
+          TablePathExpression [40-41] [t]
+            PathExpression [40-41] [t]
+              Identifier(t) [40-41] [t]
+    OrderBy [42-52] [order by 1]
+      OrderingExpression(ASC) [51-52] [1]
+        IntLiteral(1) [51-52] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+(select a from t order by 1)
+UNION ALL
+(select b from t order by 2)
+order by 3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-78] [(select a...order by 3]
+  Query [0-78] [(select a...order by 3]
+    SetOperation(UNION ALL) [0-67] [(select a...order by 2)]
+      SetOperationMetadataList [29-38] [UNION ALL]
+        SetOperationMetadata [29-38] [UNION ALL]
+          SetOperationType [29-34] [UNION]
+          SetOperationAllOrDistinct [35-38] [ALL]
+      Query [1-27] [select a from t order by 1]
+        Select [1-16] [select a from t]
+          SelectList [8-9] [a]
+            SelectColumn [8-9] [a]
+              PathExpression [8-9] [a]
+                Identifier(a) [8-9] [a]
+          FromClause [10-16] [from t]
+            TablePathExpression [15-16] [t]
+              PathExpression [15-16] [t]
+                Identifier(t) [15-16] [t]
+        OrderBy [17-27] [order by 1]
+          OrderingExpression(ASC) [26-27] [1]
+            IntLiteral(1) [26-27] [1]
+      Query [40-66] [select b from t order by 2]
+        Select [40-55] [select b from t]
+          SelectList [47-48] [b]
+            SelectColumn [47-48] [b]
+              PathExpression [47-48] [b]
+                Identifier(b) [47-48] [b]
+          FromClause [49-55] [from t]
+            TablePathExpression [54-55] [t]
+              PathExpression [54-55] [t]
+                Identifier(t) [54-55] [t]
+        OrderBy [56-66] [order by 2]
+          OrderingExpression(ASC) [65-66] [2]
+            IntLiteral(2) [65-66] [2]
+    OrderBy [68-78] [order by 3]
+      OrderingExpression(ASC) [77-78] [3]
+        IntLiteral(3) [77-78] [3]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+select * from (select a from t order by 1);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [select * from...order by 1)]
+  Query [0-42] [select * from...order by 1)]
+    Select [0-42] [select * from...order by 1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-42] [from (select...order by 1)]
+        TableSubquery [14-42] [(select a from t order by 1)]
+          Query [15-41] [select a from t order by 1]
+            Select [15-30] [select a from t]
+              SelectList [22-23] [a]
+                SelectColumn [22-23] [a]
+                  PathExpression [22-23] [a]
+                    Identifier(a) [22-23] [a]
+              FromClause [24-30] [from t]
+                TablePathExpression [29-30] [t]
+                  PathExpression [29-30] [t]
+                    Identifier(t) [29-30] [t]
+            OrderBy [31-41] [order by 1]
+              OrderingExpression(ASC) [40-41] [1]
+                IntLiteral(1) [40-41] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+select a from T order by a asc, b desc;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-38] [select a from...asc, b desc]
+  Query [0-38] [select a from...asc, b desc]
+    Select [0-15] [select a from T]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-38] [order by a asc, b desc]
+      OrderingExpression(ASC EXPLICITLY) [25-30] [a asc]
+        PathExpression [25-26] [a]
+          Identifier(a) [25-26] [a]
+      OrderingExpression(DESC) [32-38] [b desc]
+        PathExpression [32-33] [b]
+          Identifier(b) [32-33] [b]
+*/
+---
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 39]
+    (select_statement [0, 0] - [0, 39]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 38]
+        (order_expression_list [0, 25] - [0, 38]
+          (order_expression [0, 25] - [0, 30]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))
+          (order_expression [0, 32] - [0, 38]
+            (expression [0, 32] - [0, 33]
+              (path_expression [0, 32] - [0, 33]
+                (identifier [0, 32] - [0, 33]))))))))
+  (comment [2, 0] - [21, 2]))
+
+==================
+Test Case 11
+==================
+select a from T order by a desc, b asc;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-38] [select a from...desc, b asc]
+  Query [0-38] [select a from...desc, b asc]
+    Select [0-15] [select a from T]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-38] [order by a desc, b asc]
+      OrderingExpression(DESC) [25-31] [a desc]
+        PathExpression [25-26] [a]
+          Identifier(a) [25-26] [a]
+      OrderingExpression(ASC EXPLICITLY) [33-38] [b asc]
+        PathExpression [33-34] [b]
+          Identifier(b) [33-34] [b]
+*/
+---
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 39]
+    (select_statement [0, 0] - [0, 39]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 38]
+        (order_expression_list [0, 25] - [0, 38]
+          (order_expression [0, 25] - [0, 31]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))
+          (order_expression [0, 33] - [0, 38]
+            (expression [0, 33] - [0, 34]
+              (path_expression [0, 33] - [0, 34]
+                (identifier [0, 33] - [0, 34]))))))))
+  (comment [2, 0] - [21, 2]))
+
+==================
+Test Case 12
+==================
+select a from T order by a desc, b desc;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-39] [select a from...desc, b desc]
+  Query [0-39] [select a from...desc, b desc]
+    Select [0-15] [select a from T]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-39] [order by a desc, b desc]
+      OrderingExpression(DESC) [25-31] [a desc]
+        PathExpression [25-26] [a]
+          Identifier(a) [25-26] [a]
+      OrderingExpression(DESC) [33-39] [b desc]
+        PathExpression [33-34] [b]
+          Identifier(b) [33-34] [b]
+*/
+---
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 40]
+    (select_statement [0, 0] - [0, 40]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 39]
+        (order_expression_list [0, 25] - [0, 39]
+          (order_expression [0, 25] - [0, 31]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))
+          (order_expression [0, 33] - [0, 39]
+            (expression [0, 33] - [0, 34]
+              (path_expression [0, 33] - [0, 34]
+                (identifier [0, 33] - [0, 34]))))))))
+  (comment [2, 0] - [21, 2]))
+
+==================
+Test Case 13
+==================
+select sum(a+b) as the_sum from T group by x, y order by the_sum;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-64] [select sum...by the_sum]
+  Query [0-64] [select sum...by the_sum]
+    Select [0-47] [select sum...group by x, y]
+      SelectList [7-26] [sum(a+b) as the_sum]
+        SelectColumn [7-26] [sum(a+b) as the_sum]
+          FunctionCall [7-15] [sum(a+b)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            BinaryExpression(+) [11-14] [a+b]
+              PathExpression [11-12] [a]
+                Identifier(a) [11-12] [a]
+              PathExpression [13-14] [b]
+                Identifier(b) [13-14] [b]
+          Alias [16-26] [as the_sum]
+            Identifier(the_sum) [19-26] [the_sum]
+      FromClause [27-33] [from T]
+        TablePathExpression [32-33] [T]
+          PathExpression [32-33] [T]
+            Identifier(T) [32-33] [T]
+      GroupBy [34-47] [group by x, y]
+        GroupingItem [43-44] [x]
+          PathExpression [43-44] [x]
+            Identifier(x) [43-44] [x]
+        GroupingItem [46-47] [y]
+          PathExpression [46-47] [y]
+            Identifier(y) [46-47] [y]
+    OrderBy [48-64] [order by the_sum]
+      OrderingExpression(ASC) [57-64] [the_sum]
+        PathExpression [57-64] [the_sum]
+          Identifier(the_sum) [57-64] [the_sum]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+select a from T order by a {{|asc|desc}} nulls {{first|last}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: first
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+select a from T order by 1 nulls last, first desc nulls first, last asc nulls last;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-82] [select a from...nulls last]
+  Query [0-82] [select a from...nulls last]
+    Select [0-15] [select a from T]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-82] [order by 1...nulls last]
+      OrderingExpression(ASC) [25-37] [1 nulls last]
+        IntLiteral(1) [25-26] [1]
+        NullOrder(NULLS LAST) [27-37] [nulls last]
+      OrderingExpression(DESC) [39-61] [first desc nulls first]
+        PathExpression [39-44] [first]
+          Identifier(first) [39-44] [first]
+        NullOrder(NULLS FIRST) [50-61] [nulls first]
+      OrderingExpression(ASC EXPLICITLY) [63-82] [last asc nulls last]
+        PathExpression [63-67] [last]
+          Identifier(last) [63-67] [last]
+        NullOrder(NULLS LAST) [72-82] [nulls last]
+*/
+---
+(source_file (ERROR))
+

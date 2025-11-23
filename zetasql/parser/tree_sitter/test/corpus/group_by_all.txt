@@ -1,0 +1,152 @@
+==================
+Test Case 1
+==================
+SELECT *
+FROM T
+GROUP BY ALL
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28] [SELECT * FROM T GROUP BY ALL]
+  Query [0-28] [SELECT * FROM T GROUP BY ALL]
+    Select [0-28] [SELECT * FROM T GROUP BY ALL]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [FROM T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      GroupBy [16-28] [GROUP BY ALL]
+        GroupByAll [25-28] [ALL]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (statement [0, 0] - [2, 12]
+    (select_statement [0, 0] - [2, 12]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [1, 0] - [1, 6]
+        (from_item [1, 5] - [1, 6]
+          (table_expression [1, 5] - [1, 6]
+            (path_expression [1, 5] - [1, 6]
+              (identifier [1, 5] - [1, 6])))))
+      (group_by_clause [2, 0] - [2, 12]
+        (expression_list [2, 9] - [2, 12]
+          (expression [2, 9] - [2, 12]
+            (path_expression [2, 9] - [2, 12]
+              (identifier [2, 9] - [2, 12])))))))
+  (comment [4, 0] - [17, 2]))
+
+==================
+Test Case 2
+==================
+SELECT *
+FROM table AS {{T|`ALL`}}
+GROUP BY {{ALL|`ALL`}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: T,ALL
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+SELECT *
+FROM T
+GROUP BY {{|DISTINCT}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+SELECT *
+FROM T
+GROUP @{ key = 5 } BY ALL
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [SELECT * FROM...5 } BY ALL]
+  Query [0-41] [SELECT * FROM...5 } BY ALL]
+    Select [0-41] [SELECT * FROM...5 } BY ALL]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [FROM T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      GroupBy [16-41] [GROUP @{ key = 5 } BY ALL]
+        Hint [22-34] [@{ key = 5 }]
+          HintEntry [25-32] [key = 5]
+            Identifier(key) [25-28] [key]
+            IntLiteral(5) [31-32] [5]
+        GroupByAll [38-41] [ALL]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+SELECT *
+FROM T
+GROUP BY ALL {{ALL|a|1}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ALL
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+[language_features=NONE,+QUALIFY]
+[{{|no_}}qualify_reserved]
+SELECT *
+FROM T
+GROUP BY ALL
+QUALIFY a = 1
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [SELECT * FROM...QUALIFY a = 1]
+  Query [0-42] [SELECT * FROM...QUALIFY a = 1]
+    Select [0-42] [SELECT * FROM...QUALIFY a = 1]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [FROM T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      GroupBy [16-28] [GROUP BY ALL]
+        GroupByAll [25-28] [ALL]
+      Qualify [29-42] [QUALIFY a = 1]
+        BinaryExpression(=) [37-42] [a = 1]
+          PathExpression [37-38] [a]
+            Identifier(a) [37-38] [a]
+          IntLiteral(1) [41-42] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+SELECT *
+FROM T
+GROUP BY ALL, {{a|1}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: a
+*/
+---
+(source_file (ERROR))
+

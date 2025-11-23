@@ -1,0 +1,37 @@
+==================
+Test Case 1
+==================
+select x
+|> drop a
+|> drop a,
+|> drop a,b,c
+|> drop a,b,c,
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-58] [select x |...drop a,b,c,]
+  Query [0-58] [select x |...drop a,b,c,]
+    Select [0-8] [select x]
+      SelectList [7-8] [x]
+        SelectColumn [7-8] [x]
+          PathExpression [7-8] [x]
+            Identifier(x) [7-8] [x]
+    PipeDrop [9-18] [|> drop a]
+      IdentifierList [17-18] [a]
+        Identifier(a) [17-18] [a]
+    PipeDrop [19-29] [|> drop a,]
+      IdentifierList [27-28] [a]
+        Identifier(a) [27-28] [a]
+    PipeDrop [30-43] [|> drop a,b,c]
+      IdentifierList [38-43] [a,b,c]
+        Identifier(a) [38-39] [a]
+        Identifier(b) [40-41] [b]
+        Identifier(c) [42-43] [c]
+    PipeDrop [44-58] [|> drop a,b,c,]
+      IdentifierList [52-57] [a,b,c]
+        Identifier(a) [52-53] [a]
+        Identifier(b) [54-55] [b]
+        Identifier(c) [56-57] [c]
+*/
+---
+(source_file (ERROR))
+

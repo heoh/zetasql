@@ -1,0 +1,18 @@
+==================
+Test Case 1
+==================
+# Structurally invalid bytes string is OK.
+select b'||'
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-13]
+  Query [0-13]
+    Select [0-13]
+      SelectList [7-13]
+        SelectColumn [7-13]
+          BytesLiteral [7-13]
+            BytesLiteralComponent(b'||') [7-13]
+*/
+---
+(source_file (ERROR))
+

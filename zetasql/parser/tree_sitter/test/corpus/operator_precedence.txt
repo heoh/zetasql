@@ -1,0 +1,746 @@
+==================
+Test Case 1
+==================
+# This file tests operator precedence, including some tricky cases:
+# - operators such as LIKE and = are nonassociative and at the same precedence
+#   level
+# There are also precedence tests in test files for individual operators, such
+# as between.test.
+# TODO: Add more comprehensive tests. We should showcase the
+# precedence levels by testing the pairwise precedence of each consecutive pair
+# of levels in the precedence hierarchy, as well as the associativity of each
+# of the operators.
+select a AND b AND c OR d
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-25] [select a AND b AND c OR d]
+  Query [0-25] [select a AND b AND c OR d]
+    Select [0-25] [select a AND b AND c OR d]
+      SelectList [7-25] [a AND b AND c OR d]
+        SelectColumn [7-25] [a AND b AND c OR d]
+          OrExpr [7-25] [a AND b AND c OR d]
+            AndExpr [7-20] [a AND b AND c]
+              PathExpression [7-8] [a]
+                Identifier(a) [7-8] [a]
+              PathExpression [13-14] [b]
+                Identifier(b) [13-14] [b]
+              PathExpression [19-20] [c]
+                Identifier(c) [19-20] [c]
+            PathExpression [24-25] [d]
+              Identifier(d) [24-25] [d]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+select a AND b AND (c OR d)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-27] [select a AND b AND (c OR d)]
+  Query [0-27] [select a AND b AND (c OR d)]
+    Select [0-27] [select a AND b AND (c OR d)]
+      SelectList [7-27] [a AND b AND (c OR d)]
+        SelectColumn [7-27] [a AND b AND (c OR d)]
+          AndExpr [7-27] [a AND b AND (c OR d)]
+            PathExpression [7-8] [a]
+              Identifier(a) [7-8] [a]
+            PathExpression [13-14] [b]
+              Identifier(b) [13-14] [b]
+            OrExpr [20-26] [c OR d]
+              PathExpression [20-21] [c]
+                Identifier(c) [20-21] [c]
+              PathExpression [25-26] [d]
+                Identifier(d) [25-26] [d]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+select x + y,  x + y * z
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-24] [select x + y,  x + y * z]
+  Query [0-24] [select x + y,  x + y * z]
+    Select [0-24] [select x + y,  x + y * z]
+      SelectList [7-24] [x + y,  x + y * z]
+        SelectColumn [7-12] [x + y]
+          BinaryExpression(+) [7-12] [x + y]
+            PathExpression [7-8] [x]
+              Identifier(x) [7-8] [x]
+            PathExpression [11-12] [y]
+              Identifier(y) [11-12] [y]
+        SelectColumn [15-24] [x + y * z]
+          BinaryExpression(+) [15-24] [x + y * z]
+            PathExpression [15-16] [x]
+              Identifier(x) [15-16] [x]
+            BinaryExpression(*) [19-24] [y * z]
+              PathExpression [19-20] [y]
+                Identifier(y) [19-20] [y]
+              PathExpression [23-24] [z]
+                Identifier(z) [23-24] [z]
+*/
+---
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 24]
+    (select_statement [0, 0] - [0, 24]
+      (select_clause [0, 0] - [0, 24]
+        (select_list [0, 7] - [0, 24]
+          (select_expression [0, 7] - [0, 12]
+            (expression [0, 7] - [0, 12]
+              (binary_expression [0, 7] - [0, 12]
+                (expression [0, 7] - [0, 8]
+                  (path_expression [0, 7] - [0, 8]
+                    (identifier [0, 7] - [0, 8])))
+                (expression [0, 11] - [0, 12]
+                  (path_expression [0, 11] - [0, 12]
+                    (identifier [0, 11] - [0, 12]))))))
+          (select_expression [0, 15] - [0, 24]
+            (expression [0, 15] - [0, 24]
+              (binary_expression [0, 15] - [0, 24]
+                (expression [0, 15] - [0, 20]
+                  (binary_expression [0, 15] - [0, 20]
+                    (expression [0, 15] - [0, 16]
+                      (path_expression [0, 15] - [0, 16]
+                        (identifier [0, 15] - [0, 16])))
+                    (expression [0, 19] - [0, 20]
+                      (path_expression [0, 19] - [0, 20]
+                        (identifier [0, 19] - [0, 20])))))
+                (expression [0, 23] - [0, 24]
+                  (path_expression [0, 23] - [0, 24]
+                    (identifier [0, 23] - [0, 24]))))))))))
+  (comment [2, 0] - [22, 2]))
+
+==================
+Test Case 4
+==================
+select x + y / z, (x + y) / z
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-29] [select x + y / z, (x + y) / z]
+  Query [0-29] [select x + y / z, (x + y) / z]
+    Select [0-29] [select x + y / z, (x + y) / z]
+      SelectList [7-29] [x + y / z, (x + y) / z]
+        SelectColumn [7-16] [x + y / z]
+          BinaryExpression(+) [7-16] [x + y / z]
+            PathExpression [7-8] [x]
+              Identifier(x) [7-8] [x]
+            BinaryExpression(/) [11-16] [y / z]
+              PathExpression [11-12] [y]
+                Identifier(y) [11-12] [y]
+              PathExpression [15-16] [z]
+                Identifier(z) [15-16] [z]
+        SelectColumn [18-29] [(x + y) / z]
+          BinaryExpression(/) [18-29] [(x + y) / z]
+            BinaryExpression(+) [19-24] [x + y]
+              PathExpression [19-20] [x]
+                Identifier(x) [19-20] [x]
+              PathExpression [23-24] [y]
+                Identifier(y) [23-24] [y]
+            PathExpression [28-29] [z]
+              Identifier(z) [28-29] [z]
+*/
+---
+(source_file [0, 0] - [25, 2]
+  (statement [0, 0] - [0, 29]
+    (select_statement [0, 0] - [0, 29]
+      (select_clause [0, 0] - [0, 29]
+        (select_list [0, 7] - [0, 29]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (binary_expression [0, 7] - [0, 16]
+                (expression [0, 7] - [0, 12]
+                  (binary_expression [0, 7] - [0, 12]
+                    (expression [0, 7] - [0, 8]
+                      (path_expression [0, 7] - [0, 8]
+                        (identifier [0, 7] - [0, 8])))
+                    (expression [0, 11] - [0, 12]
+                      (path_expression [0, 11] - [0, 12]
+                        (identifier [0, 11] - [0, 12])))))
+                (expression [0, 15] - [0, 16]
+                  (path_expression [0, 15] - [0, 16]
+                    (identifier [0, 15] - [0, 16]))))))
+          (select_expression [0, 18] - [0, 29]
+            (expression [0, 18] - [0, 29]
+              (binary_expression [0, 18] - [0, 29]
+                (expression [0, 18] - [0, 25]
+                  (expression [0, 19] - [0, 24]
+                    (binary_expression [0, 19] - [0, 24]
+                      (expression [0, 19] - [0, 20]
+                        (path_expression [0, 19] - [0, 20]
+                          (identifier [0, 19] - [0, 20])))
+                      (expression [0, 23] - [0, 24]
+                        (path_expression [0, 23] - [0, 24]
+                          (identifier [0, 23] - [0, 24]))))))
+                (expression [0, 28] - [0, 29]
+                  (path_expression [0, 28] - [0, 29]
+                    (identifier [0, 28] - [0, 29]))))))))))
+  (comment [2, 0] - [25, 2]))
+
+==================
+Test Case 5
+==================
+select x / y + y * x / z
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-24] [select x / y + y * x / z]
+  Query [0-24] [select x / y + y * x / z]
+    Select [0-24] [select x / y + y * x / z]
+      SelectList [7-24] [x / y + y * x / z]
+        SelectColumn [7-24] [x / y + y * x / z]
+          BinaryExpression(+) [7-24] [x / y + y * x / z]
+            BinaryExpression(/) [7-12] [x / y]
+              PathExpression [7-8] [x]
+                Identifier(x) [7-8] [x]
+              PathExpression [11-12] [y]
+                Identifier(y) [11-12] [y]
+            BinaryExpression(/) [15-24] [y * x / z]
+              BinaryExpression(*) [15-20] [y * x]
+                PathExpression [15-16] [y]
+                  Identifier(y) [15-16] [y]
+                PathExpression [19-20] [x]
+                  Identifier(x) [19-20] [x]
+              PathExpression [23-24] [z]
+                Identifier(z) [23-24] [z]
+*/
+---
+(source_file [0, 0] - [22, 2]
+  (statement [0, 0] - [0, 24]
+    (select_statement [0, 0] - [0, 24]
+      (select_clause [0, 0] - [0, 24]
+        (select_list [0, 7] - [0, 24]
+          (select_expression [0, 7] - [0, 24]
+            (expression [0, 7] - [0, 24]
+              (binary_expression [0, 7] - [0, 24]
+                (expression [0, 7] - [0, 20]
+                  (binary_expression [0, 7] - [0, 20]
+                    (expression [0, 7] - [0, 16]
+                      (binary_expression [0, 7] - [0, 16]
+                        (expression [0, 7] - [0, 12]
+                          (binary_expression [0, 7] - [0, 12]
+                            (expression [0, 7] - [0, 8]
+                              (path_expression [0, 7] - [0, 8]
+                                (identifier [0, 7] - [0, 8])))
+                            (expression [0, 11] - [0, 12]
+                              (path_expression [0, 11] - [0, 12]
+                                (identifier [0, 11] - [0, 12])))))
+                        (expression [0, 15] - [0, 16]
+                          (path_expression [0, 15] - [0, 16]
+                            (identifier [0, 15] - [0, 16])))))
+                    (expression [0, 19] - [0, 20]
+                      (path_expression [0, 19] - [0, 20]
+                        (identifier [0, 19] - [0, 20])))))
+                (expression [0, 23] - [0, 24]
+                  (path_expression [0, 23] - [0, 24]
+                    (identifier [0, 23] - [0, 24]))))))))))
+  (comment [2, 0] - [22, 2]))
+
+==================
+Test Case 6
+==================
+select x / y * z / x;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-20] [select x / y * z / x]
+  Query [0-20] [select x / y * z / x]
+    Select [0-20] [select x / y * z / x]
+      SelectList [7-20] [x / y * z / x]
+        SelectColumn [7-20] [x / y * z / x]
+          BinaryExpression(/) [7-20] [x / y * z / x]
+            BinaryExpression(*) [7-16] [x / y * z]
+              BinaryExpression(/) [7-12] [x / y]
+                PathExpression [7-8] [x]
+                  Identifier(x) [7-8] [x]
+                PathExpression [11-12] [y]
+                  Identifier(y) [11-12] [y]
+              PathExpression [15-16] [z]
+                Identifier(z) [15-16] [z]
+            PathExpression [19-20] [x]
+              Identifier(x) [19-20] [x]
+*/
+---
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 21]
+    (select_statement [0, 0] - [0, 21]
+      (select_clause [0, 0] - [0, 20]
+        (select_list [0, 7] - [0, 20]
+          (select_expression [0, 7] - [0, 20]
+            (expression [0, 7] - [0, 20]
+              (binary_expression [0, 7] - [0, 20]
+                (expression [0, 7] - [0, 16]
+                  (binary_expression [0, 7] - [0, 16]
+                    (expression [0, 7] - [0, 12]
+                      (binary_expression [0, 7] - [0, 12]
+                        (expression [0, 7] - [0, 8]
+                          (path_expression [0, 7] - [0, 8]
+                            (identifier [0, 7] - [0, 8])))
+                        (expression [0, 11] - [0, 12]
+                          (path_expression [0, 11] - [0, 12]
+                            (identifier [0, 11] - [0, 12])))))
+                    (expression [0, 15] - [0, 16]
+                      (path_expression [0, 15] - [0, 16]
+                        (identifier [0, 15] - [0, 16])))))
+                (expression [0, 19] - [0, 20]
+                  (path_expression [0, 19] - [0, 20]
+                    (identifier [0, 19] - [0, 20]))))))))))
+  (comment [2, 0] - [19, 2]))
+
+==================
+Test Case 7
+==================
+select x / y / z
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x / y / z]
+  Query [0-16] [select x / y / z]
+    Select [0-16] [select x / y / z]
+      SelectList [7-16] [x / y / z]
+        SelectColumn [7-16] [x / y / z]
+          BinaryExpression(/) [7-16] [x / y / z]
+            BinaryExpression(/) [7-12] [x / y]
+              PathExpression [7-8] [x]
+                Identifier(x) [7-8] [x]
+              PathExpression [11-12] [y]
+                Identifier(y) [11-12] [y]
+            PathExpression [15-16] [z]
+              Identifier(z) [15-16] [z]
+*/
+---
+(source_file [0, 0] - [16, 2]
+  (statement [0, 0] - [0, 16]
+    (select_statement [0, 0] - [0, 16]
+      (select_clause [0, 0] - [0, 16]
+        (select_list [0, 7] - [0, 16]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (binary_expression [0, 7] - [0, 16]
+                (expression [0, 7] - [0, 12]
+                  (binary_expression [0, 7] - [0, 12]
+                    (expression [0, 7] - [0, 8]
+                      (path_expression [0, 7] - [0, 8]
+                        (identifier [0, 7] - [0, 8])))
+                    (expression [0, 11] - [0, 12]
+                      (path_expression [0, 11] - [0, 12]
+                        (identifier [0, 11] - [0, 12])))))
+                (expression [0, 15] - [0, 16]
+                  (path_expression [0, 15] - [0, 16]
+                    (identifier [0, 15] - [0, 16]))))))))))
+  (comment [2, 0] - [16, 2]))
+
+==================
+Test Case 8
+==================
+select (x + y) * z, x + y * z
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-29] [select (x + y) * z, x + y * z]
+  Query [0-29] [select (x + y) * z, x + y * z]
+    Select [0-29] [select (x + y) * z, x + y * z]
+      SelectList [7-29] [(x + y) * z, x + y * z]
+        SelectColumn [7-18] [(x + y) * z]
+          BinaryExpression(*) [7-18] [(x + y) * z]
+            BinaryExpression(+) [8-13] [x + y]
+              PathExpression [8-9] [x]
+                Identifier(x) [8-9] [x]
+              PathExpression [12-13] [y]
+                Identifier(y) [12-13] [y]
+            PathExpression [17-18] [z]
+              Identifier(z) [17-18] [z]
+        SelectColumn [20-29] [x + y * z]
+          BinaryExpression(+) [20-29] [x + y * z]
+            PathExpression [20-21] [x]
+              Identifier(x) [20-21] [x]
+            BinaryExpression(*) [24-29] [y * z]
+              PathExpression [24-25] [y]
+                Identifier(y) [24-25] [y]
+              PathExpression [28-29] [z]
+                Identifier(z) [28-29] [z]
+*/
+---
+(source_file [0, 0] - [25, 2]
+  (statement [0, 0] - [0, 29]
+    (select_statement [0, 0] - [0, 29]
+      (select_clause [0, 0] - [0, 29]
+        (select_list [0, 7] - [0, 29]
+          (select_expression [0, 7] - [0, 18]
+            (expression [0, 7] - [0, 18]
+              (binary_expression [0, 7] - [0, 18]
+                (expression [0, 7] - [0, 14]
+                  (expression [0, 8] - [0, 13]
+                    (binary_expression [0, 8] - [0, 13]
+                      (expression [0, 8] - [0, 9]
+                        (path_expression [0, 8] - [0, 9]
+                          (identifier [0, 8] - [0, 9])))
+                      (expression [0, 12] - [0, 13]
+                        (path_expression [0, 12] - [0, 13]
+                          (identifier [0, 12] - [0, 13]))))))
+                (expression [0, 17] - [0, 18]
+                  (path_expression [0, 17] - [0, 18]
+                    (identifier [0, 17] - [0, 18]))))))
+          (select_expression [0, 20] - [0, 29]
+            (expression [0, 20] - [0, 29]
+              (binary_expression [0, 20] - [0, 29]
+                (expression [0, 20] - [0, 25]
+                  (binary_expression [0, 20] - [0, 25]
+                    (expression [0, 20] - [0, 21]
+                      (path_expression [0, 20] - [0, 21]
+                        (identifier [0, 20] - [0, 21])))
+                    (expression [0, 24] - [0, 25]
+                      (path_expression [0, 24] - [0, 25]
+                        (identifier [0, 24] - [0, 25])))))
+                (expression [0, 28] - [0, 29]
+                  (path_expression [0, 28] - [0, 29]
+                    (identifier [0, 28] - [0, 29]))))))))))
+  (comment [2, 0] - [25, 2]))
+
+==================
+Test Case 9
+==================
+select (x + y) > z OR a < b
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-27] [select (x + y) > z OR a < b]
+  Query [0-27] [select (x + y) > z OR a < b]
+    Select [0-27] [select (x + y) > z OR a < b]
+      SelectList [7-27] [(x + y) > z OR a < b]
+        SelectColumn [7-27] [(x + y) > z OR a < b]
+          OrExpr [7-27] [(x + y) > z OR a < b]
+            BinaryExpression(>) [7-18] [(x + y) > z]
+              BinaryExpression(+) [8-13] [x + y]
+                PathExpression [8-9] [x]
+                  Identifier(x) [8-9] [x]
+                PathExpression [12-13] [y]
+                  Identifier(y) [12-13] [y]
+              PathExpression [17-18] [z]
+                Identifier(z) [17-18] [z]
+            BinaryExpression(<) [22-27] [a < b]
+              PathExpression [22-23] [a]
+                Identifier(a) [22-23] [a]
+              PathExpression [26-27] [b]
+                Identifier(b) [26-27] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+select NOT a OR f(x)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-20] [select NOT a OR f(x)]
+  Query [0-20] [select NOT a OR f(x)]
+    Select [0-20] [select NOT a OR f(x)]
+      SelectList [7-20] [NOT a OR f(x)]
+        SelectColumn [7-20] [NOT a OR f(x)]
+          OrExpr [7-20] [NOT a OR f(x)]
+            UnaryExpression(NOT) [7-12] [NOT a]
+              PathExpression [11-12] [a]
+                Identifier(a) [11-12] [a]
+            FunctionCall [16-20] [f(x)]
+              PathExpression [16-17] [f]
+                Identifier(f) [16-17] [f]
+              PathExpression [18-19] [x]
+                Identifier(x) [18-19] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+select x+y+z, a+b-c+d
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-21] [select x+y+z, a+b-c+d]
+  Query [0-21] [select x+y+z, a+b-c+d]
+    Select [0-21] [select x+y+z, a+b-c+d]
+      SelectList [7-21] [x+y+z, a+b-c+d]
+        SelectColumn [7-12] [x+y+z]
+          BinaryExpression(+) [7-12] [x+y+z]
+            BinaryExpression(+) [7-10] [x+y]
+              PathExpression [7-8] [x]
+                Identifier(x) [7-8] [x]
+              PathExpression [9-10] [y]
+                Identifier(y) [9-10] [y]
+            PathExpression [11-12] [z]
+              Identifier(z) [11-12] [z]
+        SelectColumn [14-21] [a+b-c+d]
+          BinaryExpression(+) [14-21] [a+b-c+d]
+            BinaryExpression(-) [14-19] [a+b-c]
+              BinaryExpression(+) [14-17] [a+b]
+                PathExpression [14-15] [a]
+                  Identifier(a) [14-15] [a]
+                PathExpression [16-17] [b]
+                  Identifier(b) [16-17] [b]
+              PathExpression [18-19] [c]
+                Identifier(c) [18-19] [c]
+            PathExpression [20-21] [d]
+              Identifier(d) [20-21] [d]
+*/
+---
+(source_file [0, 0] - [28, 2]
+  (statement [0, 0] - [0, 21]
+    (select_statement [0, 0] - [0, 21]
+      (select_clause [0, 0] - [0, 21]
+        (select_list [0, 7] - [0, 21]
+          (select_expression [0, 7] - [0, 12]
+            (expression [0, 7] - [0, 12]
+              (binary_expression [0, 7] - [0, 12]
+                (expression [0, 7] - [0, 10]
+                  (binary_expression [0, 7] - [0, 10]
+                    (expression [0, 7] - [0, 8]
+                      (path_expression [0, 7] - [0, 8]
+                        (identifier [0, 7] - [0, 8])))
+                    (expression [0, 9] - [0, 10]
+                      (path_expression [0, 9] - [0, 10]
+                        (identifier [0, 9] - [0, 10])))))
+                (expression [0, 11] - [0, 12]
+                  (path_expression [0, 11] - [0, 12]
+                    (identifier [0, 11] - [0, 12]))))))
+          (select_expression [0, 14] - [0, 21]
+            (expression [0, 14] - [0, 21]
+              (binary_expression [0, 14] - [0, 21]
+                (expression [0, 14] - [0, 19]
+                  (binary_expression [0, 14] - [0, 19]
+                    (expression [0, 14] - [0, 17]
+                      (binary_expression [0, 14] - [0, 17]
+                        (expression [0, 14] - [0, 15]
+                          (path_expression [0, 14] - [0, 15]
+                            (identifier [0, 14] - [0, 15])))
+                        (expression [0, 16] - [0, 17]
+                          (path_expression [0, 16] - [0, 17]
+                            (identifier [0, 16] - [0, 17])))))
+                    (expression [0, 18] - [0, 19]
+                      (path_expression [0, 18] - [0, 19]
+                        (identifier [0, 18] - [0, 19])))))
+                (expression [0, 20] - [0, 21]
+                  (path_expression [0, 20] - [0, 21]
+                    (identifier [0, 20] - [0, 21]))))))))))
+  (comment [2, 0] - [28, 2]))
+
+==================
+Test Case 12
+==================
+select - -+-++3;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select - -+-++3]
+  Query [0-15] [select - -+-++3]
+    Select [0-15] [select - -+-++3]
+      SelectList [7-15] [- -+-++3]
+        SelectColumn [7-15] [- -+-++3]
+          UnaryExpression(-) [7-15] [- -+-++3]
+            UnaryExpression(-) [9-15] [-+-++3]
+              UnaryExpression(+) [10-15] [+-++3]
+                UnaryExpression(-) [11-15] [-++3]
+                  UnaryExpression(+) [12-15] [++3]
+                    UnaryExpression(+) [13-15] [+3]
+                      IntLiteral(3) [14-15] [3]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+select not(not a not like b);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28] [select not(not a not like b)]
+  Query [0-28] [select not(not a not like b)]
+    Select [0-28] [select not(not a not like b)]
+      SelectList [7-28] [not(not a not like b)]
+        SelectColumn [7-28] [not(not a not like b)]
+          UnaryExpression(NOT) [7-28] [not(not a not like b)]
+            UnaryExpression(NOT) [11-27] [not a not like b]
+              BinaryExpression(NOT LIKE) [15-27] [a not like b]
+                PathExpression [15-16] [a]
+                  Identifier(a) [15-16] [a]
+                PathExpression [26-27] [b]
+                  Identifier(b) [26-27] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+# Bison is OK with this at the grammar level because it's not ambiguous in its
+# operator precedence parsing setup. The JavaCC parser uses hierarchical
+# productions to implement operator precedence, and it is ambiguous there. The
+# Bison parser reproduces the JavaCC error behavior with a special case error.
+select a {{like|=|<|>|<>|!=|>=|<=|+|-|*|/|^|&}} not b;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: like
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+select NOT a like b;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-19] [select NOT a like b]
+  Query [0-19] [select NOT a like b]
+    Select [0-19] [select NOT a like b]
+      SelectList [7-19] [NOT a like b]
+        SelectColumn [7-19] [NOT a like b]
+          UnaryExpression(NOT) [7-19] [NOT a like b]
+            BinaryExpression(LIKE) [11-19] [a like b]
+              PathExpression [11-12] [a]
+                Identifier(a) [11-12] [a]
+              PathExpression [18-19] [b]
+                Identifier(b) [18-19] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+select a like b and c like d;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28] [select a like b and c like d]
+  Query [0-28] [select a like b and c like d]
+    Select [0-28] [select a like b and c like d]
+      SelectList [7-28] [a like b and c like d]
+        SelectColumn [7-28] [a like b and c like d]
+          AndExpr [7-28] [a like b and c like d]
+            BinaryExpression(LIKE) [7-15] [a like b]
+              PathExpression [7-8] [a]
+                Identifier(a) [7-8] [a]
+              PathExpression [14-15] [b]
+                Identifier(b) [14-15] [b]
+            BinaryExpression(LIKE) [20-28] [c like d]
+              PathExpression [20-21] [c]
+                Identifier(c) [20-21] [c]
+              PathExpression [27-28] [d]
+                Identifier(d) [27-28] [d]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+select a like b or c like d;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-27] [select a like b or c like d]
+  Query [0-27] [select a like b or c like d]
+    Select [0-27] [select a like b or c like d]
+      SelectList [7-27] [a like b or c like d]
+        SelectColumn [7-27] [a like b or c like d]
+          OrExpr [7-27] [a like b or c like d]
+            BinaryExpression(LIKE) [7-15] [a like b]
+              PathExpression [7-8] [a]
+                Identifier(a) [7-8] [a]
+              PathExpression [14-15] [b]
+                Identifier(b) [14-15] [b]
+            BinaryExpression(LIKE) [19-27] [c like d]
+              PathExpression [19-20] [c]
+                Identifier(c) [19-20] [c]
+              PathExpression [26-27] [d]
+                Identifier(d) [26-27] [d]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+select a like b and c;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-21] [select a like b and c]
+  Query [0-21] [select a like b and c]
+    Select [0-21] [select a like b and c]
+      SelectList [7-21] [a like b and c]
+        SelectColumn [7-21] [a like b and c]
+          AndExpr [7-21] [a like b and c]
+            BinaryExpression(LIKE) [7-15] [a like b]
+              PathExpression [7-8] [a]
+                Identifier(a) [7-8] [a]
+              PathExpression [14-15] [b]
+                Identifier(b) [14-15] [b]
+            PathExpression [20-21] [c]
+              Identifier(c) [20-21] [c]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+select a like b or c;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-20] [select a like b or c]
+  Query [0-20] [select a like b or c]
+    Select [0-20] [select a like b or c]
+      SelectList [7-20] [a like b or c]
+        SelectColumn [7-20] [a like b or c]
+          OrExpr [7-20] [a like b or c]
+            BinaryExpression(LIKE) [7-15] [a like b]
+              PathExpression [7-8] [a]
+                Identifier(a) [7-8] [a]
+              PathExpression [14-15] [b]
+                Identifier(b) [14-15] [b]
+            PathExpression [19-20] [c]
+              Identifier(c) [19-20] [c]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+# Test nonassociativity of comparison operators. The Bison parser does not treat
+# all of these cases as unambiguous and therefore accepts some of them in the
+# grammar. These cases are caught using special case error handling in the
+# rules.
+# "=" "<>" ">" "<" ">=" "<=" "!=" "LIKE" "IN" "BETWEEN" "IS" "NOT for BETWEEN/IN/LIKE"
+SELECT
+    1
+    {{= 2|<> 2|!= 2|> 2|< 2|>= 2|LIKE 2|NOT LIKE 2|IN (1,2)|NOT IN (1,2)|IN (SELECT 1)|NOT IN (SELECT 1)|BETWEEN 2 AND 3|NOT BETWEEN 2 AND 3|IS TRUE|IS NOT TRUE|IS NULL|IS NOT NULL}}
+    {{= 2|<> 2|!= 2|> 2|< 2|>= 2|LIKE 2|NOT LIKE 2|IN (1,2)|NOT IN (1,2)|IN (SELECT 1)|NOT IN (SELECT 1)|BETWEEN 2 AND 3|NOT BETWEEN 2 AND 3|IS TRUE|IS NOT TRUE|IS NULL|IS NOT NULL}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    = 2,= 2
+    <> 2,= 2
+    != 2,= 2
+    > 2,= 2
+    < 2,= 2
+    >= 2,= 2
+    LIKE 2,= 2
+    NOT LIKE 2,= 2
+    BETWEEN 2 AND 3,= 2
+    NOT BETWEEN 2 AND 3,= 2
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# Applying an operator at the deepest level of precedence (".") to a
+# precedence-less expression construct is allowed by the parser (even if it
+# doesn't make sense semantically).
+# TODO: Disallow the confusing ones.
+SELECT {{CASE WHEN 1 THEN 3 END|CAST(1 AS bar)|"bar"|b"bar"|(1, 2)|STRUCT(1,2)|NEW myproto(1 AS bar)|CAST(x AS myproto)|EXTRACT(foo FROM bar)|foo(bar)|foo(bar) OVER baz|DATE "2016-01-01"|TIMESTAMP "2016-01-01 00:00:01"|(SELECT bar)}}.foo
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CASE WHEN 1 THEN 3 END
+*/
+---
+(source_file (ERROR))
+

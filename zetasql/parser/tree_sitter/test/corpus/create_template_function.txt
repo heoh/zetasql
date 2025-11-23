@@ -1,0 +1,110 @@
+==================
+Test Case 1
+==================
+CREATE FUNCTION foo(ANY TYPE);
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-29] [CREATE FUNCTION foo(ANY TYPE)]
+  FunctionDeclaration [16-29] [foo(ANY TYPE)]
+    PathExpression [16-19] [foo]
+      Identifier(foo) [16-19] [foo]
+    FunctionParameters [19-29] [(ANY TYPE)]
+      FunctionParameter [20-28] [ANY TYPE]
+        TemplatedParameterType [20-28] [ANY TYPE]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+CREATE FUNCTION foo(a ANY TYPE);
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-31] [CREATE FUNCTION...ANY TYPE)]
+  FunctionDeclaration [16-31] [foo(a ANY TYPE)]
+    PathExpression [16-19] [foo]
+      Identifier(foo) [16-19] [foo]
+    FunctionParameters [19-31] [(a ANY TYPE)]
+      FunctionParameter [20-30] [a ANY TYPE]
+        Identifier(a) [20-21] [a]
+        TemplatedParameterType [22-30] [ANY TYPE]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+CREATE FUNCTION foo(a ANY TYPE AS b);
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-36] [CREATE FUNCTION...TYPE AS b)]
+  FunctionDeclaration [16-36] [foo(a ANY TYPE AS b)]
+    PathExpression [16-19] [foo]
+      Identifier(foo) [16-19] [foo]
+    FunctionParameters [19-36] [(a ANY TYPE AS b)]
+      FunctionParameter [20-35] [a ANY TYPE AS b]
+        Identifier(a) [20-21] [a]
+        TemplatedParameterType [22-30] [ANY TYPE]
+        Alias [31-35] [AS b]
+          Identifier(b) [34-35] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+CREATE FUNCTION foo(a ANY TYPE AS b NOT AGGREGATE);
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-50] [CREATE FUNCTION...AGGREGATE)]
+  FunctionDeclaration [16-50] [foo(a ANY...AGGREGATE)]
+    PathExpression [16-19] [foo]
+      Identifier(foo) [16-19] [foo]
+    FunctionParameters [19-50] [(a ANY TYPE...AGGREGATE)]
+      FunctionParameter(is_not_aggregate=true) [20-49] [a ANY TYPE AS b NOT AGGREGATE]
+        Identifier(a) [20-21] [a]
+        TemplatedParameterType [22-30] [ANY TYPE]
+        Alias [31-35] [AS b]
+          Identifier(b) [34-35] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Test with all the supported templated types.
+CREATE FUNCTION foo(a ANY {{TYPE|PROTO|ENUM|TABLE|STRUCT|ARRAY}} AS b NOT AGGREGATE)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: TYPE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# This ANY clause is missing the kind
+CREATE FUNCTION foo(a ANY {{|AS b}});
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+CREATE FUNCTION foo(a ANY {{INTEGER|FLOAT|STRING|something}});
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: INTEGER
+*/
+---
+(source_file (ERROR))
+

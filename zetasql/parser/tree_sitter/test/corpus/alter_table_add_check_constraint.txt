@@ -1,0 +1,329 @@
+==================
+Test Case 1
+==================
+# Add named check constraint
+alter table foo.bar ADD constraint a_is_positive check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-59]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-59]
+    AddConstraintAction [20-59]
+      CheckConstraint(ENFORCED) [35-59]
+        BinaryExpression(>) [55-58]
+          PathExpression [55-56]
+            Identifier(a) [55-56]
+          IntLiteral(0) [57-58]
+        Identifier(a_is_positive) [35-48]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Add enforced named check constraint
+alter table foo.bar ADD constraint a_is_positive check(a>0) enforced;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-68]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-68]
+    AddConstraintAction [20-68]
+      CheckConstraint(ENFORCED) [35-68]
+        BinaryExpression(>) [55-58]
+          PathExpression [55-56]
+            Identifier(a) [55-56]
+          IntLiteral(0) [57-58]
+        Identifier(a_is_positive) [35-48]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Add not enforced named check constraint
+alter table foo.bar ADD constraint a_is_positive check(a>0) enforced;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-68]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-68]
+    AddConstraintAction [20-68]
+      CheckConstraint(ENFORCED) [35-68]
+        BinaryExpression(>) [55-58]
+          PathExpression [55-56]
+            Identifier(a) [55-56]
+          IntLiteral(0) [57-58]
+        Identifier(a_is_positive) [35-48]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Add check constraint named 'constraint'
+alter table foo.bar add constraint constraint check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-56]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-56]
+    AddConstraintAction [20-56]
+      CheckConstraint(ENFORCED) [35-56]
+        BinaryExpression(>) [52-55]
+          PathExpression [52-53]
+            Identifier(a) [52-53]
+          IntLiteral(0) [54-55]
+        Identifier(constraint) [35-45]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Add check constraint named 'constraint' with 'if not exists'
+alter table foo.bar add constraint if not exists constraint check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-70]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-70]
+    AddConstraintAction(is_if_not_exists) [20-70]
+      CheckConstraint(ENFORCED) [49-70]
+        BinaryExpression(>) [66-69]
+          PathExpression [66-67]
+            Identifier(a) [66-67]
+          IntLiteral(0) [68-69]
+        Identifier(constraint) [49-59]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# add check constraint with name 'check'
+alter table foo.bar add constraint check check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-51]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-51]
+    AddConstraintAction [20-51]
+      CheckConstraint(ENFORCED) [35-51]
+        BinaryExpression(>) [47-50]
+          PathExpression [47-48]
+            Identifier(a) [47-48]
+          IntLiteral(0) [49-50]
+        Identifier(check) [35-40]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# add check constraint with name 'check' and 'if not exists'
+alter table foo.bar add constraint if not exists check check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-65]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-65]
+    AddConstraintAction(is_if_not_exists) [20-65]
+      CheckConstraint(ENFORCED) [49-65]
+        BinaryExpression(>) [61-64]
+          PathExpression [61-62]
+            Identifier(a) [61-62]
+          IntLiteral(0) [63-64]
+        Identifier(check) [49-54]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# add check constraint with name 'int64'
+alter table foo.bar add constraint int64 check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-51]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-51]
+    AddConstraintAction [20-51]
+      CheckConstraint(ENFORCED) [35-51]
+        BinaryExpression(>) [47-50]
+          PathExpression [47-48]
+            Identifier(a) [47-48]
+          IntLiteral(0) [49-50]
+        Identifier(int64) [35-40]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# add check constraint with name 'int64' and 'if not exists'
+alter table foo.bar add constraint if not exists int64 check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-65]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-65]
+    AddConstraintAction(is_if_not_exists) [20-65]
+      CheckConstraint(ENFORCED) [49-65]
+        BinaryExpression(>) [61-64]
+          PathExpression [61-62]
+            Identifier(a) [61-62]
+          IntLiteral(0) [63-64]
+        Identifier(int64) [49-54]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# add unnamed check constraint
+alter table foo.bar add check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-34]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-34]
+    AddConstraintAction [20-34]
+      CheckConstraint(ENFORCED) [24-34]
+        BinaryExpression(>) [30-33]
+          PathExpression [30-31]
+            Identifier(a) [30-31]
+          IntLiteral(0) [32-33]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# add explicitly enforced unnamed check constraint
+alter table foo.bar add check(a>0) enforced;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-43]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-43]
+    AddConstraintAction [20-43]
+      CheckConstraint(ENFORCED) [24-43]
+        BinaryExpression(>) [30-33]
+          PathExpression [30-31]
+            Identifier(a) [30-31]
+          IntLiteral(0) [32-33]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# add not enforced unnamed check constraint
+alter table foo.bar add check(a>0) not enforced;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-47]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-47]
+    AddConstraintAction [20-47]
+      CheckConstraint(NOT ENFORCED) [24-47]
+        BinaryExpression(>) [30-33]
+          PathExpression [30-31]
+            Identifier(a) [30-31]
+          IntLiteral(0) [32-33]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# Alter table named 'add' to add check constraint named 'int64'
+alter table add add constraint if not exists int64 check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-61]
+  PathExpression [12-15]
+    Identifier(add) [12-15]
+  AlterActionList [16-61]
+    AddConstraintAction(is_if_not_exists) [16-61]
+      CheckConstraint(ENFORCED) [45-61]
+        BinaryExpression(>) [57-60]
+          PathExpression [57-58]
+            Identifier(a) [57-58]
+          IntLiteral(0) [59-60]
+        Identifier(int64) [45-50]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+# Alter table named 'constraint' to add check constraint named 'int64'
+alter table constraint add constraint if not exists int64 check(a>0);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-68]
+  PathExpression [12-22]
+    Identifier(constraint) [12-22]
+  AlterActionList [23-68]
+    AddConstraintAction(is_if_not_exists) [23-68]
+      CheckConstraint(ENFORCED) [52-68]
+        BinaryExpression(>) [64-67]
+          PathExpression [64-65]
+            Identifier(a) [64-65]
+          IntLiteral(0) [66-67]
+        Identifier(int64) [52-57]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+alter table foo-123.bar ADD constraint a_is_positive check(a>0);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

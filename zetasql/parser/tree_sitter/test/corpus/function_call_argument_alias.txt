@@ -1,0 +1,49 @@
+==================
+Test Case 1
+==================
+[default no_show_parse_location_text]
+
+# One argument with alias
+SELECT ARRAY_ZIP(array1 {{|first|AS first}})
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Two arguments with alias
+SELECT ARRAY_ZIP(array1 AS first, array2 {{|second|AS second}})
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Three arguments with alias
+SELECT ARRAY_ZIP(array1 AS a1, array2 AS a2, array3 {{|a3|AS a3}})
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+SELECT date('2021-07-04'{{| AS date}}) AS date
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

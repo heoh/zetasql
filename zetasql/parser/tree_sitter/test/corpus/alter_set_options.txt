@@ -1,0 +1,200 @@
+==================
+Test Case 1
+==================
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+[default no_show_parse_location_text]
+
+ALTER {{SEQUENCE|CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL|APPROX VIEW}} foo set OPTIONS
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: SEQUENCE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+ALTER {{SEQUENCE|CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL|APPROX VIEW}} foo set timestamp;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: SEQUENCE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+ALTER {{SEQUENCE|CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL|APPROX VIEW}} foo drop;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: SEQUENCE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+ALTER {{AGGREGATE FUNCTION|CONNECTION|CONSTANT|DATABASE|EXTERNAL TABLE|FUNCTION|INDEX|MATERIALIZED VIEW|MODEL|PROCEDURE|SCHEMA|EXTERNAL SCHEMA|TABLE FUNCTION|APPROX VIEW}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: AGGREGATE FUNCTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+ALTER {{Aggregate FUNCTION|CONNECTION|CONSTANT|DATABASE|EXTERNAL TABLE|FUNCTION|INDEX|MATERIALIZED VIEW|MODEL|SCHEMA|EXTERNAL SCHEMA|TABLE|TABLE FUNCTION|APPROX VIEW}} adsdw.foo
+SET OPTIONS ();
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: Aggregate FUNCTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+ALTER {{CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW}} adsdw.foo SET OPTIONS (), SET OPTIONS (), SET OPTIONS ();
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONNECTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+ALTER {{CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|APPROX VIEW}} IF EXISTS adsdw.foo SET OPTIONS ();
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONNECTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+ALTER {{SEQUENCE|CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL|APPROX VIEW}} adsdw.foo SET OPTIONS (
+  quota_accounting_owner='adsdw-etl@google.com');
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: SEQUENCE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+ALTER {{SEQUENCE|CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL|APPROX VIEW}} adsdw.foo SET OPTIONS (ttl_seconds=3600);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: SEQUENCE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+ALTER {{SEQUENCE|CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL|APPROX VIEW}} adsdw.foo SET OPTIONS (ttl_seconds=NULL);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: SEQUENCE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+ALTER {{SEQUENCE|CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL|APPROX VIEW}} foo SET OPTIONS (
+  quota_accounting_owner = 'adsdw-etl@google.com', ttl_seconds=3600);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: SEQUENCE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+ALTER {{CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW}} foo SET OPTIONS (
+  quota_accounting_owner = 'adsdw-etl@google.com',
+  quota_accounting_owner = 'adsdw-etl@google.com');
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONNECTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+ALTER {{CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL}} foo
+SET OPTIONS (a = 'a', b = 1),
+SET OPTIONS (c = 'c'),
+SET OPTIONS (a = 'a', b = 1)
+;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONNECTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+ALTER {{CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONNECTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+ALTER {{CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL}} foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONNECTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+ALTER {{CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL}} foo SET OPTIONS (a = 'a', b = 1),
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONNECTION
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+ALTER {{CONNECTION|DATABASE|SCHEMA|EXTERNAL SCHEMA|TABLE|VIEW|MATERIALIZED VIEW|MODEL}} foo SET OPTIONS (a = 'a', b = 1), SET
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONNECTION
+*/
+---
+(source_file (ERROR))
+

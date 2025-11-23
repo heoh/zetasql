@@ -1,0 +1,546 @@
+==================
+Test Case 1
+==================
+# Parser tests for the CREATE TABLE FUNCTION statement with alternation groups.
+# These tests are in a separate file for easier reviewing.
+#
+# This is a parser test with all combinations of features for different
+# optional parts of the CREATE TABLE FUNCTION statement. Most combinations
+# parse successfully. The analyzer later examines the parsed options and
+# returns errors for those that are semantically invalid.
+#
+# Expected parser syntax errors:
+#   CREATE EXTERNAL TABLE FUNCTION ...
+#   ... OPTIONS (a=b) ... OPTIONS (y=z) ...
+create
+{{or replace|}}
+{{temporary|}}
+{{external|}}
+table function
+{{if not exists|}}
+myfunction()
+{{returns table<x int64>|}}
+{{sql security invoker|}}
+{{options(a=b)|}}
+{{language testlang|}}
+{{options(y=z)|}}
+{{as select 1 as x|}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,,
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,,as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,,
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,options(y=z),
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,,as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,,
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,,,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,,,options(y=z),
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,,,,as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,sql security invoker,,,,
+    or replace,temporary,external,if not exists,returns table<x int64>,,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,,options(a=b),language testlang,options(y=z),
+    or replace,temporary,external,if not exists,returns table<x int64>,,options(a=b),language testlang,,as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,,options(a=b),language testlang,,
+    or replace,temporary,external,if not exists,returns table<x int64>,,options(a=b),,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,,options(a=b),,options(y=z),
+    or replace,temporary,external,if not exists,returns table<x int64>,,options(a=b),,,as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,,options(a=b),,,
+    or replace,temporary,external,if not exists,returns table<x int64>,,,language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,,,language testlang,options(y=z),
+    or replace,temporary,external,if not exists,returns table<x int64>,,,language testlang,,as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,,,language testlang,,
+    or replace,temporary,external,if not exists,returns table<x int64>,,,,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,,,,options(y=z),
+    or replace,temporary,external,if not exists,returns table<x int64>,,,,,as select 1 as x
+    or replace,temporary,external,if not exists,returns table<x int64>,,,,,
+    or replace,temporary,external,if not exists,,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,,sql security invoker,options(a=b),language testlang,options(y=z),
+    or replace,temporary,external,if not exists,,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    or replace,temporary,external,if not exists,,sql security invoker,options(a=b),language testlang,,
+    or replace,temporary,external,if not exists,,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,,sql security invoker,options(a=b),,options(y=z),
+    or replace,temporary,external,if not exists,,sql security invoker,options(a=b),,,as select 1 as x
+    or replace,temporary,external,if not exists,,sql security invoker,options(a=b),,,
+    or replace,temporary,external,if not exists,,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,,sql security invoker,,language testlang,options(y=z),
+    or replace,temporary,external,if not exists,,sql security invoker,,language testlang,,as select 1 as x
+    or replace,temporary,external,if not exists,,sql security invoker,,language testlang,,
+    or replace,temporary,external,if not exists,,sql security invoker,,,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,,sql security invoker,,,options(y=z),
+    or replace,temporary,external,if not exists,,sql security invoker,,,,as select 1 as x
+    or replace,temporary,external,if not exists,,sql security invoker,,,,
+    or replace,temporary,external,if not exists,,,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,,,options(a=b),language testlang,options(y=z),
+    or replace,temporary,external,if not exists,,,options(a=b),language testlang,,as select 1 as x
+    or replace,temporary,external,if not exists,,,options(a=b),language testlang,,
+    or replace,temporary,external,if not exists,,,options(a=b),,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,,,options(a=b),,options(y=z),
+    or replace,temporary,external,if not exists,,,options(a=b),,,as select 1 as x
+    or replace,temporary,external,if not exists,,,options(a=b),,,
+    or replace,temporary,external,if not exists,,,,language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,,,,language testlang,options(y=z),
+    or replace,temporary,external,if not exists,,,,language testlang,,as select 1 as x
+    or replace,temporary,external,if not exists,,,,language testlang,,
+    or replace,temporary,external,if not exists,,,,,options(y=z),as select 1 as x
+    or replace,temporary,external,if not exists,,,,,options(y=z),
+    or replace,temporary,external,if not exists,,,,,,as select 1 as x
+    or replace,temporary,external,if not exists,,,,,,
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,,
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,options(a=b),,,as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,options(a=b),,,
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,,language testlang,options(y=z),
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,,language testlang,,as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,,language testlang,,
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,,,options(y=z),as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,,,options(y=z),
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,,,,as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,sql security invoker,,,,
+    or replace,temporary,external,,returns table<x int64>,,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,,options(a=b),language testlang,options(y=z),
+    or replace,temporary,external,,returns table<x int64>,,options(a=b),language testlang,,as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,,options(a=b),language testlang,,
+    or replace,temporary,external,,returns table<x int64>,,options(a=b),,options(y=z),as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,,options(a=b),,options(y=z),
+    or replace,temporary,external,,returns table<x int64>,,options(a=b),,,as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,,options(a=b),,,
+    or replace,temporary,external,,returns table<x int64>,,,language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,,,language testlang,options(y=z),
+    or replace,temporary,external,,returns table<x int64>,,,language testlang,,as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,,,language testlang,,
+    or replace,temporary,external,,returns table<x int64>,,,,options(y=z),as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,,,,options(y=z),
+    or replace,temporary,external,,returns table<x int64>,,,,,as select 1 as x
+    or replace,temporary,external,,returns table<x int64>,,,,,
+    or replace,temporary,external,,,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,,,sql security invoker,options(a=b),language testlang,options(y=z),
+    or replace,temporary,external,,,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    or replace,temporary,external,,,sql security invoker,options(a=b),language testlang,,
+    or replace,temporary,external,,,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    or replace,temporary,external,,,sql security invoker,options(a=b),,options(y=z),
+    or replace,temporary,external,,,sql security invoker,options(a=b),,,as select 1 as x
+    or replace,temporary,external,,,sql security invoker,options(a=b),,,
+    or replace,temporary,external,,,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,,,sql security invoker,,language testlang,options(y=z),
+    or replace,temporary,external,,,sql security invoker,,language testlang,,as select 1 as x
+    or replace,temporary,external,,,sql security invoker,,language testlang,,
+    or replace,temporary,external,,,sql security invoker,,,options(y=z),as select 1 as x
+    or replace,temporary,external,,,sql security invoker,,,options(y=z),
+    or replace,temporary,external,,,sql security invoker,,,,as select 1 as x
+    or replace,temporary,external,,,sql security invoker,,,,
+    or replace,temporary,external,,,,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,,,,options(a=b),language testlang,options(y=z),
+    or replace,temporary,external,,,,options(a=b),language testlang,,as select 1 as x
+    or replace,temporary,external,,,,options(a=b),language testlang,,
+    or replace,temporary,external,,,,options(a=b),,options(y=z),as select 1 as x
+    or replace,temporary,external,,,,options(a=b),,options(y=z),
+    or replace,temporary,external,,,,options(a=b),,,as select 1 as x
+    or replace,temporary,external,,,,options(a=b),,,
+    or replace,temporary,external,,,,,language testlang,options(y=z),as select 1 as x
+    or replace,temporary,external,,,,,language testlang,options(y=z),
+    or replace,temporary,external,,,,,language testlang,,as select 1 as x
+    or replace,temporary,external,,,,,language testlang,,
+    or replace,temporary,external,,,,,,options(y=z),as select 1 as x
+    or replace,temporary,external,,,,,,options(y=z),
+    or replace,temporary,external,,,,,,,as select 1 as x
+    or replace,temporary,external,,,,,,,
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,,
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,,as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,,
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,options(y=z),
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,,as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,,
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,,,options(y=z),as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,,,options(y=z),
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,,,,as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,sql security invoker,,,,
+    or replace,,external,if not exists,returns table<x int64>,,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,,options(a=b),language testlang,options(y=z),
+    or replace,,external,if not exists,returns table<x int64>,,options(a=b),language testlang,,as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,,options(a=b),language testlang,,
+    or replace,,external,if not exists,returns table<x int64>,,options(a=b),,options(y=z),as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,,options(a=b),,options(y=z),
+    or replace,,external,if not exists,returns table<x int64>,,options(a=b),,,as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,,options(a=b),,,
+    or replace,,external,if not exists,returns table<x int64>,,,language testlang,options(y=z),as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,,,language testlang,options(y=z),
+    or replace,,external,if not exists,returns table<x int64>,,,language testlang,,as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,,,language testlang,,
+    or replace,,external,if not exists,returns table<x int64>,,,,options(y=z),as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,,,,options(y=z),
+    or replace,,external,if not exists,returns table<x int64>,,,,,as select 1 as x
+    or replace,,external,if not exists,returns table<x int64>,,,,,
+    or replace,,external,if not exists,,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,,external,if not exists,,sql security invoker,options(a=b),language testlang,options(y=z),
+    or replace,,external,if not exists,,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    or replace,,external,if not exists,,sql security invoker,options(a=b),language testlang,,
+    or replace,,external,if not exists,,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    or replace,,external,if not exists,,sql security invoker,options(a=b),,options(y=z),
+    or replace,,external,if not exists,,sql security invoker,options(a=b),,,as select 1 as x
+    or replace,,external,if not exists,,sql security invoker,options(a=b),,,
+    or replace,,external,if not exists,,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    or replace,,external,if not exists,,sql security invoker,,language testlang,options(y=z),
+    or replace,,external,if not exists,,sql security invoker,,language testlang,,as select 1 as x
+    or replace,,external,if not exists,,sql security invoker,,language testlang,,
+    or replace,,external,if not exists,,sql security invoker,,,options(y=z),as select 1 as x
+    or replace,,external,if not exists,,sql security invoker,,,options(y=z),
+    or replace,,external,if not exists,,sql security invoker,,,,as select 1 as x
+    or replace,,external,if not exists,,sql security invoker,,,,
+    or replace,,external,if not exists,,,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,,external,if not exists,,,options(a=b),language testlang,options(y=z),
+    or replace,,external,if not exists,,,options(a=b),language testlang,,as select 1 as x
+    or replace,,external,if not exists,,,options(a=b),language testlang,,
+    or replace,,external,if not exists,,,options(a=b),,options(y=z),as select 1 as x
+    or replace,,external,if not exists,,,options(a=b),,options(y=z),
+    or replace,,external,if not exists,,,options(a=b),,,as select 1 as x
+    or replace,,external,if not exists,,,options(a=b),,,
+    or replace,,external,if not exists,,,,language testlang,options(y=z),as select 1 as x
+    or replace,,external,if not exists,,,,language testlang,options(y=z),
+    or replace,,external,if not exists,,,,language testlang,,as select 1 as x
+    or replace,,external,if not exists,,,,language testlang,,
+    or replace,,external,if not exists,,,,,options(y=z),as select 1 as x
+    or replace,,external,if not exists,,,,,options(y=z),
+    or replace,,external,if not exists,,,,,,as select 1 as x
+    or replace,,external,if not exists,,,,,,
+    or replace,,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),
+    or replace,,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    or replace,,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,,
+    or replace,,external,,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    or replace,,external,,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),
+    or replace,,external,,returns table<x int64>,sql security invoker,options(a=b),,,as select 1 as x
+    or replace,,external,,returns table<x int64>,sql security invoker,options(a=b),,,
+    or replace,,external,,returns table<x int64>,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    or replace,,external,,returns table<x int64>,sql security invoker,,language testlang,options(y=z),
+    or replace,,external,,returns table<x int64>,sql security invoker,,language testlang,,as select 1 as x
+    or replace,,external,,returns table<x int64>,sql security invoker,,language testlang,,
+    or replace,,external,,returns table<x int64>,sql security invoker,,,options(y=z),as select 1 as x
+    or replace,,external,,returns table<x int64>,sql security invoker,,,options(y=z),
+    or replace,,external,,returns table<x int64>,sql security invoker,,,,as select 1 as x
+    or replace,,external,,returns table<x int64>,sql security invoker,,,,
+    or replace,,external,,returns table<x int64>,,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,,external,,returns table<x int64>,,options(a=b),language testlang,options(y=z),
+    or replace,,external,,returns table<x int64>,,options(a=b),language testlang,,as select 1 as x
+    or replace,,external,,returns table<x int64>,,options(a=b),language testlang,,
+    or replace,,external,,returns table<x int64>,,options(a=b),,options(y=z),as select 1 as x
+    or replace,,external,,returns table<x int64>,,options(a=b),,options(y=z),
+    or replace,,external,,returns table<x int64>,,options(a=b),,,as select 1 as x
+    or replace,,external,,returns table<x int64>,,options(a=b),,,
+    or replace,,external,,returns table<x int64>,,,language testlang,options(y=z),as select 1 as x
+    or replace,,external,,returns table<x int64>,,,language testlang,options(y=z),
+    or replace,,external,,returns table<x int64>,,,language testlang,,as select 1 as x
+    or replace,,external,,returns table<x int64>,,,language testlang,,
+    or replace,,external,,returns table<x int64>,,,,options(y=z),as select 1 as x
+    or replace,,external,,returns table<x int64>,,,,options(y=z),
+    or replace,,external,,returns table<x int64>,,,,,as select 1 as x
+    or replace,,external,,returns table<x int64>,,,,,
+    or replace,,external,,,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,,external,,,sql security invoker,options(a=b),language testlang,options(y=z),
+    or replace,,external,,,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    or replace,,external,,,sql security invoker,options(a=b),language testlang,,
+    or replace,,external,,,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    or replace,,external,,,sql security invoker,options(a=b),,options(y=z),
+    or replace,,external,,,sql security invoker,options(a=b),,,as select 1 as x
+    or replace,,external,,,sql security invoker,options(a=b),,,
+    or replace,,external,,,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    or replace,,external,,,sql security invoker,,language testlang,options(y=z),
+    or replace,,external,,,sql security invoker,,language testlang,,as select 1 as x
+    or replace,,external,,,sql security invoker,,language testlang,,
+    or replace,,external,,,sql security invoker,,,options(y=z),as select 1 as x
+    or replace,,external,,,sql security invoker,,,options(y=z),
+    or replace,,external,,,sql security invoker,,,,as select 1 as x
+    or replace,,external,,,sql security invoker,,,,
+    or replace,,external,,,,options(a=b),language testlang,options(y=z),as select 1 as x
+    or replace,,external,,,,options(a=b),language testlang,options(y=z),
+    or replace,,external,,,,options(a=b),language testlang,,as select 1 as x
+    or replace,,external,,,,options(a=b),language testlang,,
+    or replace,,external,,,,options(a=b),,options(y=z),as select 1 as x
+    or replace,,external,,,,options(a=b),,options(y=z),
+    or replace,,external,,,,options(a=b),,,as select 1 as x
+    or replace,,external,,,,options(a=b),,,
+    or replace,,external,,,,,language testlang,options(y=z),as select 1 as x
+    or replace,,external,,,,,language testlang,options(y=z),
+    or replace,,external,,,,,language testlang,,as select 1 as x
+    or replace,,external,,,,,language testlang,,
+    or replace,,external,,,,,,options(y=z),as select 1 as x
+    or replace,,external,,,,,,options(y=z),
+    or replace,,external,,,,,,,as select 1 as x
+    or replace,,external,,,,,,,
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,,
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,,as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,,
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,options(y=z),
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,,as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,,language testlang,,
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,,,options(y=z),as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,,,options(y=z),
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,,,,as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,sql security invoker,,,,
+    temporary,external,if not exists,returns table<x int64>,,options(a=b),language testlang,options(y=z),as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,,options(a=b),language testlang,options(y=z),
+    temporary,external,if not exists,returns table<x int64>,,options(a=b),language testlang,,as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,,options(a=b),language testlang,,
+    temporary,external,if not exists,returns table<x int64>,,options(a=b),,options(y=z),as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,,options(a=b),,options(y=z),
+    temporary,external,if not exists,returns table<x int64>,,options(a=b),,,as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,,options(a=b),,,
+    temporary,external,if not exists,returns table<x int64>,,,language testlang,options(y=z),as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,,,language testlang,options(y=z),
+    temporary,external,if not exists,returns table<x int64>,,,language testlang,,as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,,,language testlang,,
+    temporary,external,if not exists,returns table<x int64>,,,,options(y=z),as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,,,,options(y=z),
+    temporary,external,if not exists,returns table<x int64>,,,,,as select 1 as x
+    temporary,external,if not exists,returns table<x int64>,,,,,
+    temporary,external,if not exists,,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    temporary,external,if not exists,,sql security invoker,options(a=b),language testlang,options(y=z),
+    temporary,external,if not exists,,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    temporary,external,if not exists,,sql security invoker,options(a=b),language testlang,,
+    temporary,external,if not exists,,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    temporary,external,if not exists,,sql security invoker,options(a=b),,options(y=z),
+    temporary,external,if not exists,,sql security invoker,options(a=b),,,as select 1 as x
+    temporary,external,if not exists,,sql security invoker,options(a=b),,,
+    temporary,external,if not exists,,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    temporary,external,if not exists,,sql security invoker,,language testlang,options(y=z),
+    temporary,external,if not exists,,sql security invoker,,language testlang,,as select 1 as x
+    temporary,external,if not exists,,sql security invoker,,language testlang,,
+    temporary,external,if not exists,,sql security invoker,,,options(y=z),as select 1 as x
+    temporary,external,if not exists,,sql security invoker,,,options(y=z),
+    temporary,external,if not exists,,sql security invoker,,,,as select 1 as x
+    temporary,external,if not exists,,sql security invoker,,,,
+    temporary,external,if not exists,,,options(a=b),language testlang,options(y=z),as select 1 as x
+    temporary,external,if not exists,,,options(a=b),language testlang,options(y=z),
+    temporary,external,if not exists,,,options(a=b),language testlang,,as select 1 as x
+    temporary,external,if not exists,,,options(a=b),language testlang,,
+    temporary,external,if not exists,,,options(a=b),,options(y=z),as select 1 as x
+    temporary,external,if not exists,,,options(a=b),,options(y=z),
+    temporary,external,if not exists,,,options(a=b),,,as select 1 as x
+    temporary,external,if not exists,,,options(a=b),,,
+    temporary,external,if not exists,,,,language testlang,options(y=z),as select 1 as x
+    temporary,external,if not exists,,,,language testlang,options(y=z),
+    temporary,external,if not exists,,,,language testlang,,as select 1 as x
+    temporary,external,if not exists,,,,language testlang,,
+    temporary,external,if not exists,,,,,options(y=z),as select 1 as x
+    temporary,external,if not exists,,,,,options(y=z),
+    temporary,external,if not exists,,,,,,as select 1 as x
+    temporary,external,if not exists,,,,,,
+    temporary,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    temporary,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),
+    temporary,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    temporary,external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,,
+    temporary,external,,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    temporary,external,,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),
+    temporary,external,,returns table<x int64>,sql security invoker,options(a=b),,,as select 1 as x
+    temporary,external,,returns table<x int64>,sql security invoker,options(a=b),,,
+    temporary,external,,returns table<x int64>,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    temporary,external,,returns table<x int64>,sql security invoker,,language testlang,options(y=z),
+    temporary,external,,returns table<x int64>,sql security invoker,,language testlang,,as select 1 as x
+    temporary,external,,returns table<x int64>,sql security invoker,,language testlang,,
+    temporary,external,,returns table<x int64>,sql security invoker,,,options(y=z),as select 1 as x
+    temporary,external,,returns table<x int64>,sql security invoker,,,options(y=z),
+    temporary,external,,returns table<x int64>,sql security invoker,,,,as select 1 as x
+    temporary,external,,returns table<x int64>,sql security invoker,,,,
+    temporary,external,,returns table<x int64>,,options(a=b),language testlang,options(y=z),as select 1 as x
+    temporary,external,,returns table<x int64>,,options(a=b),language testlang,options(y=z),
+    temporary,external,,returns table<x int64>,,options(a=b),language testlang,,as select 1 as x
+    temporary,external,,returns table<x int64>,,options(a=b),language testlang,,
+    temporary,external,,returns table<x int64>,,options(a=b),,options(y=z),as select 1 as x
+    temporary,external,,returns table<x int64>,,options(a=b),,options(y=z),
+    temporary,external,,returns table<x int64>,,options(a=b),,,as select 1 as x
+    temporary,external,,returns table<x int64>,,options(a=b),,,
+    temporary,external,,returns table<x int64>,,,language testlang,options(y=z),as select 1 as x
+    temporary,external,,returns table<x int64>,,,language testlang,options(y=z),
+    temporary,external,,returns table<x int64>,,,language testlang,,as select 1 as x
+    temporary,external,,returns table<x int64>,,,language testlang,,
+    temporary,external,,returns table<x int64>,,,,options(y=z),as select 1 as x
+    temporary,external,,returns table<x int64>,,,,options(y=z),
+    temporary,external,,returns table<x int64>,,,,,as select 1 as x
+    temporary,external,,returns table<x int64>,,,,,
+    temporary,external,,,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    temporary,external,,,sql security invoker,options(a=b),language testlang,options(y=z),
+    temporary,external,,,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    temporary,external,,,sql security invoker,options(a=b),language testlang,,
+    temporary,external,,,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    temporary,external,,,sql security invoker,options(a=b),,options(y=z),
+    temporary,external,,,sql security invoker,options(a=b),,,as select 1 as x
+    temporary,external,,,sql security invoker,options(a=b),,,
+    temporary,external,,,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    temporary,external,,,sql security invoker,,language testlang,options(y=z),
+    temporary,external,,,sql security invoker,,language testlang,,as select 1 as x
+    temporary,external,,,sql security invoker,,language testlang,,
+    temporary,external,,,sql security invoker,,,options(y=z),as select 1 as x
+    temporary,external,,,sql security invoker,,,options(y=z),
+    temporary,external,,,sql security invoker,,,,as select 1 as x
+    temporary,external,,,sql security invoker,,,,
+    temporary,external,,,,options(a=b),language testlang,options(y=z),as select 1 as x
+    temporary,external,,,,options(a=b),language testlang,options(y=z),
+    temporary,external,,,,options(a=b),language testlang,,as select 1 as x
+    temporary,external,,,,options(a=b),language testlang,,
+    temporary,external,,,,options(a=b),,options(y=z),as select 1 as x
+    temporary,external,,,,options(a=b),,options(y=z),
+    temporary,external,,,,options(a=b),,,as select 1 as x
+    temporary,external,,,,options(a=b),,,
+    temporary,external,,,,,language testlang,options(y=z),as select 1 as x
+    temporary,external,,,,,language testlang,options(y=z),
+    temporary,external,,,,,language testlang,,as select 1 as x
+    temporary,external,,,,,language testlang,,
+    temporary,external,,,,,,options(y=z),as select 1 as x
+    temporary,external,,,,,,options(y=z),
+    temporary,external,,,,,,,as select 1 as x
+    temporary,external,,,,,,,
+    external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),
+    external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    external,if not exists,returns table<x int64>,sql security invoker,options(a=b),language testlang,,
+    external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),
+    external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,,as select 1 as x
+    external,if not exists,returns table<x int64>,sql security invoker,options(a=b),,,
+    external,if not exists,returns table<x int64>,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    external,if not exists,returns table<x int64>,sql security invoker,,language testlang,options(y=z),
+    external,if not exists,returns table<x int64>,sql security invoker,,language testlang,,as select 1 as x
+    external,if not exists,returns table<x int64>,sql security invoker,,language testlang,,
+    external,if not exists,returns table<x int64>,sql security invoker,,,options(y=z),as select 1 as x
+    external,if not exists,returns table<x int64>,sql security invoker,,,options(y=z),
+    external,if not exists,returns table<x int64>,sql security invoker,,,,as select 1 as x
+    external,if not exists,returns table<x int64>,sql security invoker,,,,
+    external,if not exists,returns table<x int64>,,options(a=b),language testlang,options(y=z),as select 1 as x
+    external,if not exists,returns table<x int64>,,options(a=b),language testlang,options(y=z),
+    external,if not exists,returns table<x int64>,,options(a=b),language testlang,,as select 1 as x
+    external,if not exists,returns table<x int64>,,options(a=b),language testlang,,
+    external,if not exists,returns table<x int64>,,options(a=b),,options(y=z),as select 1 as x
+    external,if not exists,returns table<x int64>,,options(a=b),,options(y=z),
+    external,if not exists,returns table<x int64>,,options(a=b),,,as select 1 as x
+    external,if not exists,returns table<x int64>,,options(a=b),,,
+    external,if not exists,returns table<x int64>,,,language testlang,options(y=z),as select 1 as x
+    external,if not exists,returns table<x int64>,,,language testlang,options(y=z),
+    external,if not exists,returns table<x int64>,,,language testlang,,as select 1 as x
+    external,if not exists,returns table<x int64>,,,language testlang,,
+    external,if not exists,returns table<x int64>,,,,options(y=z),as select 1 as x
+    external,if not exists,returns table<x int64>,,,,options(y=z),
+    external,if not exists,returns table<x int64>,,,,,as select 1 as x
+    external,if not exists,returns table<x int64>,,,,,
+    external,if not exists,,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    external,if not exists,,sql security invoker,options(a=b),language testlang,options(y=z),
+    external,if not exists,,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    external,if not exists,,sql security invoker,options(a=b),language testlang,,
+    external,if not exists,,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    external,if not exists,,sql security invoker,options(a=b),,options(y=z),
+    external,if not exists,,sql security invoker,options(a=b),,,as select 1 as x
+    external,if not exists,,sql security invoker,options(a=b),,,
+    external,if not exists,,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    external,if not exists,,sql security invoker,,language testlang,options(y=z),
+    external,if not exists,,sql security invoker,,language testlang,,as select 1 as x
+    external,if not exists,,sql security invoker,,language testlang,,
+    external,if not exists,,sql security invoker,,,options(y=z),as select 1 as x
+    external,if not exists,,sql security invoker,,,options(y=z),
+    external,if not exists,,sql security invoker,,,,as select 1 as x
+    external,if not exists,,sql security invoker,,,,
+    external,if not exists,,,options(a=b),language testlang,options(y=z),as select 1 as x
+    external,if not exists,,,options(a=b),language testlang,options(y=z),
+    external,if not exists,,,options(a=b),language testlang,,as select 1 as x
+    external,if not exists,,,options(a=b),language testlang,,
+    external,if not exists,,,options(a=b),,options(y=z),as select 1 as x
+    external,if not exists,,,options(a=b),,options(y=z),
+    external,if not exists,,,options(a=b),,,as select 1 as x
+    external,if not exists,,,options(a=b),,,
+    external,if not exists,,,,language testlang,options(y=z),as select 1 as x
+    external,if not exists,,,,language testlang,options(y=z),
+    external,if not exists,,,,language testlang,,as select 1 as x
+    external,if not exists,,,,language testlang,,
+    external,if not exists,,,,,options(y=z),as select 1 as x
+    external,if not exists,,,,,options(y=z),
+    external,if not exists,,,,,,as select 1 as x
+    external,if not exists,,,,,,
+    external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,options(y=z),
+    external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    external,,returns table<x int64>,sql security invoker,options(a=b),language testlang,,
+    external,,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    external,,returns table<x int64>,sql security invoker,options(a=b),,options(y=z),
+    external,,returns table<x int64>,sql security invoker,options(a=b),,,as select 1 as x
+    external,,returns table<x int64>,sql security invoker,options(a=b),,,
+    external,,returns table<x int64>,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    external,,returns table<x int64>,sql security invoker,,language testlang,options(y=z),
+    external,,returns table<x int64>,sql security invoker,,language testlang,,as select 1 as x
+    external,,returns table<x int64>,sql security invoker,,language testlang,,
+    external,,returns table<x int64>,sql security invoker,,,options(y=z),as select 1 as x
+    external,,returns table<x int64>,sql security invoker,,,options(y=z),
+    external,,returns table<x int64>,sql security invoker,,,,as select 1 as x
+    external,,returns table<x int64>,sql security invoker,,,,
+    external,,returns table<x int64>,,options(a=b),language testlang,options(y=z),as select 1 as x
+    external,,returns table<x int64>,,options(a=b),language testlang,options(y=z),
+    external,,returns table<x int64>,,options(a=b),language testlang,,as select 1 as x
+    external,,returns table<x int64>,,options(a=b),language testlang,,
+    external,,returns table<x int64>,,options(a=b),,options(y=z),as select 1 as x
+    external,,returns table<x int64>,,options(a=b),,options(y=z),
+    external,,returns table<x int64>,,options(a=b),,,as select 1 as x
+    external,,returns table<x int64>,,options(a=b),,,
+    external,,returns table<x int64>,,,language testlang,options(y=z),as select 1 as x
+    external,,returns table<x int64>,,,language testlang,options(y=z),
+    external,,returns table<x int64>,,,language testlang,,as select 1 as x
+    external,,returns table<x int64>,,,language testlang,,
+    external,,returns table<x int64>,,,,options(y=z),as select 1 as x
+    external,,returns table<x int64>,,,,options(y=z),
+    external,,returns table<x int64>,,,,,as select 1 as x
+    external,,returns table<x int64>,,,,,
+    external,,,sql security invoker,options(a=b),language testlang,options(y=z),as select 1 as x
+    external,,,sql security invoker,options(a=b),language testlang,options(y=z),
+    external,,,sql security invoker,options(a=b),language testlang,,as select 1 as x
+    external,,,sql security invoker,options(a=b),language testlang,,
+    external,,,sql security invoker,options(a=b),,options(y=z),as select 1 as x
+    external,,,sql security invoker,options(a=b),,options(y=z),
+    external,,,sql security invoker,options(a=b),,,as select 1 as x
+    external,,,sql security invoker,options(a=b),,,
+    external,,,sql security invoker,,language testlang,options(y=z),as select 1 as x
+    external,,,sql security invoker,,language testlang,options(y=z),
+    external,,,sql security invoker,,language testlang,,as select 1 as x
+    external,,,sql security invoker,,language testlang,,
+    external,,,sql security invoker,,,options(y=z),as select 1 as x
+    external,,,sql security invoker,,,options(y=z),
+    external,,,sql security invoker,,,,as select 1 as x
+    external,,,sql security invoker,,,,
+    external,,,,options(a=b),language testlang,options(y=z),as select 1 as x
+    external,,,,options(a=b),language testlang,options(y=z),
+    external,,,,options(a=b),language testlang,,as select 1 as x
+    external,,,,options(a=b),language testlang,,
+    external,,,,options(a=b),,options(y=z),as select 1 as x
+    external,,,,options(a=b),,options(y=z),
+    external,,,,options(a=b),,,as select 1 as x
+    external,,,,options(a=b),,,
+    external,,,,,language testlang,options(y=z),as select 1 as x
+    external,,,,,language testlang,options(y=z),
+    external,,,,,language testlang,,as select 1 as x
+    external,,,,,language testlang,,
+    external,,,,,,options(y=z),as select 1 as x
+    external,,,,,,options(y=z),
+    external,,,,,,,as select 1 as x
+    external,,,,,,,
+*/
+---
+(source_file (ERROR))
+

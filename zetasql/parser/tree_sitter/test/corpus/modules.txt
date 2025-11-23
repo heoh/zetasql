@@ -1,0 +1,404 @@
+==================
+Test Case 1
+==================
+# MODULE related tests, including:
+#   IMPORT statement
+#   MODULE statement
+
+# Module with various length path names.
+import module foo
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-17] [import module foo]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+import module foo.bar
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-21] [import module foo.bar]
+  PathExpression [14-21] [foo.bar]
+    Identifier(foo) [14-17] [foo]
+    Identifier(bar) [18-21] [bar]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+import module foo.bar.baz
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-25] [import module foo.bar.baz]
+  PathExpression [14-25] [foo.bar.baz]
+    Identifier(foo) [14-17] [foo]
+    Identifier(bar) [18-21] [bar]
+    Identifier(baz) [22-25] [baz]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Module with alias
+import module foo.bar as alias
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-30] [import module foo.bar as alias]
+  PathExpression [14-21] [foo.bar]
+    Identifier(foo) [14-17] [foo]
+    Identifier(bar) [18-21] [bar]
+  Alias [22-30] [as alias]
+    Identifier(alias) [25-30] [alias]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+import module foo.bar as `bar.baz`
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-34] [import module...`bar.baz`]
+  PathExpression [14-21] [foo.bar]
+    Identifier(foo) [14-17] [foo]
+    Identifier(bar) [18-21] [bar]
+  Alias [22-34] [as `bar.baz`]
+    Identifier(`bar.baz`) [25-34] [`bar.baz`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Module with options
+import module foo OPTIONS (a=1);
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-31] [import module...OPTIONS (a=1)]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  OptionsList [26-31] [(a=1)]
+    OptionsEntry [27-30] [a=1]
+      Identifier(a) [27-28] [a]
+      IntLiteral(1) [29-30] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Alternations with all the clauses, to ensure that we capture every
+# combination of clauses.
+import module {{|a.}}foo {{|as foo}} {{|OPTIONS (a=1)}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# The module name is an unreserved keyword.
+import module module;
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-20] [import module module]
+  PathExpression [14-20] [module]
+    Identifier(module) [14-20] [module]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+import module module.all;
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-24] [import module module.all]
+  PathExpression [14-24] [module.all]
+    Identifier(module) [14-20] [module]
+    Identifier(`all`) [21-24] [all]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# Unreserved keywords as aliases parse ok.
+import module foo as TABLE;
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-26] [import module foo as TABLE]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  Alias [18-26] [as TABLE]
+    Identifier(TABLE) [21-26] [TABLE]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Type names are just identifiers, so they parse ok.
+import module foo as string
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-27] [import module foo as string]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  Alias [18-27] [as string]
+    Identifier(string) [21-27] [string]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+import module foo as INT64
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-26] [import module foo as INT64]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  Alias [18-26] [as INT64]
+    Identifier(INT64) [21-26] [INT64]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+module foo;
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-10] [module foo]
+  PathExpression [7-10] [foo]
+    Identifier(foo) [7-10] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+module foo.bar.baz;
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-18] [module foo.bar.baz]
+  PathExpression [7-18] [foo.bar.baz]
+    Identifier(foo) [7-10] [foo]
+    Identifier(bar) [11-14] [bar]
+    Identifier(baz) [15-18] [baz]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+module foo.bar OPTIONS (a=1);
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-28] [module foo.bar OPTIONS (a=1)]
+  PathExpression [7-14] [foo.bar]
+    Identifier(foo) [7-10] [foo]
+    Identifier(bar) [11-14] [bar]
+  OptionsList [23-28] [(a=1)]
+    OptionsEntry [24-27] [a=1]
+      Identifier(a) [24-25] [a]
+      IntLiteral(1) [26-27] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+module foo.bar OPTIONS (a=1, b='b', c=3.0);
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-42] [module foo...b', c=3.0)]
+  PathExpression [7-14] [foo.bar]
+    Identifier(foo) [7-10] [foo]
+    Identifier(bar) [11-14] [bar]
+  OptionsList [23-42] [(a=1, b='b', c=3.0)]
+    OptionsEntry [24-27] [a=1]
+      Identifier(a) [24-25] [a]
+      IntLiteral(1) [26-27] [1]
+    OptionsEntry [29-34] [b='b']
+      Identifier(b) [29-30] [b]
+      StringLiteral [31-34] ['b']
+        StringLiteralComponent('b') [31-34] ['b']
+    OptionsEntry [36-41] [c=3.0]
+      Identifier(c) [36-37] [c]
+      FloatLiteral(3.0) [38-41] [3.0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+# Unreserved keywords as modules names is ok.
+module import
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-13] [module import]
+  PathExpression [7-13] [import]
+    Identifier(import) [7-13] [import]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+module module
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-13] [module module]
+  PathExpression [7-13] [module]
+    Identifier(module) [7-13] [module]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+module options
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-14] [module options]
+  PathExpression [7-14] [options]
+    Identifier(options) [7-14] [options]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+module import.module.options options(a=1);
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-41] [module import...options(a=1)]
+  PathExpression [7-28] [import.module.options]
+    Identifier(import) [7-13] [import]
+    Identifier(module) [14-20] [module]
+    Identifier(options) [21-28] [options]
+  OptionsList [36-41] [(a=1)]
+    OptionsEntry [37-40] [a=1]
+      Identifier(a) [37-38] [a]
+      IntLiteral(1) [39-40] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+module module.all;
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-17] [module module.all]
+  PathExpression [7-17] [module.all]
+    Identifier(module) [7-13] [module]
+    Identifier(`all`) [14-17] [all]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+module `all`;
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-12] [module `all`]
+  PathExpression [7-12] [`all`]
+    Identifier(`all`) [7-12] [`all`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+module module.`all`;
+
+/* Expected ZetaSQL AST:
+ModuleStatement [0-19] [module module.`all`]
+  PathExpression [7-19] [module.`all`]
+    Identifier(module) [7-13] [module]
+    Identifier(`all`) [14-19] [`all`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
+==================
+# Invalid statement due to expecting path expression but successfully parsed
+import module "file.proto";
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-26] [import module "file.proto"]
+  StringLiteral [14-26] ["file.proto"]
+    StringLiteralComponent("file.proto") [14-26] ["file.proto"]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+# The parser supports IMPORT MODULE with INTO, but the statements fail
+# in the analyzer.
+IMPORT MODULE name.path INTO a;
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-30] [IMPORT MODULE name.path INTO a]
+  PathExpression [14-23] [name.path]
+    Identifier(name) [14-18] [name]
+    Identifier(path) [19-23] [path]
+  IntoAlias [24-30] [INTO a]
+    Identifier(a) [29-30] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+IMPORT MODULE 'name/path' INTO a;
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-32] [IMPORT MODULE...path' INTO a]
+  StringLiteral [14-25] ['name/path']
+    StringLiteralComponent('name/path') [14-25] ['name/path']
+  IntoAlias [26-32] [INTO a]
+    Identifier(a) [31-32] [a]
+*/
+---
+(source_file (ERROR))
+

@@ -1,0 +1,252 @@
+==================
+Test Case 1
+==================
+create constant foo = 5;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-23] [create constant foo = 5]
+  PathExpression [16-19] [foo]
+    Identifier(foo) [16-19] [foo]
+  IntLiteral(5) [22-23] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+create constant a.b.c = 'str';
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-29] [create constant a.b.c = 'str']
+  PathExpression [16-21] [a.b.c]
+    Identifier(a) [16-17] [a]
+    Identifier(b) [18-19] [b]
+    Identifier(c) [20-21] [c]
+  StringLiteral [24-29] ['str']
+    StringLiteralComponent('str') [24-29] ['str']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+create constant d.e = a + b;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-27] [create constant d.e = a + b]
+  PathExpression [16-19] [d.e]
+    Identifier(d) [16-17] [d]
+    Identifier(e) [18-19] [e]
+  BinaryExpression(+) [22-27] [a + b]
+    PathExpression [22-23] [a]
+      Identifier(a) [22-23] [a]
+    PathExpression [26-27] [b]
+      Identifier(b) [26-27] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+create constant d.e = @param;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-28] [create constant d.e = @param]
+  PathExpression [16-19] [d.e]
+    Identifier(d) [16-17] [d]
+    Identifier(e) [18-19] [e]
+  ParameterExpr [22-28] [@param]
+    Identifier(param) [23-28] [param]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+create constant d.e = @@sysvar;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-30] [create constant d.e = @@sysvar]
+  PathExpression [16-19] [d.e]
+    Identifier(d) [16-17] [d]
+    Identifier(e) [18-19] [e]
+  SystemVariableExpr [22-30] [@@sysvar]
+    PathExpression [24-30] [sysvar]
+      Identifier(sysvar) [24-30] [sysvar]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+create constant d.e = NULL;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-26] [create constant d.e = NULL]
+  PathExpression [16-19] [d.e]
+    Identifier(d) [16-17] [d]
+    Identifier(e) [18-19] [e]
+  NullLiteral(NULL) [22-26] [NULL]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+create constant d.e = NULL;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-26] [create constant d.e = NULL]
+  PathExpression [16-19] [d.e]
+    Identifier(d) [16-17] [d]
+    Identifier(e) [18-19] [e]
+  NullLiteral(NULL) [22-26] [NULL]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+create constant d.e = cast(NULL as STRING);
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-42] [create constant...as STRING)]
+  PathExpression [16-19] [d.e]
+    Identifier(d) [16-17] [d]
+    Identifier(e) [18-19] [e]
+  CastExpression [22-42] [cast(NULL as STRING)]
+    NullLiteral(NULL) [27-31] [NULL]
+    SimpleType [35-41] [STRING]
+      PathExpression [35-41] [STRING]
+        Identifier(STRING) [35-41] [STRING]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+create constant a = (select 1 from foo);
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-39] [create constant...from foo)]
+  PathExpression [16-17] [a]
+    Identifier(a) [16-17] [a]
+  ExpressionSubquery [20-39] [(select 1 from foo)]
+    Query [21-38] [select 1 from foo]
+      Select [21-38] [select 1 from foo]
+        SelectList [28-29] [1]
+          SelectColumn [28-29] [1]
+            IntLiteral(1) [28-29] [1]
+        FromClause [30-38] [from foo]
+          TablePathExpression [35-38] [foo]
+            PathExpression [35-38] [foo]
+              Identifier(foo) [35-38] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+create {{temp|temporary|public|private}} constant a = 0;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: temp
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+create or replace constant constant = 1;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_or_replace) [0-39] [create or...constant = 1]
+  PathExpression [27-35] [constant]
+    Identifier(constant) [27-35] [constant]
+  IntLiteral(1) [38-39] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+create constant if not exists foo = 1;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_if_not_exists) [0-37] [create constant...ists foo = 1]
+  PathExpression [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IntLiteral(1) [36-37] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# Test all combinations of the modifiers.  They all parse ok, although
+# OR REPLACE and IF NOT EXISTS are semantically exclusive.
+create {{|or replace}} {{temp|temporary|public|private}}
+constant {{|if not exists}} a = 0;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: temp,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+create constant function = 5;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-28] [create constant function = 5]
+  PathExpression [16-24] [function]
+    Identifier(`function`) [16-24] [function]
+  IntLiteral(5) [27-28] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+create constant table = 'a';
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-27] [create constant table = 'a']
+  PathExpression [16-21] [table]
+    Identifier(table) [16-21] [table]
+  StringLiteral [24-27] ['a']
+    StringLiteralComponent('a') [24-27] ['a']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+# Can create a constant whose name could be interpreted as a system variable.
+create constant `@@a` = 1;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement [0-25] [create constant `@@a` = 1]
+  PathExpression [16-21] [`@@a`]
+    Identifier(`@@a`) [16-21] [`@@a`]
+  IntLiteral(1) [24-25] [1]
+*/
+---
+(source_file (ERROR))
+

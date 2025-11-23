@@ -1,0 +1,212 @@
+==================
+Test Case 1
+==================
+# Assert can take an expression of any type.
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+[default no_show_parse_location_text]
+
+ASSERT TRUE;
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-11]
+  BooleanLiteral(TRUE) [7-11]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+ASSERT(5 + a);
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-13]
+  BinaryExpression(+) [7-12]
+    IntLiteral(5) [7-8]
+    PathExpression [11-12]
+      Identifier(a) [11-12]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+ASSERT (SELECT 1) = 1 {{|AS "simple test"}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+ASSERT NOT EXISTS(Select 1);
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-27]
+  UnaryExpression(NOT) [7-27]
+    ExpressionSubquery(modifier=EXISTS) [11-27]
+      Query [18-26]
+        Select [18-26]
+          SelectList [25-26]
+            SelectColumn [25-26]
+              IntLiteral(1) [25-26]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+ASSERT @param = 1 AS "param test";
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-33]
+  BinaryExpression(=) [7-17]
+    ParameterExpr [7-13]
+      Identifier(param) [8-13]
+    IntLiteral(1) [16-17]
+  StringLiteral [21-33]
+    StringLiteralComponent("param test") [21-33]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+ASSERT @@sysvar = 1 AS "sysvar test";
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-36]
+  BinaryExpression(=) [7-19]
+    SystemVariableExpr [7-15]
+      PathExpression [9-15]
+        Identifier(sysvar) [9-15]
+    IntLiteral(1) [18-19]
+  StringLiteral [23-36]
+    StringLiteralComponent("sysvar test") [23-36]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+ASSERT "123" IN ("123", "456");
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-30]
+  InExpression(IN) [7-30]
+    StringLiteral [7-12]
+      StringLiteralComponent("123") [7-12]
+    Location [13-15]
+    InList [17-29]
+      StringLiteral [17-22]
+        StringLiteralComponent("123") [17-22]
+      StringLiteral [24-29]
+        StringLiteralComponent("456") [24-29]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+ASSERT IS_NAN(NULL) {{AND|OR}} ENDS_WITH("suffix", "fix") AS "abc";
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: AND
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+ASSERT "123" IS NOT NULL;
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-24]
+  BinaryExpression(IS NOT) [7-24]
+    StringLiteral [7-12]
+      StringLiteralComponent("123") [7-12]
+    NullLiteral(NULL) [20-24]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+ASSERT CASE {{|TRUE}} WHEN TRUE THEN FALSE END;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+ASSERT 123 BETWEEN 1 AND 456;
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-28]
+  BetweenExpression(BETWEEN) [7-28]
+    IntLiteral(123) [7-10]
+    Location [11-18]
+    IntLiteral(1) [19-20]
+    IntLiteral(456) [25-28]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+ASSERT (SELECT IS_NAN(NAN));
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-27]
+  ExpressionSubquery [7-27]
+    Query [8-26]
+      Select [8-26]
+        SelectList [15-26]
+          SelectColumn [15-26]
+            FunctionCall [15-26]
+              PathExpression [15-21]
+                Identifier(IS_NAN) [15-21]
+              PathExpression [22-25]
+                Identifier(NAN) [22-25]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# The inner ASSERT in this query is interpreted as a function call as opposed to
+# a seperate ASSERT statement.
+ASSERT (ASSERT((SELECT TRUE)));
+
+/* Expected ZetaSQL AST:
+AssertStatement [0-30]
+  FunctionCall [8-29]
+    PathExpression [8-14]
+      Identifier(ASSERT) [8-14]
+    ExpressionSubquery [15-28]
+      Query [16-27]
+        Select [16-27]
+          SelectList [23-27]
+            SelectColumn [23-27]
+              BooleanLiteral(TRUE) [23-27]
+*/
+---
+(source_file (ERROR))
+

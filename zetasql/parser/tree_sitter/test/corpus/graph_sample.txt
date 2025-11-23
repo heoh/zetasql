@@ -1,0 +1,181 @@
+==================
+Test Case 1
+==================
+[default reserve_graph_table]
+[default language_features=NONE,+SQL_GRAPH]
+
+select gt.* from
+graph_table(aml
+  match (n)
+  let age = DATE_DIFF(CURRENT_DATE, n.birthday, YEAR)
+  TABLESAMPLE 
+    {{|bernoulli}} (
+      5 percent
+      {{|partition by (element_id(n))}}
+    )
+    {{|with weight as w}}
+    {{|repeatable(1234)}}
+  return n.name, 1 AS number
+) gt
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    <empty>
+    repeatable(1234)
+    with weight as w,
+    with weight as w,repeatable(1234)
+    partition by (element_id(n)),,
+    partition by (element_id(n)),,repeatable(1234)
+    partition by (element_id(n)),with weight as w,
+    partition by (element_id(n)),with weight as w,repeatable(1234)
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+select gt.* from
+graph_table(aml
+  match (n)
+  let age = DATE_DIFF(CURRENT_DATE, n.birthday, YEAR)
+  return n.name, age, 1 AS number
+  next
+  TABLESAMPLE bernoulli(5 PERCENT)
+  return name, age
+) gt
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-198] [select gt...., age ) gt]
+  Query [0-198] [select gt...., age ) gt]
+    Select [0-198] [select gt...., age ) gt]
+      SelectList [7-11] [gt.*]
+        SelectColumn [7-11] [gt.*]
+          DotStar [7-11] [gt.*]
+            PathExpression [7-9] [gt]
+              Identifier(gt) [7-9] [gt]
+      FromClause [12-198] [from graph_table..., age ) gt]
+        GraphTableQuery [17-198] [graph_table..., age ) gt]
+          PathExpression [29-32] [aml]
+            Identifier(aml) [29-32] [aml]
+          GqlOperatorList [35-193] [match (n)...name, age]
+            GqlOperatorList [35-132] [match (n)...AS number]
+              GqlMatch [35-44] [match (n)]
+                GraphPattern [41-44] [(n)]
+                  GraphPathPattern [41-44] [(n)]
+                    GraphNodePattern [41-44] [(n)]
+                      GraphElementPatternFiller [42-43] [n]
+                        Identifier(n) [42-43] [n]
+              GqlLet [47-98] [let age =...birthday, YEAR)]
+                GqlLetVariableDefinitionList [51-98] [age = DATE_DIFF...thday, YEAR)]
+                  GqlLetVariableDefinition [51-98] [age = DATE_DIFF...thday, YEAR)]
+                    Identifier(age) [51-54] [age]
+                    FunctionCall [57-98] [DATE_DIFF(...birthday, YEAR)]
+                      PathExpression [57-66] [DATE_DIFF]
+                        Identifier(DATE_DIFF) [57-66] [DATE_DIFF]
+                      FunctionCall [67-79] [CURRENT_DATE]
+                        PathExpression [67-79] [CURRENT_DATE]
+                          Identifier(`CURRENT_DATE`) [67-79] [CURRENT_DATE]
+                      PathExpression [81-91] [n.birthday]
+                        Identifier(n) [81-82] [n]
+                        Identifier(birthday) [83-91] [birthday]
+                      PathExpression [93-97] [YEAR]
+                        Identifier(YEAR) [93-97] [YEAR]
+              GqlReturn [101-132] [return n.name...AS number]
+                Select [108-132] [n.name, age, 1 AS number]
+                  SelectList [108-132] [n.name, age, 1 AS number]
+                    SelectColumn [108-114] [n.name]
+                      PathExpression [108-114] [n.name]
+                        Identifier(n) [108-109] [n]
+                        Identifier(name) [110-114] [name]
+                    SelectColumn [116-119] [age]
+                      PathExpression [116-119] [age]
+                        Identifier(age) [116-119] [age]
+                    SelectColumn [121-132] [1 AS number]
+                      IntLiteral(1) [121-122] [1]
+                      Alias [123-132] [AS number]
+                        Identifier(number) [126-132] [number]
+            GqlOperatorList [142-193] [TABLESAMPLE...name, age]
+              GqlSample [142-174] [TABLESAMPLE...5 PERCENT)]
+                SampleClause [142-174] [TABLESAMPLE...5 PERCENT)]
+                  Identifier(bernoulli) [154-163] [bernoulli]
+                  SampleSize [164-173] [5 PERCENT]
+                    IntLiteral(5) [164-165] [5]
+              GqlReturn [177-193] [return name, age]
+                Select [184-193] [name, age]
+                  SelectList [184-193] [name, age]
+                    SelectColumn [184-188] [name]
+                      PathExpression [184-188] [name]
+                        Identifier(name) [184-188] [name]
+                    SelectColumn [190-193] [age]
+                      PathExpression [190-193] [age]
+                        Identifier(age) [190-193] [age]
+          Alias [196-198] [gt]
+            Identifier(gt) [196-198] [gt]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# SAMPLE as first statement
+select gt.* from
+graph_table(aml
+  TABLESAMPLE bernoulli(5 PERCENT)
+  return n.name
+) gt
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-88] [select gt.....name ) gt]
+  Query [0-88] [select gt.....name ) gt]
+    Select [0-88] [select gt.....name ) gt]
+      SelectList [7-11] [gt.*]
+        SelectColumn [7-11] [gt.*]
+          DotStar [7-11] [gt.*]
+            PathExpression [7-9] [gt]
+              Identifier(gt) [7-9] [gt]
+      FromClause [12-88] [from graph_table....name ) gt]
+        GraphTableQuery [17-88] [graph_table....name ) gt]
+          PathExpression [29-32] [aml]
+            Identifier(aml) [29-32] [aml]
+          GqlOperatorList [35-83] [TABLESAMPLE...return n.name]
+            GqlOperatorList [35-83] [TABLESAMPLE...return n.name]
+              GqlSample [35-67] [TABLESAMPLE...5 PERCENT)]
+                SampleClause [35-67] [TABLESAMPLE...5 PERCENT)]
+                  Identifier(bernoulli) [47-56] [bernoulli]
+                  SampleSize [57-66] [5 PERCENT]
+                    IntLiteral(5) [57-58] [5]
+              GqlReturn [70-83] [return n.name]
+                Select [77-83] [n.name]
+                  SelectList [77-83] [n.name]
+                    SelectColumn [77-83] [n.name]
+                      PathExpression [77-83] [n.name]
+                        Identifier(n) [77-78] [n]
+                        Identifier(name) [79-83] [name]
+          Alias [86-88] [gt]
+            Identifier(gt) [86-88] [gt]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# WITH WEIGHT at the end parses correctly as a continuation of TABLESAMPLE, not
+# a new WITH op
+SELECT * FROM GRAPH_TABLE(aml
+  match (weight)
+  TABLESAMPLE bernoulli(5 PERCENT)
+  WITH weight {{|w|AS w|}} {{|REPEATABLE (1234)}}
+  RETURN *
+  ) AS gt
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    <empty>
+    <empty>
+*/
+---
+(source_file (ERROR))
+

@@ -1,0 +1,94 @@
+==================
+Test Case 1
+==================
+[default reserve_graph_table]
+[default language_features=NONE,+LIKE_ANY_SOME_ALL,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
+
+GRAPH aml
+MATCH (n:Person)
+RETURN {{ ARRAY | EXISTS | VALUE}} { {{ | GRAPH aml}} {{ | MATCH (p:Person) }} RETURN 1 as one } as arr
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP:  ARRAY , ,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# LIKE ANY|SOME|ALL with graph subquery
+GRAPH aml
+MATCH (n:Person)
+WHERE n.name LIKE {{ANY|SOME|ALL}} ( VALUE { MATCH (p:Person) RETURN 1 as one} )
+RETURN true AS val
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ANY
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# LIKE ANY|SOME|ALL do not support braced graph subquery directly
+GRAPH aml
+MATCH (n:Person)
+WHERE n.name LIKE {{ANY|SOME|ALL}} { MATCH (p:Person) RETURN "name" as name }
+RETURN true AS val
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ANY
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# testing IN subquery
+GRAPH aml
+MATCH (n1:Person)
+WHERE n1.name IN { {{|GRAPH fin}} MATCH (n2:Person) RETURN n2.name }
+RETURN n1.id
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# EXISTS {graph pattern} subquery
+GRAPH aml
+MATCH (n1:Person)
+WHERE EXISTS {{ |@{hint=1} }}{ {{|GRAPH fin}} (n2:Person) }
+RETURN n1.id
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP:  ,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# EXISTS {linear ops} subquery
+GRAPH aml
+
+RETURN EXISTS {{ |@{hint=1} }} {
+  {{|GRAPH fin}}
+  MATCH (n1:Person)
+  OPTIONAL MATCH (n2:Person)
+}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP:  ,
+*/
+---
+(source_file (ERROR))
+

@@ -1,0 +1,219 @@
+==================
+Test Case 1
+==================
+delete from T
+
+/* Expected ZetaSQL AST:
+DeleteStatement [0-13] [delete from T]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+delete x.T where true
+
+/* Expected ZetaSQL AST:
+DeleteStatement [0-21] [delete x.T where true]
+  PathExpression [7-10] [x.T]
+    Identifier(x) [7-8] [x]
+    Identifier(T) [9-10] [T]
+  BooleanLiteral(true) [17-21] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# The resolver will fail on this because WITH OFFSET is not allowed in
+# top-level DELETE statements, but it does parse.
+delete T with offset AS offset where true
+
+/* Expected ZetaSQL AST:
+DeleteStatement [0-41] [delete T with...where true]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  WithOffset [9-30] [with offset AS offset]
+    Alias [21-30] [AS offset]
+      Identifier(offset) [24-30] [offset]
+  BooleanLiteral(true) [37-41] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+delete a.b.c
+where c=y
+assert_rows_modified 10
+
+/* Expected ZetaSQL AST:
+DeleteStatement [0-46] [delete a.b..._rows_modified 10]
+  PathExpression [7-12] [a.b.c]
+    Identifier(a) [7-8] [a]
+    Identifier(b) [9-10] [b]
+    Identifier(c) [11-12] [c]
+  BinaryExpression(=) [19-22] [c=y]
+    PathExpression [19-20] [c]
+      Identifier(c) [19-20] [c]
+    PathExpression [21-22] [y]
+      Identifier(y) [21-22] [y]
+  AssertRowsModified [23-46] [assert_rows_modified 10]
+    IntLiteral(10) [44-46] [10]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+delete T
+assert_rows_modified {{0|cast(0 as int32)|@param1|cast(@param1 as int64)}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: 0
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+delete T
+assert_rows_modified {{0|cast(0 as int32)|@@sysvar|cast(@@sysvar as int64)}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: 0
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+delete T
+where 1+(select count(*) from T2)=5
+assert_rows_modified @row_count
+
+/* Expected ZetaSQL AST:
+DeleteStatement [0-76] [delete T where...@row_count]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  BinaryExpression(=) [15-44] [1+(select count(*) from T2)=5]
+    BinaryExpression(+) [15-42] [1+(select count(*) from T2)]
+      IntLiteral(1) [15-16] [1]
+      ExpressionSubquery [17-42] [(select count(*) from T2)]
+        Query [18-41] [select count(*) from T2]
+          Select [18-41] [select count(*) from T2]
+            SelectList [25-33] [count(*)]
+              SelectColumn [25-33] [count(*)]
+                FunctionCall [25-33] [count(*)]
+                  PathExpression [25-30] [count]
+                    Identifier(count) [25-30] [count]
+                  Star(*) [31-32] [*]
+            FromClause [34-41] [from T2]
+              TablePathExpression [39-41] [T2]
+                PathExpression [39-41] [T2]
+                  Identifier(T2) [39-41] [T2]
+    IntLiteral(5) [43-44] [5]
+  AssertRowsModified [45-76] [assert_rows_modif...@row_count]
+    ParameterExpr [66-76] [@row_count]
+      Identifier(row_count) [67-76] [row_count]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# The resolver will fail on this because the target involves a generalized
+# field access, but it does parse.
+delete T.(a.b).c where true
+
+/* Expected ZetaSQL AST:
+DeleteStatement [0-27] [delete T.(a.b).c where true]
+  DotIdentifier [7-16] [T.(a.b).c]
+    DotGeneralizedField [7-14] [T.(a.b)]
+      PathExpression [7-8] [T]
+        Identifier(T) [7-8] [T]
+      PathExpression [10-13] [a.b]
+        Identifier(a) [10-11] [a]
+        Identifier(b) [12-13] [b]
+    Identifier(c) [15-16] [c]
+  BooleanLiteral(true) [23-27] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# The resolver will fail on this because the target involves [], but it does
+# parse.
+delete T.a[0].b where true
+
+/* Expected ZetaSQL AST:
+DeleteStatement [0-26] [delete T.a[0].b where true]
+  DotIdentifier [7-15] [T.a[0].b]
+    ArrayElement [7-13] [T.a[0]]
+      PathExpression [7-10] [T.a]
+        Identifier(T) [7-8] [T]
+        Identifier(a) [9-10] [a]
+      Location [10-11] [[]
+      IntLiteral(0) [11-12] [0]
+    Identifier(b) [14-15] [b]
+  BooleanLiteral(true) [22-26] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+delete db-1-2.T where true
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Delete statement with a table alias.
+DELETE T {{AS|}} a
+WHERE a.x=1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: AS
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# Hints work on outer statements but not inner.  (We could add this.)
+@{a=b} delete from t1
+
+/* Expected ZetaSQL AST:
+HintedStatement [0-21] [@{a=b} delete from t1]
+  Hint [0-6] [@{a=b}]
+    HintEntry [2-5] [a=b]
+      Identifier(a) [2-3] [a]
+      PathExpression [4-5] [b]
+        Identifier(b) [4-5] [b]
+  DeleteStatement [7-21] [delete from t1]
+    PathExpression [19-21] [t1]
+      Identifier(t1) [19-21] [t1]
+*/
+---
+(source_file (ERROR))
+

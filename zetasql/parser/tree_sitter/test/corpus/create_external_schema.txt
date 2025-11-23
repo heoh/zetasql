@@ -1,0 +1,140 @@
+==================
+Test Case 1
+==================
+# CREATE EXTERNAL SCHEMA
+CREATE EXTERNAL SCHEMA foo WITH CONNECTION bar.baz OPTIONS ()
+
+/* Expected ZetaSQL AST:
+CreateExternalSchemaStatement [0-61] [CREATE EXTERNAL...OPTIONS ()]
+  PathExpression [23-26] [foo]
+    Identifier(foo) [23-26] [foo]
+  WithConnectionClause [27-50] [WITH CONNECTION bar.baz]
+    ConnectionClause [32-50] [CONNECTION bar.baz]
+      PathExpression [43-50] [bar.baz]
+        Identifier(bar) [43-46] [bar]
+        Identifier(baz) [47-50] [baz]
+  OptionsList [59-61] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+CREATE EXTERNAL SCHEMA foo WITH CONNECTION DEFAULT OPTIONS ()
+
+/* Expected ZetaSQL AST:
+CreateExternalSchemaStatement [0-61] [CREATE EXTERNAL...OPTIONS ()]
+  PathExpression [23-26] [foo]
+    Identifier(foo) [23-26] [foo]
+  WithConnectionClause [27-50] [WITH CONNECTION DEFAULT]
+    ConnectionClause [32-50] [CONNECTION DEFAULT]
+      DefaultLiteral [43-50] [DEFAULT]
+  OptionsList [59-61] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+CREATE EXTERNAL SCHEMA `foo` WITH CONNECTION bar.baz OPTIONS ()
+
+/* Expected ZetaSQL AST:
+CreateExternalSchemaStatement [0-63] [CREATE EXTERNAL...OPTIONS ()]
+  PathExpression [23-28] [`foo`]
+    Identifier(foo) [23-28] [`foo`]
+  WithConnectionClause [29-52] [WITH CONNECTION bar.baz]
+    ConnectionClause [34-52] [CONNECTION bar.baz]
+      PathExpression [45-52] [bar.baz]
+        Identifier(bar) [45-48] [bar]
+        Identifier(baz) [49-52] [baz]
+  OptionsList [61-63] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+CREATE EXTERNAL SCHEMA `WITH CONNECTION` WITH CONNECTION bar.baz OPTIONS ()
+
+/* Expected ZetaSQL AST:
+CreateExternalSchemaStatement [0-75] [CREATE EXTERNAL...OPTIONS ()]
+  PathExpression [23-40] [`WITH CONNECTION`]
+    Identifier(`WITH CONNECTION`) [23-40] [`WITH CONNECTION`]
+  WithConnectionClause [41-64] [WITH CONNECTION bar.baz]
+    ConnectionClause [46-64] [CONNECTION bar.baz]
+      PathExpression [57-64] [bar.baz]
+        Identifier(bar) [57-60] [bar]
+        Identifier(baz) [61-64] [baz]
+  OptionsList [73-75] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+CREATE {{|or replace}} EXTERNAL SCHEMA {{|if not exists}} foo.bar WITH
+CONNECTION baz options()
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+CREATE EXTERNAL SCHEMA foo WITH CONNECTION bar.baz OPTIONS (a=b, c="def")
+
+/* Expected ZetaSQL AST:
+CreateExternalSchemaStatement [0-73] [CREATE EXTERNAL..., c="def")]
+  PathExpression [23-26] [foo]
+    Identifier(foo) [23-26] [foo]
+  WithConnectionClause [27-50] [WITH CONNECTION bar.baz]
+    ConnectionClause [32-50] [CONNECTION bar.baz]
+      PathExpression [43-50] [bar.baz]
+        Identifier(bar) [43-46] [bar]
+        Identifier(baz) [47-50] [baz]
+  OptionsList [59-73] [(a=b, c="def")]
+    OptionsEntry [60-63] [a=b]
+      Identifier(a) [60-61] [a]
+      PathExpression [62-63] [b]
+        Identifier(b) [62-63] [b]
+    OptionsEntry [65-72] [c="def"]
+      Identifier(c) [65-66] [c]
+      StringLiteral [67-72] ["def"]
+        StringLiteralComponent("def") [67-72] ["def"]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+CREATE {{temp|temporary|public|private}} EXTERNAL SCHEMA foo WITH CONNECTION bar
+OPTIONS()
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: temp
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+CREATE EXTERNAL SCHEMA foo OPTIONS()
+
+/* Expected ZetaSQL AST:
+CreateExternalSchemaStatement [0-36] [CREATE EXTERNAL...OPTIONS()]
+  PathExpression [23-26] [foo]
+    Identifier(foo) [23-26] [foo]
+  OptionsList [34-36] [()]
+*/
+---
+(source_file (ERROR))
+

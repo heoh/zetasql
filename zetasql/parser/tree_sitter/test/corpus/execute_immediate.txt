@@ -1,0 +1,121 @@
+==================
+Test Case 1
+==================
+EXECUTE IMMEDIATE {{;|}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ;
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+EXECUTE IMMEDIATE {{"select 1"|CONCAT("a", "b")|x|@x|@@x}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: "select 1"
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+EXECUTE IMMEDIATE x INTO {{a|a, b|@c|@@d}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: a
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+EXECUTE IMMEDIATE {{"?" USING 0|"? ?" USING 0, 1}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: "?" USING 0
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+EXECUTE IMMEDIATE x USING {{4 AS y|4 AS y, 5 AS z|@t AS y|@@t AS y}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: 4 AS y
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+EXECUTE IMMEDIATE x INTO {{a|a, b}} USING {{4 AS y|4 AS y, 5 AS z}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: a,4 AS y
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+SELECT EXECUTE FROM IMMEDIATE;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-29] [SELECT EXECUTE FROM IMMEDIATE]
+  Query [0-29] [SELECT EXECUTE FROM IMMEDIATE]
+    Select [0-29] [SELECT EXECUTE FROM IMMEDIATE]
+      SelectList [7-14] [EXECUTE]
+        SelectColumn [7-14] [EXECUTE]
+          PathExpression [7-14] [EXECUTE]
+            Identifier(EXECUTE) [7-14] [EXECUTE]
+      FromClause [15-29] [FROM IMMEDIATE]
+        TablePathExpression [20-29] [IMMEDIATE]
+          PathExpression [20-29] [IMMEDIATE]
+            Identifier(IMMEDIATE) [20-29] [IMMEDIATE]
+*/
+---
+(source_file [0, 0] - [14, 2]
+  (statement [0, 0] - [0, 30]
+    (select_statement [0, 0] - [0, 30]
+      (select_clause [0, 0] - [0, 14]
+        (select_list [0, 7] - [0, 14]
+          (select_expression [0, 7] - [0, 14]
+            (expression [0, 7] - [0, 14]
+              (path_expression [0, 7] - [0, 14]
+                (identifier [0, 7] - [0, 14]))))))
+      (from_clause [0, 15] - [0, 29]
+        (from_item [0, 20] - [0, 29]
+          (table_expression [0, 20] - [0, 29]
+            (path_expression [0, 20] - [0, 29]
+              (identifier [0, 20] - [0, 29])))))))
+  (comment [2, 0] - [14, 2]))
+
+==================
+Test Case 8
+==================
+EXECUTE IMMEDIATE "select ?, @x" USING 0, 5 AS x;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-48] [EXECUTE IMMEDIATE...0, 5 AS x]
+  StringLiteral [18-32] ["select ?, @x"]
+    StringLiteralComponent("select ?, @x") [18-32] ["select ?, @x"]
+  ExecuteUsingClause [39-48] [0, 5 AS x]
+    ExecuteUsingArgument [39-40] [0]
+      IntLiteral(0) [39-40] [0]
+    ExecuteUsingArgument [42-48] [5 AS x]
+      IntLiteral(5) [42-43] [5]
+      Alias [47-48] [x]
+        Identifier(x) [47-48] [x]
+*/
+---
+(source_file (ERROR))
+

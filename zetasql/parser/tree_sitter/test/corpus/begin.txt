@@ -1,0 +1,108 @@
+==================
+Test Case 1
+==================
+# Empty block, no terminating semi-colon
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+[default no_show_parse_location_text]
+[default mode=script]
+[default node_kind=BeginStatement]
+begin
+end
+
+/* Expected ZetaSQL AST:
+Script [0-9]
+  StatementList [0-9]
+    BeginEndBlock [0-9]
+      StatementList [5-5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Empty block, with terminating semi-colon
+begin
+end;
+
+/* Expected ZetaSQL AST:
+Script [0-10]
+  StatementList [0-10]
+    BeginEndBlock [0-9]
+      StatementList [5-5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Simple block
+begin
+  select 3;
+  select 4;
+end;
+
+/* Expected ZetaSQL AST:
+Script [0-34]
+  StatementList [0-34]
+    BeginEndBlock [0-33]
+      StatementList [8-29]
+        QueryStatement [8-16]
+          Query [8-16]
+            Select [8-16]
+              SelectList [15-16]
+                SelectColumn [15-16]
+                  IntLiteral(3) [15-16]
+        QueryStatement [20-28]
+          Query [20-28]
+            Select [20-28]
+              SelectList [27-28]
+                SelectColumn [27-28]
+                  IntLiteral(4) [27-28]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Nested block
+begin
+  begin
+    select 3;
+    select 4;
+  end;
+  select 5;
+end;
+
+/* Expected ZetaSQL AST:
+Script [0-65]
+  StatementList [0-65]
+    BeginEndBlock [0-64]
+      StatementList [8-60]
+        BeginEndBlock [8-47]
+          StatementList [18-41]
+            QueryStatement [18-26]
+              Query [18-26]
+                Select [18-26]
+                  SelectList [25-26]
+                    SelectColumn [25-26]
+                      IntLiteral(3) [25-26]
+            QueryStatement [32-40]
+              Query [32-40]
+                Select [32-40]
+                  SelectList [39-40]
+                    SelectColumn [39-40]
+                      IntLiteral(4) [39-40]
+        QueryStatement [51-59]
+          Query [51-59]
+            Select [51-59]
+              SelectList [58-59]
+                SelectColumn [58-59]
+                  IntLiteral(5) [58-59]
+*/
+---
+(source_file (ERROR))
+

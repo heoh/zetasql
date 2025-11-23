@@ -1,0 +1,48 @@
+==================
+Test Case 1
+==================
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+[default no_show_parse_location_text]
+START BATCH
+
+/* Expected ZetaSQL AST:
+StartBatchStatement [0-11]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+Start BAtch dDL
+
+/* Expected ZetaSQL AST:
+StartBatchStatement [0-15]
+  Identifier(dDL) [12-15]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+RUN BATCH
+
+/* Expected ZetaSQL AST:
+RunBatchStatement [0-9]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+ABORT BATCH
+
+/* Expected ZetaSQL AST:
+AbortBatchStatement [0-11]
+*/
+---
+(source_file (ERROR))
+

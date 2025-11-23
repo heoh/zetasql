@@ -1,0 +1,72 @@
+==================
+Test Case 1
+==================
+select x
+|> SET x = 1+2 {{|,}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+select x
+|> set x = 1+2, y = 3, z = z {{|,}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+select x
+|>{{| set}}{{|,}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+select x
+|> {{|set}} x
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+select x
+|> {{|set}} x y
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+select x
+|> {{|set}} x AS y
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

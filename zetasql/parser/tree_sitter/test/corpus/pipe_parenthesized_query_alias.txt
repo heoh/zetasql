@@ -1,0 +1,157 @@
+==================
+Test Case 1
+==================
+[language_features=NONE{{,+PIPES|}}]
+(SELECT 1) {{AS q1|q1|}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES,AS q1
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+[language_features=NONE{{,+PIPES|}}]
+(FROM t1) {{AS q1|q1|}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES,AS q1
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+[language_features=NONE,+PIPES]
+(FROM t1) {{AS|}} q1
+|> WHERE true
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: AS
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+[language_features=NONE{{,+PIPES|}}]
+(SELECT * FROM t1) AS q1
+UNION ALL
+(SELECT * FROM t2) AS q2
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+[language_features=NONE{{,+PIPES|}}]
+(SELECT * FROM t1) AS q1
+ORDER BY x
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+[language_features=NONE{{,+PIPES|}}]
+(SELECT * FROM t1) AS q1
+LIMIT 10
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+[language_features=NONE{{,+PIPES|}}]
+(SELECT * FROM t1) {{AS q1|q1}}
+JOIN 
+(SELECT * FROM t2) {{AS q2|q2}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    ,+PIPES,AS q1,AS q2
+    ,+PIPES,AS q1,q2
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+[language_features=NONE{{,+PIPES|}}]
+# This compares aliased query output inside and outside FROM.
+{{FROM|}} (SELECT 1) AS q
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES,FROM
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+[language_features=NONE{{,+PIPES|}}]
+(((SELECT 1))) AS q1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+[language_features=NONE{{,+PIPES|}}]
+(((SELECT 1) AS q1))
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+[language_features=NONE{{,+PIPES|}}]
+(((SELECT 1) AS q1) AS q2) AS q3
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+[language_features=NONE{{,+PIPES|}}]
+# Test another kind of QueryExpression with an alias.
+(select 1
+ union all
+ select 2) AS q
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ,+PIPES
+*/
+---
+(source_file (ERROR))
+

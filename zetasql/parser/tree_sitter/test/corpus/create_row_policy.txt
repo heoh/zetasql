@@ -1,0 +1,196 @@
+==================
+Test Case 1
+==================
+create row policy on t1 to 'foo@google.com' using(c1 = 'foo');
+
+/* Expected ZetaSQL AST:
+CreateRowAccessPolicyStatement [0-61] [create row...c1 = 'foo')]
+  PathExpression [21-23] [t1]
+    Identifier(t1) [21-23] [t1]
+  GrantToClause [24-43] [to 'foo@google.com']
+    GranteeList [27-43] ['foo@google.com']
+      StringLiteral [27-43] ['foo@google.com']
+        StringLiteralComponent('foo@google.com') [27-43] ['foo@google.com']
+  FilterUsingClause [44-61] [using(c1 = 'foo')]
+    BinaryExpression(=) [50-60] [c1 = 'foo']
+      PathExpression [50-52] [c1]
+        Identifier(c1) [50-52] [c1]
+      StringLiteral [55-60] ['foo']
+        StringLiteralComponent('foo') [55-60] ['foo']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+create row policy p1 on t1 to 'mdbuser/bar' using(c2 = 'foo');
+
+/* Expected ZetaSQL AST:
+CreateRowAccessPolicyStatement [0-61] [create row...c2 = 'foo')]
+  PathExpression [24-26] [t1]
+    Identifier(t1) [24-26] [t1]
+  GrantToClause [27-43] [to 'mdbuser/bar']
+    GranteeList [30-43] ['mdbuser/bar']
+      StringLiteral [30-43] ['mdbuser/bar']
+        StringLiteralComponent('mdbuser/bar') [30-43] ['mdbuser/bar']
+  FilterUsingClause [44-61] [using(c2 = 'foo')]
+    BinaryExpression(=) [50-60] [c2 = 'foo']
+      PathExpression [50-52] [c2]
+        Identifier(c2) [50-52] [c2]
+      StringLiteral [55-60] ['foo']
+        StringLiteralComponent('foo') [55-60] ['foo']
+  PathExpression [18-20] [p1]
+    Identifier(p1) [18-20] [p1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+create row policy on t1 to 'foo@google.com', 'mdbgroup/bar' using(c1);
+
+/* Expected ZetaSQL AST:
+CreateRowAccessPolicyStatement [0-69] [create row...using(c1)]
+  PathExpression [21-23] [t1]
+    Identifier(t1) [21-23] [t1]
+  GrantToClause [24-59] [to 'foo@google...mdbgroup/bar']
+    GranteeList [27-59] ['foo@google...mdbgroup/bar']
+      StringLiteral [27-43] ['foo@google.com']
+        StringLiteralComponent('foo@google.com') [27-43] ['foo@google.com']
+      StringLiteral [45-59] ['mdbgroup/bar']
+        StringLiteralComponent('mdbgroup/bar') [45-59] ['mdbgroup/bar']
+  FilterUsingClause [60-69] [using(c1)]
+    PathExpression [66-68] [c1]
+      Identifier(c1) [66-68] [c1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+create row policy on n1.t1 to 'foo@google.com', 'mdbgroup/bar' using(c1);
+
+/* Expected ZetaSQL AST:
+CreateRowAccessPolicyStatement [0-72] [create row...using(c1)]
+  PathExpression [21-26] [n1.t1]
+    Identifier(n1) [21-23] [n1]
+    Identifier(t1) [24-26] [t1]
+  GrantToClause [27-62] [to 'foo@google...mdbgroup/bar']
+    GranteeList [30-62] ['foo@google...mdbgroup/bar']
+      StringLiteral [30-46] ['foo@google.com']
+        StringLiteralComponent('foo@google.com') [30-46] ['foo@google.com']
+      StringLiteral [48-62] ['mdbgroup/bar']
+        StringLiteralComponent('mdbgroup/bar') [48-62] ['mdbgroup/bar']
+  FilterUsingClause [63-72] [using(c1)]
+    PathExpression [69-71] [c1]
+      Identifier(c1) [69-71] [c1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+create row policy on n1.t1 to 'foo@google.com', 'mdbgroup/bar' using(1);
+
+/* Expected ZetaSQL AST:
+CreateRowAccessPolicyStatement [0-71] [create row...' using(1)]
+  PathExpression [21-26] [n1.t1]
+    Identifier(n1) [21-23] [n1]
+    Identifier(t1) [24-26] [t1]
+  GrantToClause [27-62] [to 'foo@google...mdbgroup/bar']
+    GranteeList [30-62] ['foo@google...mdbgroup/bar']
+      StringLiteral [30-46] ['foo@google.com']
+        StringLiteralComponent('foo@google.com') [30-46] ['foo@google.com']
+      StringLiteral [48-62] ['mdbgroup/bar']
+        StringLiteralComponent('mdbgroup/bar') [48-62] ['mdbgroup/bar']
+  FilterUsingClause [63-71] [using(1)]
+    IntLiteral(1) [69-70] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+create row policy on n1.t1 using(true);
+
+/* Expected ZetaSQL AST:
+CreateRowAccessPolicyStatement [0-38] [create row...using(true)]
+  PathExpression [21-26] [n1.t1]
+    Identifier(n1) [21-23] [n1]
+    Identifier(t1) [24-26] [t1]
+  FilterUsingClause [27-38] [using(true)]
+    BooleanLiteral(true) [33-37] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# CREATE scope modifiers (TEMP, PUBLIC, PRIVATE) are not allowed for
+# CREATE ROW POLICY.
+create {{temp|temporary|public|private}} row policy on t1
+to 'foo@google.com' using(true);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: temp
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+create row policy on t1 to @test_param_string using(true);
+
+/* Expected ZetaSQL AST:
+CreateRowAccessPolicyStatement [0-57] [create row...using(true)]
+  PathExpression [21-23] [t1]
+    Identifier(t1) [21-23] [t1]
+  GrantToClause [24-45] [to @test_param_string]
+    GranteeList [27-45] [@test_param_string]
+      ParameterExpr [27-45] [@test_param_string]
+        Identifier(test_param_string) [28-45] [test_param_string]
+  FilterUsingClause [46-57] [using(true)]
+    BooleanLiteral(true) [52-56] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+create row policy on t1 to @@sysvar using(true);
+
+/* Expected ZetaSQL AST:
+CreateRowAccessPolicyStatement [0-47] [create row...using(true)]
+  PathExpression [21-23] [t1]
+    Identifier(t1) [21-23] [t1]
+  GrantToClause [24-35] [to @@sysvar]
+    GranteeList [27-35] [@@sysvar]
+      SystemVariableExpr [27-35] [@@sysvar]
+        PathExpression [29-35] [sysvar]
+          Identifier(sysvar) [29-35] [sysvar]
+  FilterUsingClause [36-47] [using(true)]
+    BooleanLiteral(true) [42-46] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# Grantee list edge cases.
+create row policy on t1 to {{|concat("mdbuser/", "foo")|NULL|""|1}} using(true);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

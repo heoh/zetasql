@@ -1,0 +1,983 @@
+==================
+Test Case 1
+==================
+update T
+set x=y
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-16] [update T set x=y]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-16] [x=y]
+    UpdateItem [13-16] [x=y]
+      UpdateSetValue [13-16] [x=y]
+        PathExpression [13-14] [x]
+          Identifier(x) [13-14] [x]
+        PathExpression [15-16] [y]
+          Identifier(y) [15-16] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# The resolver will fail on this because WITH OFFSET is not allowed in
+# top-level UPDATE statements, but it does parse.
+update T with offset AS offset set x = y
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-40] [update T with...set x = y]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  WithOffset [9-30] [with offset AS offset]
+    Alias [21-30] [AS offset]
+      Identifier(offset) [24-30] [offset]
+  UpdateItemList [35-40] [x = y]
+    UpdateItem [35-40] [x = y]
+      UpdateSetValue [35-40] [x = y]
+        PathExpression [35-36] [x]
+          Identifier(x) [35-36] [x]
+        PathExpression [39-40] [y]
+          Identifier(y) [39-40] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# The resolver will fail on this because the target involves a generalized
+# field access, but it does parse.
+update T.(a.b).c set x = y
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-26] [update T.(a.b).c set x = y]
+  DotIdentifier [7-16] [T.(a.b).c]
+    DotGeneralizedField [7-14] [T.(a.b)]
+      PathExpression [7-8] [T]
+        Identifier(T) [7-8] [T]
+      PathExpression [10-13] [a.b]
+        Identifier(a) [10-11] [a]
+        Identifier(b) [12-13] [b]
+    Identifier(c) [15-16] [c]
+  UpdateItemList [21-26] [x = y]
+    UpdateItem [21-26] [x = y]
+      UpdateSetValue [21-26] [x = y]
+        PathExpression [21-22] [x]
+          Identifier(x) [21-22] [x]
+        PathExpression [25-26] [y]
+          Identifier(y) [25-26] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# The resolver will fail on this because the target involves [], but it does
+# parse.
+update T.a[0].b set x = y
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-25] [update T.a[0].b set x = y]
+  DotIdentifier [7-15] [T.a[0].b]
+    ArrayElement [7-13] [T.a[0]]
+      PathExpression [7-10] [T.a]
+        Identifier(T) [7-8] [T]
+        Identifier(a) [9-10] [a]
+      Location [10-11] [[]
+      IntLiteral(0) [11-12] [0]
+    Identifier(b) [14-15] [b]
+  UpdateItemList [20-25] [x = y]
+    UpdateItem [20-25] [x = y]
+      UpdateSetValue [20-25] [x = y]
+        PathExpression [20-21] [x]
+          Identifier(x) [20-21] [x]
+        PathExpression [24-25] [y]
+          Identifier(y) [24-25] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+update T
+set id.(path.to.extension) = 5
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-39] [update T set...extension) = 5]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-39] [id.(path.to.extension) = 5]
+    UpdateItem [13-39] [id.(path.to.extension) = 5]
+      UpdateSetValue [13-39] [id.(path.to.extension) = 5]
+        DotGeneralizedField [13-35] [id.(path.to.extension)]
+          PathExpression [13-15] [id]
+            Identifier(id) [13-15] [id]
+          PathExpression [17-34] [path.to.extension]
+            Identifier(path) [17-21] [path]
+            Identifier(`to`) [22-24] [to]
+            Identifier(extension) [25-34] [extension]
+        IntLiteral(5) [38-39] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+update T
+set id.(path.to.extension) = DEFAULT
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-45] [update T set...= DEFAULT]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-45] [id.(path.to...= DEFAULT]
+    UpdateItem [13-45] [id.(path.to...= DEFAULT]
+      UpdateSetValue [13-45] [id.(path.to...= DEFAULT]
+        DotGeneralizedField [13-35] [id.(path.to.extension)]
+          PathExpression [13-15] [id]
+            Identifier(id) [13-15] [id]
+          PathExpression [17-34] [path.to.extension]
+            Identifier(path) [17-21] [path]
+            Identifier(`to`) [22-24] [to]
+            Identifier(extension) [25-34] [extension]
+        DefaultLiteral [38-45] [DEFAULT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+update T
+set id[0] = DEFAULT
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-28] [update T set id[0] = DEFAULT]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-28] [id[0] = DEFAULT]
+    UpdateItem [13-28] [id[0] = DEFAULT]
+      UpdateSetValue [13-28] [id[0] = DEFAULT]
+        ArrayElement [13-18] [id[0]]
+          PathExpression [13-15] [id]
+            Identifier(id) [13-15] [id]
+          Location [15-16] [[]
+          IntLiteral(0) [16-17] [0]
+        DefaultLiteral [21-28] [DEFAULT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+update T
+set id1.id2.(path.to.extension) = 5
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-44] [update T set...extension) = 5]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-44] [id1.id2.(path...extension) = 5]
+    UpdateItem [13-44] [id1.id2.(path...extension) = 5]
+      UpdateSetValue [13-44] [id1.id2.(path...extension) = 5]
+        DotGeneralizedField [13-40] [id1.id2.(path.to.extension)]
+          PathExpression [13-20] [id1.id2]
+            Identifier(id1) [13-16] [id1]
+            Identifier(id2) [17-20] [id2]
+          PathExpression [22-39] [path.to.extension]
+            Identifier(path) [22-26] [path]
+            Identifier(`to`) [27-29] [to]
+            Identifier(extension) [30-39] [extension]
+        IntLiteral(5) [43-44] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+update T
+set id1.(id2).(id3) = 5
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-32] [update T set....(id3) = 5]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-32] [id1.(id2).(id3) = 5]
+    UpdateItem [13-32] [id1.(id2).(id3) = 5]
+      UpdateSetValue [13-32] [id1.(id2).(id3) = 5]
+        DotGeneralizedField [13-28] [id1.(id2).(id3)]
+          DotGeneralizedField [13-22] [id1.(id2)]
+            PathExpression [13-16] [id1]
+              Identifier(id1) [13-16] [id1]
+            PathExpression [18-21] [id2]
+              Identifier(id2) [18-21] [id2]
+          PathExpression [24-27] [id3]
+            Identifier(id3) [24-27] [id3]
+        IntLiteral(5) [31-32] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+update T
+set id1.(a.b.c).(d.e.f).id2.(g.h.i).id3.id4 = 5
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-56] [update T set...id3.id4 = 5]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-56] [id1.(a.b.c...id3.id4 = 5]
+    UpdateItem [13-56] [id1.(a.b.c...id3.id4 = 5]
+      UpdateSetValue [13-56] [id1.(a.b.c...id3.id4 = 5]
+        DotIdentifier [13-52] [id1.(a.b.c...i).id3.id4]
+          DotIdentifier [13-48] [id1.(a.b.c...g.h.i).id3]
+            DotGeneralizedField [13-44] [id1.(a.b.c...id2.(g.h.i)]
+              DotIdentifier [13-36] [id1.(a.b.c).(d.e.f).id2]
+                DotGeneralizedField [13-32] [id1.(a.b.c).(d.e.f)]
+                  DotGeneralizedField [13-24] [id1.(a.b.c)]
+                    PathExpression [13-16] [id1]
+                      Identifier(id1) [13-16] [id1]
+                    PathExpression [18-23] [a.b.c]
+                      Identifier(a) [18-19] [a]
+                      Identifier(b) [20-21] [b]
+                      Identifier(c) [22-23] [c]
+                  PathExpression [26-31] [d.e.f]
+                    Identifier(d) [26-27] [d]
+                    Identifier(e) [28-29] [e]
+                    Identifier(f) [30-31] [f]
+                Identifier(id2) [33-36] [id2]
+              PathExpression [38-43] [g.h.i]
+                Identifier(g) [38-39] [g]
+                Identifier(h) [40-41] [h]
+                Identifier(i) [42-43] [i]
+            Identifier(id3) [45-48] [id3]
+          Identifier(id4) [49-52] [id4]
+        IntLiteral(5) [55-56] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+update T set id1[0] = 5
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-23] [update T set id1[0] = 5]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-23] [id1[0] = 5]
+    UpdateItem [13-23] [id1[0] = 5]
+      UpdateSetValue [13-23] [id1[0] = 5]
+        ArrayElement [13-19] [id1[0]]
+          PathExpression [13-16] [id1]
+            Identifier(id1) [13-16] [id1]
+          Location [16-17] [[]
+          IntLiteral(0) [17-18] [0]
+        IntLiteral(5) [22-23] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+update T set id1[0].(a.b.c).id1.(d.e.f)[1].id3 = 5
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-50] [update T set...1].id3 = 5]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-50] [id1[0].(a....1].id3 = 5]
+    UpdateItem [13-50] [id1[0].(a....1].id3 = 5]
+      UpdateSetValue [13-50] [id1[0].(a....1].id3 = 5]
+        DotIdentifier [13-46] [id1[0].(a.....f)[1].id3]
+          ArrayElement [13-42] [id1[0].(a.b.c).id1.(d.e.f)[1]]
+            DotGeneralizedField [13-39] [id1[0].(a.b.c).id1.(d.e.f)]
+              DotIdentifier [13-31] [id1[0].(a.b.c).id1]
+                DotGeneralizedField [13-27] [id1[0].(a.b.c)]
+                  ArrayElement [13-19] [id1[0]]
+                    PathExpression [13-16] [id1]
+                      Identifier(id1) [13-16] [id1]
+                    Location [16-17] [[]
+                    IntLiteral(0) [17-18] [0]
+                  PathExpression [21-26] [a.b.c]
+                    Identifier(a) [21-22] [a]
+                    Identifier(b) [23-24] [b]
+                    Identifier(c) [25-26] [c]
+                Identifier(id1) [28-31] [id1]
+              PathExpression [33-38] [d.e.f]
+                Identifier(d) [33-34] [d]
+                Identifier(e) [35-36] [e]
+                Identifier(f) [37-38] [f]
+            Location [39-40] [[]
+            IntLiteral(1) [40-41] [1]
+          Identifier(id3) [43-46] [id3]
+        IntLiteral(5) [49-50] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# This parses, but in practice it will never resolve because ZetaSQL does not
+# support arrays of arrays.
+update T set id1[0][1] = 5
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-26] [update T set id1[0][1] = 5]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-26] [id1[0][1] = 5]
+    UpdateItem [13-26] [id1[0][1] = 5]
+      UpdateSetValue [13-26] [id1[0][1] = 5]
+        ArrayElement [13-22] [id1[0][1]]
+          ArrayElement [13-19] [id1[0]]
+            PathExpression [13-16] [id1]
+              Identifier(id1) [13-16] [id1]
+            Location [16-17] [[]
+            IntLiteral(0) [17-18] [0]
+          Location [19-20] [[]
+          IntLiteral(1) [20-21] [1]
+        IntLiteral(5) [25-26] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+update c.T
+set x=y, a.b.c=1+(select count(*) from t2)
+where zzz+yyy=55
+assert_rows_modified @row_count
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-102] [update c.T...@row_count]
+  PathExpression [7-10] [c.T]
+    Identifier(c) [7-8] [c]
+    Identifier(T) [9-10] [T]
+  UpdateItemList [15-53] [x=y, a.b.c...) from t2)]
+    UpdateItem [15-18] [x=y]
+      UpdateSetValue [15-18] [x=y]
+        PathExpression [15-16] [x]
+          Identifier(x) [15-16] [x]
+        PathExpression [17-18] [y]
+          Identifier(y) [17-18] [y]
+    UpdateItem [20-53] [a.b.c=1+(select...) from t2)]
+      UpdateSetValue [20-53] [a.b.c=1+(select...) from t2)]
+        PathExpression [20-25] [a.b.c]
+          Identifier(a) [20-21] [a]
+          Identifier(b) [22-23] [b]
+          Identifier(c) [24-25] [c]
+        BinaryExpression(+) [26-53] [1+(select count(*) from t2)]
+          IntLiteral(1) [26-27] [1]
+          ExpressionSubquery [28-53] [(select count(*) from t2)]
+            Query [29-52] [select count(*) from t2]
+              Select [29-52] [select count(*) from t2]
+                SelectList [36-44] [count(*)]
+                  SelectColumn [36-44] [count(*)]
+                    FunctionCall [36-44] [count(*)]
+                      PathExpression [36-41] [count]
+                        Identifier(count) [36-41] [count]
+                      Star(*) [42-43] [*]
+                FromClause [45-52] [from t2]
+                  TablePathExpression [50-52] [t2]
+                    PathExpression [50-52] [t2]
+                      Identifier(t2) [50-52] [t2]
+  BinaryExpression(=) [60-70] [zzz+yyy=55]
+    BinaryExpression(+) [60-67] [zzz+yyy]
+      PathExpression [60-63] [zzz]
+        Identifier(zzz) [60-63] [zzz]
+      PathExpression [64-67] [yyy]
+        Identifier(yyy) [64-67] [yyy]
+    IntLiteral(55) [68-70] [55]
+  AssertRowsModified [71-102] [assert_rows_modif...@row_count]
+    ParameterExpr [92-102] [@row_count]
+      Identifier(row_count) [93-102] [row_count]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+update T
+set x=null, y=default, z=z
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-35] [update T set...default, z=z]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-35] [x=null, y=default, z=z]
+    UpdateItem [13-19] [x=null]
+      UpdateSetValue [13-19] [x=null]
+        PathExpression [13-14] [x]
+          Identifier(x) [13-14] [x]
+        NullLiteral(null) [15-19] [null]
+    UpdateItem [21-30] [y=default]
+      UpdateSetValue [21-30] [y=default]
+        PathExpression [21-22] [y]
+          Identifier(y) [21-22] [y]
+        DefaultLiteral [23-30] [default]
+    UpdateItem [32-35] [z=z]
+      UpdateSetValue [32-35] [z=z]
+        PathExpression [32-33] [z]
+          Identifier(z) [32-33] [z]
+        PathExpression [34-35] [z]
+          Identifier(z) [34-35] [z]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+update a-100.b.c
+set x=y
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+# Update statement with a table alias.
+UPDATE T {{AS|}} a SET a.x=1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: AS
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# Nested DML statements.
+update T
+set x=y,
+    (delete x),
+    (insert y.z values (5)),
+    (update a set b=c),
+    z=default
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-100] [update T set...z=default]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-100] [x=y,     (...z=default]
+    UpdateItem [13-16] [x=y]
+      UpdateSetValue [13-16] [x=y]
+        PathExpression [13-14] [x]
+          Identifier(x) [13-14] [x]
+        PathExpression [15-16] [y]
+          Identifier(y) [15-16] [y]
+    UpdateItem [22-32] [(delete x)]
+      DeleteStatement [23-31] [delete x]
+        PathExpression [30-31] [x]
+          Identifier(x) [30-31] [x]
+    UpdateItem [38-61] [(insert y.z values (5))]
+      InsertStatement [39-60] [insert y.z values (5)]
+        PathExpression [46-49] [y.z]
+          Identifier(y) [46-47] [y]
+          Identifier(z) [48-49] [z]
+        InsertValuesRowList [50-60] [values (5)]
+          InsertValuesRow [57-60] [(5)]
+            IntLiteral(5) [58-59] [5]
+    UpdateItem [67-85] [(update a set b=c)]
+      UpdateStatement [68-84] [update a set b=c]
+        PathExpression [75-76] [a]
+          Identifier(a) [75-76] [a]
+        UpdateItemList [81-84] [b=c]
+          UpdateItem [81-84] [b=c]
+            UpdateSetValue [81-84] [b=c]
+              PathExpression [81-82] [b]
+                Identifier(b) [81-82] [b]
+              PathExpression [83-84] [c]
+                Identifier(c) [83-84] [c]
+    UpdateItem [91-100] [z=default]
+      UpdateSetValue [91-100] [z=default]
+        PathExpression [91-92] [z]
+          Identifier(z) [91-92] [z]
+        DefaultLiteral [93-100] [default]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+# Nested DML statements with generalized path targets.
+update T
+set (delete a.(b.c)),
+    (insert d.(e.f) values (5)),
+    (update a.(b.c) set d = 10)
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-95] [update T set...set d = 10)]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-95] [(delete a....set d = 10)]
+    UpdateItem [13-29] [(delete a.(b.c))]
+      DeleteStatement [14-28] [delete a.(b.c)]
+        DotGeneralizedField [21-28] [a.(b.c)]
+          PathExpression [21-22] [a]
+            Identifier(a) [21-22] [a]
+          PathExpression [24-27] [b.c]
+            Identifier(b) [24-25] [b]
+            Identifier(c) [26-27] [c]
+    UpdateItem [35-62] [(insert d.(e.f) values (5))]
+      InsertStatement [36-61] [insert d.(e.f) values (5)]
+        DotGeneralizedField [43-50] [d.(e.f)]
+          PathExpression [43-44] [d]
+            Identifier(d) [43-44] [d]
+          PathExpression [46-49] [e.f]
+            Identifier(e) [46-47] [e]
+            Identifier(f) [48-49] [f]
+        InsertValuesRowList [51-61] [values (5)]
+          InsertValuesRow [58-61] [(5)]
+            IntLiteral(5) [59-60] [5]
+    UpdateItem [68-95] [(update a.(b.c) set d = 10)]
+      UpdateStatement [69-94] [update a.(b.c) set d = 10]
+        DotGeneralizedField [76-83] [a.(b.c)]
+          PathExpression [76-77] [a]
+            Identifier(a) [76-77] [a]
+          PathExpression [79-82] [b.c]
+            Identifier(b) [79-80] [b]
+            Identifier(c) [81-82] [c]
+        UpdateItemList [88-94] [d = 10]
+          UpdateItem [88-94] [d = 10]
+            UpdateSetValue [88-94] [d = 10]
+              PathExpression [88-89] [d]
+                Identifier(d) [88-89] [d]
+              IntLiteral(10) [92-94] [10]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+# Another set of nested DML statements with generalized path targets, this time
+# with a generalized field access in the middle.
+update T
+set (delete a.(b.c).x),
+    (insert d.(e.f).y values (5)),
+    (update a.(b.c).x set d = 10)
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-101] [update T set...set d = 10)]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-101] [(delete a....set d = 10)]
+    UpdateItem [13-31] [(delete a.(b.c).x)]
+      DeleteStatement [14-30] [delete a.(b.c).x]
+        DotIdentifier [21-30] [a.(b.c).x]
+          DotGeneralizedField [21-28] [a.(b.c)]
+            PathExpression [21-22] [a]
+              Identifier(a) [21-22] [a]
+            PathExpression [24-27] [b.c]
+              Identifier(b) [24-25] [b]
+              Identifier(c) [26-27] [c]
+          Identifier(x) [29-30] [x]
+    UpdateItem [37-66] [(insert d.(e.f).y values (5))]
+      InsertStatement [38-65] [insert d.(e.f).y values (5)]
+        DotIdentifier [45-54] [d.(e.f).y]
+          DotGeneralizedField [45-52] [d.(e.f)]
+            PathExpression [45-46] [d]
+              Identifier(d) [45-46] [d]
+            PathExpression [48-51] [e.f]
+              Identifier(e) [48-49] [e]
+              Identifier(f) [50-51] [f]
+          Identifier(y) [53-54] [y]
+        InsertValuesRowList [55-65] [values (5)]
+          InsertValuesRow [62-65] [(5)]
+            IntLiteral(5) [63-64] [5]
+    UpdateItem [72-101] [(update a.(b.c).x set d = 10)]
+      UpdateStatement [73-100] [update a.(b.c).x set d = 10]
+        DotIdentifier [80-89] [a.(b.c).x]
+          DotGeneralizedField [80-87] [a.(b.c)]
+            PathExpression [80-81] [a]
+              Identifier(a) [80-81] [a]
+            PathExpression [83-86] [b.c]
+              Identifier(b) [83-84] [b]
+              Identifier(c) [85-86] [c]
+          Identifier(x) [88-89] [x]
+        UpdateItemList [94-100] [d = 10]
+          UpdateItem [94-100] [d = 10]
+            UpdateSetValue [94-100] [d = 10]
+              PathExpression [94-95] [d]
+                Identifier(d) [94-95] [d]
+              IntLiteral(10) [98-100] [10]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# Nested DML statements with generalized path targets involving array element
+# modifications. These parse but the resolver doesn't allow array element
+# modifications in the targets of nested DML statements.
+update T
+set (delete a.(b.c)[0].d),
+    (insert d.(e.f)[1] values (5)),
+    (update a[2].(b.c) set d = 10)
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-106] [update T set...set d = 10)]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-106] [(delete a....set d = 10)]
+    UpdateItem [13-34] [(delete a.(b.c)[0].d)]
+      DeleteStatement [14-33] [delete a.(b.c)[0].d]
+        DotIdentifier [21-33] [a.(b.c)[0].d]
+          ArrayElement [21-31] [a.(b.c)[0]]
+            DotGeneralizedField [21-28] [a.(b.c)]
+              PathExpression [21-22] [a]
+                Identifier(a) [21-22] [a]
+              PathExpression [24-27] [b.c]
+                Identifier(b) [24-25] [b]
+                Identifier(c) [26-27] [c]
+            Location [28-29] [[]
+            IntLiteral(0) [29-30] [0]
+          Identifier(d) [32-33] [d]
+    UpdateItem [40-70] [(insert d.(e.f)[1] values (5))]
+      InsertStatement [41-69] [insert d.(e.f)[1] values (5)]
+        ArrayElement [48-58] [d.(e.f)[1]]
+          DotGeneralizedField [48-55] [d.(e.f)]
+            PathExpression [48-49] [d]
+              Identifier(d) [48-49] [d]
+            PathExpression [51-54] [e.f]
+              Identifier(e) [51-52] [e]
+              Identifier(f) [53-54] [f]
+          Location [55-56] [[]
+          IntLiteral(1) [56-57] [1]
+        InsertValuesRowList [59-69] [values (5)]
+          InsertValuesRow [66-69] [(5)]
+            IntLiteral(5) [67-68] [5]
+    UpdateItem [76-106] [(update a[2].(b.c) set d = 10)]
+      UpdateStatement [77-105] [update a[2].(b.c) set d = 10]
+        DotGeneralizedField [84-94] [a[2].(b.c)]
+          ArrayElement [84-88] [a[2]]
+            PathExpression [84-85] [a]
+              Identifier(a) [84-85] [a]
+            Location [85-86] [[]
+            IntLiteral(2) [86-87] [2]
+          PathExpression [90-93] [b.c]
+            Identifier(b) [90-91] [b]
+            Identifier(c) [92-93] [c]
+        UpdateItemList [99-105] [d = 10]
+          UpdateItem [99-105] [d = 10]
+            UpdateSetValue [99-105] [d = 10]
+              PathExpression [99-100] [d]
+                Identifier(d) [99-100] [d]
+              IntLiteral(10) [103-105] [10]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+# Nested DML statement with alias.
+update T {{AS|}} a
+set a.x=y,
+    (delete a.x {{AS|}} na where na.x=1),
+    (update a.x {{AS|}} na set na.x=1),
+    (insert a.x values (5))
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: AS,AS,AS
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+# Nested insert statemnent does not support table alias.
+update T a
+set (insert a.x {{AS|}} na values (5))
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: AS
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
+==================
+# Nested update with offset.
+update T set
+  (update a with offset {{|as}} {{|offset|foo}}
+   set x = y
+   where offset = 0)
+where true
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+# Nested delete with offset.
+update T set
+  (delete a with offset {{|as}} {{|offset|foo}} where true)
+where true
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+# Multiple levels of nested UPDATEs.
+update T
+set (update c1.c2
+     set (update c3
+          set (delete from c4
+               where false
+               assert_rows_modified 5)
+          where true
+          assert_rows_modified 4)
+     where false
+     assert_rows_modified 3)
+where true
+assert_rows_modified 2
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-277] [update T set...rows_modified 2]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-243] [(update c1..._rows_modified 3)]
+    UpdateItem [13-243] [(update c1..._rows_modified 3)]
+      UpdateStatement [14-242] [update c1....t_rows_modified 3]
+        PathExpression [21-26] [c1.c2]
+          Identifier(c1) [21-23] [c1]
+          Identifier(c2) [24-26] [c2]
+        UpdateItemList [36-197] [(update c3..._rows_modified 4)]
+          UpdateItem [36-197] [(update c3..._rows_modified 4)]
+            UpdateStatement [37-196] [update c3...rt_rows_modified 4]
+              PathExpression [44-46] [c3]
+                Identifier(c3) [44-46] [c3]
+              UpdateItemList [61-142] [(delete from...ows_modified 5)]
+                UpdateItem [61-142] [(delete from...ows_modified 5)]
+                  DeleteStatement [62-141] [delete from..._rows_modified 5]
+                    PathExpression [74-76] [c4]
+                      Identifier(c4) [74-76] [c4]
+                    BooleanLiteral(false) [98-103] [false]
+                    AssertRowsModified [119-141] [assert_rows_modified 5]
+                      IntLiteral(5) [140-141] [5]
+              BooleanLiteral(true) [159-163] [true]
+              AssertRowsModified [174-196] [assert_rows_modified 4]
+                IntLiteral(4) [195-196] [4]
+        BooleanLiteral(false) [209-214] [false]
+        AssertRowsModified [220-242] [assert_rows_modified 3]
+          IntLiteral(3) [241-242] [3]
+  BooleanLiteral(true) [250-254] [true]
+  AssertRowsModified [255-277] [assert_rows_modified 2]
+    IntLiteral(2) [276-277] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+UPDATE T
+SET x = T1.y
+FROM T1
+WHERE T.a = T1.b
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-46] [UPDATE T SET...T.a = T1.b]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-21] [x = T1.y]
+    UpdateItem [13-21] [x = T1.y]
+      UpdateSetValue [13-21] [x = T1.y]
+        PathExpression [13-14] [x]
+          Identifier(x) [13-14] [x]
+        PathExpression [17-21] [T1.y]
+          Identifier(T1) [17-19] [T1]
+          Identifier(y) [20-21] [y]
+  FromClause [22-29] [FROM T1]
+    TablePathExpression [27-29] [T1]
+      PathExpression [27-29] [T1]
+        Identifier(T1) [27-29] [T1]
+  BinaryExpression(=) [36-46] [T.a = T1.b]
+    PathExpression [36-39] [T.a]
+      Identifier(T) [36-37] [T]
+      Identifier(a) [38-39] [a]
+    PathExpression [42-46] [T1.b]
+      Identifier(T1) [42-44] [T1]
+      Identifier(b) [45-46] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+UPDATE T
+SET x = T2.c
+FROM T1 JOIN T2 ON T1.x = T2.y
+WHERE T.a < T1.b
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-69] [UPDATE T SET...T.a < T1.b]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-21] [x = T2.c]
+    UpdateItem [13-21] [x = T2.c]
+      UpdateSetValue [13-21] [x = T2.c]
+        PathExpression [13-14] [x]
+          Identifier(x) [13-14] [x]
+        PathExpression [17-21] [T2.c]
+          Identifier(T2) [17-19] [T2]
+          Identifier(c) [20-21] [c]
+  FromClause [22-52] [FROM T1 JOIN T2 ON T1.x = T2.y]
+    Join [27-52] [T1 JOIN T2 ON T1.x = T2.y]
+      TablePathExpression [27-29] [T1]
+        PathExpression [27-29] [T1]
+          Identifier(T1) [27-29] [T1]
+      Location [30-34] [JOIN]
+      TablePathExpression [35-37] [T2]
+        PathExpression [35-37] [T2]
+          Identifier(T2) [35-37] [T2]
+      OnClause [38-52] [ON T1.x = T2.y]
+        BinaryExpression(=) [41-52] [T1.x = T2.y]
+          PathExpression [41-45] [T1.x]
+            Identifier(T1) [41-43] [T1]
+            Identifier(x) [44-45] [x]
+          PathExpression [48-52] [T2.y]
+            Identifier(T2) [48-50] [T2]
+            Identifier(y) [51-52] [y]
+  BinaryExpression(<) [59-69] [T.a < T1.b]
+    PathExpression [59-62] [T.a]
+      Identifier(T) [59-60] [T]
+      Identifier(a) [61-62] [a]
+    PathExpression [65-69] [T1.b]
+      Identifier(T1) [65-67] [T1]
+      Identifier(b) [68-69] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
+==================
+UPDATE T
+SET x = T2.c
+FROM T1, T2
+WHERE T.a < T1.b
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-50] [UPDATE T SET...T.a < T1.b]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-21] [x = T2.c]
+    UpdateItem [13-21] [x = T2.c]
+      UpdateSetValue [13-21] [x = T2.c]
+        PathExpression [13-14] [x]
+          Identifier(x) [13-14] [x]
+        PathExpression [17-21] [T2.c]
+          Identifier(T2) [17-19] [T2]
+          Identifier(c) [20-21] [c]
+  FromClause [22-33] [FROM T1, T2]
+    Join(COMMA) [27-33] [T1, T2]
+      TablePathExpression [27-29] [T1]
+        PathExpression [27-29] [T1]
+          Identifier(T1) [27-29] [T1]
+      Location [29-30] [,]
+      TablePathExpression [31-33] [T2]
+        PathExpression [31-33] [T2]
+          Identifier(T2) [31-33] [T2]
+  BinaryExpression(<) [40-50] [T.a < T1.b]
+    PathExpression [40-43] [T.a]
+      Identifier(T) [40-41] [T]
+      Identifier(a) [42-43] [a]
+    PathExpression [46-50] [T1.b]
+      Identifier(T1) [46-48] [T1]
+      Identifier(b) [49-50] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 30
+==================
+UPDATE T SET x = 1
+FROM (T1 JOIN T2) JOIN T3
+WHERE true
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-55] [UPDATE T SET...WHERE true]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [13-18] [x = 1]
+    UpdateItem [13-18] [x = 1]
+      UpdateSetValue [13-18] [x = 1]
+        PathExpression [13-14] [x]
+          Identifier(x) [13-14] [x]
+        IntLiteral(1) [17-18] [1]
+  FromClause [19-44] [FROM (T1 JOIN T2) JOIN T3]
+    Join [24-44] [(T1 JOIN T2) JOIN T3]
+      ParenthesizedJoin [24-36] [(T1 JOIN T2)]
+        Join [25-35] [T1 JOIN T2]
+          TablePathExpression [25-27] [T1]
+            PathExpression [25-27] [T1]
+              Identifier(T1) [25-27] [T1]
+          Location [28-32] [JOIN]
+          TablePathExpression [33-35] [T2]
+            PathExpression [33-35] [T2]
+              Identifier(T2) [33-35] [T2]
+      Location [37-41] [JOIN]
+      TablePathExpression [42-44] [T3]
+        PathExpression [42-44] [T3]
+          Identifier(T3) [42-44] [T3]
+  BooleanLiteral(true) [51-55] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 31
+==================
+UPDATE TestTable SET
+  KitchenSink.int32_val = 1,
+  (INSERT {{|OR REPLACE|OR IGNORE|OR UPDATE}} KitchenSink.repeated_int64_val
+   VALUES (1), (1 + 2), ((select 1))
+   ASSERT_ROWS_MODIFIED 1)
+WHERE true
+ASSERT_ROWS_MODIFIED 1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

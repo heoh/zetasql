@@ -1,0 +1,117 @@
+==================
+Test Case 1
+==================
+[default language_features=NONE,+IS_DISTINCT]
+SELECT 1 IS {{NOT|}} DISTINCT FROM 2;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: NOT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# + vs. DISTINCT
+select 1 + 2 is {{NOT|}} distinct from NULL;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: NOT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# < vs. DISTINCT
+select 1 < 2 is {{NOT|}} distinct from NULL;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: NOT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# BETWEEN vs. DISTINCT
+select 1 BETWEEN 2 AND 3 is {{NOT|}} distinct from NULL;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: NOT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Complex lhs/rhs expressions
+SELECT 1 + 2 * 3 IS {{NOT|}} DISTINCT FROM (4 * 5 + 6 BETWEEN 7 AND 8);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: NOT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# IS DISTINCT FROM as lhs of IS
+SELECT (1 IS DISTINCT FROM 2) IS TRUE;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-37] [SELECT (1...2) IS TRUE]
+  Query [0-37] [SELECT (1...2) IS TRUE]
+    Select [0-37] [SELECT (1...2) IS TRUE]
+      SelectList [7-37] [(1 IS DISTINCT FROM 2) IS TRUE]
+        SelectColumn [7-37] [(1 IS DISTINCT FROM 2) IS TRUE]
+          BinaryExpression(IS) [7-37] [(1 IS DISTINCT FROM 2) IS TRUE]
+            BinaryExpression(IS DISTINCT FROM) [8-28] [1 IS DISTINCT FROM 2]
+              IntLiteral(1) [8-9] [1]
+              IntLiteral(2) [27-28] [2]
+            BooleanLiteral(TRUE) [33-37] [TRUE]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# IS DISTINCT FROM as lhs and rhs of IS DISTINCT FROM
+SELECT (1 IS DISTINCT FROM 2) IS DISTINCT FROM (3 IS DISTINCT FROM 4);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-69] [SELECT (1...DISTINCT FROM 4)]
+  Query [0-69] [SELECT (1...DISTINCT FROM 4)]
+    Select [0-69] [SELECT (1...DISTINCT FROM 4)]
+      SelectList [7-69] [(1 IS DISTINCT...TINCT FROM 4)]
+        SelectColumn [7-69] [(1 IS DISTINCT...TINCT FROM 4)]
+          BinaryExpression(IS DISTINCT FROM) [7-69] [(1 IS DISTINCT...TINCT FROM 4)]
+            BinaryExpression(IS DISTINCT FROM) [8-28] [1 IS DISTINCT FROM 2]
+              IntLiteral(1) [8-9] [1]
+              IntLiteral(2) [27-28] [2]
+            BinaryExpression(IS DISTINCT FROM) [48-68] [3 IS DISTINCT FROM 4]
+              IntLiteral(3) [48-49] [3]
+              IntLiteral(4) [67-68] [4]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# IS DISTRICT FROM - feature disabled
+[language_features=NONE]
+SELECT 1 IS {{NOT|}} DISTINCT FROM 2;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: NOT
+*/
+---
+(source_file (ERROR))
+

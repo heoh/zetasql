@@ -1,0 +1,300 @@
+==================
+Test Case 1
+==================
+# LATERAL can be on the RHS, on subquery.
+# It should not have postfix table ops, but those are caught by the resolver.
+SELECT * FROM t CROSS JOIN LATERAL (select * from t2 where a < t.k) AS inner_alias TABLESAMPLE bernoulli (10 percent)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-117] [SELECT * FROM...10 percent)]
+  Query [0-117] [SELECT * FROM...10 percent)]
+    Select [0-117] [SELECT * FROM...10 percent)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-117] [FROM t CROSS...10 percent)]
+        Join(CROSS) [14-117] [t CROSS JOIN...10 percent)]
+          TablePathExpression [14-15] [t]
+            PathExpression [14-15] [t]
+              Identifier(t) [14-15] [t]
+          Location [16-26] [CROSS JOIN]
+          TableSubquery [27-117] [LATERAL (select...10 percent)]
+            Query [36-66] [select * from t2 where a < t.k]
+              Select [36-66] [select * from t2 where a < t.k]
+                SelectList [43-44] [*]
+                  SelectColumn [43-44] [*]
+                    Star(*) [43-44] [*]
+                FromClause [45-52] [from t2]
+                  TablePathExpression [50-52] [t2]
+                    PathExpression [50-52] [t2]
+                      Identifier(t2) [50-52] [t2]
+                WhereClause [53-66] [where a < t.k]
+                  BinaryExpression(<) [59-66] [a < t.k]
+                    PathExpression [59-60] [a]
+                      Identifier(a) [59-60] [a]
+                    PathExpression [63-66] [t.k]
+                      Identifier(t) [63-64] [t]
+                      Identifier(k) [65-66] [k]
+            Alias [68-82] [AS inner_alias]
+              Identifier(inner_alias) [71-82] [inner_alias]
+            SampleClause [83-117] [TABLESAMPLE...10 percent)]
+              Identifier(bernoulli) [95-104] [bernoulli]
+              SampleSize [106-116] [10 percent]
+                IntLiteral(10) [106-108] [10]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# LATERAL on the LHS is accepted in the parser and caught as a resolver error.
+SELECT * FROM LATERAL (select * from t) CROSS JOIN t2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT * FROM...CROSS JOIN t2]
+  Query [0-53] [SELECT * FROM...CROSS JOIN t2]
+    Select [0-53] [SELECT * FROM...CROSS JOIN t2]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-53] [FROM LATERAL...CROSS JOIN t2]
+        Join(CROSS) [14-53] [LATERAL (select...ROSS JOIN t2]
+          TableSubquery [14-39] [LATERAL (select * from t)]
+            Query [23-38] [select * from t]
+              Select [23-38] [select * from t]
+                SelectList [30-31] [*]
+                  SelectColumn [30-31] [*]
+                    Star(*) [30-31] [*]
+                FromClause [32-38] [from t]
+                  TablePathExpression [37-38] [t]
+                    PathExpression [37-38] [t]
+                      Identifier(t) [37-38] [t]
+          Location [40-50] [CROSS JOIN]
+          TablePathExpression [51-53] [t2]
+            PathExpression [51-53] [t2]
+              Identifier(t2) [51-53] [t2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# LATERAL on a singleton FROM source is accepted in the parser and caught as a
+# resolver error.
+SELECT * FROM LATERAL {{tvf()|(select * from t)}} {{|AS p}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: tvf(),
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Joins are left-associative so we can have multiple successive lateral RHS's.
+SELECT *
+FROM t
+       LEFT OUTER JOIN LATERAL tvf1() AS x
+       INNER JOIN LATERAL (select * from t2) TABLESAMPLE BERNOULLI (10 PERCENT)
+  ON t.a = x.a AND t.b = y.b
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-167] [SELECT * FROM...t.b = y.b]
+  Query [0-167] [SELECT * FROM...t.b = y.b]
+    Select [0-167] [SELECT * FROM...t.b = y.b]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-167] [FROM t...t.b = y.b]
+        Join(INNER) [14-167] [t        LEFT...t.b = y.b]
+          Join(LEFT) [14-58] [t        LEFT...tvf1() AS x]
+            TablePathExpression [14-15] [t]
+              PathExpression [14-15] [t]
+                Identifier(t) [14-15] [t]
+            Location [23-38] [LEFT OUTER JOIN]
+            TVF [39-58] [LATERAL tvf1() AS x]
+              PathExpression [47-51] [tvf1]
+                Identifier(tvf1) [47-51] [tvf1]
+              Alias [54-58] [AS x]
+                Identifier(x) [57-58] [x]
+          Location [66-76] [INNER JOIN]
+          TableSubquery [77-138] [LATERAL (select...10 PERCENT)]
+            Query [86-102] [select * from t2]
+              Select [86-102] [select * from t2]
+                SelectList [93-94] [*]
+                  SelectColumn [93-94] [*]
+                    Star(*) [93-94] [*]
+                FromClause [95-102] [from t2]
+                  TablePathExpression [100-102] [t2]
+                    PathExpression [100-102] [t2]
+                      Identifier(t2) [100-102] [t2]
+            SampleClause [104-138] [TABLESAMPLE...10 PERCENT)]
+              Identifier(BERNOULLI) [116-125] [BERNOULLI]
+              SampleSize [127-137] [10 PERCENT]
+                IntLiteral(10) [127-129] [10]
+          OnClause [141-167] [ON t.a = x.a AND t.b = y.b]
+            AndExpr [144-167] [t.a = x.a AND t.b = y.b]
+              BinaryExpression(=) [144-153] [t.a = x.a]
+                PathExpression [144-147] [t.a]
+                  Identifier(t) [144-145] [t]
+                  Identifier(a) [146-147] [a]
+                PathExpression [150-153] [x.a]
+                  Identifier(x) [150-151] [x]
+                  Identifier(a) [152-153] [a]
+              BinaryExpression(=) [158-167] [t.b = y.b]
+                PathExpression [158-161] [t.b]
+                  Identifier(t) [158-159] [t]
+                  Identifier(b) [160-161] [b]
+                PathExpression [164-167] [y.b]
+                  Identifier(y) [164-165] [y]
+                  Identifier(b) [166-167] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Test LATERAL with the successive ON rewrite, with CROSS in the middle.
+[language_features=NONE,+ALLOW_CONSECUTIVE_ON]
+SELECT *
+FROM t
+       LEFT OUTER JOIN LATERAL tvf1(t.k) AS x
+       CROSS JOIN LATERAL (select * from t2)
+       JOIN LATERAL (select * from t3)
+  ON t.a = x.a AND t.b = y.b
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-174] [SELECT * FROM...t.b = y.b]
+  Query [0-174] [SELECT * FROM...t.b = y.b]
+    Select [0-174] [SELECT * FROM...t.b = y.b]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-174] [FROM t...t.b = y.b]
+        Join [14-174] [t        LEFT...t.b = y.b]
+          Join(CROSS) [14-106] [t        LEFT...* from t2)]
+            Join(LEFT) [14-61] [t        LEFT...(t.k) AS x]
+              TablePathExpression [14-15] [t]
+                PathExpression [14-15] [t]
+                  Identifier(t) [14-15] [t]
+              Location [23-38] [LEFT OUTER JOIN]
+              TVF [39-61] [LATERAL tvf1(t.k) AS x]
+                PathExpression [47-51] [tvf1]
+                  Identifier(tvf1) [47-51] [tvf1]
+                TVFArgument [52-55] [t.k]
+                  PathExpression [52-55] [t.k]
+                    Identifier(t) [52-53] [t]
+                    Identifier(k) [54-55] [k]
+                Alias [57-61] [AS x]
+                  Identifier(x) [60-61] [x]
+            Location [69-79] [CROSS JOIN]
+            TableSubquery [80-106] [LATERAL (select * from t2)]
+              Query [89-105] [select * from t2]
+                Select [89-105] [select * from t2]
+                  SelectList [96-97] [*]
+                    SelectColumn [96-97] [*]
+                      Star(*) [96-97] [*]
+                  FromClause [98-105] [from t2]
+                    TablePathExpression [103-105] [t2]
+                      PathExpression [103-105] [t2]
+                        Identifier(t2) [103-105] [t2]
+          Location [114-118] [JOIN]
+          TableSubquery [119-145] [LATERAL (select * from t3)]
+            Query [128-144] [select * from t3]
+              Select [128-144] [select * from t3]
+                SelectList [135-136] [*]
+                  SelectColumn [135-136] [*]
+                    Star(*) [135-136] [*]
+                FromClause [137-144] [from t3]
+                  TablePathExpression [142-144] [t3]
+                    PathExpression [142-144] [t3]
+                      Identifier(t3) [142-144] [t3]
+          OnClause [148-174] [ON t.a = x.a AND t.b = y.b]
+            AndExpr [151-174] [t.a = x.a AND t.b = y.b]
+              BinaryExpression(=) [151-160] [t.a = x.a]
+                PathExpression [151-154] [t.a]
+                  Identifier(t) [151-152] [t]
+                  Identifier(a) [153-154] [a]
+                PathExpression [157-160] [x.a]
+                  Identifier(x) [157-158] [x]
+                  Identifier(a) [159-160] [a]
+              BinaryExpression(=) [165-174] [t.b = y.b]
+                PathExpression [165-168] [t.b]
+                  Identifier(t) [165-166] [t]
+                  Identifier(b) [167-168] [b]
+                PathExpression [171-174] [y.b]
+                  Identifier(y) [171-172] [y]
+                  Identifier(b) [173-174] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Comma joins with LATERAL: ensure the precedence is identical to normal joins.
+SELECT *
+  FROM tvf() CROSS JOIN LATERAL (SELECT * FROM t2 WHERE cond) AS t2,
+  LATERAL tvf2() LEFT JOIN LATERAL tvf3() ON cond
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-127] [SELECT *...() ON cond]
+  Query [0-127] [SELECT *...() ON cond]
+    Select [0-127] [SELECT *...() ON cond]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [11-127] [FROM tvf()...() ON cond]
+        Join(LEFT) [16-127] [tvf() CROSS...() ON cond]
+          Join(COMMA) [16-94] [tvf() CROSS...LATERAL tvf2()]
+            Join(CROSS) [16-76] [tvf() CROSS...cond) AS t2]
+              TVF [16-21] [tvf()]
+                PathExpression [16-19] [tvf]
+                  Identifier(tvf) [16-19] [tvf]
+              Location [22-32] [CROSS JOIN]
+              TableSubquery [33-76] [LATERAL (SELECT...cond) AS t2]
+                Query [42-69] [SELECT * FROM t2 WHERE cond]
+                  Select [42-69] [SELECT * FROM t2 WHERE cond]
+                    SelectList [49-50] [*]
+                      SelectColumn [49-50] [*]
+                        Star(*) [49-50] [*]
+                    FromClause [51-58] [FROM t2]
+                      TablePathExpression [56-58] [t2]
+                        PathExpression [56-58] [t2]
+                          Identifier(t2) [56-58] [t2]
+                    WhereClause [59-69] [WHERE cond]
+                      PathExpression [65-69] [cond]
+                        Identifier(cond) [65-69] [cond]
+                Alias [71-76] [AS t2]
+                  Identifier(t2) [74-76] [t2]
+            Location [76-77] [,]
+            TVF [80-94] [LATERAL tvf2()]
+              PathExpression [88-92] [tvf2]
+                Identifier(tvf2) [88-92] [tvf2]
+          Location [95-104] [LEFT JOIN]
+          TVF [105-119] [LATERAL tvf3()]
+            PathExpression [113-117] [tvf3]
+              Identifier(tvf3) [113-117] [tvf3]
+          OnClause [120-127] [ON cond]
+            PathExpression [123-127] [cond]
+              Identifier(cond) [123-127] [cond]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# RIGHT and FULL joins are caught in the resolver.
+SELECT * FROM t {{RIGHT|FULL}} JOIN LATERAL (select * from t2) AS x
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: RIGHT
+*/
+---
+(source_file (ERROR))
+

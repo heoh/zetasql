@@ -1,0 +1,51 @@
+==================
+Test Case 1
+==================
+# ALTER TABLE to rename.
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+[default no_show_parse_location_text]
+ALTER TABLE foo RENAME TO bar;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-29]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-29]
+    RenameToClause [16-29]
+      PathExpression [26-29]
+        Identifier(bar) [26-29]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# ALTER TABLE that might not exist to rename.
+ALTER TABLE IF EXISTS foo RENAME TO bar;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement(is_if_exists) [0-39]
+  PathExpression [22-25]
+    Identifier(foo) [22-25]
+  AlterActionList [26-39]
+    RenameToClause [26-39]
+      PathExpression [36-39]
+        Identifier(bar) [36-39]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# The new name is a path expression
+ALTER TABLE foo RENAME TO {{foo.bar|`foo.bar`}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: foo.bar
+*/
+---
+(source_file (ERROR))
+

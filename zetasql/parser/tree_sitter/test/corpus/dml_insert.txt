@@ -1,0 +1,610 @@
+==================
+Test Case 1
+==================
+insert into T
+values (1)
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-24] [insert into T values (1)]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  InsertValuesRowList [14-24] [values (1)]
+    InsertValuesRow [21-24] [(1)]
+      IntLiteral(1) [22-23] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Duplicate OR IGNORE/REPLACE/UPDATE. In the case where the second instance
+# is REPLACE or UPDATE it is interpreted as a table name, because REPLACE
+# and UPDATE are non-reserved keywords. When the second instance is IGNORE,
+# then it is a keyword and it is treated as a duplicate.
+INSERT {{OR|}} {{IGNORE|REPLACE|UPDATE}} {{OR|}} {{IGNORE|REPLACE|UPDATE}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: OR,IGNORE,OR,IGNORE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Duplicate.
+INSERT {{INTO|}} mytable {{INTO|}} mytable
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: INTO,INTO
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Wrong order for OR IGNORE/REPLACE/UPDATE.
+INSERT INTO mytable {{(c1, c2)|}}{{VALUES (a, b)|}} {{OR|}} {{IGNORE|REPLACE|UPDATE}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: (c1, c2),VALUES (a, b),OR,IGNORE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Wrong order for VALUES clause.
+INSERT VALUES (a, b) {{INTO|}} mytable
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: INTO
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+insert {{or|}} ignore {{into|}} {{c.T|values}} {{(c1, c2)|}}
+values (5,6), ('abc')
+assert_rows_modified 5
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: or,into,c.T,(c1, c2)
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Test all combinations of missing and present parts.
+# The insert_mode is never treated as a table name, although the tests below
+# show that those can be valid table names after INTO.
+insert{{ or|}}{{| ignore| replace| update}}{{ into|}}{{ T|}}
+select 1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP:  or,, into, T
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+INSERT {{replace|update}} values (a, b){{| VALUES (1, 2)}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: replace,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+INSERT values values (a, b)
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-27] [INSERT values values (a, b)]
+  PathExpression [7-13] [values]
+    Identifier(values) [7-13] [values]
+  InsertValuesRowList [14-27] [values (a, b)]
+    InsertValuesRow [21-27] [(a, b)]
+      PathExpression [22-23] [a]
+        Identifier(a) [22-23] [a]
+      PathExpression [25-26] [b]
+        Identifier(b) [25-26] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+INSERT mytable values (a, b)
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-28] [INSERT mytable values (a, b)]
+  PathExpression [7-14] [mytable]
+    Identifier(mytable) [7-14] [mytable]
+  InsertValuesRowList [15-28] [values (a, b)]
+    InsertValuesRow [22-28] [(a, b)]
+      PathExpression [23-24] [a]
+        Identifier(a) [23-24] [a]
+      PathExpression [26-27] [b]
+        Identifier(b) [26-27] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Using "default" as a column name works fine with escaping.
+INSERT values (a, `default`) values (1, 3)
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-42] [INSERT values...values (1, 3)]
+  PathExpression [7-13] [values]
+    Identifier(values) [7-13] [values]
+  ColumnList [14-28] [(a, `default`)]
+    Identifier(a) [15-16] [a]
+    Identifier(`default`) [18-27] [`default`]
+  InsertValuesRowList [29-42] [values (1, 3)]
+    InsertValuesRow [36-42] [(1, 3)]
+      IntLiteral(1) [37-38] [1]
+      IntLiteral(3) [40-41] [3]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+insert or ignore {{into|}} replace
+select 1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: into
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+insert into insert
+select 1
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-27] [insert into insert select 1]
+  PathExpression [12-18] [insert]
+    Identifier(insert) [12-18] [insert]
+  Query [19-27] [select 1]
+    Select [19-27] [select 1]
+      SelectList [26-27] [1]
+        SelectColumn [26-27] [1]
+          IntLiteral(1) [26-27] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+insert into replace
+select 1
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-28] [insert into replace select 1]
+  PathExpression [12-19] [replace]
+    Identifier(`replace`) [12-19] [replace]
+  Query [20-28] [select 1]
+    Select [20-28] [select 1]
+      SelectList [27-28] [1]
+        SelectColumn [27-28] [1]
+          IntLiteral(1) [27-28] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+insert into T (c1)
+with q1 as (select 1)
+select * from q1
+assert_rows_modified @row_count
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-89] [insert into...@row_count]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  ColumnList [14-18] [(c1)]
+    Identifier(c1) [15-17] [c1]
+  Query [19-57] [with q1 as...* from q1]
+    WithClause [19-40] [with q1 as (select 1)]
+      AliasedQuery [24-40] [q1 as (select 1)]
+        Identifier(q1) [24-26] [q1]
+        Query [30-40] [(select 1)]
+          Select [31-39] [select 1]
+            SelectList [38-39] [1]
+              SelectColumn [38-39] [1]
+                IntLiteral(1) [38-39] [1]
+    Select [41-57] [select * from q1]
+      SelectList [48-49] [*]
+        SelectColumn [48-49] [*]
+          Star(*) [48-49] [*]
+      FromClause [50-57] [from q1]
+        TablePathExpression [55-57] [q1]
+          PathExpression [55-57] [q1]
+            Identifier(q1) [55-57] [q1]
+  AssertRowsModified [58-89] [assert_rows_modif...@row_count]
+    ParameterExpr [79-89] [@row_count]
+      Identifier(row_count) [80-89] [row_count]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+insert into T
+values ((1,2), (select 1))
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-40] [insert into...select 1))]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  InsertValuesRowList [14-40] [values ((1,2), (select 1))]
+    InsertValuesRow [21-40] [((1,2), (select 1))]
+      StructConstructorWithParens [22-27] [(1,2)]
+        IntLiteral(1) [23-24] [1]
+        IntLiteral(2) [25-26] [2]
+      ExpressionSubquery [29-39] [(select 1)]
+        Query [30-38] [select 1]
+          Select [30-38] [select 1]
+            SelectList [37-38] [1]
+              SelectColumn [37-38] [1]
+                IntLiteral(1) [37-38] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+insert into T
+values (1,2), ((select 1))
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-40] [insert into...select 1))]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  InsertValuesRowList [14-40] [values (1,2), ((select 1))]
+    InsertValuesRow [21-26] [(1,2)]
+      IntLiteral(1) [22-23] [1]
+      IntLiteral(2) [24-25] [2]
+    InsertValuesRow [28-40] [((select 1))]
+      ExpressionSubquery [29-39] [(select 1)]
+        Query [30-38] [select 1]
+          Select [30-38] [select 1]
+            SelectList [37-38] [1]
+              SelectColumn [37-38] [1]
+                IntLiteral(1) [37-38] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# WITH with no column_list.
+insert T
+with q1 as (select 1)
+select * from q1
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-47] [insert T with...* from q1]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  Query [9-47] [with q1 as...* from q1]
+    WithClause [9-30] [with q1 as (select 1)]
+      AliasedQuery [14-30] [q1 as (select 1)]
+        Identifier(q1) [14-16] [q1]
+        Query [20-30] [(select 1)]
+          Select [21-29] [select 1]
+            SelectList [28-29] [1]
+              SelectColumn [28-29] [1]
+                IntLiteral(1) [28-29] [1]
+    Select [31-47] [select * from q1]
+      SelectList [38-39] [*]
+        SelectColumn [38-39] [*]
+          Star(*) [38-39] [*]
+      FromClause [40-47] [from q1]
+        TablePathExpression [45-47] [q1]
+          PathExpression [45-47] [q1]
+            Identifier(q1) [45-47] [q1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+insert or replace into T
+select * from q1
+union all
+select * from q2
+order by x
+limit 5
+assert_rows_modified 0
+
+/* Expected ZetaSQL AST:
+InsertStatement(insert_mode=REPLACE) [0-110] [insert or...rt_rows_modified 0]
+  PathExpression [23-24] [T]
+    Identifier(T) [23-24] [T]
+  Query [25-87] [select * from...x limit 5]
+    SetOperation(UNION ALL) [25-68] [select * from...* from q2]
+      SetOperationMetadataList [42-51] [union all]
+        SetOperationMetadata [42-51] [union all]
+          SetOperationType [42-47] [union]
+          SetOperationAllOrDistinct [48-51] [all]
+      Select [25-41] [select * from q1]
+        SelectList [32-33] [*]
+          SelectColumn [32-33] [*]
+            Star(*) [32-33] [*]
+        FromClause [34-41] [from q1]
+          TablePathExpression [39-41] [q1]
+            PathExpression [39-41] [q1]
+              Identifier(q1) [39-41] [q1]
+      Select [52-68] [select * from q2]
+        SelectList [59-60] [*]
+          SelectColumn [59-60] [*]
+            Star(*) [59-60] [*]
+        FromClause [61-68] [from q2]
+          TablePathExpression [66-68] [q2]
+            PathExpression [66-68] [q2]
+              Identifier(q2) [66-68] [q2]
+    OrderBy [69-79] [order by x]
+      OrderingExpression(ASC) [78-79] [x]
+        PathExpression [78-79] [x]
+          Identifier(x) [78-79] [x]
+    LimitOffset [80-87] [limit 5]
+      Limit [80-87] [limit 5]
+        IntLiteral(5) [86-87] [5]
+  AssertRowsModified [88-110] [assert_rows_modified 0]
+    IntLiteral(0) [109-110] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+insert into T (c1,c2)
+values (1+2, f(), null, default),
+       (default, (select x from y))
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-91] [insert into...x from y))]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  ColumnList [14-21] [(c1,c2)]
+    Identifier(c1) [15-17] [c1]
+    Identifier(c2) [18-20] [c2]
+  InsertValuesRowList [22-91] [values (1+...x from y))]
+    InsertValuesRow [29-54] [(1+2, f(), null, default)]
+      BinaryExpression(+) [30-33] [1+2]
+        IntLiteral(1) [30-31] [1]
+        IntLiteral(2) [32-33] [2]
+      FunctionCall [35-38] [f()]
+        PathExpression [35-36] [f]
+          Identifier(f) [35-36] [f]
+      NullLiteral(null) [40-44] [null]
+      DefaultLiteral [46-53] [default]
+    InsertValuesRow [63-91] [(default, (select x from y))]
+      DefaultLiteral [64-71] [default]
+      ExpressionSubquery [73-90] [(select x from y)]
+        Query [74-89] [select x from y]
+          Select [74-89] [select x from y]
+            SelectList [81-82] [x]
+              SelectColumn [81-82] [x]
+                PathExpression [81-82] [x]
+                  Identifier(x) [81-82] [x]
+            FromClause [83-89] [from y]
+              TablePathExpression [88-89] [y]
+                PathExpression [88-89] [y]
+                  Identifier(y) [88-89] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# Parenthesized query without a column_list.  This exercises the special
+# case in insert_statement().
+insert into T
+(select 5)
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-24] [insert into T (select 5)]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  Query [15-23] [select 5]
+    Select [15-23] [select 5]
+      SelectList [22-23] [5]
+        SelectColumn [22-23] [5]
+          IntLiteral(5) [22-23] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+# Double-parenthesized query without a column_list.
+insert into T
+((select 1) union all (select 2))
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-47] [insert into...select 2))]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  Query [15-46] [(select 1)...(select 2)]
+    SetOperation(UNION ALL) [15-46] [(select 1)...(select 2)]
+      SetOperationMetadataList [26-35] [union all]
+        SetOperationMetadata [26-35] [union all]
+          SetOperationType [26-31] [union]
+          SetOperationAllOrDistinct [32-35] [all]
+      Query [16-24] [select 1]
+        Select [16-24] [select 1]
+          SelectList [23-24] [1]
+            SelectColumn [23-24] [1]
+              IntLiteral(1) [23-24] [1]
+      Query [37-45] [select 2]
+        Select [37-45] [select 2]
+          SelectList [44-45] [2]
+            SelectColumn [44-45] [2]
+              IntLiteral(2) [44-45] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+insert into T (c1, c2)
+(select 5, 7) union all select 8,9
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-57] [insert into...select 8,9]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  ColumnList [14-22] [(c1, c2)]
+    Identifier(c1) [15-17] [c1]
+    Identifier(c2) [19-21] [c2]
+  Query [23-57] [(select 5,...select 8,9]
+    SetOperation(UNION ALL) [23-57] [(select 5,...select 8,9]
+      SetOperationMetadataList [37-46] [union all]
+        SetOperationMetadata [37-46] [union all]
+          SetOperationType [37-42] [union]
+          SetOperationAllOrDistinct [43-46] [all]
+      Query [24-35] [select 5, 7]
+        Select [24-35] [select 5, 7]
+          SelectList [31-35] [5, 7]
+            SelectColumn [31-32] [5]
+              IntLiteral(5) [31-32] [5]
+            SelectColumn [34-35] [7]
+              IntLiteral(7) [34-35] [7]
+      Select [47-57] [select 8,9]
+        SelectList [54-57] [8,9]
+          SelectColumn [54-55] [8]
+            IntLiteral(8) [54-55] [8]
+          SelectColumn [56-57] [9]
+            IntLiteral(9) [56-57] [9]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
+==================
+# The resolver will fail on this because the target involves a generalized
+# field access, but it does parse.
+insert into T.(a.b).c VALUES (1)
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-32] [insert into...VALUES (1)]
+  DotIdentifier [12-21] [T.(a.b).c]
+    DotGeneralizedField [12-19] [T.(a.b)]
+      PathExpression [12-13] [T]
+        Identifier(T) [12-13] [T]
+      PathExpression [15-18] [a.b]
+        Identifier(a) [15-16] [a]
+        Identifier(b) [17-18] [b]
+    Identifier(c) [20-21] [c]
+  InsertValuesRowList [22-32] [VALUES (1)]
+    InsertValuesRow [29-32] [(1)]
+      IntLiteral(1) [30-31] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+# The resolver will fail on this because the target involves a generalized
+# field access, but it does parse.
+insert into T.a[0].b VALUES(1)
+
+/* Expected ZetaSQL AST:
+InsertStatement [0-30] [insert into T.a[0].b VALUES(1)]
+  DotIdentifier [12-20] [T.a[0].b]
+    ArrayElement [12-18] [T.a[0]]
+      PathExpression [12-15] [T.a]
+        Identifier(T) [12-13] [T]
+        Identifier(a) [14-15] [a]
+      Location [15-16] [[]
+      IntLiteral(0) [16-17] [0]
+    Identifier(b) [19-20] [b]
+  InsertValuesRowList [21-30] [VALUES(1)]
+    InsertValuesRow [27-30] [(1)]
+      IntLiteral(1) [28-29] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+# Insert statement does not support table alias.
+INSERT T {{AS|}} a VALUES (5)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: AS
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+@{a=b} insert into t1 values (null)
+
+/* Expected ZetaSQL AST:
+HintedStatement [0-35] [@{a=b} insert...values (null)]
+  Hint [0-6] [@{a=b}]
+    HintEntry [2-5] [a=b]
+      Identifier(a) [2-3] [a]
+      PathExpression [4-5] [b]
+        Identifier(b) [4-5] [b]
+  InsertStatement [7-35] [insert into t1 values (null)]
+    PathExpression [19-21] [t1]
+      Identifier(t1) [19-21] [t1]
+    InsertValuesRowList [22-35] [values (null)]
+      InsertValuesRow [29-35] [(null)]
+        NullLiteral(null) [30-34] [null]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+insert{{| into}} project-987654321.a.b values (1)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

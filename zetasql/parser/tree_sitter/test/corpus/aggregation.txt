@@ -1,0 +1,1519 @@
+==================
+Test Case 1
+==================
+select f1, f2 from T where f1=f2 group by f1
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [select f1,...group by f1]
+  Query [0-44] [select f1,...group by f1]
+    Select [0-44] [select f1,...group by f1]
+      SelectList [7-13] [f1, f2]
+        SelectColumn [7-9] [f1]
+          PathExpression [7-9] [f1]
+            Identifier(f1) [7-9] [f1]
+        SelectColumn [11-13] [f2]
+          PathExpression [11-13] [f2]
+            Identifier(f2) [11-13] [f2]
+      FromClause [14-20] [from T]
+        TablePathExpression [19-20] [T]
+          PathExpression [19-20] [T]
+            Identifier(T) [19-20] [T]
+      WhereClause [21-32] [where f1=f2]
+        BinaryExpression(=) [27-32] [f1=f2]
+          PathExpression [27-29] [f1]
+            Identifier(f1) [27-29] [f1]
+          PathExpression [30-32] [f2]
+            Identifier(f2) [30-32] [f2]
+      GroupBy [33-44] [group by f1]
+        GroupingItem [42-44] [f1]
+          PathExpression [42-44] [f1]
+            Identifier(f1) [42-44] [f1]
+*/
+---
+(source_file [0, 0] - [27, 2]
+  (statement [0, 0] - [0, 44]
+    (select_statement [0, 0] - [0, 44]
+      (select_clause [0, 0] - [0, 13]
+        (select_list [0, 7] - [0, 13]
+          (select_expression [0, 7] - [0, 9]
+            (expression [0, 7] - [0, 9]
+              (path_expression [0, 7] - [0, 9]
+                (identifier [0, 7] - [0, 9]))))
+          (select_expression [0, 11] - [0, 13]
+            (expression [0, 11] - [0, 13]
+              (path_expression [0, 11] - [0, 13]
+                (identifier [0, 11] - [0, 13]))))))
+      (from_clause [0, 14] - [0, 20]
+        (from_item [0, 19] - [0, 20]
+          (table_expression [0, 19] - [0, 20]
+            (path_expression [0, 19] - [0, 20]
+              (identifier [0, 19] - [0, 20])))))
+      (where_clause [0, 21] - [0, 32]
+        (expression [0, 27] - [0, 32]
+          (binary_expression [0, 27] - [0, 32]
+            (expression [0, 27] - [0, 29]
+              (path_expression [0, 27] - [0, 29]
+                (identifier [0, 27] - [0, 29])))
+            (expression [0, 30] - [0, 32]
+              (path_expression [0, 30] - [0, 32]
+                (identifier [0, 30] - [0, 32]))))))
+      (group_by_clause [0, 33] - [0, 44]
+        (expression_list [0, 42] - [0, 44]
+          (expression [0, 42] - [0, 44]
+            (path_expression [0, 42] - [0, 44]
+              (identifier [0, 42] - [0, 44])))))))
+  (comment [2, 0] - [27, 2]))
+
+==================
+Test Case 2
+==================
+select f1, f2 from T group by f1, f2, 1, 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [select f1,..., f2, 1, 2]
+  Query [0-42] [select f1,..., f2, 1, 2]
+    Select [0-42] [select f1,..., f2, 1, 2]
+      SelectList [7-13] [f1, f2]
+        SelectColumn [7-9] [f1]
+          PathExpression [7-9] [f1]
+            Identifier(f1) [7-9] [f1]
+        SelectColumn [11-13] [f2]
+          PathExpression [11-13] [f2]
+            Identifier(f2) [11-13] [f2]
+      FromClause [14-20] [from T]
+        TablePathExpression [19-20] [T]
+          PathExpression [19-20] [T]
+            Identifier(T) [19-20] [T]
+      GroupBy [21-42] [group by f1, f2, 1, 2]
+        GroupingItem [30-32] [f1]
+          PathExpression [30-32] [f1]
+            Identifier(f1) [30-32] [f1]
+        GroupingItem [34-36] [f2]
+          PathExpression [34-36] [f2]
+            Identifier(f2) [34-36] [f2]
+        GroupingItem [38-39] [1]
+          IntLiteral(1) [38-39] [1]
+        GroupingItem [41-42] [2]
+          IntLiteral(2) [41-42] [2]
+*/
+---
+(source_file [0, 0] - [28, 2]
+  (statement [0, 0] - [0, 42]
+    (select_statement [0, 0] - [0, 42]
+      (select_clause [0, 0] - [0, 13]
+        (select_list [0, 7] - [0, 13]
+          (select_expression [0, 7] - [0, 9]
+            (expression [0, 7] - [0, 9]
+              (path_expression [0, 7] - [0, 9]
+                (identifier [0, 7] - [0, 9]))))
+          (select_expression [0, 11] - [0, 13]
+            (expression [0, 11] - [0, 13]
+              (path_expression [0, 11] - [0, 13]
+                (identifier [0, 11] - [0, 13]))))))
+      (from_clause [0, 14] - [0, 20]
+        (from_item [0, 19] - [0, 20]
+          (table_expression [0, 19] - [0, 20]
+            (path_expression [0, 19] - [0, 20]
+              (identifier [0, 19] - [0, 20])))))
+      (group_by_clause [0, 21] - [0, 42]
+        (expression_list [0, 30] - [0, 42]
+          (expression [0, 30] - [0, 32]
+            (path_expression [0, 30] - [0, 32]
+              (identifier [0, 30] - [0, 32])))
+          (expression [0, 34] - [0, 36]
+            (path_expression [0, 34] - [0, 36]
+              (identifier [0, 34] - [0, 36])))
+          (expression [0, 38] - [0, 39]
+            (number [0, 38] - [0, 39]))
+          (expression [0, 41] - [0, 42]
+            (number [0, 41] - [0, 42]))))))
+  (comment [2, 0] - [28, 2]))
+
+==================
+Test Case 3
+==================
+select f1 from T group by f1 having f1 < 5;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [select f1...having f1 < 5]
+  Query [0-42] [select f1...having f1 < 5]
+    Select [0-42] [select f1...having f1 < 5]
+      SelectList [7-9] [f1]
+        SelectColumn [7-9] [f1]
+          PathExpression [7-9] [f1]
+            Identifier(f1) [7-9] [f1]
+      FromClause [10-16] [from T]
+        TablePathExpression [15-16] [T]
+          PathExpression [15-16] [T]
+            Identifier(T) [15-16] [T]
+      GroupBy [17-28] [group by f1]
+        GroupingItem [26-28] [f1]
+          PathExpression [26-28] [f1]
+            Identifier(f1) [26-28] [f1]
+      Having [29-42] [having f1 < 5]
+        BinaryExpression(<) [36-42] [f1 < 5]
+          PathExpression [36-38] [f1]
+            Identifier(f1) [36-38] [f1]
+          IntLiteral(5) [41-42] [5]
+*/
+---
+(source_file [0, 0] - [23, 2]
+  (statement [0, 0] - [0, 43]
+    (select_statement [0, 0] - [0, 43]
+      (select_clause [0, 0] - [0, 9]
+        (select_list [0, 7] - [0, 9]
+          (select_expression [0, 7] - [0, 9]
+            (expression [0, 7] - [0, 9]
+              (path_expression [0, 7] - [0, 9]
+                (identifier [0, 7] - [0, 9]))))))
+      (from_clause [0, 10] - [0, 16]
+        (from_item [0, 15] - [0, 16]
+          (table_expression [0, 15] - [0, 16]
+            (path_expression [0, 15] - [0, 16]
+              (identifier [0, 15] - [0, 16])))))
+      (group_by_clause [0, 17] - [0, 28]
+        (expression_list [0, 26] - [0, 28]
+          (expression [0, 26] - [0, 28]
+            (path_expression [0, 26] - [0, 28]
+              (identifier [0, 26] - [0, 28])))))
+      (having_clause [0, 29] - [0, 42]
+        (expression [0, 36] - [0, 42]
+          (binary_expression [0, 36] - [0, 42]
+            (expression [0, 36] - [0, 38]
+              (path_expression [0, 36] - [0, 38]
+                (identifier [0, 36] - [0, 38])))
+            (expression [0, 41] - [0, 42]
+              (number [0, 41] - [0, 42])))))))
+  (comment [2, 0] - [23, 2]))
+
+==================
+Test Case 4
+==================
+select f1, sum(f2) from T group by f1 having f1 = 3 and sum(f2) > 5;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-67] [select f1,...sum(f2) > 5]
+  Query [0-67] [select f1,...sum(f2) > 5]
+    Select [0-67] [select f1,...sum(f2) > 5]
+      SelectList [7-18] [f1, sum(f2)]
+        SelectColumn [7-9] [f1]
+          PathExpression [7-9] [f1]
+            Identifier(f1) [7-9] [f1]
+        SelectColumn [11-18] [sum(f2)]
+          FunctionCall [11-18] [sum(f2)]
+            PathExpression [11-14] [sum]
+              Identifier(sum) [11-14] [sum]
+            PathExpression [15-17] [f2]
+              Identifier(f2) [15-17] [f2]
+      FromClause [19-25] [from T]
+        TablePathExpression [24-25] [T]
+          PathExpression [24-25] [T]
+            Identifier(T) [24-25] [T]
+      GroupBy [26-37] [group by f1]
+        GroupingItem [35-37] [f1]
+          PathExpression [35-37] [f1]
+            Identifier(f1) [35-37] [f1]
+      Having [38-67] [having f1 = 3 and sum(f2) > 5]
+        AndExpr [45-67] [f1 = 3 and sum(f2) > 5]
+          BinaryExpression(=) [45-51] [f1 = 3]
+            PathExpression [45-47] [f1]
+              Identifier(f1) [45-47] [f1]
+            IntLiteral(3) [50-51] [3]
+          BinaryExpression(>) [56-67] [sum(f2) > 5]
+            FunctionCall [56-63] [sum(f2)]
+              PathExpression [56-59] [sum]
+                Identifier(sum) [56-59] [sum]
+              PathExpression [60-62] [f2]
+                Identifier(f2) [60-62] [f2]
+            IntLiteral(5) [66-67] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+select max(true) as a from T having a;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-37] [select max...T having a]
+  Query [0-37] [select max...T having a]
+    Select [0-37] [select max...T having a]
+      SelectList [7-21] [max(true) as a]
+        SelectColumn [7-21] [max(true) as a]
+          FunctionCall [7-16] [max(true)]
+            PathExpression [7-10] [max]
+              Identifier(max) [7-10] [max]
+            BooleanLiteral(true) [11-15] [true]
+          Alias [17-21] [as a]
+            Identifier(a) [20-21] [a]
+      FromClause [22-28] [from T]
+        TablePathExpression [27-28] [T]
+          PathExpression [27-28] [T]
+            Identifier(T) [27-28] [T]
+      Having [29-37] [having a]
+        PathExpression [36-37] [a]
+          Identifier(a) [36-37] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+select sum(sequence s1);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-23] [select sum(sequence s1)]
+  Query [0-23] [select sum(sequence s1)]
+    Select [0-23] [select sum(sequence s1)]
+      SelectList [7-23] [sum(sequence s1)]
+        SelectColumn [7-23] [sum(sequence s1)]
+          FunctionCall [7-23] [sum(sequence s1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            SequenceArg [11-22] [sequence s1]
+              PathExpression [20-22] [s1]
+                Identifier(s1) [20-22] [s1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+select sum(sequence `clamped`);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-30] [select sum(sequence `clamped`)]
+  Query [0-30] [select sum(sequence `clamped`)]
+    Select [0-30] [select sum(sequence `clamped`)]
+      SelectList [7-30] [sum(sequence `clamped`)]
+        SelectColumn [7-30] [sum(sequence `clamped`)]
+          FunctionCall [7-30] [sum(sequence `clamped`)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            SequenceArg [11-29] [sequence `clamped`]
+              PathExpression [20-29] [`clamped`]
+                Identifier(`clamped`) [20-29] [`clamped`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+select sum(sequence clampedx);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-29] [select sum(sequence clampedx)]
+  Query [0-29] [select sum(sequence clampedx)]
+    Select [0-29] [select sum(sequence clampedx)]
+      SelectList [7-29] [sum(sequence clampedx)]
+        SelectColumn [7-29] [sum(sequence clampedx)]
+          FunctionCall [7-29] [sum(sequence clampedx)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            SequenceArg [11-28] [sequence clampedx]
+              PathExpression [20-28] [clampedx]
+                Identifier(clampedx) [20-28] [clampedx]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+select sum(sequence clamped between x and y);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [select sum...between x and y)]
+  Query [0-44] [select sum...between x and y)]
+    Select [0-44] [select sum...between x and y)]
+      SelectList [7-44] [sum(sequence...etween x and y)]
+        SelectColumn [7-44] [sum(sequence...etween x and y)]
+          FunctionCall [7-44] [sum(sequence...etween x and y)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            PathExpression [11-19] [sequence]
+              Identifier(sequence) [11-19] [sequence]
+            ClampedBetweenModifier [20-43] [clamped between x and y]
+              PathExpression [36-37] [x]
+                Identifier(x) [36-37] [x]
+              PathExpression [42-43] [y]
+                Identifier(y) [42-43] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+select sum(1 / sequence clamped between x and y);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [select sum...between x and y)]
+  Query [0-48] [select sum...between x and y)]
+    Select [0-48] [select sum...between x and y)]
+      SelectList [7-48] [sum(1 / sequence...en x and y)]
+        SelectColumn [7-48] [sum(1 / sequence...en x and y)]
+          FunctionCall [7-48] [sum(1 / sequence...en x and y)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            BinaryExpression(/) [11-23] [1 / sequence]
+              IntLiteral(1) [11-12] [1]
+              PathExpression [15-23] [sequence]
+                Identifier(sequence) [15-23] [sequence]
+            ClampedBetweenModifier [24-47] [clamped between x and y]
+              PathExpression [40-41] [x]
+                Identifier(x) [40-41] [x]
+              PathExpression [46-47] [y]
+                Identifier(y) [46-47] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+select sum(f1) as a from T having true;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-38] [select sum...having true]
+  Query [0-38] [select sum...having true]
+    Select [0-38] [select sum...having true]
+      SelectList [7-19] [sum(f1) as a]
+        SelectColumn [7-19] [sum(f1) as a]
+          FunctionCall [7-14] [sum(f1)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            PathExpression [11-13] [f1]
+              Identifier(f1) [11-13] [f1]
+          Alias [15-19] [as a]
+            Identifier(a) [18-19] [a]
+      FromClause [20-26] [from T]
+        TablePathExpression [25-26] [T]
+          PathExpression [25-26] [T]
+            Identifier(T) [25-26] [T]
+      Having [27-38] [having true]
+        BooleanLiteral(true) [34-38] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+select * from (select a from T having a > 5);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [select * from...having a > 5)]
+  Query [0-44] [select * from...having a > 5)]
+    Select [0-44] [select * from...having a > 5)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-44] [from (select...having a > 5)]
+        TableSubquery [14-44] [(select a from T having a > 5)]
+          Query [15-43] [select a from T having a > 5]
+            Select [15-43] [select a from T having a > 5]
+              SelectList [22-23] [a]
+                SelectColumn [22-23] [a]
+                  PathExpression [22-23] [a]
+                    Identifier(a) [22-23] [a]
+              FromClause [24-30] [from T]
+                TablePathExpression [29-30] [T]
+                  PathExpression [29-30] [T]
+                    Identifier(T) [29-30] [T]
+              Having [31-43] [having a > 5]
+                BinaryExpression(>) [38-43] [a > 5]
+                  PathExpression [38-39] [a]
+                    Identifier(a) [38-39] [a]
+                  IntLiteral(5) [42-43] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+select array_agg(x order by x) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [select array_agg...as a from T]
+  Query [0-42] [select array_agg...as a from T]
+    Select [0-42] [select array_agg...as a from T]
+      SelectList [7-35] [array_agg(x order by x) as a]
+        SelectColumn [7-35] [array_agg(x order by x) as a]
+          FunctionCall [7-30] [array_agg(x order by x)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            OrderBy [19-29] [order by x]
+              OrderingExpression(ASC) [28-29] [x]
+                PathExpression [28-29] [x]
+                  Identifier(x) [28-29] [x]
+          Alias [31-35] [as a]
+            Identifier(a) [34-35] [a]
+      FromClause [36-42] [from T]
+        TablePathExpression [41-42] [T]
+          PathExpression [41-42] [T]
+            Identifier(T) [41-42] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+select array_agg(x order by x, y nulls last, z) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [select array_agg...as a from T]
+  Query [0-59] [select array_agg...as a from T]
+    Select [0-59] [select array_agg...as a from T]
+      SelectList [7-52] [array_agg(...last, z) as a]
+        SelectColumn [7-52] [array_agg(...last, z) as a]
+          FunctionCall [7-47] [array_agg(...nulls last, z)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            OrderBy [19-46] [order by x, y nulls last, z]
+              OrderingExpression(ASC) [28-29] [x]
+                PathExpression [28-29] [x]
+                  Identifier(x) [28-29] [x]
+              OrderingExpression(ASC) [31-43] [y nulls last]
+                PathExpression [31-32] [y]
+                  Identifier(y) [31-32] [y]
+                NullOrder(NULLS LAST) [33-43] [nulls last]
+              OrderingExpression(ASC) [45-46] [z]
+                PathExpression [45-46] [z]
+                  Identifier(z) [45-46] [z]
+          Alias [48-52] [as a]
+            Identifier(a) [51-52] [a]
+      FromClause [53-59] [from T]
+        TablePathExpression [58-59] [T]
+          PathExpression [58-59] [T]
+            Identifier(T) [58-59] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+select array_agg(distinct x order by x) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [select array_agg...as a from T]
+  Query [0-51] [select array_agg...as a from T]
+    Select [0-51] [select array_agg...as a from T]
+      SelectList [7-44] [array_agg(...by x) as a]
+        SelectColumn [7-44] [array_agg(...by x) as a]
+          FunctionCall(distinct=true) [7-39] [array_agg(...order by x)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [26-27] [x]
+              Identifier(x) [26-27] [x]
+            OrderBy [28-38] [order by x]
+              OrderingExpression(ASC) [37-38] [x]
+                PathExpression [37-38] [x]
+                  Identifier(x) [37-38] [x]
+          Alias [40-44] [as a]
+            Identifier(a) [43-44] [a]
+      FromClause [45-51] [from T]
+        TablePathExpression [50-51] [T]
+          PathExpression [50-51] [T]
+            Identifier(T) [50-51] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+select array_agg(x order by x + 1, y + z) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [select array_agg...as a from T]
+  Query [0-53] [select array_agg...as a from T]
+    Select [0-53] [select array_agg...as a from T]
+      SelectList [7-46] [array_agg(...+ z) as a]
+        SelectColumn [7-46] [array_agg(...+ z) as a]
+          FunctionCall [7-41] [array_agg(...1, y + z)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            OrderBy [19-40] [order by x + 1, y + z]
+              OrderingExpression(ASC) [28-33] [x + 1]
+                BinaryExpression(+) [28-33] [x + 1]
+                  PathExpression [28-29] [x]
+                    Identifier(x) [28-29] [x]
+                  IntLiteral(1) [32-33] [1]
+              OrderingExpression(ASC) [35-40] [y + z]
+                BinaryExpression(+) [35-40] [y + z]
+                  PathExpression [35-36] [y]
+                    Identifier(y) [35-36] [y]
+                  PathExpression [39-40] [z]
+                    Identifier(z) [39-40] [z]
+          Alias [42-46] [as a]
+            Identifier(a) [45-46] [a]
+      FromClause [47-53] [from T]
+        TablePathExpression [52-53] [T]
+          PathExpression [52-53] [T]
+            Identifier(T) [52-53] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+select x, array_agg(distinct y order by y) from T group by x
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [select x,...group by x]
+  Query [0-60] [select x,...group by x]
+    Select [0-60] [select x,...group by x]
+      SelectList [7-42] [x, array_agg...order by y)]
+        SelectColumn [7-8] [x]
+          PathExpression [7-8] [x]
+            Identifier(x) [7-8] [x]
+        SelectColumn [10-42] [array_agg(...order by y)]
+          FunctionCall(distinct=true) [10-42] [array_agg(...order by y)]
+            PathExpression [10-19] [array_agg]
+              Identifier(array_agg) [10-19] [array_agg]
+            PathExpression [29-30] [y]
+              Identifier(y) [29-30] [y]
+            OrderBy [31-41] [order by y]
+              OrderingExpression(ASC) [40-41] [y]
+                PathExpression [40-41] [y]
+                  Identifier(y) [40-41] [y]
+      FromClause [43-49] [from T]
+        TablePathExpression [48-49] [T]
+          PathExpression [48-49] [T]
+            Identifier(T) [48-49] [T]
+      GroupBy [50-60] [group by x]
+        GroupingItem [59-60] [x]
+          PathExpression [59-60] [x]
+            Identifier(x) [59-60] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+select x, array_agg(y order by x desc, z desc) from T group by x
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-64] [select x,...group by x]
+  Query [0-64] [select x,...group by x]
+    Select [0-64] [select x,...group by x]
+      SelectList [7-46] [x, array_agg...desc, z desc)]
+        SelectColumn [7-8] [x]
+          PathExpression [7-8] [x]
+            Identifier(x) [7-8] [x]
+        SelectColumn [10-46] [array_agg(...desc, z desc)]
+          FunctionCall [10-46] [array_agg(...desc, z desc)]
+            PathExpression [10-19] [array_agg]
+              Identifier(array_agg) [10-19] [array_agg]
+            PathExpression [20-21] [y]
+              Identifier(y) [20-21] [y]
+            OrderBy [22-45] [order by x desc, z desc]
+              OrderingExpression(DESC) [31-37] [x desc]
+                PathExpression [31-32] [x]
+                  Identifier(x) [31-32] [x]
+              OrderingExpression(DESC) [39-45] [z desc]
+                PathExpression [39-40] [z]
+                  Identifier(z) [39-40] [z]
+      FromClause [47-53] [from T]
+        TablePathExpression [52-53] [T]
+          PathExpression [52-53] [T]
+            Identifier(T) [52-53] [T]
+      GroupBy [54-64] [group by x]
+        GroupingItem [63-64] [x]
+          PathExpression [63-64] [x]
+            Identifier(x) [63-64] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+select x, string_agg(y order by y collate "en_US" desc) from T group by x
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-73] [select x,...group by x]
+  Query [0-73] [select x,...group by x]
+    Select [0-73] [select x,...group by x]
+      SelectList [7-55] [x, string_agg...en_US" desc)]
+        SelectColumn [7-8] [x]
+          PathExpression [7-8] [x]
+            Identifier(x) [7-8] [x]
+        SelectColumn [10-55] [string_agg...en_US" desc)]
+          FunctionCall [10-55] [string_agg...en_US" desc)]
+            PathExpression [10-20] [string_agg]
+              Identifier(string_agg) [10-20] [string_agg]
+            PathExpression [21-22] [y]
+              Identifier(y) [21-22] [y]
+            OrderBy [23-54] [order by y...en_US" desc]
+              OrderingExpression(DESC) [32-54] [y collate "en_US" desc]
+                PathExpression [32-33] [y]
+                  Identifier(y) [32-33] [y]
+                Collate [34-49] [collate "en_US"]
+                  StringLiteral [42-49] ["en_US"]
+                    StringLiteralComponent("en_US") [42-49] ["en_US"]
+      FromClause [56-62] [from T]
+        TablePathExpression [61-62] [T]
+          PathExpression [61-62] [T]
+            Identifier(T) [61-62] [T]
+      GroupBy [63-73] [group by x]
+        GroupingItem [72-73] [x]
+          PathExpression [72-73] [x]
+            Identifier(x) [72-73] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+select count(* order by x) from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-33] [select count...x) from T]
+  Query [0-33] [select count...x) from T]
+    Select [0-33] [select count...x) from T]
+      SelectList [7-26] [count(* order by x)]
+        SelectColumn [7-26] [count(* order by x)]
+          FunctionCall [7-26] [count(* order by x)]
+            PathExpression [7-12] [count]
+              Identifier(count) [7-12] [count]
+            Star(*) [13-14] [*]
+            OrderBy [15-25] [order by x]
+              OrderingExpression(ASC) [24-25] [x]
+                PathExpression [24-25] [x]
+                  Identifier(x) [24-25] [x]
+      FromClause [27-33] [from T]
+        TablePathExpression [32-33] [T]
+          PathExpression [32-33] [T]
+            Identifier(T) [32-33] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+select anon_count(*, 0, 1 order by x) from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [select anon_count...x) from T]
+  Query [0-44] [select anon_count...x) from T]
+    Select [0-44] [select anon_count...x) from T]
+      SelectList [7-37] [anon_count(*, 0, 1 order by x)]
+        SelectColumn [7-37] [anon_count(*, 0, 1 order by x)]
+          FunctionCall [7-37] [anon_count(*, 0, 1 order by x)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            Star(*) [18-19] [*]
+            IntLiteral(0) [21-22] [0]
+            IntLiteral(1) [24-25] [1]
+            OrderBy [26-36] [order by x]
+              OrderingExpression(ASC) [35-36] [x]
+                PathExpression [35-36] [x]
+                  Identifier(x) [35-36] [x]
+      FromClause [38-44] [from T]
+        TablePathExpression [43-44] [T]
+          PathExpression [43-44] [T]
+            Identifier(T) [43-44] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+select x, array_agg(y order@1 by y) from T group by x
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [select x,...group by x]
+  Query [0-53] [select x,...group by x]
+    Select [0-53] [select x,...group by x]
+      SelectList [7-35] [x, array_agg(y order@1 by y)]
+        SelectColumn [7-8] [x]
+          PathExpression [7-8] [x]
+            Identifier(x) [7-8] [x]
+        SelectColumn [10-35] [array_agg(y order@1 by y)]
+          FunctionCall [10-35] [array_agg(y order@1 by y)]
+            PathExpression [10-19] [array_agg]
+              Identifier(array_agg) [10-19] [array_agg]
+            PathExpression [20-21] [y]
+              Identifier(y) [20-21] [y]
+            OrderBy [22-34] [order@1 by y]
+              Hint [27-29] [@1]
+                IntLiteral(1) [28-29] [1]
+              OrderingExpression(ASC) [33-34] [y]
+                PathExpression [33-34] [y]
+                  Identifier(y) [33-34] [y]
+      FromClause [36-42] [from T]
+        TablePathExpression [41-42] [T]
+          PathExpression [41-42] [T]
+            Identifier(T) [41-42] [T]
+      GroupBy [43-53] [group by x]
+        GroupingItem [52-53] [x]
+          PathExpression [52-53] [x]
+            Identifier(x) [52-53] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+select count(distinct) from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-29] [select count(distinct) from T]
+  Query [0-29] [select count(distinct) from T]
+    Select [0-29] [select count(distinct) from T]
+      SelectList [7-22] [count(distinct)]
+        SelectColumn [7-22] [count(distinct)]
+          FunctionCall(distinct=true) [7-22] [count(distinct)]
+            PathExpression [7-12] [count]
+              Identifier(count) [7-12] [count]
+      FromClause [23-29] [from T]
+        TablePathExpression [28-29] [T]
+          PathExpression [28-29] [T]
+            Identifier(T) [28-29] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
+==================
+select anon_count(distinct) from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-34] [select anon_count...ct) from T]
+  Query [0-34] [select anon_count...ct) from T]
+    Select [0-34] [select anon_count...ct) from T]
+      SelectList [7-27] [anon_count(distinct)]
+        SelectColumn [7-27] [anon_count(distinct)]
+          FunctionCall(distinct=true) [7-27] [anon_count(distinct)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+      FromClause [28-34] [from T]
+        TablePathExpression [33-34] [T]
+          PathExpression [33-34] [T]
+            Identifier(T) [33-34] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+select sort_count(order by Key) as c from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [select sort_count...s c from T]
+  Query [0-43] [select sort_count...s c from T]
+    Select [0-43] [select sort_count...s c from T]
+      SelectList [7-36] [sort_count(order by Key) as c]
+        SelectColumn [7-36] [sort_count(order by Key) as c]
+          FunctionCall [7-31] [sort_count(order by Key)]
+            PathExpression [7-17] [sort_count]
+              Identifier(sort_count) [7-17] [sort_count]
+            OrderBy [18-30] [order by Key]
+              OrderingExpression(ASC) [27-30] [Key]
+                PathExpression [27-30] [Key]
+                  Identifier(Key) [27-30] [Key]
+          Alias [32-36] [as c]
+            Identifier(c) [35-36] [c]
+      FromClause [37-43] [from T]
+        TablePathExpression [42-43] [T]
+          PathExpression [42-43] [T]
+            Identifier(T) [42-43] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+select array_agg(Key order by 1)
+from TestTable
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [select array_agg...TestTable]
+  Query [0-47] [select array_agg...TestTable]
+    Select [0-47] [select array_agg...TestTable]
+      SelectList [7-32] [array_agg(Key order by 1)]
+        SelectColumn [7-32] [array_agg(Key order by 1)]
+          FunctionCall [7-32] [array_agg(Key order by 1)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-20] [Key]
+              Identifier(Key) [17-20] [Key]
+            OrderBy [21-31] [order by 1]
+              OrderingExpression(ASC) [30-31] [1]
+                IntLiteral(1) [30-31] [1]
+      FromClause [33-47] [from TestTable]
+        TablePathExpression [38-47] [TestTable]
+          PathExpression [38-47] [TestTable]
+            Identifier(TestTable) [38-47] [TestTable]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+select array_agg(x order by x limit 5) as a from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-50] [select array_agg...as a from T]
+  Query [0-50] [select array_agg...as a from T]
+    Select [0-50] [select array_agg...as a from T]
+      SelectList [7-43] [array_agg(...limit 5) as a]
+        SelectColumn [7-43] [array_agg(...limit 5) as a]
+          FunctionCall [7-38] [array_agg(...x limit 5)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            OrderBy [19-29] [order by x]
+              OrderingExpression(ASC) [28-29] [x]
+                PathExpression [28-29] [x]
+                  Identifier(x) [28-29] [x]
+            LimitOffset [30-37] [limit 5]
+              Limit [30-37] [limit 5]
+                IntLiteral(5) [36-37] [5]
+          Alias [39-43] [as a]
+            Identifier(a) [42-43] [a]
+      FromClause [44-50] [from T]
+        TablePathExpression [49-50] [T]
+          PathExpression [49-50] [T]
+            Identifier(T) [49-50] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+select array_agg(x order by x limit 5 offset 2) as a from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [select array_agg...as a from T]
+  Query [0-59] [select array_agg...as a from T]
+    Select [0-59] [select array_agg...as a from T]
+      SelectList [7-52] [array_agg(...offset 2) as a]
+        SelectColumn [7-52] [array_agg(...offset 2) as a]
+          FunctionCall [7-47] [array_agg(...offset 2)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            OrderBy [19-29] [order by x]
+              OrderingExpression(ASC) [28-29] [x]
+                PathExpression [28-29] [x]
+                  Identifier(x) [28-29] [x]
+            LimitOffset [30-46] [limit 5 offset 2]
+              Limit [30-37] [limit 5]
+                IntLiteral(5) [36-37] [5]
+              IntLiteral(2) [45-46] [2]
+          Alias [48-52] [as a]
+            Identifier(a) [51-52] [a]
+      FromClause [53-59] [from T]
+        TablePathExpression [58-59] [T]
+          PathExpression [58-59] [T]
+            Identifier(T) [58-59] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
+==================
+select array_agg(x limit 5) as a from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-39] [select array_agg...as a from T]
+  Query [0-39] [select array_agg...as a from T]
+    Select [0-39] [select array_agg...as a from T]
+      SelectList [7-32] [array_agg(x limit 5) as a]
+        SelectColumn [7-32] [array_agg(x limit 5) as a]
+          FunctionCall [7-27] [array_agg(x limit 5)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            LimitOffset [19-26] [limit 5]
+              Limit [19-26] [limit 5]
+                IntLiteral(5) [25-26] [5]
+          Alias [28-32] [as a]
+            Identifier(a) [31-32] [a]
+      FromClause [33-39] [from T]
+        TablePathExpression [38-39] [T]
+          PathExpression [38-39] [T]
+            Identifier(T) [38-39] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 30
+==================
+# LIMIT ALL will parse but later get rejected by analyzer if FEATURE_LIMIT_ALL
+# is not enabled.
+select array_agg(x order by x limit all) as a from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [select array_agg...as a from T]
+  Query [0-52] [select array_agg...as a from T]
+    Select [0-52] [select array_agg...as a from T]
+      SelectList [7-45] [array_agg(...all) as a]
+        SelectColumn [7-45] [array_agg(...all) as a]
+          FunctionCall [7-40] [array_agg(...limit all)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            OrderBy [19-29] [order by x]
+              OrderingExpression(ASC) [28-29] [x]
+                PathExpression [28-29] [x]
+                  Identifier(x) [28-29] [x]
+            LimitOffset [30-39] [limit all]
+              Limit [30-39] [limit all]
+                LimitAll [36-39] [all]
+          Alias [41-45] [as a]
+            Identifier(a) [44-45] [a]
+      FromClause [46-52] [from T]
+        TablePathExpression [51-52] [T]
+          PathExpression [51-52] [T]
+            Identifier(T) [51-52] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 31
+==================
+select x, array_agg(y order by x desc, z desc limit 10) from T group by x
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-73] [select x,...group by x]
+  Query [0-73] [select x,...group by x]
+    Select [0-73] [select x,...group by x]
+      SelectList [7-55] [x, array_agg...limit 10)]
+        SelectColumn [7-8] [x]
+          PathExpression [7-8] [x]
+            Identifier(x) [7-8] [x]
+        SelectColumn [10-55] [array_agg(...limit 10)]
+          FunctionCall [10-55] [array_agg(...limit 10)]
+            PathExpression [10-19] [array_agg]
+              Identifier(array_agg) [10-19] [array_agg]
+            PathExpression [20-21] [y]
+              Identifier(y) [20-21] [y]
+            OrderBy [22-45] [order by x desc, z desc]
+              OrderingExpression(DESC) [31-37] [x desc]
+                PathExpression [31-32] [x]
+                  Identifier(x) [31-32] [x]
+              OrderingExpression(DESC) [39-45] [z desc]
+                PathExpression [39-40] [z]
+                  Identifier(z) [39-40] [z]
+            LimitOffset [46-54] [limit 10]
+              Limit [46-54] [limit 10]
+                IntLiteral(10) [52-54] [10]
+      FromClause [56-62] [from T]
+        TablePathExpression [61-62] [T]
+          PathExpression [61-62] [T]
+            Identifier(T) [61-62] [T]
+      GroupBy [63-73] [group by x]
+        GroupingItem [72-73] [x]
+          PathExpression [72-73] [x]
+            Identifier(x) [72-73] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 32
+==================
+select ANY_VALUE(true having max 1) as a from T having a;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-56] [select ANY_VALUE...T having a]
+  Query [0-56] [select ANY_VALUE...T having a]
+    Select [0-56] [select ANY_VALUE...T having a]
+      SelectList [7-40] [ANY_VALUE(...max 1) as a]
+        SelectColumn [7-40] [ANY_VALUE(...max 1) as a]
+          FunctionCall [7-35] [ANY_VALUE(true having max 1)]
+            PathExpression [7-16] [ANY_VALUE]
+              Identifier(ANY_VALUE) [7-16] [ANY_VALUE]
+            BooleanLiteral(true) [17-21] [true]
+            HavingModifier [22-34] [having max 1]
+              IntLiteral(1) [33-34] [1]
+          Alias [36-40] [as a]
+            Identifier(a) [39-40] [a]
+      FromClause [41-47] [from T]
+        TablePathExpression [46-47] [T]
+          PathExpression [46-47] [T]
+            Identifier(T) [46-47] [T]
+      Having [48-56] [having a]
+        PathExpression [55-56] [a]
+          Identifier(a) [55-56] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 33
+==================
+# HAVING for aggregation function with *.
+select COUNT(* having max 1) as a from T having a;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [select COUNT...T having a]
+  Query [0-49] [select COUNT...T having a]
+    Select [0-49] [select COUNT...T having a]
+      SelectList [7-33] [COUNT(* having max 1) as a]
+        SelectColumn [7-33] [COUNT(* having max 1) as a]
+          FunctionCall [7-28] [COUNT(* having max 1)]
+            PathExpression [7-12] [COUNT]
+              Identifier(COUNT) [7-12] [COUNT]
+            Star(*) [13-14] [*]
+            HavingModifier [15-27] [having max 1]
+              IntLiteral(1) [26-27] [1]
+          Alias [29-33] [as a]
+            Identifier(a) [32-33] [a]
+      FromClause [34-40] [from T]
+        TablePathExpression [39-40] [T]
+          PathExpression [39-40] [T]
+            Identifier(T) [39-40] [T]
+      Having [41-49] [having a]
+        PathExpression [48-49] [a]
+          Identifier(a) [48-49] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
+==================
+# HAVING for aggregation function with *.
+select ANON_COUNT(*, 0, 1 having max 1) as a from T having a;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [select ANON_COUNT...T having a]
+  Query [0-60] [select ANON_COUNT...T having a]
+    Select [0-60] [select ANON_COUNT...T having a]
+      SelectList [7-44] [ANON_COUNT...max 1) as a]
+        SelectColumn [7-44] [ANON_COUNT...max 1) as a]
+          FunctionCall [7-39] [ANON_COUNT...having max 1)]
+            PathExpression [7-17] [ANON_COUNT]
+              Identifier(ANON_COUNT) [7-17] [ANON_COUNT]
+            Star(*) [18-19] [*]
+            IntLiteral(0) [21-22] [0]
+            IntLiteral(1) [24-25] [1]
+            HavingModifier [26-38] [having max 1]
+              IntLiteral(1) [37-38] [1]
+          Alias [40-44] [as a]
+            Identifier(a) [43-44] [a]
+      FromClause [45-51] [from T]
+        TablePathExpression [50-51] [T]
+          PathExpression [50-51] [T]
+            Identifier(T) [50-51] [T]
+      Having [52-60] [having a]
+        PathExpression [59-60] [a]
+          Identifier(a) [59-60] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 35
+==================
+# HAVING for aggregation function with no arguments.
+select SUM(having max 1) as a from T having a;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-45] [select SUM...T having a]
+  Query [0-45] [select SUM...T having a]
+    Select [0-45] [select SUM...T having a]
+      SelectList [7-29] [SUM(having max 1) as a]
+        SelectColumn [7-29] [SUM(having max 1) as a]
+          FunctionCall [7-24] [SUM(having max 1)]
+            PathExpression [7-10] [SUM]
+              Identifier(SUM) [7-10] [SUM]
+            HavingModifier [11-23] [having max 1]
+              IntLiteral(1) [22-23] [1]
+          Alias [25-29] [as a]
+            Identifier(a) [28-29] [a]
+      FromClause [30-36] [from T]
+        TablePathExpression [35-36] [T]
+          PathExpression [35-36] [T]
+            Identifier(T) [35-36] [T]
+      Having [37-45] [having a]
+        PathExpression [44-45] [a]
+          Identifier(a) [44-45] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 36
+==================
+select max(max having min max) as a from T having a;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [select max...T having a]
+  Query [0-51] [select max...T having a]
+    Select [0-51] [select max...T having a]
+      SelectList [7-35] [max(max having min max) as a]
+        SelectColumn [7-35] [max(max having min max) as a]
+          FunctionCall [7-30] [max(max having min max)]
+            PathExpression [7-10] [max]
+              Identifier(max) [7-10] [max]
+            PathExpression [11-14] [max]
+              Identifier(max) [11-14] [max]
+            HavingModifier [15-29] [having min max]
+              PathExpression [26-29] [max]
+                Identifier(max) [26-29] [max]
+          Alias [31-35] [as a]
+            Identifier(a) [34-35] [a]
+      FromClause [36-42] [from T]
+        TablePathExpression [41-42] [T]
+          PathExpression [41-42] [T]
+            Identifier(T) [41-42] [T]
+      Having [43-51] [having a]
+        PathExpression [50-51] [a]
+          Identifier(a) [50-51] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 37
+==================
+select array_agg(x having min y order by z limit 1 offset 2) as a from T having a;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-81] [select array_agg...T having a]
+  Query [0-81] [select array_agg...T having a]
+    Select [0-81] [select array_agg...T having a]
+      SelectList [7-65] [array_agg(...offset 2) as a]
+        SelectColumn [7-65] [array_agg(...offset 2) as a]
+          FunctionCall [7-60] [array_agg(...offset 2)]
+            PathExpression [7-16] [array_agg]
+              Identifier(array_agg) [7-16] [array_agg]
+            PathExpression [17-18] [x]
+              Identifier(x) [17-18] [x]
+            HavingModifier [19-31] [having min y]
+              PathExpression [30-31] [y]
+                Identifier(y) [30-31] [y]
+            OrderBy [32-42] [order by z]
+              OrderingExpression(ASC) [41-42] [z]
+                PathExpression [41-42] [z]
+                  Identifier(z) [41-42] [z]
+            LimitOffset [43-59] [limit 1 offset 2]
+              Limit [43-50] [limit 1]
+                IntLiteral(1) [49-50] [1]
+              IntLiteral(2) [58-59] [2]
+          Alias [61-65] [as a]
+            Identifier(a) [64-65] [a]
+      FromClause [66-72] [from T]
+        TablePathExpression [71-72] [T]
+          PathExpression [71-72] [T]
+            Identifier(T) [71-72] [T]
+      Having [73-81] [having a]
+        PathExpression [80-81] [a]
+          Identifier(a) [80-81] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 38
+==================
+# CLAMPED BETWEEN is ordered between HAVING and ORDER BY
+select array_agg(x having min y clamped between 1 and 2 {{order by z|limit 1 offset 2}}) as a from T;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: order by z
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 39
+==================
+# Appearance of a trailing modifier as a leading modifier is not allowed.
+select array_agg({{x order by z|limit 1 offset 2}} clamped between 1 and 2 having min y) as a from T;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: x order by z
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 40
+==================
+# WITH REPORT basic
+select anon_count(expr WITH REPORT) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [select anon_count...s a from T]
+  Query [0-47] [select anon_count...s a from T]
+    Select [0-47] [select anon_count...s a from T]
+      SelectList [7-40] [anon_count...REPORT) as a]
+        SelectColumn [7-40] [anon_count...REPORT) as a]
+          FunctionCall [7-35] [anon_count(expr WITH REPORT)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            PathExpression [18-22] [expr]
+              Identifier(expr) [18-22] [expr]
+            WithReportModifier [23-34] [WITH REPORT]
+          Alias [36-40] [as a]
+            Identifier(a) [39-40] [a]
+      FromClause [41-47] [from T]
+        TablePathExpression [46-47] [T]
+          PathExpression [46-47] [T]
+            Identifier(T) [46-47] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 41
+==================
+# WITH REPORT function argument
+# b/290310062
+select anon_count(if(expr, 0, 1) WITH REPORT(format="PROTO")) as a from T;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-73] [select anon_count...s a from T]
+  Query [0-73] [select anon_count...s a from T]
+    Select [0-73] [select anon_count...s a from T]
+      SelectList [7-66] [anon_count...PROTO")) as a]
+        SelectColumn [7-66] [anon_count...PROTO")) as a]
+          FunctionCall [7-61] [anon_count...="PROTO"))]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            FunctionCall [18-32] [if(expr, 0, 1)]
+              PathExpression [18-20] [if]
+                Identifier(`if`) [18-20] [if]
+              PathExpression [21-25] [expr]
+                Identifier(expr) [21-25] [expr]
+              IntLiteral(0) [27-28] [0]
+              IntLiteral(1) [30-31] [1]
+            WithReportModifier [33-60] [WITH REPORT(format="PROTO")]
+              OptionsList [44-60] [(format="PROTO")]
+                OptionsEntry [45-59] [format="PROTO"]
+                  Identifier(format) [45-51] [format]
+                  StringLiteral [52-59] ["PROTO"]
+                    StringLiteralComponent("PROTO") [52-59] ["PROTO"]
+          Alias [62-66] [as a]
+            Identifier(a) [65-66] [a]
+      FromClause [67-73] [from T]
+        TablePathExpression [72-73] [T]
+          PathExpression [72-73] [T]
+            Identifier(T) [72-73] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 42
+==================
+# WITH REPORT without an argument.
+select anon_count(WITH REPORT),
+       anon_count(WITH REPORT(format=xyz))
+from t
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-81] [select anon_count...z)) from t]
+  Query [0-81] [select anon_count...z)) from t]
+    Select [0-81] [select anon_count...z)) from t]
+      SelectList [7-74] [anon_count...format=xyz))]
+        SelectColumn [7-30] [anon_count(WITH REPORT)]
+          FunctionCall [7-30] [anon_count(WITH REPORT)]
+            PathExpression [7-17] [anon_count]
+              Identifier(anon_count) [7-17] [anon_count]
+            WithReportModifier [18-29] [WITH REPORT]
+        SelectColumn [39-74] [anon_count...format=xyz))]
+          FunctionCall [39-74] [anon_count...format=xyz))]
+            PathExpression [39-49] [anon_count]
+              Identifier(anon_count) [39-49] [anon_count]
+            WithReportModifier [50-73] [WITH REPORT(format=xyz)]
+              OptionsList [61-73] [(format=xyz)]
+                OptionsEntry [62-72] [format=xyz]
+                  Identifier(format) [62-68] [format]
+                  PathExpression [69-72] [xyz]
+                    Identifier(xyz) [69-72] [xyz]
+      FromClause [75-81] [from t]
+        TablePathExpression [80-81] [t]
+          PathExpression [80-81] [t]
+            Identifier(t) [80-81] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 43
+==================
+# WITH REPORT with/without FORMAT with leading identifier or star argument and
+# optionally multiple arguments.
+select anon_count({{*|expr}} {{|clamped between 1 and 2}}
+with report{{|(format = json)|(format = proto)}} {{|order by 5}}) as a from T;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: *,,,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 44
+==================
+# GROUPING_SETS, etc, don't support aliases.
+select COUNT(*)
+from t
+GROUP BY {{ROLLUP|CUBE|GROUPING SETS}}(x,y) AS z
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ROLLUP
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 45
+==================
+# Simple WHERE expressions as part of an aggregate function.
+select sum(value where value is not null)
+from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [select sum...null) from T]
+  Query [0-48] [select sum...null) from T]
+    Select [0-48] [select sum...null) from T]
+      SelectList [7-41] [sum(value...not null)]
+        SelectColumn [7-41] [sum(value...not null)]
+          FunctionCall [7-41] [sum(value...not null)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            PathExpression [11-16] [value]
+              Identifier(value) [11-16] [value]
+            WhereClause [17-40] [where value is not null]
+              BinaryExpression(IS NOT) [23-40] [value is not null]
+                PathExpression [23-28] [value]
+                  Identifier(value) [23-28] [value]
+                NullLiteral(null) [36-40] [null]
+      FromClause [42-48] [from T]
+        TablePathExpression [47-48] [T]
+          PathExpression [47-48] [T]
+            Identifier(T) [47-48] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 46
+==================
+# Simple HAVING expression as part of an aggregate function.
+select sum(value group by key1 having count(*) > 10)
+from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [select sum...10) from T]
+  Query [0-59] [select sum...10) from T]
+    Select [0-59] [select sum...10) from T]
+      SelectList [7-52] [sum(value...count(*) > 10)]
+        SelectColumn [7-52] [sum(value...count(*) > 10)]
+          FunctionCall [7-52] [sum(value...count(*) > 10)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+            PathExpression [11-16] [value]
+              Identifier(value) [11-16] [value]
+            GroupBy [17-30] [group by key1]
+              GroupingItem [26-30] [key1]
+                PathExpression [26-30] [key1]
+                  Identifier(key1) [26-30] [key1]
+            Having [31-51] [having count(*) > 10]
+              BinaryExpression(>) [38-51] [count(*) > 10]
+                FunctionCall [38-46] [count(*)]
+                  PathExpression [38-43] [count]
+                    Identifier(count) [38-43] [count]
+                  Star(*) [44-45] [*]
+                IntLiteral(10) [49-51] [10]
+      FromClause [53-59] [from T]
+        TablePathExpression [58-59] [T]
+          PathExpression [58-59] [T]
+            Identifier(T) [58-59] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 47
+==================
+# WHERE and HAVING expressions are permitted with other modifiers
+select sum(distinct value
+    {{respect|ignore}} nulls
+    where value > 10
+    group by key1
+    having count(*) < 100
+    order by key2 {{desc|asc}}
+    limit 10
+  ) from T
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: respect,desc
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 48
+==================
+# Test these modifiers without having an argument.
+select sum(distinct),
+       sum(ignore nulls),
+       sum(respect nulls),
+       sum(distinct ignore nulls),
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-109] [select sum...ignore nulls),]
+  Query [0-109] [select sum...ignore nulls),]
+    Select [0-109] [select sum...ignore nulls),]
+      SelectList [7-109] [sum(distinct...ignore nulls),]
+        SelectColumn [7-20] [sum(distinct)]
+          FunctionCall(distinct=true) [7-20] [sum(distinct)]
+            PathExpression [7-10] [sum]
+              Identifier(sum) [7-10] [sum]
+        SelectColumn [29-46] [sum(ignore nulls)]
+          FunctionCall [29-46] [sum(ignore nulls)]
+            PathExpression [29-32] [sum]
+              Identifier(sum) [29-32] [sum]
+        SelectColumn [55-73] [sum(respect nulls)]
+          FunctionCall [55-73] [sum(respect nulls)]
+            PathExpression [55-58] [sum]
+              Identifier(sum) [55-58] [sum]
+        SelectColumn [82-108] [sum(distinct ignore nulls)]
+          FunctionCall(distinct=true) [82-108] [sum(distinct ignore nulls)]
+            PathExpression [82-85] [sum]
+              Identifier(sum) [82-85] [sum]
+*/
+---
+(source_file (ERROR))
+

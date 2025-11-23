@@ -1,0 +1,66 @@
+==================
+Test Case 1
+==================
+SELECT 1 x
+|> DISTINCT
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-22] [SELECT 1 x |> DISTINCT]
+  Query [0-22] [SELECT 1 x |> DISTINCT]
+    Select [0-10] [SELECT 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeDistinct [11-22] [|> DISTINCT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+CREATE TEMP TABLE t
+AS (SELECT 1 AS a |> DISTINCT);
+
+/* Expected ZetaSQL AST:
+CreateTableStatement(is_temp) [0-50] [CREATE TEMP...DISTINCT)]
+  PathExpression [18-19] [t]
+    Identifier(t) [18-19] [t]
+  Query [24-49] [SELECT 1 AS a |> DISTINCT]
+    Select [24-37] [SELECT 1 AS a]
+      SelectList [31-37] [1 AS a]
+        SelectColumn [31-37] [1 AS a]
+          IntLiteral(1) [31-32] [1]
+          Alias [33-37] [AS a]
+            Identifier(a) [36-37] [a]
+    PipeDistinct [38-49] [|> DISTINCT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+SELECT (SELECT 1 AS a |> DISTINCT);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-34] [SELECT (SELECT...DISTINCT)]
+  Query [0-34] [SELECT (SELECT...DISTINCT)]
+    Select [0-34] [SELECT (SELECT...DISTINCT)]
+      SelectList [7-34] [(SELECT 1 AS a |> DISTINCT)]
+        SelectColumn [7-34] [(SELECT 1 AS a |> DISTINCT)]
+          ExpressionSubquery [7-34] [(SELECT 1 AS a |> DISTINCT)]
+            Query [8-33] [SELECT 1 AS a |> DISTINCT]
+              Select [8-21] [SELECT 1 AS a]
+                SelectList [15-21] [1 AS a]
+                  SelectColumn [15-21] [1 AS a]
+                    IntLiteral(1) [15-16] [1]
+                    Alias [17-21] [AS a]
+                      Identifier(a) [20-21] [a]
+              PipeDistinct [22-33] [|> DISTINCT]
+*/
+---
+(source_file (ERROR))
+

@@ -1,0 +1,120 @@
+==================
+Test Case 1
+==================
+ALTER table foo alter constraint bar enforced;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-45]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-45]
+    AlterConstraintEnforcementAction [16-45]
+      Identifier(bar) [33-36]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+ALTER table foo alter constraint if exists bar enforced;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-55]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-55]
+    AlterConstraintEnforcementAction(is_if_exists) [16-55]
+      Identifier(bar) [43-46]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+ALTER table foo alter constraint bar not enforced;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-49]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-49]
+    AlterConstraintEnforcementAction [16-49]
+      Identifier(bar) [33-36]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+ALTER table foo alter constraint bar set options ();
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-51]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-51]
+    AlterConstraintSetOptionsAction [16-51]
+      Identifier(bar) [33-36]
+      OptionsList [49-51]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+ALTER table foo alter constraint if exists bar set options (opt_a = 1);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-70]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-70]
+    AlterConstraintSetOptionsAction(is_if_exists) [16-70]
+      Identifier(bar) [43-46]
+      OptionsList [59-70]
+        OptionsEntry [60-69]
+          Identifier(opt_a) [60-65]
+          IntLiteral(1) [68-69]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+ALTER table foo alter constraint bar set options (opt_a = 1, opt_b = 2);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-71]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-71]
+    AlterConstraintSetOptionsAction [16-71]
+      Identifier(bar) [33-36]
+      OptionsList [49-71]
+        OptionsEntry [50-59]
+          Identifier(opt_a) [50-55]
+          IntLiteral(1) [58-59]
+        OptionsEntry [61-70]
+          Identifier(opt_b) [61-66]
+          IntLiteral(2) [69-70]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+ALTER TABLE foo-123.bar ALTER CONSTRAINT baz ENFORCED
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

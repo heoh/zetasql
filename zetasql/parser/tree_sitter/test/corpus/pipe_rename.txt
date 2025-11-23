@@ -1,0 +1,62 @@
+==================
+Test Case 1
+==================
+select 1
+|> RENAME x AS y
+|> RENAME `a b` AS `d e`, x AS y, aaa bbb
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-67] [select 1 |...y, aaa bbb]
+  Query [0-67] [select 1 |...y, aaa bbb]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeRename [9-25] [|> RENAME x AS y]
+      PipeRenameItem [19-25] [x AS y]
+        Identifier(x) [19-20] [x]
+        Identifier(y) [24-25] [y]
+    PipeRename [26-67] [|> RENAME...y, aaa bbb]
+      PipeRenameItem [36-50] [`a b` AS `d e`]
+        Identifier(`a b`) [36-41] [`a b`]
+        Identifier(`d e`) [45-50] [`d e`]
+      PipeRenameItem [52-58] [x AS y]
+        Identifier(x) [52-53] [x]
+        Identifier(y) [57-58] [y]
+      PipeRenameItem [60-67] [aaa bbb]
+        Identifier(aaa) [60-63] [aaa]
+        Identifier(bbb) [64-67] [bbb]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Trailing commas
+select 1
+|> RENAME a b,
+|> RENAME a b, c AS d,
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-46] [select 1 |...b, c AS d,]
+  Query [0-45] [select 1 |...b, c AS d]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeRename [9-22] [|> RENAME a b]
+      PipeRenameItem [19-22] [a b]
+        Identifier(a) [19-20] [a]
+        Identifier(b) [21-22] [b]
+    PipeRename [24-45] [|> RENAME a b, c AS d]
+      PipeRenameItem [34-37] [a b]
+        Identifier(a) [34-35] [a]
+        Identifier(b) [36-37] [b]
+      PipeRenameItem [39-45] [c AS d]
+        Identifier(c) [39-40] [c]
+        Identifier(d) [44-45] [d]
+*/
+---
+(source_file (ERROR))
+

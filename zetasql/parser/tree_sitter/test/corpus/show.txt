@@ -1,0 +1,219 @@
+==================
+Test Case 1
+==================
+show TABLES;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-11] [show TABLES]
+  Identifier(TABLES) [5-11] [TABLES]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+show TABLES from adwords;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-24] [show TABLES from adwords]
+  Identifier(TABLES) [5-11] [TABLES]
+  PathExpression [17-24] [adwords]
+    Identifier(adwords) [17-24] [adwords]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+show TABLES from catalog.adwords;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-32] [show TABLES...catalog.adwords]
+  Identifier(TABLES) [5-11] [TABLES]
+  PathExpression [17-32] [catalog.adwords]
+    Identifier(catalog) [17-24] [catalog]
+    Identifier(adwords) [25-32] [adwords]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+show TABLES like 'KitchenSync%';
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-31] [show TABLES...KitchenSync%']
+  Identifier(TABLES) [5-11] [TABLES]
+  StringLiteral [17-31] ['KitchenSync%']
+    StringLiteralComponent('KitchenSync%') [17-31] ['KitchenSync%']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+show COLUMNS from KitchenSync;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-29] [show COLUMNS from KitchenSync]
+  Identifier(COLUMNS) [5-12] [COLUMNS]
+  PathExpression [18-29] [KitchenSync]
+    Identifier(KitchenSync) [18-29] [KitchenSync]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+show INDEXES from myschema.MyTable;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-34] [show INDEXES...yschema.MyTable]
+  Identifier(INDEXES) [5-12] [INDEXES]
+  PathExpression [18-34] [myschema.MyTable]
+    Identifier(myschema) [18-26] [myschema]
+    Identifier(MyTable) [27-34] [MyTable]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+show STATUS;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-11] [show STATUS]
+  Identifier(STATUS) [5-11] [STATUS]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+show VARIABLES like 'server_name';
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-33] [show VARIABLES...server_name']
+  Identifier(VARIABLES) [5-14] [VARIABLES]
+  StringLiteral [20-33] ['server_name']
+    StringLiteralComponent('server_name') [20-33] ['server_name']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+show TABLES from catalog.adwords like 'KitchenSync%';
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-52] [show TABLES...KitchenSync%']
+  Identifier(TABLES) [5-11] [TABLES]
+  PathExpression [17-32] [catalog.adwords]
+    Identifier(catalog) [17-24] [catalog]
+    Identifier(adwords) [25-32] [adwords]
+  StringLiteral [38-52] ['KitchenSync%']
+    StringLiteralComponent('KitchenSync%') [38-52] ['KitchenSync%']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+SHOW MATERIALIZED VIEWS;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-23] [SHOW MATERIALIZED VIEWS]
+  Identifier(`MATERIALIZED VIEWS`) [5-23] [MATERIALIZED VIEWS]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+SHOW `MATERIALIZED VIEWS`;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-25] [SHOW `MATERIALIZED VIEWS`]
+  Identifier(`MATERIALIZED VIEWS`) [5-25] [`MATERIALIZED VIEWS`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+SHOW MATERIALIZED VIEWS like 'KitchenSync%';
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-43] [SHOW MATERIALIZED...chenSync%']
+  Identifier(`MATERIALIZED VIEWS`) [5-23] [MATERIALIZED VIEWS]
+  StringLiteral [29-43] ['KitchenSync%']
+    StringLiteralComponent('KitchenSync%') [29-43] ['KitchenSync%']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+SHOW MATERIALIZED VIEWS from KitchenSync;
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-40] [SHOW MATERIALIZED...itchenSync]
+  Identifier(`MATERIALIZED VIEWS`) [5-23] [MATERIALIZED VIEWS]
+  PathExpression [29-40] [KitchenSync]
+    Identifier(KitchenSync) [29-40] [KitchenSync]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+SHOW MATERIALIZED VIEWS from KitchenSync like '%foo%';
+
+/* Expected ZetaSQL AST:
+ShowStatement [0-53] [SHOW MATERIALIZED...ke '%foo%']
+  Identifier(`MATERIALIZED VIEWS`) [5-23] [MATERIALIZED VIEWS]
+  PathExpression [29-40] [KitchenSync]
+    Identifier(KitchenSync) [29-40] [KitchenSync]
+  StringLiteral [46-53] ['%foo%']
+    StringLiteralComponent('%foo%') [46-53] ['%foo%']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+SHOW TABLES FROM my-project.dataset.table;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+[language_features=NONE,+ALLOW_DASHES_IN_TABLE_NAME{{|,+ALLOW_SLASH_PATHS}}]
+SHOW TABLES FROM /span/db/my-mdb-grp:my_db
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

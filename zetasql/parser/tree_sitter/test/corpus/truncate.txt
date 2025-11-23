@@ -1,0 +1,97 @@
+==================
+Test Case 1
+==================
+# TRUNCATE TABLE
+TRUNCATE TABLE foo;
+
+/* Expected ZetaSQL AST:
+TruncateStatement [0-18] [TRUNCATE TABLE foo]
+  PathExpression [15-18] [foo]
+    Identifier(foo) [15-18] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Specify partition with WHERE expression
+TRUNCATE TABLE foo WHERE bar > 3;
+
+/* Expected ZetaSQL AST:
+TruncateStatement [0-32] [TRUNCATE TABLE...WHERE bar > 3]
+  PathExpression [15-18] [foo]
+    Identifier(foo) [15-18] [foo]
+  BinaryExpression(>) [25-32] [bar > 3]
+    PathExpression [25-28] [bar]
+      Identifier(bar) [25-28] [bar]
+    IntLiteral(3) [31-32] [3]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Verify that TRUNCATE is a non-reserve word.
+SELECT truncate FROM foo;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-24] [SELECT truncate FROM foo]
+  Query [0-24] [SELECT truncate FROM foo]
+    Select [0-24] [SELECT truncate FROM foo]
+      SelectList [7-15] [truncate]
+        SelectColumn [7-15] [truncate]
+          PathExpression [7-15] [truncate]
+            Identifier(truncate) [7-15] [truncate]
+      FromClause [16-24] [FROM foo]
+        TablePathExpression [21-24] [foo]
+          PathExpression [21-24] [foo]
+            Identifier(foo) [21-24] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+SELECT * FROM truncate;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-22] [SELECT * FROM truncate]
+  Query [0-22] [SELECT * FROM truncate]
+    Select [0-22] [SELECT * FROM truncate]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-22] [FROM truncate]
+        TablePathExpression [14-22] [truncate]
+          PathExpression [14-22] [truncate]
+            Identifier(truncate) [14-22] [truncate]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 23]
+    (select_statement [0, 0] - [0, 23]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 22]
+        (from_item [0, 14] - [0, 22]
+          (table_expression [0, 14] - [0, 22]
+            (path_expression [0, 14] - [0, 22]
+              (identifier [0, 14] - [0, 22])))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 5
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+TRUNCATE TABLE foo-567-bar.baz;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

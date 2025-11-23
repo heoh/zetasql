@@ -1,0 +1,154 @@
+==================
+Test Case 1
+==================
+select * from KEYWORD_AS_IDENTIFIER_SENTINEL;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [select * from...IFIER_SENTINEL]
+  Query [0-44] [select * from...IFIER_SENTINEL]
+    Select [0-44] [select * from...IFIER_SENTINEL]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-44] [from KEYWORD_AS_I...R_SENTINEL]
+        TablePathExpression [14-44] [KEYWORD_AS_IDENTIFIER_SENTINEL]
+          PathExpression [14-44] [KEYWORD_AS_IDENTIFIER_SENTINEL]
+            Identifier(KEYWORD_AS_IDENTIFIER_SENTINEL) [14-44] [KEYWORD_AS_IDENTIFIER_SENTINEL]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 45]
+    (select_statement [0, 0] - [0, 45]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 44]
+        (from_item [0, 14] - [0, 44]
+          (table_expression [0, 14] - [0, 44]
+            (path_expression [0, 14] - [0, 44]
+              (identifier [0, 14] - [0, 44])))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 2
+==================
+select 1 AS KEYWORD_AS_IDENTIFIER_SENTINEL;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [select 1 AS...NTIFIER_SENTINEL]
+  Query [0-42] [select 1 AS...NTIFIER_SENTINEL]
+    Select [0-42] [select 1 AS...NTIFIER_SENTINEL]
+      SelectList [7-42] [1 AS KEYWORD_AS_I...R_SENTINEL]
+        SelectColumn [7-42] [1 AS KEYWORD_AS_I...R_SENTINEL]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-42] [AS KEYWORD_AS_IDE...R_SENTINEL]
+            Identifier(KEYWORD_AS_IDENTIFIER_SENTINEL) [12-42] [KEYWORD_AS_IDENTIFIER_SENTINEL]
+*/
+---
+(source_file [0, 0] - [11, 2]
+  (statement [0, 0] - [0, 43]
+    (select_statement [0, 0] - [0, 43]
+      (select_clause [0, 0] - [0, 42]
+        (select_list [0, 7] - [0, 42]
+          (select_expression [0, 7] - [0, 42]
+            (expression [0, 7] - [0, 8]
+              (number [0, 7] - [0, 8]))
+            (identifier [0, 12] - [0, 42]))))))
+  (comment [2, 0] - [11, 2]))
+
+==================
+Test Case 3
+==================
+select * from test AS KEYWORD_AS_IDENTIFIER_SENTINEL;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [select * from...IFIER_SENTINEL]
+  Query [0-52] [select * from...IFIER_SENTINEL]
+    Select [0-52] [select * from...IFIER_SENTINEL]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-52] [from test...DENTIFIER_SENTINEL]
+        TablePathExpression [14-52] [test AS KEYWORD_A...R_SENTINEL]
+          PathExpression [14-18] [test]
+            Identifier(test) [14-18] [test]
+          Alias [19-52] [AS KEYWORD_AS_IDE...R_SENTINEL]
+            Identifier(KEYWORD_AS_IDENTIFIER_SENTINEL) [22-52] [KEYWORD_AS_IDENTIFIER_SENTINEL]
+*/
+---
+(source_file [0, 0] - [15, 2]
+  (statement [0, 0] - [0, 53]
+    (select_statement [0, 0] - [0, 53]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 52]
+        (from_item [0, 14] - [0, 52]
+          (table_expression [0, 14] - [0, 18]
+            (path_expression [0, 14] - [0, 18]
+              (identifier [0, 14] - [0, 18])))
+          (identifier [0, 22] - [0, 52])))))
+  (comment [2, 0] - [15, 2]))
+
+==================
+Test Case 4
+==================
+select * from KEYWORD_AS_IDENTIFIER_SENTINEL_prefix;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [select * from...ENTINEL_prefix]
+  Query [0-51] [select * from...ENTINEL_prefix]
+    Select [0-51] [select * from...ENTINEL_prefix]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-51] [from KEYWORD_AS_I...NEL_prefix]
+        TablePathExpression [14-51] [KEYWORD_AS_IDENTI...NEL_prefix]
+          PathExpression [14-51] [KEYWORD_AS_IDENTI...NEL_prefix]
+            Identifier(KEYWORD_AS_IDENTIFIER_SENTINEL_prefix) [14-51] [KEYWORD_AS_IDENTI...NEL_prefix]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 52]
+    (select_statement [0, 0] - [0, 52]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 51]
+        (from_item [0, 14] - [0, 51]
+          (table_expression [0, 14] - [0, 51]
+            (path_expression [0, 14] - [0, 51]
+              (identifier [0, 14] - [0, 51])))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 5
+==================
+select * from suffix_KEYWORD_AS_IDENTIFIER_SENTINEL;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [select * from...IFIER_SENTINEL]
+  Query [0-51] [select * from...IFIER_SENTINEL]
+    Select [0-51] [select * from...IFIER_SENTINEL]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-51] [from suffix_KEYWO...R_SENTINEL]
+        TablePathExpression [14-51] [suffix_KEYWORD_AS...R_SENTINEL]
+          PathExpression [14-51] [suffix_KEYWORD_AS...R_SENTINEL]
+            Identifier(suffix_KEYWORD_AS_IDENTIFIER_SENTINEL) [14-51] [suffix_KEYWORD_AS...R_SENTINEL]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 52]
+    (select_statement [0, 0] - [0, 52]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 51]
+        (from_item [0, 14] - [0, 51]
+          (table_expression [0, 14] - [0, 51]
+            (path_expression [0, 14] - [0, 51]
+              (identifier [0, 14] - [0, 51])))))))
+  (comment [2, 0] - [13, 2]))
+

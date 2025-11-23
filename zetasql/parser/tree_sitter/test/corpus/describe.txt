@@ -1,0 +1,205 @@
+==================
+Test Case 1
+==================
+{{describe|desc}} foo bar baz;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: describe
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+describe foo;
+
+/* Expected ZetaSQL AST:
+DescribeStatement [0-12] [describe foo]
+  PathExpression [9-12] [foo]
+    Identifier(foo) [9-12] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+{{describe|desc}} namespace.foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: describe
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+{{describe|desc}} INDEX myindex;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: describe
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+describe INDEX mynamespace.myindex;
+
+/* Expected ZetaSQL AST:
+DescribeStatement [0-34] [describe INDEX...space.myindex]
+  Identifier(INDEX) [9-14] [INDEX]
+  PathExpression [15-34] [mynamespace.myindex]
+    Identifier(mynamespace) [15-26] [mynamespace]
+    Identifier(myindex) [27-34] [myindex]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+describe FUNCTION myfunction;
+
+/* Expected ZetaSQL AST:
+DescribeStatement [0-28] [describe FUNCTION myfunction]
+  Identifier(`FUNCTION`) [9-17] [FUNCTION]
+  PathExpression [18-28] [myfunction]
+    Identifier(myfunction) [18-28] [myfunction]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+describe FUNCTION mynamespace.myfunction;
+
+/* Expected ZetaSQL AST:
+DescribeStatement [0-40] [describe FUNCTION...myfunction]
+  Identifier(`FUNCTION`) [9-17] [FUNCTION]
+  PathExpression [18-40] [mynamespace.myfunction]
+    Identifier(mynamespace) [18-29] [mynamespace]
+    Identifier(myfunction) [30-40] [myfunction]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+describe TVF mytvf;
+
+/* Expected ZetaSQL AST:
+DescribeStatement [0-18] [describe TVF mytvf]
+  Identifier(TVF) [9-12] [TVF]
+  PathExpression [13-18] [mytvf]
+    Identifier(mytvf) [13-18] [mytvf]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+describe TVF mynamespace.mytvf;
+
+/* Expected ZetaSQL AST:
+DescribeStatement [0-30] [describe TVF mynamespace.mytvf]
+  Identifier(TVF) [9-12] [TVF]
+  PathExpression [13-30] [mynamespace.mytvf]
+    Identifier(mynamespace) [13-24] [mynamespace]
+    Identifier(mytvf) [25-30] [mytvf]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+describe TYPE mytype;
+
+/* Expected ZetaSQL AST:
+DescribeStatement [0-20] [describe TYPE mytype]
+  Identifier(TYPE) [9-13] [TYPE]
+  PathExpression [14-20] [mytype]
+    Identifier(mytype) [14-20] [mytype]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+describe TYPE mynamespace.mytype;
+
+/* Expected ZetaSQL AST:
+DescribeStatement [0-32] [describe TYPE...mespace.mytype]
+  Identifier(TYPE) [9-13] [TYPE]
+  PathExpression [14-32] [mynamespace.mytype]
+    Identifier(mynamespace) [14-25] [mynamespace]
+    Identifier(mytype) [26-32] [mytype]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+{{describe|desc}} foo FROM namespace;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: describe
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+{{describe|desc}} COLUMN foo FROM T.suffix;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: describe
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+{{describe|desc}} TYPE prefixed.name FROM Catalog.`With`.Dots;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: describe
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+DESCRIBE my-project.dataset.table;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+[language_features=NONE,+ALLOW_DASHES_IN_TABLE_NAME{{|,+ALLOW_SLASH_PATHS}}]
+DESCRIBE /span/db/my-mdb-grp:my_db.Table
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

@@ -1,0 +1,271 @@
+==================
+Test Case 1
+==================
+# Tests for BETWEEN
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+[default no_show_parse_location_text]
+select col BETWEEN value1 AND value2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-36]
+  Query [0-36]
+    Select [0-36]
+      SelectList [7-36]
+        SelectColumn [7-36]
+          BetweenExpression(BETWEEN) [7-36]
+            PathExpression [7-10]
+              Identifier(col) [7-10]
+            Location [11-18]
+            PathExpression [19-25]
+              Identifier(value1) [19-25]
+            PathExpression [30-36]
+              Identifier(value2) [30-36]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+select x BETWEEN a AND b AND c AND D
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-36]
+  Query [0-36]
+    Select [0-36]
+      SelectList [7-36]
+        SelectColumn [7-36]
+          AndExpr [7-36]
+            BetweenExpression(BETWEEN) [7-24]
+              PathExpression [7-8]
+                Identifier(x) [7-8]
+              Location [9-16]
+              PathExpression [17-18]
+                Identifier(a) [17-18]
+              PathExpression [23-24]
+                Identifier(b) [23-24]
+            PathExpression [29-30]
+              Identifier(c) [29-30]
+            PathExpression [35-36]
+              Identifier(D) [35-36]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+select x BETWEEN (a AND b) AND (c AND D)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-40]
+  Query [0-40]
+    Select [0-40]
+      SelectList [7-40]
+        SelectColumn [7-40]
+          BetweenExpression(BETWEEN) [7-40]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            AndExpr [18-25]
+              PathExpression [18-19]
+                Identifier(a) [18-19]
+              PathExpression [24-25]
+                Identifier(b) [24-25]
+            AndExpr [32-39]
+              PathExpression [32-33]
+                Identifier(c) [32-33]
+              PathExpression [38-39]
+                Identifier(D) [38-39]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+select x BETWEEN (a BETWEEN b AND c) AND d
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42]
+  Query [0-42]
+    Select [0-42]
+      SelectList [7-42]
+        SelectColumn [7-42]
+          BetweenExpression(BETWEEN) [7-42]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            BetweenExpression(BETWEEN) [18-35]
+              PathExpression [18-19]
+                Identifier(a) [18-19]
+              Location [20-27]
+              PathExpression [28-29]
+                Identifier(b) [28-29]
+              PathExpression [34-35]
+                Identifier(c) [34-35]
+            PathExpression [41-42]
+              Identifier(d) [41-42]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+select (col BETWEEN a AND b) IS NULL
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-36]
+  Query [0-36]
+    Select [0-36]
+      SelectList [7-36]
+        SelectColumn [7-36]
+          BinaryExpression(IS) [7-36]
+            BetweenExpression(BETWEEN) [8-27]
+              PathExpression [8-11]
+                Identifier(col) [8-11]
+              Location [12-19]
+              PathExpression [20-21]
+                Identifier(a) [20-21]
+              PathExpression [26-27]
+                Identifier(b) [26-27]
+            NullLiteral(NULL) [32-36]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+select * from T where T.name BETWEEN 'A' AND 'B'
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48]
+  Query [0-48]
+    Select [0-48]
+      SelectList [7-8]
+        SelectColumn [7-8]
+          Star(*) [7-8]
+      FromClause [9-15]
+        TablePathExpression [14-15]
+          PathExpression [14-15]
+            Identifier(T) [14-15]
+      WhereClause [16-48]
+        BetweenExpression(BETWEEN) [22-48]
+          PathExpression [22-28]
+            Identifier(T) [22-23]
+            Identifier(name) [24-28]
+          Location [29-36]
+          StringLiteral [37-40]
+            StringLiteralComponent('A') [37-40]
+          StringLiteral [45-48]
+            StringLiteralComponent('B') [45-48]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+select x BETWEEN y and z
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-24]
+  Query [0-24]
+    Select [0-24]
+      SelectList [7-24]
+        SelectColumn [7-24]
+          BetweenExpression(BETWEEN) [7-24]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            PathExpression [17-18]
+              Identifier(y) [17-18]
+            PathExpression [23-24]
+              Identifier(z) [23-24]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Test which operators can be included in the middle argument of BETWEEN.
+# Operators with equal or lower precedence than BETWEEN are not allowed.
+# That includes all comparison operators, and AND, OR and BETWEEN.
+select x BETWEEN {{a = b|a < b|a > b|a <= b|a >= b|a <> b |a !=b |a << b|a >> b |a & b|a ^ b|a AND b|a OR b|a LIKE b|a IN (b)|a IS FALSE|a BETWEEN b AND b}} AND c
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: a = b
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# Test that BETWEEN can contain |, which has precedence lower than additive
+# expressions. (Second and third arguments.)
+# Regression test for b/30131868.
+select x BETWEEN a | b AND c | d
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-32]
+  Query [0-32]
+    Select [0-32]
+      SelectList [7-32]
+        SelectColumn [7-32]
+          BetweenExpression(BETWEEN) [7-32]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            BinaryExpression(|) [17-22]
+              PathExpression [17-18]
+                Identifier(a) [17-18]
+              PathExpression [21-22]
+                Identifier(b) [21-22]
+            BinaryExpression(|) [27-32]
+              PathExpression [27-28]
+                Identifier(c) [27-28]
+              PathExpression [31-32]
+                Identifier(d) [31-32]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# (Same test as above, for the third argument.)
+# Test that BETWEEN can contain various types of expressions of precedence
+# lower than additive expressions. Note that = is disallowed here by both
+# Bison and JavaCC. It is ambiguous in Bison's operator precedence parsing
+# too because it is in an argument that is adjacent to the edge of the
+# operator.
+# Regression test for b/30131868.
+select x BETWEEN a AND b {{=|<<|>>|&|^}} c
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: =
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Make sure that operators that include < and > are tokenized correctly inside
+# BETWEEN. These are covered by a tokenizer mode in the Bison parser, so they
+# should work in that mode as well. The operators are nonassociative and at
+# the same precedence level as BETWEEN, so the parser rule then still rejects
+# the result.
+SELECT x BETWEEN y {{<|>|<>|<<|>>}} 3 AND 9
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <
+*/
+---
+(source_file (ERROR))
+

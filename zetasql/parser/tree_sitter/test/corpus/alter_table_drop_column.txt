@@ -1,0 +1,127 @@
+==================
+Test Case 1
+==================
+alter table foo.bar drop column baz;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-35]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-35]
+    DropColumnAction [20-35]
+      Identifier(baz) [32-35]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+alter table if exists foo.bar drop column baz;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement(is_if_exists) [0-45]
+  PathExpression [22-29]
+    Identifier(foo) [22-25]
+    Identifier(bar) [26-29]
+  AlterActionList [30-45]
+    DropColumnAction [30-45]
+      Identifier(baz) [42-45]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+alter table foo.bar drop column if exists baz;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-45]
+  PathExpression [12-19]
+    Identifier(foo) [12-15]
+    Identifier(bar) [16-19]
+  AlterActionList [20-45]
+    DropColumnAction(is_if_exists) [20-45]
+      Identifier(baz) [42-45]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+alter table column drop column baz;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-34]
+  PathExpression [12-18]
+    Identifier(column) [12-18]
+  AlterActionList [19-34]
+    DropColumnAction [19-34]
+      Identifier(baz) [31-34]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+alter table column drop column check;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-36]
+  PathExpression [12-18]
+    Identifier(column) [12-18]
+  AlterActionList [19-36]
+    DropColumnAction [19-36]
+      Identifier(check) [31-36]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+alter table column drop column column;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-37]
+  PathExpression [12-18]
+    Identifier(column) [12-18]
+  AlterActionList [19-37]
+    DropColumnAction [19-37]
+      Identifier(column) [31-37]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+alter table column drop column `union`;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-38]
+  PathExpression [12-18]
+    Identifier(column) [12-18]
+  AlterActionList [19-38]
+    DropColumnAction [19-38]
+      Identifier(`union`) [31-38]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+ALTER TABLE foo-bar.baz DROP COLUMN a
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+

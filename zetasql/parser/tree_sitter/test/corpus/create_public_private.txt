@@ -1,0 +1,26 @@
+==================
+Test Case 1
+==================
+# The TEMP, PUBLIC, and PRIVATE modifiers are allowed in the same location
+# for CREATE statements.
+CREATE {{|temp|public|private}} function foo() returns int64 language testlang;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# PUBLIC and PRIVATE are compatible with IF NOT EXISTS and OR REPLACE
+CREATE OR REPLACE {{PUBLIC|PRIVATE}} function IF NOT EXISTS foo()
+returns int64 language testlang;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: PUBLIC
+*/
+---
+(source_file (ERROR))
+

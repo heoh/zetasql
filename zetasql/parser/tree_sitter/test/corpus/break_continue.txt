@@ -1,0 +1,225 @@
+==================
+Test Case 1
+==================
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+[default no_show_parse_location_text]
+[default mode=script]
+{{BREAK|LEAVE}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: BREAK
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+{{CONTINUE|ITERATE}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONTINUE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+LOOP
+  {{BREAK|LEAVE}};
+END LOOP;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: BREAK
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+LOOP
+  {{CONTINUE|ITERATE}};
+END LOOP;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONTINUE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+WHILE TRUE DO
+  {{BREAK|LEAVE}};
+END WHILE;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: BREAK
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+WHILE TRUE DO
+  {{CONTINUE|ITERATE}};
+END WHILE;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: CONTINUE
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+LOOP
+  SELECT 5;
+  BREAK;
+END LOOP;
+
+/* Expected ZetaSQL AST:
+Script [0-35]
+  StatementList [0-35]
+    WhileStatement [0-34]
+      StatementList [7-25]
+        QueryStatement [7-15]
+          Query [7-15]
+            Select [7-15]
+              SelectList [14-15]
+                SelectColumn [14-15]
+                  IntLiteral(5) [14-15]
+        BreakStatement [19-24]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+LOOP
+  IF x THEN
+    BREAK;
+  ELSE
+    CONTINUE;
+  END IF;
+END LOOP;
+
+/* Expected ZetaSQL AST:
+Script [0-68]
+  StatementList [0-68]
+    WhileStatement [0-67]
+      StatementList [7-58]
+        IfStatement [7-57]
+          PathExpression [10-11]
+            Identifier(x) [10-11]
+          StatementList [21-27]
+            BreakStatement [21-26]
+          StatementList [39-48]
+            ContinueStatement [39-47]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+LOOP
+  IF x THEN
+    IF y THEN
+      BREAK;
+    END IF;
+  ELSE
+    CONTINUE;
+  END IF;
+END LOOP;
+
+/* Expected ZetaSQL AST:
+Script [0-96]
+  StatementList [0-96]
+    WhileStatement [0-95]
+      StatementList [7-86]
+        IfStatement [7-85]
+          PathExpression [10-11]
+            Identifier(x) [10-11]
+          StatementList [21-55]
+            IfStatement [21-54]
+              PathExpression [24-25]
+                Identifier(y) [24-25]
+              StatementList [37-43]
+                BreakStatement [37-42]
+          StatementList [67-76]
+            ContinueStatement [67-75]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+LOOP
+  WHILE x DO
+    IF y THEN
+      BREAK;
+    END IF;
+    CONTINUE;
+  END WHILE;
+END LOOP;
+
+/* Expected ZetaSQL AST:
+Script [0-93]
+  StatementList [0-93]
+    WhileStatement [0-92]
+      StatementList [7-83]
+        WhileStatement [7-82]
+          PathExpression [13-14]
+            Identifier(x) [13-14]
+          StatementList [22-70]
+            IfStatement [22-55]
+              PathExpression [25-26]
+                Identifier(y) [25-26]
+              StatementList [38-44]
+                BreakStatement [38-43]
+            ContinueStatement [61-69]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+IF y THEN
+  BREAK;
+END IF;
+
+/* Expected ZetaSQL AST:
+Script [0-26]
+  StatementList [0-26]
+    IfStatement [0-25]
+      PathExpression [3-4]
+        Identifier(y) [3-4]
+      StatementList [12-18]
+        BreakStatement [12-17]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+WHILE {{BREAK|LEAVE|CONTINUE|ITERATE}} DO
+  CONTINUE;
+END WHILE;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: BREAK
+*/
+---
+(source_file (ERROR))
+

@@ -1,0 +1,34 @@
+==================
+Test Case 1
+==================
+[default language_features=ALL]
+select 1;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-8] [select 1]
+  Query [0-8] [select 1]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+select "abc";
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-12] [select "abc"]
+  Query [0-12] [select "abc"]
+    Select [0-12] [select "abc"]
+      SelectList [7-12] ["abc"]
+        SelectColumn [7-12] ["abc"]
+          StringLiteral [7-12] ["abc"]
+            StringLiteralComponent("abc") [7-12] ["abc"]
+*/
+---
+(source_file (ERROR))
+

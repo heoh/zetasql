@@ -1,0 +1,175 @@
+==================
+Test Case 1
+==================
+# Simple raise
+[default mode=script]
+BEGIN EXCEPTION WHEN ERROR THEN
+{{raise|RAISE}};
+END;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: raise
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Invalid raise outside of error handler
+RAISE{{;|}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ;
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Invalid raise after error handler terminates
+BEGIN EXCEPTION WHEN ERROR THEN END;
+RAISE;
+
+/* Expected ZetaSQL AST:
+Script [0-43] [BEGIN EXCEPTION...END; RAISE;]
+  StatementList [0-43] [BEGIN EXCEPTION...END; RAISE;]
+    BeginEndBlock [0-35] [BEGIN EXCEPTION...ROR THEN END]
+      StatementList [5-5] []
+      ExceptionHandlerList [6-31] [EXCEPTION WHEN ERROR THEN]
+        ExceptionHandler [16-31] [WHEN ERROR THEN]
+          StatementList [31-31] []
+    RaiseStatement [37-42] [RAISE]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# raises in nested exception handlers
+BEGIN EXCEPTION WHEN ERROR THEN
+  BEGIN EXCEPTION WHEN ERROR THEN
+    RAISE;
+  END;
+  RAISE;
+END;
+
+/* Expected ZetaSQL AST:
+Script [0-97] [BEGIN EXCEPTION...RAISE; END;]
+  StatementList [0-97] [BEGIN EXCEPTION...RAISE; END;]
+    BeginEndBlock [0-96] [BEGIN EXCEPTION...RAISE; END]
+      StatementList [5-5] []
+      ExceptionHandlerList [6-92] [EXCEPTION...;   RAISE;]
+        ExceptionHandler [16-92] [WHEN ERROR...;   RAISE;]
+          StatementList [34-92] [BEGIN EXCEPTION...;   RAISE;]
+            BeginEndBlock [34-82] [BEGIN EXCEPTION...RAISE;   END]
+              StatementList [39-39] []
+              ExceptionHandlerList [40-76] [EXCEPTION...RAISE;]
+                ExceptionHandler [50-76] [WHEN ERROR THEN     RAISE;]
+                  StatementList [70-76] [RAISE;]
+                    RaiseStatement [70-75] [RAISE]
+            RaiseStatement [86-91] [RAISE]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# raise with literal message
+{{raise|RAISE}} {{using|USING}} {{message|MESSAGE}} = 'test'{{;|}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: raise,using,message,;
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# raise with nonliteral message
+raise using message = CONCAT('test', '_', 'foo');
+
+/* Expected ZetaSQL AST:
+Script [0-49] [raise using...', 'foo');]
+  StatementList [0-49] [raise using...', 'foo');]
+    RaiseStatement [0-48] [raise using..._', 'foo')]
+      FunctionCall [22-48] [CONCAT('test', '_', 'foo')]
+        PathExpression [22-28] [CONCAT]
+          Identifier(CONCAT) [22-28] [CONCAT]
+        StringLiteral [29-35] ['test']
+          StringLiteralComponent('test') [29-35] ['test']
+        StringLiteral [37-40] ['_']
+          StringLiteralComponent('_') [37-40] ['_']
+        StringLiteral [42-47] ['foo']
+          StringLiteralComponent('foo') [42-47] ['foo']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# raise with variable, system variable, and query param
+raise using message = {{a|@a|@@a}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: a
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Raise statement in a larger script
+IF x < 0 THEN
+  RAISE using message = 'x is negative';
+END IF;
+
+/* Expected ZetaSQL AST:
+Script [0-62] [IF x < 0 THEN...'; END IF;]
+  StatementList [0-62] [IF x < 0 THEN...'; END IF;]
+    IfStatement [0-61] [IF x < 0 THEN...ative'; END IF]
+      BinaryExpression(<) [3-8] [x < 0]
+        PathExpression [3-4] [x]
+          Identifier(x) [3-4] [x]
+        IntLiteral(0) [7-8] [0]
+      StatementList [16-54] [RAISE using...negative';]
+        RaiseStatement [16-53] [RAISE using...negative']
+          StringLiteral [38-53] ['x is negative']
+            StringLiteralComponent('x is negative') [38-53] ['x is negative']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# raise keywords used as identifiers (except for USING, which is reserved).
+SELECT RAISE, MESSAGE FROM t;
+
+/* Expected ZetaSQL AST:
+Script [0-29] [SELECT RAISE, MESSAGE FROM t;]
+  StatementList [0-29] [SELECT RAISE, MESSAGE FROM t;]
+    QueryStatement [0-28] [SELECT RAISE, MESSAGE FROM t]
+      Query [0-28] [SELECT RAISE, MESSAGE FROM t]
+        Select [0-28] [SELECT RAISE, MESSAGE FROM t]
+          SelectList [7-21] [RAISE, MESSAGE]
+            SelectColumn [7-12] [RAISE]
+              PathExpression [7-12] [RAISE]
+                Identifier(RAISE) [7-12] [RAISE]
+            SelectColumn [14-21] [MESSAGE]
+              PathExpression [14-21] [MESSAGE]
+                Identifier(MESSAGE) [14-21] [MESSAGE]
+          FromClause [22-28] [FROM t]
+            TablePathExpression [27-28] [t]
+              PathExpression [27-28] [t]
+                Identifier(t) [27-28] [t]
+*/
+---
+(source_file (ERROR))
+

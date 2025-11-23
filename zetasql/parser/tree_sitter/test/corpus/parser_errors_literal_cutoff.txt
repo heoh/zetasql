@@ -1,0 +1,77 @@
+==================
+Test Case 1
+==================
+# Long literals are cut off (single quotes).
+# The length of the text is chosen to test edge cases for the limit of 50 bytes.
+{{|rb|b|R|BR}}'01234567890123456789012345678901234567890123456{{7|78|789|7890|78901|789012}}'
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: 7
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# Long literals are cut off (double quotes).
+# The length of the text is chosen to test edge cases for the limit of 50 bytes.
+{{|rb|b|R|BR}}"01234567890123456789012345678901234567890123456{{7|78|789|7890|78901|789012}}"
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: 7
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# Long literals are cut off (triple single quotes).
+# The length of the text is chosen to test edge cases for the limit of 50 bytes.
+{{|rb|b|R|BR}}'''0123456789012345678901234567890123456789012{{3|34|345|3456|34567|345678}}'''
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: 3
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Long literals are cut off (triple double quotes).
+# The length of the text is chosen to test edge cases for the limit of 50 bytes.
+{{|rb|b|R|BR}}"""0123456789012345678901234567890123456789012{{3|34|345|3456|34567|345678}}"""
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: 3
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Long literals cutoffs are applied to multiline literals as well.
+{{r|rb}}"""01234567890123456789
+12345678901234567890123456789"""
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: r
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Long literals are not cut off in the middle of a unicode character.
+"012345678901234567890123456789{{0|00}}123456789012ᗊᗊᗊᗊᗊᗊᗊ"
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: 0
+*/
+---
+(source_file (ERROR))
+

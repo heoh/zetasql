@@ -1,0 +1,221 @@
+==================
+Test Case 1
+==================
+drop external table `function`;
+
+/* Expected ZetaSQL AST:
+DropStatement EXTERNAL TABLE [0-30] [drop external table `function`]
+  PathExpression [20-30] [`function`]
+    Identifier(`function`) [20-30] [`function`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+drop table bar;
+
+/* Expected ZetaSQL AST:
+DropStatement TABLE [0-14] [drop table bar]
+  PathExpression [11-14] [bar]
+    Identifier(bar) [11-14] [bar]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+drop table if exists bar;
+
+/* Expected ZetaSQL AST:
+DropStatement TABLE(is_if_exists) [0-24] [drop table if exists bar]
+  PathExpression [21-24] [bar]
+    Identifier(bar) [21-24] [bar]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+drop table bar.baz;
+
+/* Expected ZetaSQL AST:
+DropStatement TABLE [0-18] [drop table bar.baz]
+  PathExpression [11-18] [bar.baz]
+    Identifier(bar) [11-14] [bar]
+    Identifier(baz) [15-18] [baz]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+drop table if exists bar.baz;
+
+/* Expected ZetaSQL AST:
+DropStatement TABLE(is_if_exists) [0-28] [drop table if exists bar.baz]
+  PathExpression [21-28] [bar.baz]
+    Identifier(bar) [21-24] [bar]
+    Identifier(baz) [25-28] [baz]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+drop materialized view a;
+
+/* Expected ZetaSQL AST:
+DropMaterializedViewStatement [0-24] [drop materialized view a]
+  PathExpression [23-24] [a]
+    Identifier(a) [23-24] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+drop materialized view if exists a;
+
+/* Expected ZetaSQL AST:
+DropMaterializedViewStatement(is_if_exists) [0-34] [drop materialized...f exists a]
+  PathExpression [33-34] [a]
+    Identifier(a) [33-34] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+drop materialized view if exists a.b;
+
+/* Expected ZetaSQL AST:
+DropMaterializedViewStatement(is_if_exists) [0-36] [drop materialized...exists a.b]
+  PathExpression [33-36] [a.b]
+    Identifier(a) [33-34] [a]
+    Identifier(b) [35-36] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+drop snapshot table a;
+
+/* Expected ZetaSQL AST:
+DropSnapshotTableStatement [0-21] [drop snapshot table a]
+  PathExpression [20-21] [a]
+    Identifier(a) [20-21] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+drop SNAPSHOT TABLE if exists a;
+
+/* Expected ZetaSQL AST:
+DropSnapshotTableStatement(is_if_exists) [0-31] [drop SNAPSHOT...if exists a]
+  PathExpression [30-31] [a]
+    Identifier(a) [30-31] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# dashed parameters are allowed for snapshots
+drop SNAPSHOT TABLE if exists `snapshot-1`;
+
+/* Expected ZetaSQL AST:
+DropSnapshotTableStatement(is_if_exists) [0-42] [drop SNAPSHOT...snapshot-1`]
+  PathExpression [30-42] [`snapshot-1`]
+    Identifier(`snapshot-1`) [30-42] [`snapshot-1`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop {{SEQUENCE|AGGREGATE FUNCTION|CONNECTION|CONSTANT|DATABASE|EXTERNAL TABLE|FUNCTION|INDEX|MATERIALIZED VIEW|MODEL|PROCEDURE|TABLE|TABLE FUNCTION|VIEW|EXTERNAL TABLE FUNCTION|SCHEMA|EXTERNAL SCHEMA|SNAPSHOT TABLE}} foo {{|RESTRICT|Restrict|CASCADE|INVALID_DROP_MODE|DROP_MODE_UNSPECIFIED}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: SEQUENCE,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+DROP SCHEMA IF EXISTS `foo.bar` {{|RESTRICT|ResTRICT|CASCADE|INVALID_DROP_MODE|DROP_MODE_UNSPECIFIED}} ;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+drop foo {{|if exists }}bar;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
+drop table foo-bar.baz;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+DROP CONNECTION IF EXISTS foo
+
+/* Expected ZetaSQL AST:
+DropStatement CONNECTION(is_if_exists) [0-29] [DROP CONNECTION IF EXISTS foo]
+  PathExpression [26-29] [foo]
+    Identifier(foo) [26-29] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+DROP CONNECTION foo
+
+/* Expected ZetaSQL AST:
+DropStatement CONNECTION [0-19] [DROP CONNECTION foo]
+  PathExpression [16-19] [foo]
+    Identifier(foo) [16-19] [foo]
+*/
+---
+(source_file (ERROR))
+

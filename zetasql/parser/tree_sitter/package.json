@@ -1,0 +1,24 @@
+{
+  "name": "tree-sitter-zetasql",
+  "version": "0.0.1",
+  "description": "ZetaSQL grammar for tree-sitter",
+  "main": "bindings/node",
+  "keywords": [
+    "parsing",
+    "incremental",
+    "zetasql",
+    "sql"
+  ],
+  "scripts": {
+    "test": "tree-sitter test",
+    "generate": "tree-sitter generate",
+    "corpus": "python3 generate_corpus.py",
+    "validate": "python3 validate_corpus.py"
+  },
+  "dependencies": {
+    "nan": "^2.14.2"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.20.8"
+  }
+}

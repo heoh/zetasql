@@ -1,0 +1,365 @@
+==================
+Test Case 1
+==================
+# This file has tests for GROUP BY with ordering, using AND ORDER and ASC/DESC.
+# After the tests with pipe syntax, it has tests for GROUP BY with aliases in
+# regular syntax, with FEATURE_PIPES turned on and off.
+
+[default language_features=NONE,+PIPES]
+select 1
+|> AGGREGATE
+   GROUP BY
+      x,
+      x+1 ASC,
+      f() DESC,
+      z ASC NULLS FIRST,
+      zz DESC NULLS LAST,
+      a NULLS FIRST,
+      aa NULLS LAST
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-165] [select 1 |...NULLS LAST]
+  Query [0-165] [select 1 |...NULLS LAST]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeAggregate [9-165] [|> AGGREGATE...NULLS LAST]
+      Select [12-165] [AGGREGATE...NULLS LAST]
+        SelectList [21-21] []
+        GroupBy [25-165] [GROUP BY...NULLS LAST]
+          GroupingItem [40-41] [x]
+            PathExpression [40-41] [x]
+              Identifier(x) [40-41] [x]
+          GroupingItem [49-56] [x+1 ASC]
+            BinaryExpression(+) [49-52] [x+1]
+              PathExpression [49-50] [x]
+                Identifier(x) [49-50] [x]
+              IntLiteral(1) [51-52] [1]
+            GroupingItemOrder(ASC) [53-56] [ASC]
+          GroupingItem [64-72] [f() DESC]
+            FunctionCall [64-67] [f()]
+              PathExpression [64-65] [f]
+                Identifier(f) [64-65] [f]
+            GroupingItemOrder(DESC) [68-72] [DESC]
+          GroupingItem [80-97] [z ASC NULLS FIRST]
+            PathExpression [80-81] [z]
+              Identifier(z) [80-81] [z]
+            GroupingItemOrder(ASC) [82-97] [ASC NULLS FIRST]
+              NullOrder(NULLS FIRST) [86-97] [NULLS FIRST]
+          GroupingItem [105-123] [zz DESC NULLS LAST]
+            PathExpression [105-107] [zz]
+              Identifier(zz) [105-107] [zz]
+            GroupingItemOrder(DESC) [108-123] [DESC NULLS LAST]
+              NullOrder(NULLS LAST) [113-123] [NULLS LAST]
+          GroupingItem [131-144] [a NULLS FIRST]
+            PathExpression [131-132] [a]
+              Identifier(a) [131-132] [a]
+            GroupingItemOrder(UNSPECIFIED) [133-144] [NULLS FIRST]
+              NullOrder(NULLS FIRST) [133-144] [NULLS FIRST]
+          GroupingItem [152-165] [aa NULLS LAST]
+            PathExpression [152-154] [aa]
+              Identifier(aa) [152-154] [aa]
+            GroupingItemOrder(UNSPECIFIED) [155-165] [NULLS LAST]
+              NullOrder(NULLS LAST) [155-165] [NULLS LAST]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# NULLS FIRST/LAST are allowed by the parser without ASC/DESC.
+select 1
+|> AGGREGATE
+   GROUP BY x+1 {{NULLS|NULLS FIRST|AS alias NULLS LAST|alias NULLS FIRST}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: NULLS
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+select 1
+|> AGGREGATE 1 GROUP AND ORDER BY x, y DESC,
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [select 1 |...x, y DESC,]
+  Query [0-53] [select 1 |...x, y DESC,]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeAggregate [9-53] [|> AGGREGATE...x, y DESC,]
+      Select [12-53] [AGGREGATE...x, y DESC,]
+        SelectList [22-23] [1]
+          SelectColumn [22-23] [1]
+            IntLiteral(1) [22-23] [1]
+        GroupBy(and_order_by=true) [24-53] [GROUP AND ORDER BY x, y DESC,]
+          GroupingItem [43-44] [x]
+            PathExpression [43-44] [x]
+              Identifier(x) [43-44] [x]
+          GroupingItem [46-52] [y DESC]
+            PathExpression [46-47] [y]
+              Identifier(y) [46-47] [y]
+            GroupingItemOrder(DESC) [48-52] [DESC]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Ordering suffixes are not supported on non-expression items.
+select 1
+|> AGGREGATE 1
+   GROUP BY {{ALL|()|ROLLUP(x)|CUBE(x)|GROUPING SETS(x)}} ASC
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ALL
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# AND ORDER BY will parse for non-expression items, but won't be accepted
+# in the analyzer.
+select 1
+|> AGGREGATE 1
+   GROUP AND ORDER BY {{ALL|(),ROLLUP(x),CUBE(x),GROUPING SETS(x)}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: ALL
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Ordering modifiers in combination with aliases.
+from x
+|> AGGREGATE
+   GROUP AND ORDER BY x+1 AS y ASC
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [from x |>...1 AS y ASC]
+  Query [0-54] [from x |>...1 AS y ASC]
+    FromQuery [0-6] [from x]
+      FromClause [0-6] [from x]
+        TablePathExpression [5-6] [x]
+          PathExpression [5-6] [x]
+            Identifier(x) [5-6] [x]
+    PipeAggregate [7-54] [|> AGGREGATE...1 AS y ASC]
+      Select [10-54] [AGGREGATE...1 AS y ASC]
+        SelectList [19-19] []
+        GroupBy(and_order_by=true) [23-54] [GROUP AND...1 AS y ASC]
+          GroupingItem [42-54] [x+1 AS y ASC]
+            BinaryExpression(+) [42-45] [x+1]
+              PathExpression [42-43] [x]
+                Identifier(x) [42-43] [x]
+              IntLiteral(1) [44-45] [1]
+            Alias [46-50] [AS y]
+              Identifier(y) [49-50] [y]
+            GroupingItemOrder(ASC) [51-54] [ASC]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Now we try using order modifiers in regular GROUP BY syntax,
+# with FEATURE_PIPES turned on or off.  Order modifiers are
+# always rejected.
+
+[language_features=NONE,{{+PIPES|}}]
+select COUNT(*)
+from t
+GROUP BY x {{ASC|DESC}}
+{{|NULLS FIRST}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    +PIPES,ASC,
+    +PIPES,ASC,NULLS FIRST
+    ASC,
+    ASC,NULLS FIRST
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+[reserve_graph_table]
+[language_features=NONE,+SQL_GRAPH{{|,+PIPES}}]
+select * from GRAPH_TABLE(aml
+  MATCH (a)
+  RETURN a GROUP BY x, y {{ASC|NULLS FIRST}})
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    ASC
+    ,+PIPES,ASC
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# Order suffixes in the aggregate list.
+from t
+|> aggregate count(*) ASC,
+             sum(x) alias DESC,
+             avg(y) AS alias ASC NULLS FIRST,
+             max(distinct z) DESC NULLS LAST,
+             nosuffix()
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-181] [from t |>...nosuffix()]
+  Query [0-181] [from t |>...nosuffix()]
+    FromQuery [0-6] [from t]
+      FromClause [0-6] [from t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeAggregate [7-181] [|> aggregate...nosuffix()]
+      Select [10-181] [aggregate...nosuffix()]
+        SelectList [20-181] [count(*) ASC...nosuffix()]
+          SelectColumn [20-32] [count(*) ASC]
+            FunctionCall [20-28] [count(*)]
+              PathExpression [20-25] [count]
+                Identifier(count) [20-25] [count]
+              Star(*) [26-27] [*]
+            GroupingItemOrder(ASC) [29-32] [ASC]
+          SelectColumn [47-64] [sum(x) alias DESC]
+            FunctionCall [47-53] [sum(x)]
+              PathExpression [47-50] [sum]
+                Identifier(sum) [47-50] [sum]
+              PathExpression [51-52] [x]
+                Identifier(x) [51-52] [x]
+            Alias [54-59] [alias]
+              Identifier(alias) [54-59] [alias]
+            GroupingItemOrder(DESC) [60-64] [DESC]
+          SelectColumn [79-110] [avg(y) AS...NULLS FIRST]
+            FunctionCall [79-85] [avg(y)]
+              PathExpression [79-82] [avg]
+                Identifier(avg) [79-82] [avg]
+              PathExpression [83-84] [y]
+                Identifier(y) [83-84] [y]
+            Alias [86-94] [AS alias]
+              Identifier(alias) [89-94] [alias]
+            GroupingItemOrder(ASC) [95-110] [ASC NULLS FIRST]
+              NullOrder(NULLS FIRST) [99-110] [NULLS FIRST]
+          SelectColumn [125-156] [max(distinct...NULLS LAST]
+            FunctionCall(distinct=true) [125-140] [max(distinct z)]
+              PathExpression [125-128] [max]
+                Identifier(max) [125-128] [max]
+              PathExpression [138-139] [z]
+                Identifier(z) [138-139] [z]
+            GroupingItemOrder(DESC) [141-156] [DESC NULLS LAST]
+              NullOrder(NULLS LAST) [146-156] [NULLS LAST]
+          SelectColumn [171-181] [nosuffix()]
+            FunctionCall [171-181] [nosuffix()]
+              PathExpression [171-179] [nosuffix]
+                Identifier(nosuffix) [171-179] [nosuffix]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# Order suffixes are independent of ordering modifiers on the GROUP BY.
+from t
+|> aggregate count(*) asc
+   group {{|and order}} by key{{| asc}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Order suffixes don't parse in the selection list for other pipe operators.
+from t
+|> {{select|extend|window}} xyz ASC
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: select
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# Order suffixes don't parse in the selection list for other pipe operators,
+# with aliases.
+from t
+|> extend xyz {{|alias|AS alias}} ASC
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# Order suffxies don't parse in standard SELECT.
+select xyz {{|alias|AS alias}} ASC
+from t
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+# ASC or DESC is required before NULLS in the AGGREGATE list.
+from t
+|> aggregate count(*) {{nulls first|alias null last|AS alias nulls first|nulls}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: nulls first
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+# ASC/DESC modifiers don't work with star or dot-star, with or
+# without modifiers.
+select 1
+|> AGGREGATE {{*|s.*}}
+     {{|EXCEPT(x)|REPLACE(x AS y)}}
+     {{ASC|DESC}}
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    *,,ASC
+    *,,DESC
+    *,EXCEPT(x),ASC
+    *,EXCEPT(x),DESC
+    *,REPLACE(x AS y),ASC
+    *,REPLACE(x AS y),DESC
+*/
+---
+(source_file (ERROR))
+

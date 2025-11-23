@@ -1,0 +1,963 @@
+==================
+Test Case 1
+==================
+create index a.b.i1 on c.d.t1(a, b, c) options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-55] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  IndexItemList [29-38] [(a, b, c)]
+    OrderingExpression(ASC) [30-31] [a]
+      PathExpression [30-31] [a]
+        Identifier(a) [30-31] [a]
+    OrderingExpression(ASC) [33-34] [b]
+      PathExpression [33-34] [b]
+        Identifier(b) [33-34] [b]
+    OrderingExpression(ASC) [36-37] [c]
+      PathExpression [36-37] [c]
+        Identifier(c) [36-37] [c]
+  OptionsList [46-55] [(x=1,y=2)]
+    OptionsEntry [47-50] [x=1]
+      Identifier(x) [47-48] [x]
+      IntLiteral(1) [49-50] [1]
+    OptionsEntry [51-54] [y=2]
+      Identifier(y) [51-52] [y]
+      IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+create index i1 on t1(a desc, b asc);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-36] [create index...desc, b asc)]
+  PathExpression [13-15] [i1]
+    Identifier(i1) [13-15] [i1]
+  PathExpression [19-21] [t1]
+    Identifier(t1) [19-21] [t1]
+  IndexItemList [21-36] [(a desc, b asc)]
+    OrderingExpression(DESC) [22-28] [a desc]
+      PathExpression [22-23] [a]
+        Identifier(a) [22-23] [a]
+    OrderingExpression(ASC EXPLICITLY) [30-35] [b asc]
+      PathExpression [30-31] [b]
+        Identifier(b) [30-31] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+create index i1 on t1(a {{|ASC|DESC}} {{|NULLS FIRST|NULLS LAST}});
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+create unique index i1 on t1(a, b);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(UNIQUE) [0-34] [create unique...on t1(a, b)]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [28-34] [(a, b)]
+    OrderingExpression(ASC) [29-30] [a]
+      PathExpression [29-30] [a]
+        Identifier(a) [29-30] [a]
+    OrderingExpression(ASC) [32-33] [b]
+      PathExpression [32-33] [b]
+        Identifier(b) [32-33] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Expressions are supported in the syntax.
+create index i1 on t1 (a.b.c, e, c*d);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-37] [create index...c, e, c*d)]
+  PathExpression [13-15] [i1]
+    Identifier(i1) [13-15] [i1]
+  PathExpression [19-21] [t1]
+    Identifier(t1) [19-21] [t1]
+  IndexItemList [22-37] [(a.b.c, e, c*d)]
+    OrderingExpression(ASC) [23-28] [a.b.c]
+      PathExpression [23-28] [a.b.c]
+        Identifier(a) [23-24] [a]
+        Identifier(b) [25-26] [b]
+        Identifier(c) [27-28] [c]
+    OrderingExpression(ASC) [30-31] [e]
+      PathExpression [30-31] [e]
+        Identifier(e) [30-31] [e]
+    OrderingExpression(ASC) [33-36] [c*d]
+      BinaryExpression(*) [33-36] [c*d]
+        PathExpression [33-34] [c]
+          Identifier(c) [33-34] [c]
+        PathExpression [35-36] [d]
+          Identifier(d) [35-36] [d]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+create {{|or replace}} {{|unique}} {{|search|vector}} index
+{{|if not exists}} i1 on t1 (a)
+options()
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Specifying table name alias
+create index a.b.i1 on c.d.t1 foo (a, b, c) options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-60] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  Alias [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IndexItemList [34-43] [(a, b, c)]
+    OrderingExpression(ASC) [35-36] [a]
+      PathExpression [35-36] [a]
+        Identifier(a) [35-36] [a]
+    OrderingExpression(ASC) [38-39] [b]
+      PathExpression [38-39] [b]
+        Identifier(b) [38-39] [b]
+    OrderingExpression(ASC) [41-42] [c]
+      PathExpression [41-42] [c]
+        Identifier(c) [41-42] [c]
+  OptionsList [51-60] [(x=1,y=2)]
+    OptionsEntry [52-55] [x=1]
+      Identifier(x) [52-53] [x]
+      IntLiteral(1) [54-55] [1]
+    OptionsEntry [56-59] [y=2]
+      Identifier(y) [56-57] [y]
+      IntLiteral(2) [58-59] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Specifying a single UNNEST expression.
+create index a.b.i1 on c.d.t1 foo UNNEST(a) (a, b, c) options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-70] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  Alias [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IndexUnnestExpressionList [34-43] [UNNEST(a)]
+    UnnestExpressionWithOptAliasAndOffset [34-43] [UNNEST(a)]
+      UnnestExpression [34-43] [UNNEST(a)]
+        ExpressionWithOptAlias [41-42] [a]
+          PathExpression [41-42] [a]
+            Identifier(a) [41-42] [a]
+  IndexItemList [44-53] [(a, b, c)]
+    OrderingExpression(ASC) [45-46] [a]
+      PathExpression [45-46] [a]
+        Identifier(a) [45-46] [a]
+    OrderingExpression(ASC) [48-49] [b]
+      PathExpression [48-49] [b]
+        Identifier(b) [48-49] [b]
+    OrderingExpression(ASC) [51-52] [c]
+      PathExpression [51-52] [c]
+        Identifier(c) [51-52] [c]
+  OptionsList [61-70] [(x=1,y=2)]
+    OptionsEntry [62-65] [x=1]
+      Identifier(x) [62-63] [x]
+      IntLiteral(1) [64-65] [1]
+    OptionsEntry [66-69] [y=2]
+      Identifier(y) [66-67] [y]
+      IntLiteral(2) [68-69] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# Specifying a single UNNEST expression with alias.
+create index a.b.i1 on c.d.t1 foo UNNEST(a) AS bar (a, b, c) options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-77] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  Alias [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IndexUnnestExpressionList [34-50] [UNNEST(a) AS bar]
+    UnnestExpressionWithOptAliasAndOffset [34-50] [UNNEST(a) AS bar]
+      UnnestExpression [34-43] [UNNEST(a)]
+        ExpressionWithOptAlias [41-42] [a]
+          PathExpression [41-42] [a]
+            Identifier(a) [41-42] [a]
+      Alias [44-50] [AS bar]
+        Identifier(bar) [47-50] [bar]
+  IndexItemList [51-60] [(a, b, c)]
+    OrderingExpression(ASC) [52-53] [a]
+      PathExpression [52-53] [a]
+        Identifier(a) [52-53] [a]
+    OrderingExpression(ASC) [55-56] [b]
+      PathExpression [55-56] [b]
+        Identifier(b) [55-56] [b]
+    OrderingExpression(ASC) [58-59] [c]
+      PathExpression [58-59] [c]
+        Identifier(c) [58-59] [c]
+  OptionsList [68-77] [(x=1,y=2)]
+    OptionsEntry [69-72] [x=1]
+      Identifier(x) [69-70] [x]
+      IntLiteral(1) [71-72] [1]
+    OptionsEntry [73-76] [y=2]
+      Identifier(y) [73-74] [y]
+      IntLiteral(2) [75-76] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# Specifying a single UNNEST expression with alias and offset.
+create index a.b.i1 on c.d.t1 foo UNNEST(a) bar WITH OFFSET (a, b, c) options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-86] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  Alias [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IndexUnnestExpressionList [34-59] [UNNEST(a) bar WITH OFFSET]
+    UnnestExpressionWithOptAliasAndOffset [34-59] [UNNEST(a) bar WITH OFFSET]
+      UnnestExpression [34-43] [UNNEST(a)]
+        ExpressionWithOptAlias [41-42] [a]
+          PathExpression [41-42] [a]
+            Identifier(a) [41-42] [a]
+      Alias [44-47] [bar]
+        Identifier(bar) [44-47] [bar]
+      WithOffset [48-59] [WITH OFFSET]
+  IndexItemList [60-69] [(a, b, c)]
+    OrderingExpression(ASC) [61-62] [a]
+      PathExpression [61-62] [a]
+        Identifier(a) [61-62] [a]
+    OrderingExpression(ASC) [64-65] [b]
+      PathExpression [64-65] [b]
+        Identifier(b) [64-65] [b]
+    OrderingExpression(ASC) [67-68] [c]
+      PathExpression [67-68] [c]
+        Identifier(c) [67-68] [c]
+  OptionsList [77-86] [(x=1,y=2)]
+    OptionsEntry [78-81] [x=1]
+      Identifier(x) [78-79] [x]
+      IntLiteral(1) [80-81] [1]
+    OptionsEntry [82-85] [y=2]
+      Identifier(y) [82-83] [y]
+      IntLiteral(2) [84-85] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Specifying a single UNNEST expression with alias and offset.
+create index a.b.i1 on c.d.t1 foo UNNEST(a) bar WITH OFFSET AS offset (a, b, c) options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-96] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  Alias [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IndexUnnestExpressionList [34-69] [UNNEST(a)...AS offset]
+    UnnestExpressionWithOptAliasAndOffset [34-69] [UNNEST(a)...AS offset]
+      UnnestExpression [34-43] [UNNEST(a)]
+        ExpressionWithOptAlias [41-42] [a]
+          PathExpression [41-42] [a]
+            Identifier(a) [41-42] [a]
+      Alias [44-47] [bar]
+        Identifier(bar) [44-47] [bar]
+      WithOffset [48-69] [WITH OFFSET AS offset]
+        Alias [60-69] [AS offset]
+          Identifier(offset) [63-69] [offset]
+  IndexItemList [70-79] [(a, b, c)]
+    OrderingExpression(ASC) [71-72] [a]
+      PathExpression [71-72] [a]
+        Identifier(a) [71-72] [a]
+    OrderingExpression(ASC) [74-75] [b]
+      PathExpression [74-75] [b]
+        Identifier(b) [74-75] [b]
+    OrderingExpression(ASC) [77-78] [c]
+      PathExpression [77-78] [c]
+        Identifier(c) [77-78] [c]
+  OptionsList [87-96] [(x=1,y=2)]
+    OptionsEntry [88-91] [x=1]
+      Identifier(x) [88-89] [x]
+      IntLiteral(1) [90-91] [1]
+    OptionsEntry [92-95] [y=2]
+      Identifier(y) [92-93] [y]
+      IntLiteral(2) [94-95] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# Specifying a more complicated UNNEST expression on field paths.
+create index a.b.i1 on c.d.t1 foo UNNEST(x.y.z) bar (bar) options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-74] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  Alias [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IndexUnnestExpressionList [34-51] [UNNEST(x.y.z) bar]
+    UnnestExpressionWithOptAliasAndOffset [34-51] [UNNEST(x.y.z) bar]
+      UnnestExpression [34-47] [UNNEST(x.y.z)]
+        ExpressionWithOptAlias [41-46] [x.y.z]
+          PathExpression [41-46] [x.y.z]
+            Identifier(x) [41-42] [x]
+            Identifier(y) [43-44] [y]
+            Identifier(z) [45-46] [z]
+      Alias [48-51] [bar]
+        Identifier(bar) [48-51] [bar]
+  IndexItemList [52-57] [(bar)]
+    OrderingExpression(ASC) [53-56] [bar]
+      PathExpression [53-56] [bar]
+        Identifier(bar) [53-56] [bar]
+  OptionsList [65-74] [(x=1,y=2)]
+    OptionsEntry [66-69] [x=1]
+      Identifier(x) [66-67] [x]
+      IntLiteral(1) [68-69] [1]
+    OptionsEntry [70-73] [y=2]
+      Identifier(y) [70-71] [y]
+      IntLiteral(2) [72-73] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# Specifying a single UNNEST expression on a concatenated array.
+create index a.b.i1 on c.d.t1 foo UNNEST(array_concat([1], [2])) bar (bar)
+options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-91] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  Alias [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IndexUnnestExpressionList [34-68] [UNNEST(array_conc...[2])) bar]
+    UnnestExpressionWithOptAliasAndOffset [34-68] [UNNEST(array_conc...[2])) bar]
+      UnnestExpression [34-64] [UNNEST(array_concat([1], [2]))]
+        ExpressionWithOptAlias [41-63] [array_concat([1], [2])]
+          FunctionCall [41-63] [array_concat([1], [2])]
+            PathExpression [41-53] [array_concat]
+              Identifier(array_concat) [41-53] [array_concat]
+            ArrayConstructor [54-57] [[1]]
+              IntLiteral(1) [55-56] [1]
+            ArrayConstructor [59-62] [[2]]
+              IntLiteral(2) [60-61] [2]
+      Alias [65-68] [bar]
+        Identifier(bar) [65-68] [bar]
+  IndexItemList [69-74] [(bar)]
+    OrderingExpression(ASC) [70-73] [bar]
+      PathExpression [70-73] [bar]
+        Identifier(bar) [70-73] [bar]
+  OptionsList [82-91] [(x=1,y=2)]
+    OptionsEntry [83-86] [x=1]
+      Identifier(x) [83-84] [x]
+      IntLiteral(1) [85-86] [1]
+    OptionsEntry [87-90] [y=2]
+      Identifier(y) [87-88] [y]
+      IntLiteral(2) [89-90] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+# Specifying two UNNEST expressions.
+create index a.b.i1 on c.d.t1 foo UNNEST(a) AS bar1 WITH OFFSET AS offset1
+UNNEST(b) AS bar2 WITH OFFSET AS offset2 (a, b, c) options(x=1,y=2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-142] [create index...ptions(x=1,y=2)]
+  PathExpression [13-19] [a.b.i1]
+    Identifier(a) [13-14] [a]
+    Identifier(b) [15-16] [b]
+    Identifier(i1) [17-19] [i1]
+  PathExpression [23-29] [c.d.t1]
+    Identifier(c) [23-24] [c]
+    Identifier(d) [25-26] [d]
+    Identifier(t1) [27-29] [t1]
+  Alias [30-33] [foo]
+    Identifier(foo) [30-33] [foo]
+  IndexUnnestExpressionList [34-115] [UNNEST(a)...AS offset2]
+    UnnestExpressionWithOptAliasAndOffset [34-74] [UNNEST(a)...AS offset1]
+      UnnestExpression [34-43] [UNNEST(a)]
+        ExpressionWithOptAlias [41-42] [a]
+          PathExpression [41-42] [a]
+            Identifier(a) [41-42] [a]
+      Alias [44-51] [AS bar1]
+        Identifier(bar1) [47-51] [bar1]
+      WithOffset [52-74] [WITH OFFSET AS offset1]
+        Alias [64-74] [AS offset1]
+          Identifier(offset1) [67-74] [offset1]
+    UnnestExpressionWithOptAliasAndOffset [75-115] [UNNEST(b)...AS offset2]
+      UnnestExpression [75-84] [UNNEST(b)]
+        ExpressionWithOptAlias [82-83] [b]
+          PathExpression [82-83] [b]
+            Identifier(b) [82-83] [b]
+      Alias [85-92] [AS bar2]
+        Identifier(bar2) [88-92] [bar2]
+      WithOffset [93-115] [WITH OFFSET AS offset2]
+        Alias [105-115] [AS offset2]
+          Identifier(offset2) [108-115] [offset2]
+  IndexItemList [116-125] [(a, b, c)]
+    OrderingExpression(ASC) [117-118] [a]
+      PathExpression [117-118] [a]
+        Identifier(a) [117-118] [a]
+    OrderingExpression(ASC) [120-121] [b]
+      PathExpression [120-121] [b]
+        Identifier(b) [120-121] [b]
+    OrderingExpression(ASC) [123-124] [c]
+      PathExpression [123-124] [c]
+        Identifier(c) [123-124] [c]
+  OptionsList [133-142] [(x=1,y=2)]
+    OptionsEntry [134-137] [x=1]
+      Identifier(x) [134-135] [x]
+      IntLiteral(1) [136-137] [1]
+    OptionsEntry [138-141] [y=2]
+      Identifier(y) [138-139] [y]
+      IntLiteral(2) [140-141] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+# Create index with storing clause and one column.
+create index i1 on t1(a) STORING (b) {{|options(x=1,y=2)}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+# Create index with storing clause and two columns.
+create index i1 on t1(a) STORING (b, c) {{|options(x=1,y=2)}};
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+# Create index with storing clause on a dotted identifier.
+create index i1 on t1(a) STORING (b1.b2);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-40] [create index...STORING (b1.b2)]
+  PathExpression [13-15] [i1]
+    Identifier(i1) [13-15] [i1]
+  PathExpression [19-21] [t1]
+    Identifier(t1) [19-21] [t1]
+  IndexItemList [21-24] [(a)]
+    OrderingExpression(ASC) [22-23] [a]
+      PathExpression [22-23] [a]
+        Identifier(a) [22-23] [a]
+  IndexStoringExpressionList [33-40] [(b1.b2)]
+    PathExpression [34-39] [b1.b2]
+      Identifier(b1) [34-36] [b1]
+      Identifier(b2) [37-39] [b2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# Create index with mathematical expression on the storing clause.
+create index i1 on t1(a) STORING (b+1);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement [0-38] [create index...STORING (b+1)]
+  PathExpression [13-15] [i1]
+    Identifier(i1) [13-15] [i1]
+  PathExpression [19-21] [t1]
+    Identifier(t1) [19-21] [t1]
+  IndexItemList [21-24] [(a)]
+    OrderingExpression(ASC) [22-23] [a]
+      PathExpression [22-23] [a]
+        Identifier(a) [22-23] [a]
+  IndexStoringExpressionList [33-38] [(b+1)]
+    BinaryExpression(+) [34-37] [b+1]
+      PathExpression [34-35] [b]
+        Identifier(b) [34-35] [b]
+      IntLiteral(1) [36-37] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+CREATE SEARCH INDEX i1 ON t1 (`ALL COLUMNS`) OPTIONS();
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-54] [CREATE SEARCH...OPTIONS()]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [29-44] [(`ALL COLUMNS`)]
+    OrderingExpression(ASC) [30-43] [`ALL COLUMNS`]
+      PathExpression [30-43] [`ALL COLUMNS`]
+        Identifier(`ALL COLUMNS`) [30-43] [`ALL COLUMNS`]
+  OptionsList [52-54] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+CREATE SEARCH INDEX i1 ON t1 (ALL COLUMNS) OPTIONS();
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-52] [CREATE SEARCH...OPTIONS()]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [29-42] [(ALL COLUMNS)]
+    OrderingExpression(ASC) [29-42] [(ALL COLUMNS)]
+      IndexAllColumns(ALL COLUMNS) [29-42] [(ALL COLUMNS)]
+  OptionsList [50-52] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+CREATE SEARCH INDEX i1 ON t1 ( all columns ) OPTIONS (key=value);
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-64] [CREATE SEARCH...key=value)]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [29-44] [( all columns )]
+    OrderingExpression(ASC) [29-44] [( all columns )]
+      IndexAllColumns(ALL COLUMNS) [29-44] [( all columns )]
+  OptionsList [53-64] [(key=value)]
+    OptionsEntry [54-63] [key=value]
+      Identifier(key) [54-57] [key]
+      PathExpression [58-63] [value]
+        Identifier(value) [58-63] [value]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+CREATE SEARCH INDEX i1 ON t1 ('ALL', COLUMNS) OPTIONS();
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-55] [CREATE SEARCH...OPTIONS()]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [29-45] [('ALL', COLUMNS)]
+    OrderingExpression(ASC) [30-35] ['ALL']
+      StringLiteral [30-35] ['ALL']
+        StringLiteralComponent('ALL') [30-35] ['ALL']
+    OrderingExpression(ASC) [37-44] [COLUMNS]
+      PathExpression [37-44] [COLUMNS]
+        Identifier(COLUMNS) [37-44] [COLUMNS]
+  OptionsList [53-55] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+# Specify both VECTOR and SEARCH
+create {{|or replace}} search vector index on t1(a)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
+==================
+# Specify both VECTOR and SEARCH
+create {{|or replace}} vector search index on i1 on t1(a);
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: <empty>
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+create search index i1 on t1(a) storing (s) partition by a options()
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-68] [create search...options()]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [28-31] [(a)]
+    OrderingExpression(ASC) [29-30] [a]
+      PathExpression [29-30] [a]
+        Identifier(a) [29-30] [a]
+  IndexStoringExpressionList [40-43] [(s)]
+    PathExpression [41-42] [s]
+      Identifier(s) [41-42] [s]
+  PartitionBy [44-58] [partition by a]
+    PathExpression [57-58] [a]
+      Identifier(a) [57-58] [a]
+  OptionsList [66-68] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+create vector index i1 on t1(a) partition by p1, p2 options()
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(VECTOR) [0-61] [create vector...options()]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [28-31] [(a)]
+    OrderingExpression(ASC) [29-30] [a]
+      PathExpression [29-30] [a]
+        Identifier(a) [29-30] [a]
+  PartitionBy [32-51] [partition by p1, p2]
+    PathExpression [45-47] [p1]
+      Identifier(p1) [45-47] [p1]
+    PathExpression [49-51] [p2]
+      Identifier(p2) [49-51] [p2]
+  OptionsList [59-61] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+create search index i1 on t1(a) partition by DATE_TRUNC(_PARTITIONTIME, MONTH) options()
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-88] [create search...options()]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [28-31] [(a)]
+    OrderingExpression(ASC) [29-30] [a]
+      PathExpression [29-30] [a]
+        Identifier(a) [29-30] [a]
+  PartitionBy [32-78] [partition...TITIONTIME, MONTH)]
+    FunctionCall [45-78] [DATE_TRUNC...ITIONTIME, MONTH)]
+      PathExpression [45-55] [DATE_TRUNC]
+        Identifier(DATE_TRUNC) [45-55] [DATE_TRUNC]
+      PathExpression [56-70] [_PARTITIONTIME]
+        Identifier(_PARTITIONTIME) [56-70] [_PARTITIONTIME]
+      PathExpression [72-77] [MONTH]
+        Identifier(MONTH) [72-77] [MONTH]
+  OptionsList [86-88] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+# Specify empty OPTIONS.
+create search index i1 on t1(a options())
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-41] [create search...options())]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [28-41] [(a options())]
+    OrderingExpression(ASC) [29-40] [a options()]
+      PathExpression [29-30] [a]
+        Identifier(a) [29-30] [a]
+      OptionsList [38-40] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
+==================
+# Specify per-column options
+create search index i1 on t1(a options(k1=v1))
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-46] [create search...ptions(k1=v1))]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [28-46] [(a options(k1=v1))]
+    OrderingExpression(ASC) [29-45] [a options(k1=v1)]
+      PathExpression [29-30] [a]
+        Identifier(a) [29-30] [a]
+      OptionsList [38-45] [(k1=v1)]
+        OptionsEntry [39-44] [k1=v1]
+          Identifier(k1) [39-41] [k1]
+          PathExpression [42-44] [v1]
+            Identifier(v1) [42-44] [v1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 30
+==================
+# Specify multiple per-column options
+create search index i1 on t1(c1 options(k1=v1), c2 options({{k2=v2, k3=v3|}}))
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUP: k2=v2, k3=v3
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 31
+==================
+# Specify multiple per-column options with overlapping option keys
+create search index i1 on t1(c1 options(k1=v1), c2 options(k1=v1, k2=v2))
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-73] [create search...v1, k2=v2))]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [28-73] [(c1 options...v1, k2=v2))]
+    OrderingExpression(ASC) [29-46] [c1 options(k1=v1)]
+      PathExpression [29-31] [c1]
+        Identifier(c1) [29-31] [c1]
+      OptionsList [39-46] [(k1=v1)]
+        OptionsEntry [40-45] [k1=v1]
+          Identifier(k1) [40-42] [k1]
+          PathExpression [43-45] [v1]
+            Identifier(v1) [43-45] [v1]
+    OrderingExpression(ASC) [48-72] [c2 options(k1=v1, k2=v2)]
+      PathExpression [48-50] [c2]
+        Identifier(c2) [48-50] [c2]
+      OptionsList [58-72] [(k1=v1, k2=v2)]
+        OptionsEntry [59-64] [k1=v1]
+          Identifier(k1) [59-61] [k1]
+          PathExpression [62-64] [v1]
+            Identifier(v1) [62-64] [v1]
+        OptionsEntry [66-71] [k2=v2]
+          Identifier(k2) [66-68] [k2]
+          PathExpression [69-71] [v2]
+            Identifier(v2) [69-71] [v2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 32
+==================
+# Specify empty list of OPTIONS for a column in WITH COLUMN OPTIONS.
+create search index i1 on t1 (ALL COLUMNS WITH COLUMN OPTIONS (c1 OPTIONS()))
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-77] [create search...OPTIONS()))]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [29-77] [(ALL COLUMNS...OPTIONS()))]
+    OrderingExpression(ASC) [29-77] [(ALL COLUMNS...OPTIONS()))]
+      IndexAllColumns(ALL COLUMNS) [29-77] [(ALL COLUMNS...OPTIONS()))]
+        IndexItemList [62-75] [(c1 OPTIONS()]
+          OrderingExpression(ASC) [63-75] [c1 OPTIONS()]
+            PathExpression [63-65] [c1]
+              Identifier(c1) [63-65] [c1]
+            OptionsList [73-75] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 33
+==================
+# Specify WITH COLUMN OPTIONS with ALL COLUMNS
+create search index i1 on t1 (ALL COLUMNS WITH COLUMN OPTIONS (c1 OPTIONS (k1=v1)))
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-83] [create search...(k1=v1)))]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [29-83] [(ALL COLUMNS...(k1=v1)))]
+    OrderingExpression(ASC) [29-83] [(ALL COLUMNS...(k1=v1)))]
+      IndexAllColumns(ALL COLUMNS) [29-83] [(ALL COLUMNS...(k1=v1)))]
+        IndexItemList [62-81] [(c1 OPTIONS (k1=v1)]
+          OrderingExpression(ASC) [63-81] [c1 OPTIONS (k1=v1)]
+            PathExpression [63-65] [c1]
+              Identifier(c1) [63-65] [c1]
+            OptionsList [74-81] [(k1=v1)]
+              OptionsEntry [75-80] [k1=v1]
+                Identifier(k1) [75-77] [k1]
+                PathExpression [78-80] [v1]
+                  Identifier(v1) [78-80] [v1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
+==================
+# Specify multiple per-column options with ALL COLUMNS
+create search index i1 on t1(ALL COLUMNS WITH COLUMN OPTIONS (c1 options(k1=v1), c2 options(k2=v2, k3=v3)))
+
+/* Expected ZetaSQL AST:
+CreateIndexStatement(SEARCH) [0-107] [create search..., k3=v3)))]
+  PathExpression [20-22] [i1]
+    Identifier(i1) [20-22] [i1]
+  PathExpression [26-28] [t1]
+    Identifier(t1) [26-28] [t1]
+  IndexItemList [28-107] [(ALL COLUMNS..., k3=v3)))]
+    OrderingExpression(ASC) [28-107] [(ALL COLUMNS..., k3=v3)))]
+      IndexAllColumns(ALL COLUMNS) [28-107] [(ALL COLUMNS..., k3=v3)))]
+        IndexItemList [61-105] [(c1 options...v2, k3=v3)]
+          OrderingExpression(ASC) [62-79] [c1 options(k1=v1)]
+            PathExpression [62-64] [c1]
+              Identifier(c1) [62-64] [c1]
+            OptionsList [72-79] [(k1=v1)]
+              OptionsEntry [73-78] [k1=v1]
+                Identifier(k1) [73-75] [k1]
+                PathExpression [76-78] [v1]
+                  Identifier(v1) [76-78] [v1]
+          OrderingExpression(ASC) [81-105] [c2 options(k2=v2, k3=v3)]
+            PathExpression [81-83] [c2]
+              Identifier(c2) [81-83] [c2]
+            OptionsList [91-105] [(k2=v2, k3=v3)]
+              OptionsEntry [92-97] [k2=v2]
+                Identifier(k2) [92-94] [k2]
+                PathExpression [95-97] [v2]
+                  Identifier(v2) [95-97] [v2]
+              OptionsEntry [99-104] [k3=v3]
+                Identifier(k3) [99-101] [k3]
+                PathExpression [102-104] [v3]
+                  Identifier(v3) [102-104] [v3]
+*/
+---
+(source_file (ERROR))
+
