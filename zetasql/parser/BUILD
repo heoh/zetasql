@@ -883,3 +883,25 @@ cc_test(
         "@com_google_absl//absl/strings:string_view",
     ],
 )
+
+cc_binary(
+    name = "zetasql_parser_wasm",
+    srcs = ["wasm_parser.cc"],
+    linkopts = [
+        "-sWASM=1",
+        "-sMODULARIZE=1",
+        "-sEXPORT_NAME='ZetaSQLModule'",
+        "-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap']",
+        "-sALLOW_MEMORY_GROWTH=1",
+        "-sUSE_PTHREADS=0",
+        "-sDISABLE_EXCEPTION_CATCHING=0",
+        "--bind",
+    ],
+    copts = [
+        "-fexceptions",
+    ],
+    deps = [
+        ":parser",
+        "@com_google_absl//absl/status",
+    ],
+)

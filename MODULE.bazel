@@ -78,6 +78,7 @@ bazel_dep(name = "rules_m4", version = "0.3")
 bazel_dep(name = "rules_proto", version = "7.0.2")
 bazel_dep(name = "rules_python", version = "1.6.1")
 bazel_dep(name = "toolchains_llvm", version = "1.5.0")
+bazel_dep(name = "emsdk", version = "4.0.17")
 
 # The 'slot_type' in /zetasql/public/types/internal_utils.h file is a private member of
 # absl::container_internal::raw_hash_set in newer versions. Pinged to an older version of abseil-cpp
@@ -131,3 +132,4 @@ llvm.toolchain(
 use_repo(llvm, "llvm_toolchain")
 
 register_toolchains("@llvm_toolchain//:all")
+register_toolchains("@emsdk//:all")
