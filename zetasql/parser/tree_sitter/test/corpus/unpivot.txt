@@ -621,11 +621,40 @@ Test Case 17
 ==================
 # UNPIVOT combined with TABLESAMPLE
 SELECT * FROM
-t UNPIVOT(a for b in (C)) {{AS t_unpivot|}}
+t UNPIVOT(a for b in (C)) AS t_unpivot
 TABLESAMPLE RESERVOIR (100 ROWS) REPEATABLE(10)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS t_unpivot
+QueryStatement [0-100] [SELECT * FROM...REPEATABLE(10)]
+  Query [0-100] [SELECT * FROM...REPEATABLE(10)]
+    Select [0-100] [SELECT * FROM...REPEATABLE(10)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-100] [FROM t UNPIVOT...EPEATABLE(10)]
+        TablePathExpression [14-100] [t UNPIVOT(...REPEATABLE(10)]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          UnpivotClause [16-52] [UNPIVOT(a...t_unpivot]
+            PathExpressionList [24-25] [a]
+              PathExpression [24-25] [a]
+                Identifier(a) [24-25] [a]
+            PathExpression [30-31] [b]
+              Identifier(b) [30-31] [b]
+            UnpivotInItemList [35-38] [(C)]
+              UnpivotInItem [36-37] [C]
+                PathExpressionList [36-37] [C]
+                  PathExpression [36-37] [C]
+                    Identifier(C) [36-37] [C]
+            Alias [40-52] [AS t_unpivot]
+              Identifier(t_unpivot) [43-52] [t_unpivot]
+          SampleClause [53-100] [TABLESAMPLE...REPEATABLE(10)]
+            Identifier(RESERVOIR) [65-74] [RESERVOIR]
+            SampleSize [76-84] [100 ROWS]
+              IntLiteral(100) [76-79] [100]
+            SampleSuffix [86-100] [REPEATABLE(10)]
+              RepeatableClause [86-100] [REPEATABLE(10)]
+                IntLiteral(10) [97-99] [10]
 */
 ---
 (source_file (ERROR))
@@ -738,7 +767,20 @@ QueryStatement [0-23] [SELECT * FROM t UNPIVOT]
             Identifier(UNPIVOT) [16-23] [UNPIVOT]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (comment [0, 0] - [0, 77])
+  (statement [1, 0] - [1, 24]
+    (select_statement [1, 0] - [1, 24]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 23]
+        (from_item [1, 14] - [1, 23]
+          (table_expression [1, 14] - [1, 15]
+            (path_expression [1, 14] - [1, 15]
+              (identifier [1, 14] - [1, 15])))
+          (identifier [1, 16] - [1, 23])))))
+  (comment [3, 0] - [16, 2]))
 
 ==================
 Test Case 21
@@ -756,7 +798,17 @@ QueryStatement [0-14] [SELECT UNPIVOT]
             Identifier(UNPIVOT) [7-14] [UNPIVOT]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [11, 2]
+  (comment [0, 0] - [0, 48])
+  (statement [1, 0] - [1, 15]
+    (select_statement [1, 0] - [1, 15]
+      (select_clause [1, 0] - [1, 14]
+        (select_list [1, 7] - [1, 14]
+          (select_expression [1, 7] - [1, 14]
+            (expression [1, 7] - [1, 14]
+              (path_expression [1, 7] - [1, 14]
+                (identifier [1, 7] - [1, 14]))))))))
+  (comment [3, 0] - [11, 2]))
 
 ==================
 Test Case 22
@@ -779,7 +831,20 @@ QueryStatement [0-26] [SELECT * FROM t AS UNPIVOT]
             Identifier(UNPIVOT) [19-26] [UNPIVOT]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (comment [0, 0] - [0, 35])
+  (statement [1, 0] - [1, 27]
+    (select_statement [1, 0] - [1, 27]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 26]
+        (from_item [1, 14] - [1, 26]
+          (table_expression [1, 14] - [1, 15]
+            (path_expression [1, 14] - [1, 15]
+              (identifier [1, 14] - [1, 15])))
+          (identifier [1, 19] - [1, 26])))))
+  (comment [3, 0] - [16, 2]))
 
 ==================
 Test Case 23
@@ -885,11 +950,17 @@ QueryStatement [0-97] [SELECT * FROM...REPEATABLE(10)]
 ==================
 Test Case 26
 ==================
-# ERROR: The only columns that are allowed to be aliased are the unpivot value columns.
-SELECT * FROM t UNPIVOT(x {{AS y|AS}} FROM c IN (z))
+# ERROR: WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+UNPIVOT(a for b in (c)) AS t_alias
+WITH OFFSET AS t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS y
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -897,11 +968,17 @@ ALTERNATION GROUP: AS y
 ==================
 Test Case 27
 ==================
-# ERROR: unpivot output columns aren't allowed to be expressions.
-SELECT * FROM t UNPIVOT({{x + y AS z|(x + y)}} FROM a IN (b))
+# ERROR: WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+UNPIVOT(a for b in (c)) AS t_alias
+WITH OFFSET t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: x + y AS z
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -909,13 +986,17 @@ ALTERNATION GROUP: x + y AS z
 ==================
 Test Case 28
 ==================
-# The SQL Standard allows a parenthesized column list to follow a table alias.
-# ZetaSQL does not support this, but make sure that, when the table alias is
-# "PIVOT", the query fails.
-SELECT * FROM t UNPIVOT({{x|x,|x,y|x,y,}});
+# ERROR: WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+UNPIVOT(a for b in (c)) AS t_alias
+WITH OFFSET ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: x
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -926,8 +1007,8 @@ Test Case 29
 # ERROR: WITH OFFSET on pivot result (with and without alias)
 SELECT * FROM
 t
-UNPIVOT(a for b in (c)) {{AS t_alias|t_alias|}}
-WITH OFFSET {{AS t_alias|t_alias|}};
+UNPIVOT(a for b in (c)) t_alias
+WITH OFFSET AS t_alias;
 
 /* Expected ZetaSQL AST:
 ALTERNATION GROUPS:
@@ -941,11 +1022,17 @@ ALTERNATION GROUPS:
 ==================
 Test Case 30
 ==================
-# Alias on input table of UNPIVOT, both with and without AS keyword.
-SELECT * FROM t {{AS|}} t1 UNPIVOT(a FOR b IN (c));
+# ERROR: WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+UNPIVOT(a for b in (c)) t_alias
+WITH OFFSET t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -953,12 +1040,17 @@ ALTERNATION GROUP: AS
 ==================
 Test Case 31
 ==================
-# Alias on both input table and result of UNPIVOT,
-# both with and without AS keyword.
-SELECT * FROM t {{AS|}} t1 UNPIVOT(a FOR b IN (c)) {{AS|}} t2;
+# ERROR: WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+UNPIVOT(a for b in (c)) t_alias
+WITH OFFSET ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS,AS
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -966,14 +1058,17 @@ ALTERNATION GROUP: AS,AS
 ==================
 Test Case 32
 ==================
-# UNPIVOT on UNNEST() is an error on the resolver (because unnest() returns a
-# value table), but it's allowed on the parser layer.
-# Test both with and without a WITH OFFSET clause.
-SELECT * FROM UNNEST([1, 2, 3]) {{WITH OFFSET|WITH OFFSET x|WITH OFFSET AS x|}}
-UNPIVOT(a for b in (c)) AS x;
+# ERROR: WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+UNPIVOT(a for b in (c)) 
+WITH OFFSET AS t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: WITH OFFSET
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -981,11 +1076,309 @@ ALTERNATION GROUP: WITH OFFSET
 ==================
 Test Case 33
 ==================
-# Qualified references to column from input table within unpivot clause
-SELECT * FROM t UNPIVOT(t.a FOR t.b IN (c)) {{AS|}} t2;
+# ERROR: WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+UNPIVOT(a for b in (c)) 
+WITH OFFSET t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
+==================
+# ERROR: WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+UNPIVOT(a for b in (c)) 
+WITH OFFSET ;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 35
+==================
+# Alias on input table of UNPIVOT, both with and without AS keyword.
+SELECT * FROM t AS t1 UNPIVOT(a FOR b IN (c));
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-45] [SELECT * FROM...b IN (c))]
+  Query [0-45] [SELECT * FROM...b IN (c))]
+    Select [0-45] [SELECT * FROM...b IN (c))]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-45] [FROM t AS...b IN (c))]
+        TablePathExpression [14-45] [t AS t1 UNPIVOT...b IN (c))]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          Alias [16-21] [AS t1]
+            Identifier(t1) [19-21] [t1]
+          UnpivotClause [22-45] [UNPIVOT(a FOR b IN (c))]
+            PathExpressionList [30-31] [a]
+              PathExpression [30-31] [a]
+                Identifier(a) [30-31] [a]
+            PathExpression [36-37] [b]
+              Identifier(b) [36-37] [b]
+            UnpivotInItemList [41-44] [(c)]
+              UnpivotInItem [42-43] [c]
+                PathExpressionList [42-43] [c]
+                  PathExpression [42-43] [c]
+                    Identifier(c) [42-43] [c]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 36
+==================
+# Alias on both input table and result of UNPIVOT,
+# both with and without AS keyword.
+SELECT * FROM t AS t1 UNPIVOT(a FOR b IN (c)) AS t2;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [SELECT * FROM...(c)) AS t2]
+  Query [0-51] [SELECT * FROM...(c)) AS t2]
+    Select [0-51] [SELECT * FROM...(c)) AS t2]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-51] [FROM t AS...(c)) AS t2]
+        TablePathExpression [14-51] [t AS t1 UNPIVOT...(c)) AS t2]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          Alias [16-21] [AS t1]
+            Identifier(t1) [19-21] [t1]
+          UnpivotClause [22-51] [UNPIVOT(a FOR b IN (c)) AS t2]
+            PathExpressionList [30-31] [a]
+              PathExpression [30-31] [a]
+                Identifier(a) [30-31] [a]
+            PathExpression [36-37] [b]
+              Identifier(b) [36-37] [b]
+            UnpivotInItemList [41-44] [(c)]
+              UnpivotInItem [42-43] [c]
+                PathExpressionList [42-43] [c]
+                  PathExpression [42-43] [c]
+                    Identifier(c) [42-43] [c]
+            Alias [46-51] [AS t2]
+              Identifier(t2) [49-51] [t2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 37
+==================
+# Alias on both input table and result of UNPIVOT,
+# both with and without AS keyword.
+SELECT * FROM t AS t1 UNPIVOT(a FOR b IN (c))  t2;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT * FROM...IN (c))  t2]
+  Query [0-49] [SELECT * FROM...IN (c))  t2]
+    Select [0-49] [SELECT * FROM...IN (c))  t2]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-49] [FROM t AS...IN (c))  t2]
+        TablePathExpression [14-49] [t AS t1 UNPIVOT...IN (c))  t2]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          Alias [16-21] [AS t1]
+            Identifier(t1) [19-21] [t1]
+          UnpivotClause [22-49] [UNPIVOT(a FOR b IN (c))  t2]
+            PathExpressionList [30-31] [a]
+              PathExpression [30-31] [a]
+                Identifier(a) [30-31] [a]
+            PathExpression [36-37] [b]
+              Identifier(b) [36-37] [b]
+            UnpivotInItemList [41-44] [(c)]
+              UnpivotInItem [42-43] [c]
+                PathExpressionList [42-43] [c]
+                  PathExpression [42-43] [c]
+                    Identifier(c) [42-43] [c]
+            Alias [47-49] [t2]
+              Identifier(t2) [47-49] [t2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 38
+==================
+# UNPIVOT on UNNEST() is an error on the resolver (because unnest() returns a
+# value table), but it's allowed on the parser layer.
+# Test both with and without a WITH OFFSET clause.
+SELECT * FROM UNNEST([1, 2, 3]) WITH OFFSET
+UNPIVOT(a for b in (c)) AS x;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-72] [SELECT * FROM...(c)) AS x]
+  Query [0-72] [SELECT * FROM...(c)) AS x]
+    Select [0-72] [SELECT * FROM...(c)) AS x]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-72] [FROM UNNEST...(c)) AS x]
+        TablePathExpression [14-72] [UNNEST([1,...(c)) AS x]
+          UnnestExpression [14-31] [UNNEST([1, 2, 3])]
+            ExpressionWithOptAlias [21-30] [[1, 2, 3]]
+              ArrayConstructor [21-30] [[1, 2, 3]]
+                IntLiteral(1) [22-23] [1]
+                IntLiteral(2) [25-26] [2]
+                IntLiteral(3) [28-29] [3]
+          WithOffset [32-43] [WITH OFFSET]
+          UnpivotClause [44-72] [UNPIVOT(a for b in (c)) AS x]
+            PathExpressionList [52-53] [a]
+              PathExpression [52-53] [a]
+                Identifier(a) [52-53] [a]
+            PathExpression [58-59] [b]
+              Identifier(b) [58-59] [b]
+            UnpivotInItemList [63-66] [(c)]
+              UnpivotInItem [64-65] [c]
+                PathExpressionList [64-65] [c]
+                  PathExpression [64-65] [c]
+                    Identifier(c) [64-65] [c]
+            Alias [68-72] [AS x]
+              Identifier(x) [71-72] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 39
+==================
+# UNPIVOT on UNNEST() is an error on the resolver (because unnest() returns a
+# value table), but it's allowed on the parser layer.
+# Test both with and without a WITH OFFSET clause.
+SELECT * FROM UNNEST([1, 2, 3]) WITH OFFSET x
+UNPIVOT(a for b in (c)) AS x;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-74] [SELECT * FROM...(c)) AS x]
+  Query [0-74] [SELECT * FROM...(c)) AS x]
+    Select [0-74] [SELECT * FROM...(c)) AS x]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-74] [FROM UNNEST...(c)) AS x]
+        TablePathExpression [14-74] [UNNEST([1,...(c)) AS x]
+          UnnestExpression [14-31] [UNNEST([1, 2, 3])]
+            ExpressionWithOptAlias [21-30] [[1, 2, 3]]
+              ArrayConstructor [21-30] [[1, 2, 3]]
+                IntLiteral(1) [22-23] [1]
+                IntLiteral(2) [25-26] [2]
+                IntLiteral(3) [28-29] [3]
+          WithOffset [32-45] [WITH OFFSET x]
+            Alias [44-45] [x]
+              Identifier(x) [44-45] [x]
+          UnpivotClause [46-74] [UNPIVOT(a for b in (c)) AS x]
+            PathExpressionList [54-55] [a]
+              PathExpression [54-55] [a]
+                Identifier(a) [54-55] [a]
+            PathExpression [60-61] [b]
+              Identifier(b) [60-61] [b]
+            UnpivotInItemList [65-68] [(c)]
+              UnpivotInItem [66-67] [c]
+                PathExpressionList [66-67] [c]
+                  PathExpression [66-67] [c]
+                    Identifier(c) [66-67] [c]
+            Alias [70-74] [AS x]
+              Identifier(x) [73-74] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 40
+==================
+# UNPIVOT on UNNEST() is an error on the resolver (because unnest() returns a
+# value table), but it's allowed on the parser layer.
+# Test both with and without a WITH OFFSET clause.
+SELECT * FROM UNNEST([1, 2, 3]) WITH OFFSET AS x
+UNPIVOT(a for b in (c)) AS x;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-77] [SELECT * FROM...(c)) AS x]
+  Query [0-77] [SELECT * FROM...(c)) AS x]
+    Select [0-77] [SELECT * FROM...(c)) AS x]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-77] [FROM UNNEST...(c)) AS x]
+        TablePathExpression [14-77] [UNNEST([1,...(c)) AS x]
+          UnnestExpression [14-31] [UNNEST([1, 2, 3])]
+            ExpressionWithOptAlias [21-30] [[1, 2, 3]]
+              ArrayConstructor [21-30] [[1, 2, 3]]
+                IntLiteral(1) [22-23] [1]
+                IntLiteral(2) [25-26] [2]
+                IntLiteral(3) [28-29] [3]
+          WithOffset [32-48] [WITH OFFSET AS x]
+            Alias [44-48] [AS x]
+              Identifier(x) [47-48] [x]
+          UnpivotClause [49-77] [UNPIVOT(a for b in (c)) AS x]
+            PathExpressionList [57-58] [a]
+              PathExpression [57-58] [a]
+                Identifier(a) [57-58] [a]
+            PathExpression [63-64] [b]
+              Identifier(b) [63-64] [b]
+            UnpivotInItemList [68-71] [(c)]
+              UnpivotInItem [69-70] [c]
+                PathExpressionList [69-70] [c]
+                  PathExpression [69-70] [c]
+                    Identifier(c) [69-70] [c]
+            Alias [73-77] [AS x]
+              Identifier(x) [76-77] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 41
+==================
+# Qualified references to column from input table within unpivot clause
+SELECT * FROM t UNPIVOT(t.a FOR t.b IN (c)) AS t2;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT * FROM...(c)) AS t2]
+  Query [0-49] [SELECT * FROM...(c)) AS t2]
+    Select [0-49] [SELECT * FROM...(c)) AS t2]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-49] [FROM t UNPIVOT...(c)) AS t2]
+        TablePathExpression [14-49] [t UNPIVOT(...(c)) AS t2]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          UnpivotClause [16-49] [UNPIVOT(t....(c)) AS t2]
+            PathExpressionList [24-27] [t.a]
+              PathExpression [24-27] [t.a]
+                Identifier(t) [24-25] [t]
+                Identifier(a) [26-27] [a]
+            PathExpression [32-35] [t.b]
+              Identifier(t) [32-33] [t]
+              Identifier(b) [34-35] [b]
+            UnpivotInItemList [39-42] [(c)]
+              UnpivotInItem [40-41] [c]
+                PathExpressionList [40-41] [c]
+                  PathExpression [40-41] [c]
+                    Identifier(c) [40-41] [c]
+            Alias [44-49] [AS t2]
+              Identifier(t2) [47-49] [t2]
 */
 ---
 (source_file (ERROR))

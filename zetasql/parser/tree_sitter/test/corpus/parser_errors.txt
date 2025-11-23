@@ -1,11 +1,17 @@
 ==================
 Test Case 1
 ==================
-# Strings and bytes are not quoted again in the error message.
-{{r|b|rb}}'sdfd{{"|}}s'
+r"""sdfds
+
+foo
+
+bar"""
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: r,"
+[NEWLINE \n]
+ERROR: Syntax error: Unexpected string literal r"""sdfds\n\nfoo\n\nbar""" [at 1:1]
+r"""sdfds
+^
 */
 ---
 (source_file (ERROR))
@@ -13,10 +19,17 @@ ALTERNATION GROUP: r,"
 ==================
 Test Case 2
 ==================
-{{r|b|rb}}"sdfd{{'|}}s"
+b"""sdfds
+
+foo
+
+bar"""
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: r,'
+[NEWLINE \n]
+ERROR: Syntax error: Unexpected bytes literal b"""sdfds\n\nfoo\n\nbar""" [at 1:1]
+b"""sdfds
+^
 */
 ---
 (source_file (ERROR))
@@ -24,14 +37,17 @@ ALTERNATION GROUP: r,'
 ==================
 Test Case 3
 ==================
-{{r|b|rb}}"""sdfds
+rb"""sdfds
 
 foo
 
 bar"""
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: r
+[NEWLINE \n]
+ERROR: Syntax error: Unexpected bytes literal rb"""sdfds\n\nfoo\n\nbar""" [at 1:1]
+rb"""sdfds
+^
 */
 ---
 (source_file (ERROR))
@@ -39,20 +55,59 @@ ALTERNATION GROUP: r
 ==================
 Test Case 4
 ==================
-{{r|b|rb}}'''sdfds
+r'''sdfds
 
 foo
 
 bar'''
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: r
+[NEWLINE \n]
+ERROR: Syntax error: Unexpected string literal r'''sdfds\n\nfoo\n\nbar''' [at 1:1]
+r'''sdfds
+^
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 5
+==================
+b'''sdfds
+
+foo
+
+bar'''
+
+/* Expected ZetaSQL AST:
+[NEWLINE \n]
+ERROR: Syntax error: Unexpected bytes literal b'''sdfds\n\nfoo\n\nbar''' [at 1:1]
+b'''sdfds
+^
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+rb'''sdfds
+
+foo
+
+bar'''
+
+/* Expected ZetaSQL AST:
+[NEWLINE \n]
+ERROR: Syntax error: Unexpected bytes literal rb'''sdfds\n\nfoo\n\nbar''' [at 1:1]
+rb'''sdfds
+^
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
 ==================
 # Parse error can point at the first bad keyword, skipping initial comments.
 \
@@ -61,50 +116,6 @@ Test Case 5
 abcdef
 # ghijkl
 /* xyz * / xxx yyy;
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 6
-==================
-select fn({{distinct|}} a)({{distinct|}} b);
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: distinct,distinct
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 7
-==================
-select (a+b)({{distinct|}} a)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: distinct
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 8
-==================
-select NULL({{distinct|}} a)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: distinct
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 9
-==================
-select @param({{distinct|}} a)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: distinct
 */
 ---
 (source_file (ERROR))

@@ -7,9 +7,7 @@ Test Case 1
 # Ideally the marker in error for T QUALIFY QUALIFY should be at the following
 # QUALIFY, but we are not able to correctly output that. This usage should be
 # rare so we can probably live with this mis-handling.
-[default no_qualify_reserved]
-[default language_features=NONE,+QUALIFY]
-select f1, f2 from {{T|T QUALIFY|T AS QUALIFY|T SOMETHING}}
+select f1, f2 from T
   QUALIFY row_number() OVER (PARTITION BY f2 ORDER BY f3) = 1
 
 /* Expected ZetaSQL AST:
@@ -23,6 +21,48 @@ ALTERNATION GROUPS:
 
 ==================
 Test Case 2
+==================
+# The initial few test cases document the errors when oneof(WHERE, GROUP BY, HAVING)
+# is missing before QUALIFY. We require those to be present to make resolve parser
+# ambiguity in the short term. More details at (broken link)
+# Ideally the marker in error for T QUALIFY QUALIFY should be at the following
+# QUALIFY, but we are not able to correctly output that. This usage should be
+# rare so we can probably live with this mis-handling.
+select f1, f2 from T AS QUALIFY
+  QUALIFY row_number() OVER (PARTITION BY f2 ORDER BY f3) = 1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    T
+    T AS QUALIFY
+    T SOMETHING
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# The initial few test cases document the errors when oneof(WHERE, GROUP BY, HAVING)
+# is missing before QUALIFY. We require those to be present to make resolve parser
+# ambiguity in the short term. More details at (broken link)
+# Ideally the marker in error for T QUALIFY QUALIFY should be at the following
+# QUALIFY, but we are not able to correctly output that. This usage should be
+# rare so we can probably live with this mis-handling.
+select f1, f2 from T SOMETHING
+  QUALIFY row_number() OVER (PARTITION BY f2 ORDER BY f3) = 1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    T
+    T AS QUALIFY
+    T SOMETHING
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
 ==================
 # The following tests cases are using QUALIFY as an identifier, these are to
 # make sure that we are not err'ing out when used as identifier.
@@ -47,10 +87,31 @@ QueryStatement [0-28] [select f1, f2 from T QUALIFY]
             Identifier(`QUALIFY`) [21-28] [QUALIFY]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (comment [0, 0] - [0, 76])
+  (comment [1, 0] - [1, 64])
+  (statement [2, 0] - [2, 28]
+    (select_statement [2, 0] - [2, 28]
+      (select_clause [2, 0] - [2, 13]
+        (select_list [2, 7] - [2, 13]
+          (select_expression [2, 7] - [2, 9]
+            (expression [2, 7] - [2, 9]
+              (path_expression [2, 7] - [2, 9]
+                (identifier [2, 7] - [2, 9]))))
+          (select_expression [2, 11] - [2, 13]
+            (expression [2, 11] - [2, 13]
+              (path_expression [2, 11] - [2, 13]
+                (identifier [2, 11] - [2, 13]))))))
+      (from_clause [2, 14] - [2, 28]
+        (from_item [2, 19] - [2, 28]
+          (table_expression [2, 19] - [2, 20]
+            (path_expression [2, 19] - [2, 20]
+              (identifier [2, 19] - [2, 20])))
+          (identifier [2, 21] - [2, 28])))))
+  (comment [4, 0] - [21, 2]))
 
 ==================
-Test Case 3
+Test Case 5
 ==================
 select f1, f2 from T AS QUALIFY
 
@@ -95,7 +156,7 @@ QueryStatement [0-31] [select f1,...AS QUALIFY]
   (comment [2, 0] - [19, 2]))
 
 ==================
-Test Case 4
+Test Case 6
 ==================
 select f1, f2 from T QUALIFY WHERE true
 
@@ -145,7 +206,7 @@ QueryStatement [0-39] [select f1,...WHERE true]
   (comment [2, 0] - [21, 2]))
 
 ==================
-Test Case 5
+Test Case 7
 ==================
 select f1, f2 from T AS QUALIFY WHERE false
 
@@ -195,10 +256,9 @@ QueryStatement [0-43] [select f1,...WHERE false]
   (comment [2, 0] - [21, 2]))
 
 ==================
-Test Case 6
+Test Case 8
 ==================
 # QUALIFY language option disabled when QUALIFY is used as a table alias
-[language_features=NONE]
 select f1, f2 from T QUALIFY
 
 /* Expected ZetaSQL AST:
@@ -220,10 +280,30 @@ QueryStatement [0-28] [select f1, f2 from T QUALIFY]
             Identifier(`QUALIFY`) [21-28] [QUALIFY]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (comment [0, 0] - [0, 72])
+  (statement [1, 0] - [1, 28]
+    (select_statement [1, 0] - [1, 28]
+      (select_clause [1, 0] - [1, 13]
+        (select_list [1, 7] - [1, 13]
+          (select_expression [1, 7] - [1, 9]
+            (expression [1, 7] - [1, 9]
+              (path_expression [1, 7] - [1, 9]
+                (identifier [1, 7] - [1, 9]))))
+          (select_expression [1, 11] - [1, 13]
+            (expression [1, 11] - [1, 13]
+              (path_expression [1, 11] - [1, 13]
+                (identifier [1, 11] - [1, 13]))))))
+      (from_clause [1, 14] - [1, 28]
+        (from_item [1, 19] - [1, 28]
+          (table_expression [1, 19] - [1, 20]
+            (path_expression [1, 19] - [1, 20]
+              (identifier [1, 19] - [1, 20])))
+          (identifier [1, 21] - [1, 28])))))
+  (comment [3, 0] - [20, 2]))
 
 ==================
-Test Case 7
+Test Case 9
 ==================
 select f1, f2 from T WHERE true QUALIFY row_number() OVER (PARTITION BY f2 ORDER BY f3) = 1
 
@@ -264,7 +344,7 @@ QueryStatement [0-91] [select f1,...BY f3) = 1]
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 10
 ==================
 select f1, f2 from T GROUP BY f1, f2 QUALIFY row_number() OVER (PARTITION BY f2 ORDER BY f3) = 1
 
@@ -310,7 +390,7 @@ QueryStatement [0-96] [select f1,...BY f3) = 1]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 11
 ==================
 select f1, f2 from T HAVING SUM(f1) < 3 QUALIFY row_number() OVER (PARTITION BY f2 ORDER BY f3) = 1
 
@@ -357,7 +437,7 @@ QueryStatement [0-99] [select f1,...BY f3) = 1]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 12
 ==================
 select f1, f2, f3, row_number() OVER (PARTITION BY f2 ORDER BY f3) as row_num from T WHERE true QUALIFY row_num = 1
 
@@ -406,7 +486,7 @@ QueryStatement [0-115] [select f1,...row_num = 1]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 13
 ==================
 select f1, sum(f2) over (partition by f1) as sum_f2
   from T

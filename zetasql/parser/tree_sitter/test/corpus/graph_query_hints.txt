@@ -1,8 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
 
 # Element pattern hints
 SELECT * from GRAPH_TABLE(

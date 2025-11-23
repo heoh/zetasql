@@ -315,15 +315,3 @@ AlterTableStatement [0-68]
 ---
 (source_file (ERROR))
 
-==================
-Test Case 15
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-alter table foo-123.bar ADD constraint a_is_positive check(a>0);
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-

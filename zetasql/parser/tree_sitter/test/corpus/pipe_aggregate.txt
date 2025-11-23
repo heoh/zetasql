@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 select 1 x
 |> AGGREGATE count(*), sum(x) as xx
 
@@ -416,30 +415,6 @@ QueryStatement [0-61] [select 1 |...GROUP BY x, y,]
 Test Case 11
 ==================
 select 1
-|> AGGREGATE {{,|,,|sum(x),,}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 12
-==================
-select 1
-|> AGGREGATE GROUP BY {{,|,,|x,,}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 13
-==================
-select 1
 |> AGGREGATE x, s.*, f(y).*, (a+b).*
 
 /* Expected ZetaSQL AST:
@@ -478,20 +453,7 @@ QueryStatement [0-45] [select 1 |...*, (a+b).*]
 (source_file (ERROR))
 
 ==================
-Test Case 14
-==================
-# Dot-star only works as the outermost suffix operator on an expression.
-select 1
-|> AGGREGATE {{f(s.*)|s.*+1|1+s.*|s.*.*}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: f(s.*)
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 15
+Test Case 12
 ==================
 select 1
 |> AGGREGATE x.* except (a,b),

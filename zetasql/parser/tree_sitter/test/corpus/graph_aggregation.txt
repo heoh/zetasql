@@ -1,8 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
 
 # RETURN with simple aggregation
 select * from graph_table(aml

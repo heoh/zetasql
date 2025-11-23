@@ -143,7 +143,28 @@ QueryStatement [0-32] [SELECT NORMALIZE...defg', XYZ)]
               Identifier(XYZ) [28-31] [XYZ]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [18, 2]
+  (comment [0, 0] - [0, 76])
+  (comment [1, 0] - [1, 77])
+  (comment [2, 0] - [2, 38])
+  (statement [3, 0] - [3, 32]
+    (select_statement [3, 0] - [3, 32]
+      (select_clause [3, 0] - [3, 32]
+        (select_list [3, 7] - [3, 32]
+          (select_expression [3, 7] - [3, 32]
+            (expression [3, 7] - [3, 32]
+              (function_call [3, 7] - [3, 32]
+                (path_expression [3, 7] - [3, 16]
+                  (identifier [3, 7] - [3, 16]))
+                (function_arguments [3, 17] - [3, 31]
+                  (function_argument [3, 17] - [3, 26]
+                    (expression [3, 17] - [3, 26]
+                      (string [3, 17] - [3, 26])))
+                  (function_argument [3, 28] - [3, 31]
+                    (expression [3, 28] - [3, 31]
+                      (path_expression [3, 28] - [3, 31]
+                        (identifier [3, 28] - [3, 31]))))))))))))
+  (comment [5, 0] - [18, 2]))
 
 ==================
 Test Case 3
@@ -376,7 +397,43 @@ QueryStatement [0-63] [SELECT NORMALIZE..."NFC", 3)]
             IntLiteral(3) [61-62] [3]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [26, 2]
+  (comment [0, 0] - [0, 78])
+  (statement [1, 0] - [1, 63]
+    (select_statement [1, 0] - [1, 63]
+      (select_clause [1, 0] - [1, 63]
+        (select_list [1, 7] - [1, 63]
+          (select_expression [1, 7] - [1, 33]
+            (expression [1, 7] - [1, 33]
+              (function_call [1, 7] - [1, 33]
+                (path_expression [1, 7] - [1, 16]
+                  (identifier [1, 7] - [1, 16]))
+                (function_arguments [1, 17] - [1, 32]
+                  (function_argument [1, 17] - [1, 22]
+                    (expression [1, 17] - [1, 22]
+                      (string [1, 17] - [1, 22])))
+                  (function_argument [1, 24] - [1, 29]
+                    (expression [1, 24] - [1, 29]
+                      (string [1, 24] - [1, 29])))
+                  (function_argument [1, 31] - [1, 32]
+                    (expression [1, 31] - [1, 32]
+                      (number [1, 31] - [1, 32])))))))
+          (select_expression [1, 35] - [1, 63]
+            (expression [1, 35] - [1, 63]
+              (function_call [1, 35] - [1, 63]
+                (path_expression [1, 35] - [1, 46]
+                  (identifier [1, 35] - [1, 46]))
+                (function_arguments [1, 47] - [1, 62]
+                  (function_argument [1, 47] - [1, 52]
+                    (expression [1, 47] - [1, 52]
+                      (string [1, 47] - [1, 52])))
+                  (function_argument [1, 54] - [1, 59]
+                    (expression [1, 54] - [1, 59]
+                      (string [1, 54] - [1, 59])))
+                  (function_argument [1, 61] - [1, 62]
+                    (expression [1, 61] - [1, 62]
+                      (number [1, 61] - [1, 62])))))))))))
+  (comment [3, 0] - [26, 2]))
 
 ==================
 Test Case 6
@@ -413,5 +470,44 @@ QueryStatement [0-100] [SELECT NORMALIZE_...NFC", def)]
               Identifier(def) [96-99] [def]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (comment [0, 0] - [0, 76])
+  (comment [1, 0] - [1, 16])
+  (statement [2, 0] - [3, 50]
+    (select_statement [2, 0] - [3, 50]
+      (select_clause [2, 0] - [3, 50]
+        (select_list [2, 7] - [3, 50]
+          (select_expression [2, 7] - [2, 48]
+            (expression [2, 7] - [2, 48]
+              (function_call [2, 7] - [2, 48]
+                (path_expression [2, 7] - [2, 29]
+                  (identifier [2, 7] - [2, 29]))
+                (function_arguments [2, 30] - [2, 47]
+                  (function_argument [2, 30] - [2, 35]
+                    (expression [2, 30] - [2, 35]
+                      (string [2, 30] - [2, 35])))
+                  (function_argument [2, 37] - [2, 42]
+                    (expression [2, 37] - [2, 42]
+                      (string [2, 37] - [2, 42])))
+                  (function_argument [2, 44] - [2, 47]
+                    (expression [2, 44] - [2, 47]
+                      (path_expression [2, 44] - [2, 47]
+                        (identifier [2, 44] - [2, 47]))))))))
+          (select_expression [3, 7] - [3, 50]
+            (expression [3, 7] - [3, 50]
+              (function_call [3, 7] - [3, 50]
+                (path_expression [3, 7] - [3, 31]
+                  (identifier [3, 7] - [3, 31]))
+                (function_arguments [3, 32] - [3, 49]
+                  (function_argument [3, 32] - [3, 37]
+                    (expression [3, 32] - [3, 37]
+                      (string [3, 32] - [3, 37])))
+                  (function_argument [3, 39] - [3, 44]
+                    (expression [3, 39] - [3, 44]
+                      (string [3, 39] - [3, 44])))
+                  (function_argument [3, 46] - [3, 49]
+                    (expression [3, 46] - [3, 49]
+                      (path_expression [3, 46] - [3, 49]
+                        (identifier [3, 46] - [3, 49]))))))))))))
+  (comment [5, 0] - [30, 2]))
 

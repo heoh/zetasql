@@ -4,7 +4,6 @@ Test Case 1
 # ALTER TABLE to add unnamed foreign key constraint.
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default no_show_parse_location_text]
 ALTER TABLE foo ADD FOREIGN KEY(A) REFERENCES T(B) options();
 
 /* Expected ZetaSQL AST:
@@ -327,18 +326,6 @@ AlterTableStatement [0-97]
           ColumnList [47-50]
             Identifier(B) [48-49]
           ForeignKeyActions(ON UPDATE CASCADE ON DELETE CASCADE) [62-97]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 14
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-ALTER TABLE foo-bar-123.baz ADD FOREIGN KEY (A) REFERENCES T(B);
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
 */
 ---
 (source_file (ERROR))

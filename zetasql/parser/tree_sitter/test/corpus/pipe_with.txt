@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 
 from t1
 |> with t2 AS (select * from t3),
@@ -150,10 +149,32 @@ Test Case 4
 # WITH RECURSIVE with modifiers.
 FROM t1
 |> WITH RECURSIVE t2 AS (
-     FROM t2) WITH DEPTH {{|AS depth}}{{| max 10| between 5 AND 8}}
+     FROM t2) WITH DEPTH AS depth
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-67] [FROM t1 |>...DEPTH AS depth]
+  Query [0-67] [FROM t1 |>...DEPTH AS depth]
+    FromQuery [0-7] [FROM t1]
+      FromClause [0-7] [FROM t1]
+        TablePathExpression [5-7] [t1]
+          PathExpression [5-7] [t1]
+            Identifier(t1) [5-7] [t1]
+    PipeWith [8-67] [|> WITH RECURSIVE...H AS depth]
+      WithClause (recursive) [11-67] [WITH RECURSIVE...EPTH AS depth]
+        AliasedQuery [26-67] [t2 AS (...DEPTH AS depth]
+          Identifier(t2) [26-28] [t2]
+          Query [32-47] [(      FROM t2)]
+            FromQuery [39-46] [FROM t2]
+              FromClause [39-46] [FROM t2]
+                TablePathExpression [44-46] [t2]
+                  PathExpression [44-46] [t2]
+                    Identifier(t2) [44-46] [t2]
+          AliasedQueryModifiers [48-67] [WITH DEPTH AS depth]
+            RecursionDepthModifier [48-67] [WITH DEPTH AS depth]
+              Alias [59-67] [AS depth]
+                Identifier(depth) [62-67] [depth]
+              IntOrUnbounded [67-67] []
+              IntOrUnbounded [67-67] []
 */
 ---
 (source_file (ERROR))
@@ -161,13 +182,36 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 5
 ==================
-# Try putting a query after pipe WITH.
+# WITH RECURSIVE with modifiers.
 FROM t1
-|> WITH t2 AS (from t3)
-   {{SELECT * FROM t4|FROM t5|(SELECT * FROM t6)}}
+|> WITH RECURSIVE t2 AS (
+     FROM t2) WITH DEPTH AS depth max 10
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: SELECT * FROM t4
+QueryStatement [0-74] [FROM t1 |>...depth max 10]
+  Query [0-74] [FROM t1 |>...depth max 10]
+    FromQuery [0-7] [FROM t1]
+      FromClause [0-7] [FROM t1]
+        TablePathExpression [5-7] [t1]
+          PathExpression [5-7] [t1]
+            Identifier(t1) [5-7] [t1]
+    PipeWith [8-74] [|> WITH RECURSIVE...pth max 10]
+      WithClause (recursive) [11-74] [WITH RECURSIVE...depth max 10]
+        AliasedQuery [26-74] [t2 AS (...depth max 10]
+          Identifier(t2) [26-28] [t2]
+          Query [32-47] [(      FROM t2)]
+            FromQuery [39-46] [FROM t2]
+              FromClause [39-46] [FROM t2]
+                TablePathExpression [44-46] [t2]
+                  PathExpression [44-46] [t2]
+                    Identifier(t2) [44-46] [t2]
+          AliasedQueryModifiers [48-74] [WITH DEPTH AS depth max 10]
+            RecursionDepthModifier [48-74] [WITH DEPTH AS depth max 10]
+              Alias [59-67] [AS depth]
+                Identifier(depth) [62-67] [depth]
+              IntOrUnbounded [67-67] []
+              IntOrUnbounded [72-74] [10]
+                IntLiteral(10) [72-74] [10]
 */
 ---
 (source_file (ERROR))
@@ -175,13 +219,37 @@ ALTERNATION GROUP: SELECT * FROM t4
 ==================
 Test Case 6
 ==================
-# Trailing comma and then a query.
+# WITH RECURSIVE with modifiers.
 FROM t1
-|> WITH t2 AS (from t3),
-   {{SELECT * FROM t4|FROM t5|(SELECT * FROM t6)}}
+|> WITH RECURSIVE t2 AS (
+     FROM t2) WITH DEPTH AS depth between 5 AND 8
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: SELECT * FROM t4
+QueryStatement [0-83] [FROM t1 |>...between 5 AND 8]
+  Query [0-83] [FROM t1 |>...between 5 AND 8]
+    FromQuery [0-7] [FROM t1]
+      FromClause [0-7] [FROM t1]
+        TablePathExpression [5-7] [t1]
+          PathExpression [5-7] [t1]
+            Identifier(t1) [5-7] [t1]
+    PipeWith [8-83] [|> WITH RECURSIVE...en 5 AND 8]
+      WithClause (recursive) [11-83] [WITH RECURSIVE...tween 5 AND 8]
+        AliasedQuery [26-83] [t2 AS (...between 5 AND 8]
+          Identifier(t2) [26-28] [t2]
+          Query [32-47] [(      FROM t2)]
+            FromQuery [39-46] [FROM t2]
+              FromClause [39-46] [FROM t2]
+                TablePathExpression [44-46] [t2]
+                  PathExpression [44-46] [t2]
+                    Identifier(t2) [44-46] [t2]
+          AliasedQueryModifiers [48-83] [WITH DEPTH...between 5 AND 8]
+            RecursionDepthModifier [48-83] [WITH DEPTH...between 5 AND 8]
+              Alias [59-67] [AS depth]
+                Identifier(depth) [62-67] [depth]
+              IntOrUnbounded [76-77] [5]
+                IntLiteral(5) [76-77] [5]
+              IntOrUnbounded [82-83] [8]
+                IntLiteral(8) [82-83] [8]
 */
 ---
 (source_file (ERROR))

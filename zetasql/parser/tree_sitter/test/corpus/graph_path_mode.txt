@@ -5,9 +5,6 @@ Test Case 1
 ### Path Mode handling.
 ###
 
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 # TRAIL path mode on top-level path.
 select gt.* from

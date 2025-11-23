@@ -151,10 +151,12 @@ Test Case 12
 # The follow object types are syntactically valid (no syntax errors),
 # although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
 # Other object types are not valid.
-drop {{SEQUENCE|AGGREGATE FUNCTION|CONNECTION|CONSTANT|DATABASE|EXTERNAL TABLE|FUNCTION|INDEX|MATERIALIZED VIEW|MODEL|PROCEDURE|TABLE|TABLE FUNCTION|VIEW|EXTERNAL TABLE FUNCTION|SCHEMA|EXTERNAL SCHEMA|SNAPSHOT TABLE}} foo {{|RESTRICT|Restrict|CASCADE|INVALID_DROP_MODE|DROP_MODE_UNSPECIFIED}};
+drop SEQUENCE foo ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: SEQUENCE,
+DropStatement SEQUENCE [0-17] [drop SEQUENCE foo]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
 */
 ---
 (source_file (ERROR))
@@ -162,10 +164,15 @@ ALTERNATION GROUP: SEQUENCE,
 ==================
 Test Case 13
 ==================
-DROP SCHEMA IF EXISTS `foo.bar` {{|RESTRICT|ResTRICT|CASCADE|INVALID_DROP_MODE|DROP_MODE_UNSPECIFIED}} ;
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop CONNECTION foo ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+DropStatement CONNECTION [0-19] [drop CONNECTION foo]
+  PathExpression [16-19] [foo]
+    Identifier(foo) [16-19] [foo]
 */
 ---
 (source_file (ERROR))
@@ -173,10 +180,15 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 14
 ==================
-drop foo {{|if exists }}bar;
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop CONSTANT foo ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+DropStatement CONSTANT [0-17] [drop CONSTANT foo]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
 */
 ---
 (source_file (ERROR))
@@ -184,17 +196,300 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 15
 ==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-drop table foo-bar.baz;
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop DATABASE foo ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+DropStatement DATABASE [0-17] [drop DATABASE foo]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 16
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop EXTERNAL TABLE foo ;
+
+/* Expected ZetaSQL AST:
+DropStatement EXTERNAL TABLE [0-23] [drop EXTERNAL TABLE foo]
+  PathExpression [20-23] [foo]
+    Identifier(foo) [20-23] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop FUNCTION foo ;
+
+/* Expected ZetaSQL AST:
+DropFunctionStatement [0-17] [drop FUNCTION foo]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop INDEX foo ;
+
+/* Expected ZetaSQL AST:
+DropStatement INDEX [0-14] [drop INDEX foo]
+  PathExpression [11-14] [foo]
+    Identifier(foo) [11-14] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop MATERIALIZED VIEW foo ;
+
+/* Expected ZetaSQL AST:
+DropMaterializedViewStatement [0-26] [drop MATERIALIZED VIEW foo]
+  PathExpression [23-26] [foo]
+    Identifier(foo) [23-26] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop MODEL foo ;
+
+/* Expected ZetaSQL AST:
+DropStatement MODEL [0-14] [drop MODEL foo]
+  PathExpression [11-14] [foo]
+    Identifier(foo) [11-14] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop PROCEDURE foo ;
+
+/* Expected ZetaSQL AST:
+DropStatement PROCEDURE [0-18] [drop PROCEDURE foo]
+  PathExpression [15-18] [foo]
+    Identifier(foo) [15-18] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop TABLE foo ;
+
+/* Expected ZetaSQL AST:
+DropStatement TABLE [0-14] [drop TABLE foo]
+  PathExpression [11-14] [foo]
+    Identifier(foo) [11-14] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop TABLE FUNCTION foo ;
+
+/* Expected ZetaSQL AST:
+DropTableFunctionStatement [0-23] [drop TABLE FUNCTION foo]
+  PathExpression [20-23] [foo]
+    Identifier(foo) [20-23] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop VIEW foo ;
+
+/* Expected ZetaSQL AST:
+DropStatement VIEW [0-13] [drop VIEW foo]
+  PathExpression [10-13] [foo]
+    Identifier(foo) [10-13] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop SCHEMA foo ;
+
+/* Expected ZetaSQL AST:
+DropStatement SCHEMA [0-15] [drop SCHEMA foo]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop SCHEMA foo RESTRICT;
+
+/* Expected ZetaSQL AST:
+DropStatement SCHEMA(drop_mode=RESTRICT) [0-24] [drop SCHEMA foo RESTRICT]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop SCHEMA foo Restrict;
+
+/* Expected ZetaSQL AST:
+DropStatement SCHEMA(drop_mode=RESTRICT) [0-24] [drop SCHEMA foo Restrict]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop SCHEMA foo CASCADE;
+
+/* Expected ZetaSQL AST:
+DropStatement SCHEMA(drop_mode=CASCADE) [0-23] [drop SCHEMA foo CASCADE]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop EXTERNAL SCHEMA foo ;
+
+/* Expected ZetaSQL AST:
+DropStatement EXTERNAL SCHEMA [0-24] [drop EXTERNAL SCHEMA foo]
+  PathExpression [21-24] [foo]
+    Identifier(foo) [21-24] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 30
+==================
+# The follow object types are syntactically valid (no syntax errors),
+# although AGGREGATE FUNCTION and TABLE FUNCTION are not currently supported.
+# Other object types are not valid.
+drop SNAPSHOT TABLE foo ;
+
+/* Expected ZetaSQL AST:
+DropSnapshotTableStatement [0-23] [drop SNAPSHOT TABLE foo]
+  PathExpression [20-23] [foo]
+    Identifier(foo) [20-23] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 31
+==================
+DROP SCHEMA IF EXISTS `foo.bar` RESTRICT ;
+
+/* Expected ZetaSQL AST:
+DropStatement SCHEMA(is_if_exists, drop_mode=RESTRICT) [0-40] [DROP SCHEMA...` RESTRICT]
+  PathExpression [22-31] [`foo.bar`]
+    Identifier(`foo.bar`) [22-31] [`foo.bar`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 32
+==================
+DROP SCHEMA IF EXISTS `foo.bar` ResTRICT ;
+
+/* Expected ZetaSQL AST:
+DropStatement SCHEMA(is_if_exists, drop_mode=RESTRICT) [0-40] [DROP SCHEMA...` ResTRICT]
+  PathExpression [22-31] [`foo.bar`]
+    Identifier(`foo.bar`) [22-31] [`foo.bar`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 33
+==================
+DROP SCHEMA IF EXISTS `foo.bar` CASCADE ;
+
+/* Expected ZetaSQL AST:
+DropStatement SCHEMA(is_if_exists, drop_mode=CASCADE) [0-39] [DROP SCHEMA...bar` CASCADE]
+  PathExpression [22-31] [`foo.bar`]
+    Identifier(`foo.bar`) [22-31] [`foo.bar`]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
 ==================
 DROP CONNECTION IF EXISTS foo
 
@@ -207,7 +502,7 @@ DropStatement CONNECTION(is_if_exists) [0-29] [DROP CONNECTION IF EXISTS foo]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 35
 ==================
 DROP CONNECTION foo
 

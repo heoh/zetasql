@@ -83,16 +83,109 @@ Test Case 3
 ==================
 # LATERAL on a singleton FROM source is accepted in the parser and caught as a
 # resolver error.
-SELECT * FROM LATERAL {{tvf()|(select * from t)}} {{|AS p}}
+SELECT * FROM LATERAL tvf() 
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: tvf(),
+QueryStatement [0-27] [SELECT * FROM LATERAL tvf()]
+  Query [0-27] [SELECT * FROM LATERAL tvf()]
+    Select [0-27] [SELECT * FROM LATERAL tvf()]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-27] [FROM LATERAL tvf()]
+        TVF [14-27] [LATERAL tvf()]
+          PathExpression [22-25] [tvf]
+            Identifier(tvf) [22-25] [tvf]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 4
+==================
+# LATERAL on a singleton FROM source is accepted in the parser and caught as a
+# resolver error.
+SELECT * FROM LATERAL tvf() AS p
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-32] [SELECT * FROM...tvf() AS p]
+  Query [0-32] [SELECT * FROM...tvf() AS p]
+    Select [0-32] [SELECT * FROM...tvf() AS p]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-32] [FROM LATERAL tvf() AS p]
+        TVF [14-32] [LATERAL tvf() AS p]
+          PathExpression [22-25] [tvf]
+            Identifier(tvf) [22-25] [tvf]
+          Alias [28-32] [AS p]
+            Identifier(p) [31-32] [p]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# LATERAL on a singleton FROM source is accepted in the parser and caught as a
+# resolver error.
+SELECT * FROM LATERAL (select * from t) 
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-39] [SELECT * FROM...* from t)]
+  Query [0-39] [SELECT * FROM...* from t)]
+    Select [0-39] [SELECT * FROM...* from t)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-39] [FROM LATERAL (select * from t)]
+        TableSubquery [14-39] [LATERAL (select * from t)]
+          Query [23-38] [select * from t]
+            Select [23-38] [select * from t]
+              SelectList [30-31] [*]
+                SelectColumn [30-31] [*]
+                  Star(*) [30-31] [*]
+              FromClause [32-38] [from t]
+                TablePathExpression [37-38] [t]
+                  PathExpression [37-38] [t]
+                    Identifier(t) [37-38] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# LATERAL on a singleton FROM source is accepted in the parser and caught as a
+# resolver error.
+SELECT * FROM LATERAL (select * from t) AS p
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [SELECT * FROM...from t) AS p]
+  Query [0-44] [SELECT * FROM...from t) AS p]
+    Select [0-44] [SELECT * FROM...from t) AS p]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-44] [FROM LATERAL...from t) AS p]
+        TableSubquery [14-44] [LATERAL (select * from t) AS p]
+          Query [23-38] [select * from t]
+            Select [23-38] [select * from t]
+              SelectList [30-31] [*]
+                SelectColumn [30-31] [*]
+                  Star(*) [30-31] [*]
+              FromClause [32-38] [from t]
+                TablePathExpression [37-38] [t]
+                  PathExpression [37-38] [t]
+                    Identifier(t) [37-38] [t]
+          Alias [40-44] [AS p]
+            Identifier(p) [43-44] [p]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
 ==================
 # Joins are left-associative so we can have multiple successive lateral RHS's.
 SELECT *
@@ -156,10 +249,9 @@ QueryStatement [0-167] [SELECT * FROM...t.b = y.b]
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 8
 ==================
 # Test LATERAL with the successive ON rewrite, with CROSS in the middle.
-[language_features=NONE,+ALLOW_CONSECUTIVE_ON]
 SELECT *
 FROM t
        LEFT OUTER JOIN LATERAL tvf1(t.k) AS x
@@ -234,7 +326,7 @@ QueryStatement [0-174] [SELECT * FROM...t.b = y.b]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 9
 ==================
 # Comma joins with LATERAL: ensure the precedence is identical to normal joins.
 SELECT *
@@ -287,13 +379,71 @@ QueryStatement [0-127] [SELECT *...() ON cond]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 10
 ==================
 # RIGHT and FULL joins are caught in the resolver.
-SELECT * FROM t {{RIGHT|FULL}} JOIN LATERAL (select * from t2) AS x
+SELECT * FROM t RIGHT JOIN LATERAL (select * from t2) AS x
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: RIGHT
+QueryStatement [0-58] [SELECT * FROM...from t2) AS x]
+  Query [0-58] [SELECT * FROM...from t2) AS x]
+    Select [0-58] [SELECT * FROM...from t2) AS x]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-58] [FROM t RIGHT...from t2) AS x]
+        Join(RIGHT) [14-58] [t RIGHT JOIN...from t2) AS x]
+          TablePathExpression [14-15] [t]
+            PathExpression [14-15] [t]
+              Identifier(t) [14-15] [t]
+          Location [16-26] [RIGHT JOIN]
+          TableSubquery [27-58] [LATERAL (select...rom t2) AS x]
+            Query [36-52] [select * from t2]
+              Select [36-52] [select * from t2]
+                SelectList [43-44] [*]
+                  SelectColumn [43-44] [*]
+                    Star(*) [43-44] [*]
+                FromClause [45-52] [from t2]
+                  TablePathExpression [50-52] [t2]
+                    PathExpression [50-52] [t2]
+                      Identifier(t2) [50-52] [t2]
+            Alias [54-58] [AS x]
+              Identifier(x) [57-58] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# RIGHT and FULL joins are caught in the resolver.
+SELECT * FROM t FULL JOIN LATERAL (select * from t2) AS x
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-57] [SELECT * FROM...from t2) AS x]
+  Query [0-57] [SELECT * FROM...from t2) AS x]
+    Select [0-57] [SELECT * FROM...from t2) AS x]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-57] [FROM t FULL...from t2) AS x]
+        Join(FULL) [14-57] [t FULL JOIN...from t2) AS x]
+          TablePathExpression [14-15] [t]
+            PathExpression [14-15] [t]
+              Identifier(t) [14-15] [t]
+          Location [16-25] [FULL JOIN]
+          TableSubquery [26-57] [LATERAL (select...rom t2) AS x]
+            Query [35-51] [select * from t2]
+              Select [35-51] [select * from t2]
+                SelectList [42-43] [*]
+                  SelectColumn [42-43] [*]
+                    Star(*) [42-43] [*]
+                FromClause [44-51] [from t2]
+                  TablePathExpression [49-51] [t2]
+                    PathExpression [49-51] [t2]
+                      Identifier(t2) [49-51] [t2]
+            Alias [53-57] [AS x]
+              Identifier(x) [56-57] [x]
 */
 ---
 (source_file (ERROR))

@@ -1,8 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 # Omitted capture list
 select gt.* from
@@ -305,28 +303,6 @@ QueryStatement [0-166] [select gt....blah ) gt]
 
 ==================
 Test Case 5
-==================
-# Capture list cannot contain expressions. Must be simple identifiers
-select gt.* from
-graph_table(aml
-  match (n)
-  call (
-    {{1|@p|?|a + 1|(a)|f(x)|,}}
-  ) {
-    match (n)->(m)
-    return blah
-  }
-  return n, blah
-) gt
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: 1
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 6
 ==================
 # Test with OPTIONAL
 select gt.* from

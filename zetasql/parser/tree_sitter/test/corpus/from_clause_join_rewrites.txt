@@ -3,7 +3,6 @@ Test Case 1
 ==================
 # This file contains test cases to test joins with consecutive ON/USING clauses
 # Simple test case
-[default language_features=NONE,+ALLOW_CONSECUTIVE_ON]
 select * from a join b join c join d on cond1 on cond2 on cond3;
 
 /* Expected ZetaSQL AST:

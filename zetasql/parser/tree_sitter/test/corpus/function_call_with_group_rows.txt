@@ -2,7 +2,6 @@
 Test Case 1
 ==================
 # Positive simplest case
-[default language_features=NONE,+WITH_GROUP_ROWS]
 SELECT f(x) WITH GROUP ROWS (SELECT x FROM GROUP_ROWS()) FROM T;
 
 /* Expected ZetaSQL AST:
@@ -530,7 +529,54 @@ QueryStatement [0-90] [SELECT   AVG...GROUP BY f1]
             Identifier(f1) [88-90] [f1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [43, 2]
+  (comment [0, 0] - [0, 38])
+  (statement [1, 0] - [6, 12]
+    (select_statement [1, 0] - [6, 12]
+      (select_clause [1, 0] - [4, 33]
+        (select_list [2, 2] - [4, 33]
+          (select_expression [2, 2] - [4, 33]
+            (expression [2, 2] - [4, 33]
+              (function_call [2, 2] - [4, 33]
+                (path_expression [2, 2] - [2, 5]
+                  (identifier [2, 2] - [2, 5]))
+                (function_arguments [2, 6] - [2, 7]
+                  (function_argument [2, 6] - [2, 7]
+                    (expression [2, 6] - [2, 7]
+                      (path_expression [2, 6] - [2, 7]
+                        (identifier [2, 6] - [2, 7])))))
+                (with_group_rows_modifier [3, 4] - [4, 33]
+                  (select_statement [4, 6] - [4, 32]
+                    (select_clause [4, 6] - [4, 25]
+                      (select_list [4, 13] - [4, 25]
+                        (select_expression [4, 13] - [4, 25]
+                          (expression [4, 13] - [4, 20]
+                            (function_call [4, 13] - [4, 20]
+                              (path_expression [4, 13] - [4, 16]
+                                (identifier [4, 13] - [4, 16]))
+                              (function_arguments [4, 17] - [4, 19]
+                                (function_argument [4, 17] - [4, 19]
+                                  (expression [4, 17] - [4, 19]
+                                    (path_expression [4, 17] - [4, 19]
+                                      (identifier [4, 17] - [4, 19])))))))
+                          (identifier [4, 24] - [4, 25]))))
+                    (from_clause [4, 26] - [4, 32]
+                      (from_item [4, 31] - [4, 32]
+                        (table_expression [4, 31] - [4, 32]
+                          (path_expression [4, 31] - [4, 32]
+                            (identifier [4, 31] - [4, 32]))))))))))))
+      (from_clause [5, 0] - [5, 6]
+        (from_item [5, 5] - [5, 6]
+          (table_expression [5, 5] - [5, 6]
+            (path_expression [5, 5] - [5, 6]
+              (identifier [5, 5] - [5, 6])))))
+      (group_by_clause [6, 0] - [6, 11]
+        (grouping_item_list [6, 9] - [6, 11]
+          (grouping_item [6, 9] - [6, 11]
+            (expression [6, 9] - [6, 11]
+              (path_expression [6, 9] - [6, 11]
+                (identifier [6, 9] - [6, 11]))))))))
+  (comment [8, 0] - [43, 2]))
 
 ==================
 Test Case 10
@@ -585,7 +631,60 @@ QueryStatement [0-124] [SELECT   AVG...GROUP BY f1]
             Identifier(f1) [122-124] [f1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [48, 2]
+  (comment [0, 0] - [0, 50])
+  (statement [1, 0] - [7, 19]
+    (select_statement [1, 0] - [7, 19]
+      (select_clause [1, 0] - [6, 18]
+        (select_list [2, 2] - [6, 18]
+          (select_expression [2, 2] - [6, 18]
+            (expression [2, 2] - [6, 18]
+              (function_call [2, 2] - [6, 18]
+                (path_expression [2, 2] - [2, 5]
+                  (identifier [2, 2] - [2, 5]))
+                (function_arguments [2, 6] - [2, 7]
+                  (function_argument [2, 6] - [2, 7]
+                    (expression [2, 6] - [2, 7]
+                      (path_expression [2, 6] - [2, 7]
+                        (identifier [2, 6] - [2, 7])))))
+                (with_group_rows_modifier [2, 9] - [6, 18]
+                  (select_statement [4, 6] - [6, 17]
+                    (select_clause [4, 6] - [4, 25]
+                      (select_list [4, 13] - [4, 25]
+                        (select_expression [4, 13] - [4, 25]
+                          (expression [4, 13] - [4, 20]
+                            (function_call [4, 13] - [4, 20]
+                              (path_expression [4, 13] - [4, 16]
+                                (identifier [4, 13] - [4, 16]))
+                              (function_arguments [4, 17] - [4, 19]
+                                (function_argument [4, 17] - [4, 19]
+                                  (expression [4, 17] - [4, 19]
+                                    (path_expression [4, 17] - [4, 19]
+                                      (identifier [4, 17] - [4, 19])))))))
+                          (identifier [4, 24] - [4, 25]))))
+                    (from_clause [5, 6] - [5, 21]
+                      (from_item [5, 11] - [5, 21]
+                        (table_expression [5, 11] - [5, 21]
+                          (path_expression [5, 11] - [5, 21]
+                            (identifier [5, 11] - [5, 21])))))
+                    (group_by_clause [6, 6] - [6, 17]
+                      (grouping_item_list [6, 15] - [6, 17]
+                        (grouping_item [6, 15] - [6, 17]
+                          (expression [6, 15] - [6, 17]
+                            (path_expression [6, 15] - [6, 17]
+                              (identifier [6, 15] - [6, 17])))))))))))))
+      (from_clause [7, 0] - [7, 6]
+        (from_item [7, 5] - [7, 6]
+          (table_expression [7, 5] - [7, 6]
+            (path_expression [7, 5] - [7, 6]
+              (identifier [7, 5] - [7, 6])))))
+      (group_by_clause [7, 7] - [7, 18]
+        (grouping_item_list [7, 16] - [7, 18]
+          (grouping_item [7, 16] - [7, 18]
+            (expression [7, 16] - [7, 18]
+              (path_expression [7, 16] - [7, 18]
+                (identifier [7, 16] - [7, 18]))))))))
+  (comment [9, 0] - [48, 2]))
 
 ==================
 Test Case 11
@@ -882,7 +981,71 @@ QueryStatement [0-145] [SELECT   AVG...GROUP BY f1]
             Identifier(f1) [143-145] [f1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [63, 2]
+  (comment [0, 0] - [0, 72])
+  (statement [1, 0] - [8, 22]
+    (select_statement [1, 0] - [8, 22]
+      (select_clause [1, 0] - [7, 18]
+        (select_list [2, 2] - [7, 18]
+          (select_expression [2, 2] - [7, 18]
+            (expression [2, 2] - [7, 18]
+              (function_call [2, 2] - [7, 18]
+                (path_expression [2, 2] - [2, 5]
+                  (identifier [2, 2] - [2, 5]))
+                (function_arguments [2, 6] - [2, 7]
+                  (function_argument [2, 6] - [2, 7]
+                    (expression [2, 6] - [2, 7]
+                      (path_expression [2, 6] - [2, 7]
+                        (identifier [2, 6] - [2, 7])))))
+                (with_group_rows_modifier [3, 4] - [7, 18]
+                  (select_statement [4, 6] - [7, 17]
+                    (select_clause [4, 6] - [4, 20]
+                      (select_list [4, 13] - [4, 20]
+                        (select_expression [4, 13] - [4, 20]
+                          (expression [4, 13] - [4, 15]
+                            (path_expression [4, 13] - [4, 15]
+                              (identifier [4, 13] - [4, 15])))
+                          (identifier [4, 19] - [4, 20]))))
+                    (from_clause [5, 6] - [5, 19]
+                      (from_item [5, 11] - [5, 15]
+                        (table_expression [5, 11] - [5, 12]
+                          (path_expression [5, 11] - [5, 12]
+                            (identifier [5, 11] - [5, 12])))
+                        (identifier [5, 13] - [5, 15]))
+                      (from_item [5, 17] - [5, 19]
+                        (table_expression [5, 17] - [5, 19]
+                          (path_expression [5, 17] - [5, 19]
+                            (identifier [5, 17] - [5, 19])))))
+                    (where_clause [6, 6] - [6, 25]
+                      (expression [6, 12] - [6, 25]
+                        (binary_expression [6, 12] - [6, 25]
+                          (expression [6, 12] - [6, 17]
+                            (path_expression [6, 12] - [6, 17]
+                              (identifier [6, 12] - [6, 14])
+                              (identifier [6, 15] - [6, 17])))
+                          (expression [6, 20] - [6, 25]
+                            (path_expression [6, 20] - [6, 25]
+                              (identifier [6, 20] - [6, 22])
+                              (identifier [6, 23] - [6, 25]))))))
+                    (group_by_clause [7, 6] - [7, 17]
+                      (grouping_item_list [7, 15] - [7, 17]
+                        (grouping_item [7, 15] - [7, 17]
+                          (expression [7, 15] - [7, 17]
+                            (path_expression [7, 15] - [7, 17]
+                              (identifier [7, 15] - [7, 17])))))))))))))
+      (from_clause [8, 0] - [8, 9]
+        (from_item [8, 5] - [8, 9]
+          (table_expression [8, 5] - [8, 6]
+            (path_expression [8, 5] - [8, 6]
+              (identifier [8, 5] - [8, 6])))
+          (identifier [8, 7] - [8, 9])))
+      (group_by_clause [8, 10] - [8, 21]
+        (grouping_item_list [8, 19] - [8, 21]
+          (grouping_item [8, 19] - [8, 21]
+            (expression [8, 19] - [8, 21]
+              (path_expression [8, 19] - [8, 21]
+                (identifier [8, 19] - [8, 21]))))))))
+  (comment [10, 0] - [63, 2]))
 
 ==================
 Test Case 16

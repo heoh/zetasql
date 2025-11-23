@@ -21,17 +21,80 @@ CreateFunctionStatement [0-38] [create function...as ( 42 )]
 Test Case 2
 ==================
 # CREATE scope modifiers
-create {{temp|temporary|public|private}} function myfunc ( )
+create temp function myfunc ( )
   as ( 42 ) ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp
+CreateFunctionStatement(is_temp) [0-43] [create temp...as ( 42 )]
+  FunctionDeclaration [21-31] [myfunc ( )]
+    PathExpression [21-27] [myfunc]
+      Identifier(myfunc) [21-27] [myfunc]
+    FunctionParameters [28-31] [( )]
+  SqlFunctionBody [37-43] [( 42 )]
+    IntLiteral(42) [39-41] [42]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 3
+==================
+# CREATE scope modifiers
+create temporary function myfunc ( )
+  as ( 42 ) ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_temp) [0-48] [create temporary...as ( 42 )]
+  FunctionDeclaration [26-36] [myfunc ( )]
+    PathExpression [26-32] [myfunc]
+      Identifier(myfunc) [26-32] [myfunc]
+    FunctionParameters [33-36] [( )]
+  SqlFunctionBody [42-48] [( 42 )]
+    IntLiteral(42) [44-46] [42]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# CREATE scope modifiers
+create public function myfunc ( )
+  as ( 42 ) ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_public) [0-45] [create public...as ( 42 )]
+  FunctionDeclaration [23-33] [myfunc ( )]
+    PathExpression [23-29] [myfunc]
+      Identifier(myfunc) [23-29] [myfunc]
+    FunctionParameters [30-33] [( )]
+  SqlFunctionBody [39-45] [( 42 )]
+    IntLiteral(42) [41-43] [42]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# CREATE scope modifiers
+create private function myfunc ( )
+  as ( 42 ) ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_private) [0-46] [create private...as ( 42 )]
+  FunctionDeclaration [24-34] [myfunc ( )]
+    PathExpression [24-30] [myfunc]
+      Identifier(myfunc) [24-30] [myfunc]
+    FunctionParameters [31-34] [( )]
+  SqlFunctionBody [40-46] [( 42 )]
+    IntLiteral(42) [42-44] [42]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
 ==================
 # "if not exists"
 create function if not exists myfunc ( )
@@ -50,7 +113,7 @@ CreateFunctionStatement(is_if_not_exists) [0-52] [create function...as ( 42 )]
 (source_file (ERROR))
 
 ==================
-Test Case 4
+Test Case 7
 ==================
 # "temp" and "if not exists"
 create temp function if not exists myfunc ( )
@@ -69,7 +132,7 @@ CreateFunctionStatement(is_temp, is_if_not_exists) [0-57] [create temp...as ( 42
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 8
 ==================
 # "or replace"
 create or replace function myfunc ( )
@@ -88,7 +151,7 @@ CreateFunctionStatement(is_or_replace) [0-49] [create or...as ( 42 )]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 9
 ==================
 # Function with multi-part name.
 create function mypackage.myfunc ( )
@@ -108,7 +171,7 @@ CreateFunctionStatement [0-48] [create function...as ( 42 )]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 10
 ==================
 # Function with options in the end.
 create function mypackage.myfunc ( )
@@ -138,7 +201,7 @@ CreateFunctionStatement [0-77] [create function...bruce=lee )]
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 11
 ==================
 # Function with options before body.
 create function mypackage.myfunc ( )
@@ -168,7 +231,7 @@ CreateFunctionStatement [0-77] [create function...as ( 42 )]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 12
 ==================
 # Inferred return type with statement.
 create function myfunc ( a int64 )
@@ -202,7 +265,7 @@ CreateFunctionStatement [0-63] [create function...a, -1 ) )]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 13
 ==================
 # Explicit return type with statement.
 create function myfunc ( a int32 )
@@ -240,7 +303,7 @@ CreateFunctionStatement [0-79] [create function...a, -1 ) )]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 14
 ==================
 # Multiple arguments.
 create function myfunc ( x int32, y int32 )
@@ -277,7 +340,7 @@ CreateFunctionStatement [0-74] [create function...( x * y )]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 15
 ==================
 # Explicit standalone return type.
 # Also tests trivially returning an integer.
@@ -308,7 +371,7 @@ CreateFunctionStatement [0-63] [create function...as ( 999 )]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 16
 ==================
 # Trivial function that returns a boolean.
 create function myfunc ( )
@@ -331,7 +394,7 @@ CreateFunctionStatement [0-58] [create function...as ( true )]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 17
 ==================
 # Trivial function that returns a struct.
 create function myfunc ( )
@@ -379,7 +442,7 @@ CreateFunctionStatement [0-114] [create function...ons', 99)  )]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 18
 ==================
 # Trivial function that returns a struct, alternate syntax.
 create function myfunc ( )
@@ -413,7 +476,7 @@ CreateFunctionStatement [0-87] [create function...', true) )]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 19
 ==================
 # Trivial function that returns a string
 create function myfunc ( )
@@ -437,7 +500,7 @@ CreateFunctionStatement [0-66] [create function...llo world' )]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 20
 ==================
 # Invalid but parseable node : argument name not given.  Missing argument
 # names are only valid in the context of DROP FUNCTION statements.
@@ -466,7 +529,7 @@ CreateFunctionStatement [0-73] [create function...llo world' )]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 21
 ==================
 # Invalid but parseable node : some argument names not given.  Missing argument
 # names are only valid in the context of DROP FUNCTION statements.
@@ -509,7 +572,7 @@ CreateFunctionStatement [0-99] [create function...llo world' )]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 22
 ==================
 create aggregate function myfunc
           (string not aggregate, s string, int32, i int32 not aggregate)
@@ -549,7 +612,7 @@ CreateFunctionStatement(is_aggregate=true) [0-123] [create aggregate...count(*) 
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 23
 ==================
 create or replace aggregate function if not exists myfunc();
 
@@ -564,29 +627,67 @@ CreateFunctionStatement(is_or_replace, is_if_not_exists)(is_aggregate=true) [0-5
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 24
 ==================
-create {{temp|temporary}} aggregate function myfunc();
+create temp aggregate function myfunc();
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp
+CreateFunctionStatement(is_temp)(is_aggregate=true) [0-39] [create temp...unction myfunc()]
+  FunctionDeclaration [31-39] [myfunc()]
+    PathExpression [31-37] [myfunc]
+      Identifier(myfunc) [31-37] [myfunc]
+    FunctionParameters [37-39] [()]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 25
 ==================
-create or replace {{temp|temporary}} aggregate function myfunc();
+create temporary aggregate function myfunc();
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp
+CreateFunctionStatement(is_temp)(is_aggregate=true) [0-44] [create temporary...on myfunc()]
+  FunctionDeclaration [36-44] [myfunc()]
+    PathExpression [36-42] [myfunc]
+      Identifier(myfunc) [36-42] [myfunc]
+    FunctionParameters [42-44] [()]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 26
+==================
+create or replace temp aggregate function myfunc();
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_temp, is_or_replace)(is_aggregate=true) [0-50] [create or...function myfunc()]
+  FunctionDeclaration [42-50] [myfunc()]
+    PathExpression [42-48] [myfunc]
+      Identifier(myfunc) [42-48] [myfunc]
+    FunctionParameters [48-50] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+create or replace temporary aggregate function myfunc();
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_temp, is_or_replace)(is_aggregate=true) [0-55] [create or...function myfunc()]
+  FunctionDeclaration [47-55] [myfunc()]
+    PathExpression [47-53] [myfunc]
+      Identifier(myfunc) [47-53] [myfunc]
+    FunctionParameters [53-55] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
 ==================
 create function myfunc(x interval) returns interval
 as (x)

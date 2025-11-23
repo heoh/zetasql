@@ -156,16 +156,61 @@ CreateConstantStatement [0-39] [create constant...from foo)]
 ==================
 Test Case 10
 ==================
-create {{temp|temporary|public|private}} constant a = 0;
+create temp constant a = 0;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp
+CreateConstantStatement(is_temp) [0-26] [create temp constant a = 0]
+  PathExpression [21-22] [a]
+    Identifier(a) [21-22] [a]
+  IntLiteral(0) [25-26] [0]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 11
+==================
+create temporary constant a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_temp) [0-31] [create temporary...stant a = 0]
+  PathExpression [26-27] [a]
+    Identifier(a) [26-27] [a]
+  IntLiteral(0) [30-31] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+create public constant a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_public) [0-28] [create public constant a = 0]
+  PathExpression [23-24] [a]
+    Identifier(a) [23-24] [a]
+  IntLiteral(0) [27-28] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+create private constant a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_private) [0-29] [create private constant a = 0]
+  PathExpression [24-25] [a]
+    Identifier(a) [24-25] [a]
+  IntLiteral(0) [28-29] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
 ==================
 create or replace constant constant = 1;
 
@@ -179,7 +224,7 @@ CreateConstantStatement(is_or_replace) [0-39] [create or...constant = 1]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 15
 ==================
 create constant if not exists foo = 1;
 
@@ -193,21 +238,143 @@ CreateConstantStatement(is_if_not_exists) [0-37] [create constant...ists foo = 1
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 16
 ==================
 # Test all combinations of the modifiers.  They all parse ok, although
 # OR REPLACE and IF NOT EXISTS are semantically exclusive.
-create {{|or replace}} {{temp|temporary|public|private}}
-constant {{|if not exists}} a = 0;
+create or replace temp
+constant  a = 0;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp,
+CreateConstantStatement(is_temp, is_or_replace) [0-38] [create or...constant  a = 0]
+  PathExpression [33-34] [a]
+    Identifier(a) [33-34] [a]
+  IntLiteral(0) [37-38] [0]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 17
+==================
+# Test all combinations of the modifiers.  They all parse ok, although
+# OR REPLACE and IF NOT EXISTS are semantically exclusive.
+create or replace temp
+constant if not exists a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_temp, is_or_replace, is_if_not_exists) [0-51] [create or...exists a = 0]
+  PathExpression [46-47] [a]
+    Identifier(a) [46-47] [a]
+  IntLiteral(0) [50-51] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# Test all combinations of the modifiers.  They all parse ok, although
+# OR REPLACE and IF NOT EXISTS are semantically exclusive.
+create or replace temporary
+constant  a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_temp, is_or_replace) [0-43] [create or...constant  a = 0]
+  PathExpression [38-39] [a]
+    Identifier(a) [38-39] [a]
+  IntLiteral(0) [42-43] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+# Test all combinations of the modifiers.  They all parse ok, although
+# OR REPLACE and IF NOT EXISTS are semantically exclusive.
+create or replace temporary
+constant if not exists a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_temp, is_or_replace, is_if_not_exists) [0-56] [create or...exists a = 0]
+  PathExpression [51-52] [a]
+    Identifier(a) [51-52] [a]
+  IntLiteral(0) [55-56] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+# Test all combinations of the modifiers.  They all parse ok, although
+# OR REPLACE and IF NOT EXISTS are semantically exclusive.
+create or replace public
+constant  a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_public, is_or_replace) [0-40] [create or...constant  a = 0]
+  PathExpression [35-36] [a]
+    Identifier(a) [35-36] [a]
+  IntLiteral(0) [39-40] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# Test all combinations of the modifiers.  They all parse ok, although
+# OR REPLACE and IF NOT EXISTS are semantically exclusive.
+create or replace public
+constant if not exists a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_public, is_or_replace, is_if_not_exists) [0-53] [create or...exists a = 0]
+  PathExpression [48-49] [a]
+    Identifier(a) [48-49] [a]
+  IntLiteral(0) [52-53] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+# Test all combinations of the modifiers.  They all parse ok, although
+# OR REPLACE and IF NOT EXISTS are semantically exclusive.
+create or replace private
+constant  a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_private, is_or_replace) [0-41] [create or...constant  a = 0]
+  PathExpression [36-37] [a]
+    Identifier(a) [36-37] [a]
+  IntLiteral(0) [40-41] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+# Test all combinations of the modifiers.  They all parse ok, although
+# OR REPLACE and IF NOT EXISTS are semantically exclusive.
+create or replace private
+constant if not exists a = 0;
+
+/* Expected ZetaSQL AST:
+CreateConstantStatement(is_private, is_or_replace, is_if_not_exists) [0-54] [create or...exists a = 0]
+  PathExpression [49-50] [a]
+    Identifier(a) [49-50] [a]
+  IntLiteral(0) [53-54] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
 ==================
 create constant function = 5;
 
@@ -221,7 +388,7 @@ CreateConstantStatement [0-28] [create constant function = 5]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 25
 ==================
 create constant table = 'a';
 
@@ -236,7 +403,7 @@ CreateConstantStatement [0-27] [create constant table = 'a']
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 26
 ==================
 # Can create a constant whose name could be interpreted as a system variable.
 create constant `@@a` = 1;

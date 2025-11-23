@@ -1,8 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
 
 select * from graph_table(aml
   MATCH (a) (-[e]->){1,3} (b)

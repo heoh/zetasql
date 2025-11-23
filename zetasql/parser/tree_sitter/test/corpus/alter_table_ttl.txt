@@ -1,11 +1,18 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+TTL]
-alter table T add row deletion policy {{|if not exists}} (c > 1000);
+alter table T add row deletion policy if not exists (c > 1000);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+AlterTableStatement [0-62] [alter table...(c > 1000)]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  AlterActionList [14-62] [add row deletion...(c > 1000)]
+    AddTtlAction [14-62] [add row deletion...(c > 1000)]
+      BinaryExpression(>) [53-61] [c > 1000]
+        PathExpression [53-54] [c]
+          Identifier(c) [53-54] [c]
+        IntLiteral(1000) [57-61] [1000]
 */
 ---
 (source_file (ERROR))
@@ -13,10 +20,18 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 2
 ==================
-alter table T replace row deletion policy {{|if exists}} (c > 1000);
+alter table T replace row deletion policy if exists (c > 1000);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+AlterTableStatement [0-62] [alter table...(c > 1000)]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  AlterActionList [14-62] [replace row...(c > 1000)]
+    ReplaceTtlAction [14-62] [replace row...(c > 1000)]
+      BinaryExpression(>) [53-61] [c > 1000]
+        PathExpression [53-54] [c]
+          Identifier(c) [53-54] [c]
+        IntLiteral(1000) [57-61] [1000]
 */
 ---
 (source_file (ERROR))
@@ -24,55 +39,14 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 3
 ==================
-alter table T {{add|replace}} row deletion policy;
+alter table T drop row deletion policy if exists
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: add
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 4
-==================
-alter table T {{add|replace}} deletion policy (c > 1000);
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: add
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 5
-==================
-alter table T {{add|replace}} row policy (c > 1000);
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: add
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 6
-==================
-[language_features=NONE]
-alter table T {{add|replace}} row deletion policy (c > 1000);
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: add
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 7
-==================
-alter table T drop row deletion policy {{|if exists}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+AlterTableStatement [0-48] [alter table...if exists]
+  PathExpression [12-13] [T]
+    Identifier(T) [12-13] [T]
+  AlterActionList [14-48] [drop row deletion...if exists]
+    DropTtlAction [14-48] [drop row deletion...if exists]
 */
 ---
 (source_file (ERROR))

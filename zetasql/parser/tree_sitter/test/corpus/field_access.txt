@@ -24,7 +24,29 @@ QueryStatement [0-27] [select NULL, x from a.b.c.T]
             Identifier(T) [26-27] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (comment [0, 0] - [0, 71])
+  (comment [1, 0] - [1, 79])
+  (statement [2, 0] - [2, 28]
+    (select_statement [2, 0] - [2, 28]
+      (select_clause [2, 0] - [2, 14]
+        (select_list [2, 7] - [2, 14]
+          (select_expression [2, 7] - [2, 11]
+            (expression [2, 7] - [2, 11]
+              (null_literal [2, 7] - [2, 11])))
+          (select_expression [2, 13] - [2, 14]
+            (expression [2, 13] - [2, 14]
+              (path_expression [2, 13] - [2, 14]
+                (identifier [2, 13] - [2, 14]))))))
+      (from_clause [2, 15] - [2, 27]
+        (from_item [2, 20] - [2, 27]
+          (table_expression [2, 20] - [2, 27]
+            (path_expression [2, 20] - [2, 27]
+              (identifier [2, 20] - [2, 21])
+              (identifier [2, 22] - [2, 23])
+              (identifier [2, 24] - [2, 25])
+              (identifier [2, 26] - [2, 27])))))))
+  (comment [4, 0] - [21, 2]))
 
 ==================
 Test Case 2
@@ -685,32 +707,3077 @@ QueryStatement [0-28] [select null from x.y. 2.0. z]
 ==================
 Test Case 21
 ==================
-select x{{.| .|. | . }}1{{.| .|. | . }}2{{.| .|. | . }}3
+select x.1.2.3
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: .,.,.
+QueryStatement [0-16] [select x .1.2. 3]
+  Query [0-16] [select x .1.2. 3]
+    Select [0-16] [select x .1.2. 3]
+      SelectList [7-16] [x .1.2. 3]
+        SelectColumn [7-16] [x .1.2. 3]
+          PathExpression [7-16] [x .1.2. 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`2`) [12-13] [2]
+            Identifier(`3`) [15-16] [3]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 14]
+    (select_statement [0, 0] - [0, 14]
+      (select_clause [0, 0] - [0, 14]
+        (select_list [0, 7] - [0, 14]
+          (select_expression [0, 7] - [0, 14]
+            (expression [0, 7] - [0, 14]
+              (path_expression [0, 7] - [0, 14]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 9] - [0, 10])
+                (identifier [0, 11] - [0, 12])
+                (identifier [0, 13] - [0, 14]))))))))
+  (comment [2, 0] - [13, 2]))
 
 ==================
 Test Case 22
+==================
+select x.1.2 .3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x .1.2 . 3]
+  Query [0-17] [select x .1.2 . 3]
+    Select [0-17] [select x .1.2 . 3]
+      SelectList [7-17] [x .1.2 . 3]
+        SelectColumn [7-17] [x .1.2 . 3]
+          PathExpression [7-17] [x .1.2 . 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`2`) [12-13] [2]
+            Identifier(`3`) [16-17] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 15]
+    (select_statement [0, 0] - [0, 15]
+      (select_clause [0, 0] - [0, 15]
+        (select_list [0, 7] - [0, 15]
+          (select_expression [0, 7] - [0, 15]
+            (expression [0, 7] - [0, 15]
+              (path_expression [0, 7] - [0, 15]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 9] - [0, 10])
+                (identifier [0, 11] - [0, 12])
+                (identifier [0, 14] - [0, 15]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 23
+==================
+select x.1 .2.3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x .1 .2. 3]
+  Query [0-17] [select x .1 .2. 3]
+    Select [0-17] [select x .1 .2. 3]
+      SelectList [7-17] [x .1 .2. 3]
+        SelectColumn [7-17] [x .1 .2. 3]
+          PathExpression [7-17] [x .1 .2. 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`2`) [13-14] [2]
+            Identifier(`3`) [16-17] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 15]
+    (select_statement [0, 0] - [0, 15]
+      (select_clause [0, 0] - [0, 15]
+        (select_list [0, 7] - [0, 15]
+          (select_expression [0, 7] - [0, 15]
+            (expression [0, 7] - [0, 15]
+              (path_expression [0, 7] - [0, 15]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 9] - [0, 10])
+                (identifier [0, 12] - [0, 13])
+                (identifier [0, 14] - [0, 15]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 24
+==================
+select x.1 .2 .3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x .1 .2 . 3]
+  Query [0-18] [select x .1 .2 . 3]
+    Select [0-18] [select x .1 .2 . 3]
+      SelectList [7-18] [x .1 .2 . 3]
+        SelectColumn [7-18] [x .1 .2 . 3]
+          PathExpression [7-18] [x .1 .2 . 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`2`) [13-14] [2]
+            Identifier(`3`) [17-18] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 16]
+    (select_statement [0, 0] - [0, 16]
+      (select_clause [0, 0] - [0, 16]
+        (select_list [0, 7] - [0, 16]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (path_expression [0, 7] - [0, 16]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 9] - [0, 10])
+                (identifier [0, 12] - [0, 13])
+                (identifier [0, 15] - [0, 16]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 25
+==================
+select x.1. 2.3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x .1. 2. 3]
+  Query [0-17] [select x .1. 2. 3]
+    Select [0-17] [select x .1. 2. 3]
+      SelectList [7-17] [x .1. 2. 3]
+        SelectColumn [7-17] [x .1. 2. 3]
+          PathExpression [7-17] [x .1. 2. 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`2`) [13-14] [2]
+            Identifier(`3`) [16-17] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 15]
+    (select_statement [0, 0] - [0, 15]
+      (select_clause [0, 0] - [0, 15]
+        (select_list [0, 7] - [0, 15]
+          (select_expression [0, 7] - [0, 15]
+            (expression [0, 7] - [0, 15]
+              (path_expression [0, 7] - [0, 15]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 9] - [0, 10])
+                (identifier [0, 12] - [0, 13])
+                (identifier [0, 14] - [0, 15]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 26
+==================
+select x.1. 2 .3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x .1. 2 . 3]
+  Query [0-18] [select x .1. 2 . 3]
+    Select [0-18] [select x .1. 2 . 3]
+      SelectList [7-18] [x .1. 2 . 3]
+        SelectColumn [7-18] [x .1. 2 . 3]
+          PathExpression [7-18] [x .1. 2 . 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`2`) [13-14] [2]
+            Identifier(`3`) [17-18] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 16]
+    (select_statement [0, 0] - [0, 16]
+      (select_clause [0, 0] - [0, 16]
+        (select_list [0, 7] - [0, 16]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (path_expression [0, 7] - [0, 16]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 9] - [0, 10])
+                (identifier [0, 12] - [0, 13])
+                (identifier [0, 15] - [0, 16]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 27
+==================
+select x.1 . 2.3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x .1 . 2. 3]
+  Query [0-18] [select x .1 . 2. 3]
+    Select [0-18] [select x .1 . 2. 3]
+      SelectList [7-18] [x .1 . 2. 3]
+        SelectColumn [7-18] [x .1 . 2. 3]
+          PathExpression [7-18] [x .1 . 2. 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`2`) [14-15] [2]
+            Identifier(`3`) [17-18] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 16]
+    (select_statement [0, 0] - [0, 16]
+      (select_clause [0, 0] - [0, 16]
+        (select_list [0, 7] - [0, 16]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (path_expression [0, 7] - [0, 16]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 9] - [0, 10])
+                (identifier [0, 13] - [0, 14])
+                (identifier [0, 15] - [0, 16]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 28
+==================
+select x.1 . 2 .3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-19] [select x .1 . 2 . 3]
+  Query [0-19] [select x .1 . 2 . 3]
+    Select [0-19] [select x .1 . 2 . 3]
+      SelectList [7-19] [x .1 . 2 . 3]
+        SelectColumn [7-19] [x .1 . 2 . 3]
+          PathExpression [7-19] [x .1 . 2 . 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`2`) [14-15] [2]
+            Identifier(`3`) [18-19] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 17]
+    (select_statement [0, 0] - [0, 17]
+      (select_clause [0, 0] - [0, 17]
+        (select_list [0, 7] - [0, 17]
+          (select_expression [0, 7] - [0, 17]
+            (expression [0, 7] - [0, 17]
+              (path_expression [0, 7] - [0, 17]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 9] - [0, 10])
+                (identifier [0, 13] - [0, 14])
+                (identifier [0, 16] - [0, 17]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 29
+==================
+select x. 1.2.3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . 1.2. 3]
+  Query [0-17] [select x . 1.2. 3]
+    Select [0-17] [select x . 1.2. 3]
+      SelectList [7-17] [x . 1.2. 3]
+        SelectColumn [7-17] [x . 1.2. 3]
+          PathExpression [7-17] [x . 1.2. 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`2`) [13-14] [2]
+            Identifier(`3`) [16-17] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 15]
+    (select_statement [0, 0] - [0, 15]
+      (select_clause [0, 0] - [0, 15]
+        (select_list [0, 7] - [0, 15]
+          (select_expression [0, 7] - [0, 15]
+            (expression [0, 7] - [0, 15]
+              (path_expression [0, 7] - [0, 15]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 10] - [0, 11])
+                (identifier [0, 12] - [0, 13])
+                (identifier [0, 14] - [0, 15]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 30
+==================
+select x. 1.2 .3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x . 1.2 . 3]
+  Query [0-18] [select x . 1.2 . 3]
+    Select [0-18] [select x . 1.2 . 3]
+      SelectList [7-18] [x . 1.2 . 3]
+        SelectColumn [7-18] [x . 1.2 . 3]
+          PathExpression [7-18] [x . 1.2 . 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`2`) [13-14] [2]
+            Identifier(`3`) [17-18] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 16]
+    (select_statement [0, 0] - [0, 16]
+      (select_clause [0, 0] - [0, 16]
+        (select_list [0, 7] - [0, 16]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (path_expression [0, 7] - [0, 16]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 10] - [0, 11])
+                (identifier [0, 12] - [0, 13])
+                (identifier [0, 15] - [0, 16]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 31
+==================
+select x. 1 .2.3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x . 1 .2. 3]
+  Query [0-18] [select x . 1 .2. 3]
+    Select [0-18] [select x . 1 .2. 3]
+      SelectList [7-18] [x . 1 .2. 3]
+        SelectColumn [7-18] [x . 1 .2. 3]
+          PathExpression [7-18] [x . 1 .2. 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`2`) [14-15] [2]
+            Identifier(`3`) [17-18] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 16]
+    (select_statement [0, 0] - [0, 16]
+      (select_clause [0, 0] - [0, 16]
+        (select_list [0, 7] - [0, 16]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (path_expression [0, 7] - [0, 16]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 10] - [0, 11])
+                (identifier [0, 13] - [0, 14])
+                (identifier [0, 15] - [0, 16]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 32
+==================
+select x. 1 .2 .3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-19] [select x . 1 .2 . 3]
+  Query [0-19] [select x . 1 .2 . 3]
+    Select [0-19] [select x . 1 .2 . 3]
+      SelectList [7-19] [x . 1 .2 . 3]
+        SelectColumn [7-19] [x . 1 .2 . 3]
+          PathExpression [7-19] [x . 1 .2 . 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`2`) [14-15] [2]
+            Identifier(`3`) [18-19] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 17]
+    (select_statement [0, 0] - [0, 17]
+      (select_clause [0, 0] - [0, 17]
+        (select_list [0, 7] - [0, 17]
+          (select_expression [0, 7] - [0, 17]
+            (expression [0, 7] - [0, 17]
+              (path_expression [0, 7] - [0, 17]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 10] - [0, 11])
+                (identifier [0, 13] - [0, 14])
+                (identifier [0, 16] - [0, 17]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 33
+==================
+select x. 1. 2.3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x . 1. 2. 3]
+  Query [0-18] [select x . 1. 2. 3]
+    Select [0-18] [select x . 1. 2. 3]
+      SelectList [7-18] [x . 1. 2. 3]
+        SelectColumn [7-18] [x . 1. 2. 3]
+          PathExpression [7-18] [x . 1. 2. 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`2`) [14-15] [2]
+            Identifier(`3`) [17-18] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 16]
+    (select_statement [0, 0] - [0, 16]
+      (select_clause [0, 0] - [0, 16]
+        (select_list [0, 7] - [0, 16]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (path_expression [0, 7] - [0, 16]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 10] - [0, 11])
+                (identifier [0, 13] - [0, 14])
+                (identifier [0, 15] - [0, 16]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 34
+==================
+select x. 1. 2 .3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-19] [select x . 1. 2 . 3]
+  Query [0-19] [select x . 1. 2 . 3]
+    Select [0-19] [select x . 1. 2 . 3]
+      SelectList [7-19] [x . 1. 2 . 3]
+        SelectColumn [7-19] [x . 1. 2 . 3]
+          PathExpression [7-19] [x . 1. 2 . 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`2`) [14-15] [2]
+            Identifier(`3`) [18-19] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 17]
+    (select_statement [0, 0] - [0, 17]
+      (select_clause [0, 0] - [0, 17]
+        (select_list [0, 7] - [0, 17]
+          (select_expression [0, 7] - [0, 17]
+            (expression [0, 7] - [0, 17]
+              (path_expression [0, 7] - [0, 17]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 10] - [0, 11])
+                (identifier [0, 13] - [0, 14])
+                (identifier [0, 16] - [0, 17]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 35
+==================
+select x. 1 . 2.3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-19] [select x . 1 . 2. 3]
+  Query [0-19] [select x . 1 . 2. 3]
+    Select [0-19] [select x . 1 . 2. 3]
+      SelectList [7-19] [x . 1 . 2. 3]
+        SelectColumn [7-19] [x . 1 . 2. 3]
+          PathExpression [7-19] [x . 1 . 2. 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`2`) [15-16] [2]
+            Identifier(`3`) [18-19] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 17]
+    (select_statement [0, 0] - [0, 17]
+      (select_clause [0, 0] - [0, 17]
+        (select_list [0, 7] - [0, 17]
+          (select_expression [0, 7] - [0, 17]
+            (expression [0, 7] - [0, 17]
+              (path_expression [0, 7] - [0, 17]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 10] - [0, 11])
+                (identifier [0, 14] - [0, 15])
+                (identifier [0, 16] - [0, 17]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 36
+==================
+select x. 1 . 2 .3
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-20] [select x . 1 . 2 . 3]
+  Query [0-20] [select x . 1 . 2 . 3]
+    Select [0-20] [select x . 1 . 2 . 3]
+      SelectList [7-20] [x . 1 . 2 . 3]
+        SelectColumn [7-20] [x . 1 . 2 . 3]
+          PathExpression [7-20] [x . 1 . 2 . 3]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`2`) [15-16] [2]
+            Identifier(`3`) [19-20] [3]
+*/
+---
+(source_file [0, 0] - [13, 2]
+  (statement [0, 0] - [0, 18]
+    (select_statement [0, 0] - [0, 18]
+      (select_clause [0, 0] - [0, 18]
+        (select_list [0, 7] - [0, 18]
+          (select_expression [0, 7] - [0, 18]
+            (expression [0, 7] - [0, 18]
+              (path_expression [0, 7] - [0, 18]
+                (identifier [0, 7] - [0, 8])
+                (identifier [0, 10] - [0, 11])
+                (identifier [0, 14] - [0, 15])
+                (identifier [0, 17] - [0, 18]))))))))
+  (comment [2, 0] - [13, 2]))
+
+==================
+Test Case 37
 ==================
 # Test combinations of interesting generalized identifiers that may tickle bugs
 # in how the JavaCC parser uses floating point and integer tokens to
 # reconstruct identifiers.
 # Be careful when adding new stuff to it because the combinatorial explosion can
 # make this quite slow.
-select x{{.| .|. | . }}{{1|e2|3e|4e5}}{{.| .|. | . }}{{6|e7}};
+select x.1.6;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: .,1,.,6
+QueryStatement [0-13] [select x .1.6]
+  Query [0-13] [select x .1.6]
+    Select [0-13] [select x .1.6]
+      SelectList [7-13] [x .1.6]
+        SelectColumn [7-13] [x .1.6]
+          PathExpression [7-13] [x .1.6]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`6`) [12-13] [6]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 13]
+    (select_statement [5, 0] - [5, 13]
+      (select_clause [5, 0] - [5, 12]
+        (select_list [5, 7] - [5, 12]
+          (select_expression [5, 7] - [5, 12]
+            (expression [5, 7] - [5, 12]
+              (path_expression [5, 7] - [5, 12]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 10])
+                (identifier [5, 11] - [5, 12]))))))))
+  (comment [7, 0] - [17, 2]))
 
 ==================
-Test Case 23
+Test Case 38
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.1.e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-14] [select x .1.e7]
+  Query [0-14] [select x .1.e7]
+    Select [0-14] [select x .1.e7]
+      SelectList [7-14] [x .1.e7]
+        SelectColumn [7-14] [x .1.e7]
+          PathExpression [7-14] [x .1.e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(e7) [12-14] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 14]
+    (select_statement [5, 0] - [5, 14]
+      (select_clause [5, 0] - [5, 13]
+        (select_list [5, 7] - [5, 13]
+          (select_expression [5, 7] - [5, 13]
+            (expression [5, 7] - [5, 13]
+              (path_expression [5, 7] - [5, 13]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 10])
+                (identifier [5, 11] - [5, 13]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 39
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.1 .6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-14] [select x .1 .6]
+  Query [0-14] [select x .1 .6]
+    Select [0-14] [select x .1 .6]
+      SelectList [7-14] [x .1 .6]
+        SelectColumn [7-14] [x .1 .6]
+          PathExpression [7-14] [x .1 .6]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`6`) [13-14] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 14]
+    (select_statement [5, 0] - [5, 14]
+      (select_clause [5, 0] - [5, 13]
+        (select_list [5, 7] - [5, 13]
+          (select_expression [5, 7] - [5, 13]
+            (expression [5, 7] - [5, 13]
+              (path_expression [5, 7] - [5, 13]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 10])
+                (identifier [5, 12] - [5, 13]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 40
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.1 .e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .1 .e7]
+  Query [0-15] [select x .1 .e7]
+    Select [0-15] [select x .1 .e7]
+      SelectList [7-15] [x .1 .e7]
+        SelectColumn [7-15] [x .1 .e7]
+          PathExpression [7-15] [x .1 .e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(e7) [13-15] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 10])
+                (identifier [5, 12] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 41
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.1. 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-14] [select x .1. 6]
+  Query [0-14] [select x .1. 6]
+    Select [0-14] [select x .1. 6]
+      SelectList [7-14] [x .1. 6]
+        SelectColumn [7-14] [x .1. 6]
+          PathExpression [7-14] [x .1. 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`6`) [13-14] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 14]
+    (select_statement [5, 0] - [5, 14]
+      (select_clause [5, 0] - [5, 13]
+        (select_list [5, 7] - [5, 13]
+          (select_expression [5, 7] - [5, 13]
+            (expression [5, 7] - [5, 13]
+              (path_expression [5, 7] - [5, 13]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 10])
+                (identifier [5, 12] - [5, 13]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 42
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.1. e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .1. e7]
+  Query [0-15] [select x .1. e7]
+    Select [0-15] [select x .1. e7]
+      SelectList [7-15] [x .1. e7]
+        SelectColumn [7-15] [x .1. e7]
+          PathExpression [7-15] [x .1. e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(e7) [13-15] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 10])
+                (identifier [5, 12] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 43
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.1 . 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .1 . 6]
+  Query [0-15] [select x .1 . 6]
+    Select [0-15] [select x .1 . 6]
+      SelectList [7-15] [x .1 . 6]
+        SelectColumn [7-15] [x .1 . 6]
+          PathExpression [7-15] [x .1 . 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 10])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 44
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.1 . e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .1 . e7]
+  Query [0-16] [select x .1 . e7]
+    Select [0-16] [select x .1 . e7]
+      SelectList [7-16] [x .1 . e7]
+        SelectColumn [7-16] [x .1 . e7]
+          PathExpression [7-16] [x .1 . e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [10-11] [1]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 10])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 45
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.e2.6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-14] [select x .e2.6]
+  Query [0-14] [select x .e2.6]
+    Select [0-14] [select x .e2.6]
+      SelectList [7-14] [x .e2.6]
+        SelectColumn [7-14] [x .e2.6]
+          PathExpression [7-14] [x .e2.6]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [10-12] [e2]
+            Identifier(`6`) [13-14] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 14]
+    (select_statement [5, 0] - [5, 14]
+      (select_clause [5, 0] - [5, 13]
+        (select_list [5, 7] - [5, 13]
+          (select_expression [5, 7] - [5, 13]
+            (expression [5, 7] - [5, 13]
+              (path_expression [5, 7] - [5, 13]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 12] - [5, 13]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 46
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.e2.e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .e2.e7]
+  Query [0-15] [select x .e2.e7]
+    Select [0-15] [select x .e2.e7]
+      SelectList [7-15] [x .e2.e7]
+        SelectColumn [7-15] [x .e2.e7]
+          PathExpression [7-15] [x .e2.e7]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [10-12] [e2]
+            Identifier(e7) [13-15] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 12] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 47
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.e2 .6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .e2 .6]
+  Query [0-15] [select x .e2 .6]
+    Select [0-15] [select x .e2 .6]
+      SelectList [7-15] [x .e2 .6]
+        SelectColumn [7-15] [x .e2 .6]
+          PathExpression [7-15] [x .e2 .6]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [10-12] [e2]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 48
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.e2 .e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .e2 .e7]
+  Query [0-16] [select x .e2 .e7]
+    Select [0-16] [select x .e2 .e7]
+      SelectList [7-16] [x .e2 .e7]
+        SelectColumn [7-16] [x .e2 .e7]
+          PathExpression [7-16] [x .e2 .e7]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [10-12] [e2]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 49
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.e2. 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .e2. 6]
+  Query [0-15] [select x .e2. 6]
+    Select [0-15] [select x .e2. 6]
+      SelectList [7-15] [x .e2. 6]
+        SelectColumn [7-15] [x .e2. 6]
+          PathExpression [7-15] [x .e2. 6]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [10-12] [e2]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 50
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.e2. e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .e2. e7]
+  Query [0-16] [select x .e2. e7]
+    Select [0-16] [select x .e2. e7]
+      SelectList [7-16] [x .e2. e7]
+        SelectColumn [7-16] [x .e2. e7]
+          PathExpression [7-16] [x .e2. e7]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [10-12] [e2]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 51
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.e2 . 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .e2 . 6]
+  Query [0-16] [select x .e2 . 6]
+    Select [0-16] [select x .e2 . 6]
+      SelectList [7-16] [x .e2 . 6]
+        SelectColumn [7-16] [x .e2 . 6]
+          PathExpression [7-16] [x .e2 . 6]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [10-12] [e2]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 52
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.e2 . e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x .e2 . e7]
+  Query [0-17] [select x .e2 . e7]
+    Select [0-17] [select x .e2 . e7]
+      SelectList [7-17] [x .e2 . e7]
+        SelectColumn [7-17] [x .e2 . e7]
+          PathExpression [7-17] [x .e2 . e7]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [10-12] [e2]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 53
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.3e.6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-14] [select x .3e.6]
+  Query [0-14] [select x .3e.6]
+    Select [0-14] [select x .3e.6]
+      SelectList [7-14] [x .3e.6]
+        SelectColumn [7-14] [x .3e.6]
+          PathExpression [7-14] [x .3e.6]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [10-12] [3e]
+            Identifier(`6`) [13-14] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 14]
+    (select_statement [5, 0] - [5, 14]
+      (select_clause [5, 0] - [5, 13]
+        (select_list [5, 7] - [5, 13]
+          (select_expression [5, 7] - [5, 13]
+            (expression [5, 7] - [5, 13]
+              (path_expression [5, 7] - [5, 13]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 12] - [5, 13]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 54
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.3e.e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .3e.e7]
+  Query [0-15] [select x .3e.e7]
+    Select [0-15] [select x .3e.e7]
+      SelectList [7-15] [x .3e.e7]
+        SelectColumn [7-15] [x .3e.e7]
+          PathExpression [7-15] [x .3e.e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [10-12] [3e]
+            Identifier(e7) [13-15] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 12] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 55
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.3e .6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .3e .6]
+  Query [0-15] [select x .3e .6]
+    Select [0-15] [select x .3e .6]
+      SelectList [7-15] [x .3e .6]
+        SelectColumn [7-15] [x .3e .6]
+          PathExpression [7-15] [x .3e .6]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [10-12] [3e]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 56
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.3e .e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .3e .e7]
+  Query [0-16] [select x .3e .e7]
+    Select [0-16] [select x .3e .e7]
+      SelectList [7-16] [x .3e .e7]
+        SelectColumn [7-16] [x .3e .e7]
+          PathExpression [7-16] [x .3e .e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [10-12] [3e]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 57
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.3e. 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .3e. 6]
+  Query [0-15] [select x .3e. 6]
+    Select [0-15] [select x .3e. 6]
+      SelectList [7-15] [x .3e. 6]
+        SelectColumn [7-15] [x .3e. 6]
+          PathExpression [7-15] [x .3e. 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [10-12] [3e]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 58
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.3e. e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .3e. e7]
+  Query [0-16] [select x .3e. e7]
+    Select [0-16] [select x .3e. e7]
+      SelectList [7-16] [x .3e. e7]
+        SelectColumn [7-16] [x .3e. e7]
+          PathExpression [7-16] [x .3e. e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [10-12] [3e]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 59
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.3e . 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .3e . 6]
+  Query [0-16] [select x .3e . 6]
+    Select [0-16] [select x .3e . 6]
+      SelectList [7-16] [x .3e . 6]
+        SelectColumn [7-16] [x .3e . 6]
+          PathExpression [7-16] [x .3e . 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [10-12] [3e]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 60
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.3e . e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x .3e . e7]
+  Query [0-17] [select x .3e . e7]
+    Select [0-17] [select x .3e . e7]
+      SelectList [7-17] [x .3e . e7]
+        SelectColumn [7-17] [x .3e . e7]
+          PathExpression [7-17] [x .3e . e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [10-12] [3e]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 11])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 61
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.4e5.6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x .4e5.6]
+  Query [0-15] [select x .4e5.6]
+    Select [0-15] [select x .4e5.6]
+      SelectList [7-15] [x .4e5.6]
+        SelectColumn [7-15] [x .4e5.6]
+          PathExpression [7-15] [x .4e5.6]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [10-13] [4e5]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 12])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 62
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.4e5.e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .4e5.e7]
+  Query [0-16] [select x .4e5.e7]
+    Select [0-16] [select x .4e5.e7]
+      SelectList [7-16] [x .4e5.e7]
+        SelectColumn [7-16] [x .4e5.e7]
+          PathExpression [7-16] [x .4e5.e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [10-13] [4e5]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 12])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 63
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.4e5 .6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .4e5 .6]
+  Query [0-16] [select x .4e5 .6]
+    Select [0-16] [select x .4e5 .6]
+      SelectList [7-16] [x .4e5 .6]
+        SelectColumn [7-16] [x .4e5 .6]
+          PathExpression [7-16] [x .4e5 .6]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [10-13] [4e5]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 12])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 64
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.4e5 .e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x .4e5 .e7]
+  Query [0-17] [select x .4e5 .e7]
+    Select [0-17] [select x .4e5 .e7]
+      SelectList [7-17] [x .4e5 .e7]
+        SelectColumn [7-17] [x .4e5 .e7]
+          PathExpression [7-17] [x .4e5 .e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [10-13] [4e5]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 12])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 65
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.4e5. 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x .4e5. 6]
+  Query [0-16] [select x .4e5. 6]
+    Select [0-16] [select x .4e5. 6]
+      SelectList [7-16] [x .4e5. 6]
+        SelectColumn [7-16] [x .4e5. 6]
+          PathExpression [7-16] [x .4e5. 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [10-13] [4e5]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 12])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 66
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.4e5. e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x .4e5. e7]
+  Query [0-17] [select x .4e5. e7]
+    Select [0-17] [select x .4e5. e7]
+      SelectList [7-17] [x .4e5. e7]
+        SelectColumn [7-17] [x .4e5. e7]
+          PathExpression [7-17] [x .4e5. e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [10-13] [4e5]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 12])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 67
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.4e5 . 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x .4e5 . 6]
+  Query [0-17] [select x .4e5 . 6]
+    Select [0-17] [select x .4e5 . 6]
+      SelectList [7-17] [x .4e5 . 6]
+        SelectColumn [7-17] [x .4e5 . 6]
+          PathExpression [7-17] [x .4e5 . 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [10-13] [4e5]
+            Identifier(`6`) [16-17] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 12])
+                (identifier [5, 15] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 68
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x.4e5 . e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x .4e5 . e7]
+  Query [0-18] [select x .4e5 . e7]
+    Select [0-18] [select x .4e5 . e7]
+      SelectList [7-18] [x .4e5 . e7]
+        SelectColumn [7-18] [x .4e5 . e7]
+          PathExpression [7-18] [x .4e5 . e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [10-13] [4e5]
+            Identifier(e7) [16-18] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 18]
+    (select_statement [5, 0] - [5, 18]
+      (select_clause [5, 0] - [5, 17]
+        (select_list [5, 7] - [5, 17]
+          (select_expression [5, 7] - [5, 17]
+            (expression [5, 7] - [5, 17]
+              (path_expression [5, 7] - [5, 17]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 9] - [5, 12])
+                (identifier [5, 15] - [5, 17]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 69
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 1.6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-14] [select x . 1.6]
+  Query [0-14] [select x . 1.6]
+    Select [0-14] [select x . 1.6]
+      SelectList [7-14] [x . 1.6]
+        SelectColumn [7-14] [x . 1.6]
+          PathExpression [7-14] [x . 1.6]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`6`) [13-14] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 14]
+    (select_statement [5, 0] - [5, 14]
+      (select_clause [5, 0] - [5, 13]
+        (select_list [5, 7] - [5, 13]
+          (select_expression [5, 7] - [5, 13]
+            (expression [5, 7] - [5, 13]
+              (path_expression [5, 7] - [5, 13]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 11])
+                (identifier [5, 12] - [5, 13]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 70
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 1.e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x . 1.e7]
+  Query [0-15] [select x . 1.e7]
+    Select [0-15] [select x . 1.e7]
+      SelectList [7-15] [x . 1.e7]
+        SelectColumn [7-15] [x . 1.e7]
+          PathExpression [7-15] [x . 1.e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(e7) [13-15] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 11])
+                (identifier [5, 12] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 71
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 1 .6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x . 1 .6]
+  Query [0-15] [select x . 1 .6]
+    Select [0-15] [select x . 1 .6]
+      SelectList [7-15] [x . 1 .6]
+        SelectColumn [7-15] [x . 1 .6]
+          PathExpression [7-15] [x . 1 .6]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 11])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 72
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 1 .e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . 1 .e7]
+  Query [0-16] [select x . 1 .e7]
+    Select [0-16] [select x . 1 .e7]
+      SelectList [7-16] [x . 1 .e7]
+        SelectColumn [7-16] [x . 1 .e7]
+          PathExpression [7-16] [x . 1 .e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 11])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 73
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 1. 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x . 1. 6]
+  Query [0-15] [select x . 1. 6]
+    Select [0-15] [select x . 1. 6]
+      SelectList [7-15] [x . 1. 6]
+        SelectColumn [7-15] [x . 1. 6]
+          PathExpression [7-15] [x . 1. 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 11])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 74
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 1. e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . 1. e7]
+  Query [0-16] [select x . 1. e7]
+    Select [0-16] [select x . 1. e7]
+      SelectList [7-16] [x . 1. e7]
+        SelectColumn [7-16] [x . 1. e7]
+          PathExpression [7-16] [x . 1. e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 11])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 75
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 1 . 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . 1 . 6]
+  Query [0-16] [select x . 1 . 6]
+    Select [0-16] [select x . 1 . 6]
+      SelectList [7-16] [x . 1 . 6]
+        SelectColumn [7-16] [x . 1 . 6]
+          PathExpression [7-16] [x . 1 . 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 11])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 76
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 1 . e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . 1 . e7]
+  Query [0-17] [select x . 1 . e7]
+    Select [0-17] [select x . 1 . e7]
+      SelectList [7-17] [x . 1 . e7]
+        SelectColumn [7-17] [x . 1 . e7]
+          PathExpression [7-17] [x . 1 . e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`1`) [11-12] [1]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 11])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 77
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. e2.6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x . e2.6]
+  Query [0-15] [select x . e2.6]
+    Select [0-15] [select x . e2.6]
+      SelectList [7-15] [x . e2.6]
+        SelectColumn [7-15] [x . e2.6]
+          PathExpression [7-15] [x . e2.6]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [11-13] [e2]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 78
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. e2.e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . e2.e7]
+  Query [0-16] [select x . e2.e7]
+    Select [0-16] [select x . e2.e7]
+      SelectList [7-16] [x . e2.e7]
+        SelectColumn [7-16] [x . e2.e7]
+          PathExpression [7-16] [x . e2.e7]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [11-13] [e2]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 79
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. e2 .6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . e2 .6]
+  Query [0-16] [select x . e2 .6]
+    Select [0-16] [select x . e2 .6]
+      SelectList [7-16] [x . e2 .6]
+        SelectColumn [7-16] [x . e2 .6]
+          PathExpression [7-16] [x . e2 .6]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [11-13] [e2]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 80
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. e2 .e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . e2 .e7]
+  Query [0-17] [select x . e2 .e7]
+    Select [0-17] [select x . e2 .e7]
+      SelectList [7-17] [x . e2 .e7]
+        SelectColumn [7-17] [x . e2 .e7]
+          PathExpression [7-17] [x . e2 .e7]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [11-13] [e2]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 81
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. e2. 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . e2. 6]
+  Query [0-16] [select x . e2. 6]
+    Select [0-16] [select x . e2. 6]
+      SelectList [7-16] [x . e2. 6]
+        SelectColumn [7-16] [x . e2. 6]
+          PathExpression [7-16] [x . e2. 6]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [11-13] [e2]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 82
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. e2. e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . e2. e7]
+  Query [0-17] [select x . e2. e7]
+    Select [0-17] [select x . e2. e7]
+      SelectList [7-17] [x . e2. e7]
+        SelectColumn [7-17] [x . e2. e7]
+          PathExpression [7-17] [x . e2. e7]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [11-13] [e2]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 83
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. e2 . 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . e2 . 6]
+  Query [0-17] [select x . e2 . 6]
+    Select [0-17] [select x . e2 . 6]
+      SelectList [7-17] [x . e2 . 6]
+        SelectColumn [7-17] [x . e2 . 6]
+          PathExpression [7-17] [x . e2 . 6]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [11-13] [e2]
+            Identifier(`6`) [16-17] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 15] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 84
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. e2 . e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x . e2 . e7]
+  Query [0-18] [select x . e2 . e7]
+    Select [0-18] [select x . e2 . e7]
+      SelectList [7-18] [x . e2 . e7]
+        SelectColumn [7-18] [x . e2 . e7]
+          PathExpression [7-18] [x . e2 . e7]
+            Identifier(x) [7-8] [x]
+            Identifier(e2) [11-13] [e2]
+            Identifier(e7) [16-18] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 18]
+    (select_statement [5, 0] - [5, 18]
+      (select_clause [5, 0] - [5, 17]
+        (select_list [5, 7] - [5, 17]
+          (select_expression [5, 7] - [5, 17]
+            (expression [5, 7] - [5, 17]
+              (path_expression [5, 7] - [5, 17]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 15] - [5, 17]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 85
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 3e.6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-15] [select x . 3e.6]
+  Query [0-15] [select x . 3e.6]
+    Select [0-15] [select x . 3e.6]
+      SelectList [7-15] [x . 3e.6]
+        SelectColumn [7-15] [x . 3e.6]
+          PathExpression [7-15] [x . 3e.6]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [11-13] [3e]
+            Identifier(`6`) [14-15] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 15]
+    (select_statement [5, 0] - [5, 15]
+      (select_clause [5, 0] - [5, 14]
+        (select_list [5, 7] - [5, 14]
+          (select_expression [5, 7] - [5, 14]
+            (expression [5, 7] - [5, 14]
+              (path_expression [5, 7] - [5, 14]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 13] - [5, 14]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 86
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 3e.e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . 3e.e7]
+  Query [0-16] [select x . 3e.e7]
+    Select [0-16] [select x . 3e.e7]
+      SelectList [7-16] [x . 3e.e7]
+        SelectColumn [7-16] [x . 3e.e7]
+          PathExpression [7-16] [x . 3e.e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [11-13] [3e]
+            Identifier(e7) [14-16] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 13] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 87
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 3e .6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . 3e .6]
+  Query [0-16] [select x . 3e .6]
+    Select [0-16] [select x . 3e .6]
+      SelectList [7-16] [x . 3e .6]
+        SelectColumn [7-16] [x . 3e .6]
+          PathExpression [7-16] [x . 3e .6]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [11-13] [3e]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 88
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 3e .e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . 3e .e7]
+  Query [0-17] [select x . 3e .e7]
+    Select [0-17] [select x . 3e .e7]
+      SelectList [7-17] [x . 3e .e7]
+        SelectColumn [7-17] [x . 3e .e7]
+          PathExpression [7-17] [x . 3e .e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [11-13] [3e]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 89
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 3e. 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . 3e. 6]
+  Query [0-16] [select x . 3e. 6]
+    Select [0-16] [select x . 3e. 6]
+      SelectList [7-16] [x . 3e. 6]
+        SelectColumn [7-16] [x . 3e. 6]
+          PathExpression [7-16] [x . 3e. 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [11-13] [3e]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 90
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 3e. e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . 3e. e7]
+  Query [0-17] [select x . 3e. e7]
+    Select [0-17] [select x . 3e. e7]
+      SelectList [7-17] [x . 3e. e7]
+        SelectColumn [7-17] [x . 3e. e7]
+          PathExpression [7-17] [x . 3e. e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [11-13] [3e]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 91
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 3e . 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . 3e . 6]
+  Query [0-17] [select x . 3e . 6]
+    Select [0-17] [select x . 3e . 6]
+      SelectList [7-17] [x . 3e . 6]
+        SelectColumn [7-17] [x . 3e . 6]
+          PathExpression [7-17] [x . 3e . 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [11-13] [3e]
+            Identifier(`6`) [16-17] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 15] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 92
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 3e . e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x . 3e . e7]
+  Query [0-18] [select x . 3e . e7]
+    Select [0-18] [select x . 3e . e7]
+      SelectList [7-18] [x . 3e . e7]
+        SelectColumn [7-18] [x . 3e . e7]
+          PathExpression [7-18] [x . 3e . e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`3e`) [11-13] [3e]
+            Identifier(e7) [16-18] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 18]
+    (select_statement [5, 0] - [5, 18]
+      (select_clause [5, 0] - [5, 17]
+        (select_list [5, 7] - [5, 17]
+          (select_expression [5, 7] - [5, 17]
+            (expression [5, 7] - [5, 17]
+              (path_expression [5, 7] - [5, 17]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 12])
+                (identifier [5, 15] - [5, 17]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 93
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 4e5.6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-16] [select x . 4e5.6]
+  Query [0-16] [select x . 4e5.6]
+    Select [0-16] [select x . 4e5.6]
+      SelectList [7-16] [x . 4e5.6]
+        SelectColumn [7-16] [x . 4e5.6]
+          PathExpression [7-16] [x . 4e5.6]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [11-14] [4e5]
+            Identifier(`6`) [15-16] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 16]
+    (select_statement [5, 0] - [5, 16]
+      (select_clause [5, 0] - [5, 15]
+        (select_list [5, 7] - [5, 15]
+          (select_expression [5, 7] - [5, 15]
+            (expression [5, 7] - [5, 15]
+              (path_expression [5, 7] - [5, 15]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 13])
+                (identifier [5, 14] - [5, 15]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 94
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 4e5.e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . 4e5.e7]
+  Query [0-17] [select x . 4e5.e7]
+    Select [0-17] [select x . 4e5.e7]
+      SelectList [7-17] [x . 4e5.e7]
+        SelectColumn [7-17] [x . 4e5.e7]
+          PathExpression [7-17] [x . 4e5.e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [11-14] [4e5]
+            Identifier(e7) [15-17] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 13])
+                (identifier [5, 14] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 95
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 4e5 .6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . 4e5 .6]
+  Query [0-17] [select x . 4e5 .6]
+    Select [0-17] [select x . 4e5 .6]
+      SelectList [7-17] [x . 4e5 .6]
+        SelectColumn [7-17] [x . 4e5 .6]
+          PathExpression [7-17] [x . 4e5 .6]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [11-14] [4e5]
+            Identifier(`6`) [16-17] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 13])
+                (identifier [5, 15] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 96
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 4e5 .e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x . 4e5 .e7]
+  Query [0-18] [select x . 4e5 .e7]
+    Select [0-18] [select x . 4e5 .e7]
+      SelectList [7-18] [x . 4e5 .e7]
+        SelectColumn [7-18] [x . 4e5 .e7]
+          PathExpression [7-18] [x . 4e5 .e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [11-14] [4e5]
+            Identifier(e7) [16-18] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 18]
+    (select_statement [5, 0] - [5, 18]
+      (select_clause [5, 0] - [5, 17]
+        (select_list [5, 7] - [5, 17]
+          (select_expression [5, 7] - [5, 17]
+            (expression [5, 7] - [5, 17]
+              (path_expression [5, 7] - [5, 17]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 13])
+                (identifier [5, 15] - [5, 17]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 97
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 4e5. 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select x . 4e5. 6]
+  Query [0-17] [select x . 4e5. 6]
+    Select [0-17] [select x . 4e5. 6]
+      SelectList [7-17] [x . 4e5. 6]
+        SelectColumn [7-17] [x . 4e5. 6]
+          PathExpression [7-17] [x . 4e5. 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [11-14] [4e5]
+            Identifier(`6`) [16-17] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 17]
+    (select_statement [5, 0] - [5, 17]
+      (select_clause [5, 0] - [5, 16]
+        (select_list [5, 7] - [5, 16]
+          (select_expression [5, 7] - [5, 16]
+            (expression [5, 7] - [5, 16]
+              (path_expression [5, 7] - [5, 16]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 13])
+                (identifier [5, 15] - [5, 16]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 98
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 4e5. e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x . 4e5. e7]
+  Query [0-18] [select x . 4e5. e7]
+    Select [0-18] [select x . 4e5. e7]
+      SelectList [7-18] [x . 4e5. e7]
+        SelectColumn [7-18] [x . 4e5. e7]
+          PathExpression [7-18] [x . 4e5. e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [11-14] [4e5]
+            Identifier(e7) [16-18] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 18]
+    (select_statement [5, 0] - [5, 18]
+      (select_clause [5, 0] - [5, 17]
+        (select_list [5, 7] - [5, 17]
+          (select_expression [5, 7] - [5, 17]
+            (expression [5, 7] - [5, 17]
+              (path_expression [5, 7] - [5, 17]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 13])
+                (identifier [5, 15] - [5, 17]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 99
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 4e5 . 6;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select x . 4e5 . 6]
+  Query [0-18] [select x . 4e5 . 6]
+    Select [0-18] [select x . 4e5 . 6]
+      SelectList [7-18] [x . 4e5 . 6]
+        SelectColumn [7-18] [x . 4e5 . 6]
+          PathExpression [7-18] [x . 4e5 . 6]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [11-14] [4e5]
+            Identifier(`6`) [17-18] [6]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 18]
+    (select_statement [5, 0] - [5, 18]
+      (select_clause [5, 0] - [5, 17]
+        (select_list [5, 7] - [5, 17]
+          (select_expression [5, 7] - [5, 17]
+            (expression [5, 7] - [5, 17]
+              (path_expression [5, 7] - [5, 17]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 13])
+                (identifier [5, 16] - [5, 17]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 100
+==================
+# Test combinations of interesting generalized identifiers that may tickle bugs
+# in how the JavaCC parser uses floating point and integer tokens to
+# reconstruct identifiers.
+# Be careful when adding new stuff to it because the combinatorial explosion can
+# make this quite slow.
+select x. 4e5 . e7;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-19] [select x . 4e5 . e7]
+  Query [0-19] [select x . 4e5 . e7]
+    Select [0-19] [select x . 4e5 . e7]
+      SelectList [7-19] [x . 4e5 . e7]
+        SelectColumn [7-19] [x . 4e5 . e7]
+          PathExpression [7-19] [x . 4e5 . e7]
+            Identifier(x) [7-8] [x]
+            Identifier(`4e5`) [11-14] [4e5]
+            Identifier(e7) [17-19] [e7]
+*/
+---
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 79])
+  (comment [1, 0] - [1, 68])
+  (comment [2, 0] - [2, 26])
+  (comment [3, 0] - [3, 80])
+  (comment [4, 0] - [4, 23])
+  (statement [5, 0] - [5, 19]
+    (select_statement [5, 0] - [5, 19]
+      (select_clause [5, 0] - [5, 18]
+        (select_list [5, 7] - [5, 18]
+          (select_expression [5, 7] - [5, 18]
+            (expression [5, 7] - [5, 18]
+              (path_expression [5, 7] - [5, 18]
+                (identifier [5, 7] - [5, 8])
+                (identifier [5, 10] - [5, 13])
+                (identifier [5, 16] - [5, 18]))))))))
+  (comment [7, 0] - [17, 2]))
+
+==================
+Test Case 101
 ==================
 select a. 1. 2. 3. b . 4. 5. c. 6. 7. 8. 9. d;
 
@@ -760,7 +3827,7 @@ QueryStatement [0-45] [select a....7. 8. 9. d]
   (comment [2, 0] - [22, 2]))
 
 ==================
-Test Case 24
+Test Case 102
 ==================
 select 1,2,'abc',"def" from Customer where 5;
 
@@ -787,10 +3854,35 @@ QueryStatement [0-44] [select 1,2...Customer where 5]
         IntLiteral(5) [43-44] [5]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [23, 2]
+  (statement [0, 0] - [0, 45]
+    (select_statement [0, 0] - [0, 45]
+      (select_clause [0, 0] - [0, 22]
+        (select_list [0, 7] - [0, 22]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (number [0, 7] - [0, 8])))
+          (select_expression [0, 9] - [0, 10]
+            (expression [0, 9] - [0, 10]
+              (number [0, 9] - [0, 10])))
+          (select_expression [0, 11] - [0, 16]
+            (expression [0, 11] - [0, 16]
+              (string [0, 11] - [0, 16])))
+          (select_expression [0, 17] - [0, 22]
+            (expression [0, 17] - [0, 22]
+              (string [0, 17] - [0, 22])))))
+      (from_clause [0, 23] - [0, 36]
+        (from_item [0, 28] - [0, 36]
+          (table_expression [0, 28] - [0, 36]
+            (path_expression [0, 28] - [0, 36]
+              (identifier [0, 28] - [0, 36])))))
+      (where_clause [0, 37] - [0, 44]
+        (expression [0, 43] - [0, 44]
+          (number [0, 43] - [0, 44])))))
+  (comment [2, 0] - [23, 2]))
 
 ==================
-Test Case 25
+Test Case 103
 ==================
 # Test that "CALL" keyword can be used as an identifier.
 select call from T
@@ -809,10 +3901,25 @@ QueryStatement [0-18] [select call from T]
             Identifier(T) [17-18] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (comment [0, 0] - [0, 56])
+  (statement [1, 0] - [1, 18]
+    (select_statement [1, 0] - [1, 18]
+      (select_clause [1, 0] - [1, 11]
+        (select_list [1, 7] - [1, 11]
+          (select_expression [1, 7] - [1, 11]
+            (expression [1, 7] - [1, 11]
+              (path_expression [1, 7] - [1, 11]
+                (identifier [1, 7] - [1, 11]))))))
+      (from_clause [1, 12] - [1, 18]
+        (from_item [1, 17] - [1, 18]
+          (table_expression [1, 17] - [1, 18]
+            (path_expression [1, 17] - [1, 18]
+              (identifier [1, 17] - [1, 18])))))))
+  (comment [3, 0] - [15, 2]))
 
 ==================
-Test Case 26
+Test Case 104
 ==================
 SELECT 1.BEGIN;
 
@@ -830,7 +3937,7 @@ QueryStatement [0-14] [SELECT 1.BEGIN]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 105
 ==================
 SELECT 1`FULL`;
 
@@ -857,7 +3964,7 @@ QueryStatement [0-14] [SELECT 1`FULL`]
   (comment [2, 0] - [11, 2]))
 
 ==================
-Test Case 28
+Test Case 106
 ==================
 SELECT .1`FULL`;
 
@@ -886,7 +3993,7 @@ QueryStatement [0-15] [SELECT .1`FULL`]
   (comment [2, 0] - [11, 2]))
 
 ==================
-Test Case 29
+Test Case 107
 ==================
 SELECT .1E10`FULL`;
 
@@ -915,7 +4022,7 @@ QueryStatement [0-18] [SELECT .1E10`FULL`]
   (comment [2, 0] - [11, 2]))
 
 ==================
-Test Case 30
+Test Case 108
 ==================
 SELECT .1E+10`FULL`;
 
@@ -948,7 +4055,7 @@ QueryStatement [0-19] [SELECT .1E+10`FULL`]
   (comment [2, 0] - [11, 2]))
 
 ==================
-Test Case 31
+Test Case 109
 ==================
 SELECT .1E-10`FULL`;
 
@@ -981,7 +4088,7 @@ QueryStatement [0-19] [SELECT .1E-10`FULL`]
   (comment [2, 0] - [11, 2]))
 
 ==================
-Test Case 32
+Test Case 110
 ==================
 SELECT 1.`FULL`;
 
@@ -999,7 +4106,7 @@ QueryStatement [0-15] [SELECT 1.`FULL`]
 (source_file (ERROR))
 
 ==================
-Test Case 33
+Test Case 111
 ==================
 SELECT 1.1`FULL`;
 
@@ -1017,7 +4124,7 @@ QueryStatement [0-16] [SELECT 1.1`FULL`]
 (source_file (ERROR))
 
 ==================
-Test Case 34
+Test Case 112
 ==================
 SELECT 1.1E10`FULL`;
 
@@ -1035,7 +4142,7 @@ QueryStatement [0-19] [SELECT 1.1E10`FULL`]
 (source_file (ERROR))
 
 ==================
-Test Case 35
+Test Case 113
 ==================
 SELECT 1.1E+10`FULL`;
 
@@ -1053,7 +4160,7 @@ QueryStatement [0-20] [SELECT 1.1E+10`FULL`]
 (source_file (ERROR))
 
 ==================
-Test Case 36
+Test Case 114
 ==================
 SELECT 1.1E-10`FULL`;
 

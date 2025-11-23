@@ -53,16 +53,12 @@ QueryStatement [0-42] [SELECT x,...ROLLUP(x)]
             (path_expression [0, 22] - [0, 23]
               (identifier [0, 22] - [0, 23])))))
       (group_by_clause [0, 24] - [0, 42]
-        (expression_list [0, 33] - [0, 42]
-          (expression [0, 33] - [0, 42]
-            (function_call [0, 33] - [0, 42]
-              (path_expression [0, 33] - [0, 39]
-                (identifier [0, 33] - [0, 39]))
-              (function_arguments [0, 40] - [0, 41]
-                (function_argument [0, 40] - [0, 41]
-                  (expression [0, 40] - [0, 41]
-                    (path_expression [0, 40] - [0, 41]
-                      (identifier [0, 40] - [0, 41])))))))))))
+        (grouping_item_list [0, 33] - [0, 42]
+          (grouping_item [0, 33] - [0, 42]
+            (expression_list [0, 40] - [0, 41]
+              (expression [0, 40] - [0, 41]
+                (path_expression [0, 40] - [0, 41]
+                  (identifier [0, 40] - [0, 41])))))))))
   (comment [2, 0] - [25, 2]))
 
 ==================
@@ -118,7 +114,75 @@ QueryStatement [0-92] [SELECT x,...ROLLUP(x, y)]
               Identifier(y) [90-91] [y]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [48, 2]
+  (statement [0, 0] - [1, 29]
+    (select_statement [0, 0] - [1, 29]
+      (select_clause [0, 0] - [0, 63]
+        (select_list [0, 7] - [0, 63]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))
+          (select_expression [0, 10] - [0, 11]
+            (expression [0, 10] - [0, 11]
+              (path_expression [0, 10] - [0, 11]
+                (identifier [0, 10] - [0, 11]))))
+          (select_expression [0, 13] - [0, 28]
+            (expression [0, 13] - [0, 28]
+              (binary_expression [0, 13] - [0, 28]
+                (expression [0, 13] - [0, 24]
+                  (function_call [0, 13] - [0, 24]
+                    (path_expression [0, 13] - [0, 21]
+                      (identifier [0, 13] - [0, 21]))
+                    (function_arguments [0, 22] - [0, 23]
+                      (function_argument [0, 22] - [0, 23]
+                        (expression [0, 22] - [0, 23]
+                          (path_expression [0, 22] - [0, 23]
+                            (identifier [0, 22] - [0, 23])))))))
+                (expression [0, 27] - [0, 28]
+                  (number [0, 27] - [0, 28])))))
+          (select_expression [0, 30] - [0, 63]
+            (expression [0, 30] - [0, 63]
+              (function_call [0, 30] - [0, 63]
+                (path_expression [0, 30] - [0, 32]
+                  (identifier [0, 30] - [0, 32]))
+                (function_arguments [0, 33] - [0, 62]
+                  (function_argument [0, 33] - [0, 48]
+                    (expression [0, 33] - [0, 48]
+                      (binary_expression [0, 33] - [0, 48]
+                        (expression [0, 33] - [0, 44]
+                          (function_call [0, 33] - [0, 44]
+                            (path_expression [0, 33] - [0, 41]
+                              (identifier [0, 33] - [0, 41]))
+                            (function_arguments [0, 42] - [0, 43]
+                              (function_argument [0, 42] - [0, 43]
+                                (expression [0, 42] - [0, 43]
+                                  (path_expression [0, 42] - [0, 43]
+                                    (identifier [0, 42] - [0, 43])))))))
+                        (expression [0, 47] - [0, 48]
+                          (number [0, 47] - [0, 48])))))
+                  (function_argument [0, 50] - [0, 55]
+                    (expression [0, 50] - [0, 55]
+                      (string [0, 50] - [0, 55])))
+                  (function_argument [0, 57] - [0, 62]
+                    (expression [0, 57] - [0, 62]
+                      (string [0, 57] - [0, 62])))))))))
+      (from_clause [1, 0] - [1, 6]
+        (from_item [1, 5] - [1, 6]
+          (table_expression [1, 5] - [1, 6]
+            (path_expression [1, 5] - [1, 6]
+              (identifier [1, 5] - [1, 6])))))
+      (group_by_clause [1, 7] - [1, 28]
+        (grouping_item_list [1, 16] - [1, 28]
+          (grouping_item [1, 16] - [1, 28]
+            (expression_list [1, 23] - [1, 27]
+              (expression [1, 23] - [1, 24]
+                (path_expression [1, 23] - [1, 24]
+                  (identifier [1, 23] - [1, 24])))
+              (expression [1, 26] - [1, 27]
+                (path_expression [1, 26] - [1, 27]
+                  (identifier [1, 26] - [1, 27])))))))))
+  (comment [3, 0] - [48, 2]))
 
 ==================
 Test Case 3
@@ -255,55 +319,48 @@ QueryStatement [0-102] [select x,...ROLLUP(y, x )]
             (path_expression [2, 5] - [2, 6]
               (identifier [2, 5] - [2, 6])))))
       (group_by_clause [3, 0] - [5, 1]
-        (expression_list [3, 9] - [5, 1]
-          (expression [3, 9] - [3, 10]
-            (number [3, 9] - [3, 10]))
-          (expression [3, 12] - [3, 13]
-            (number [3, 12] - [3, 13]))
-          (expression [3, 15] - [4, 20]
-            (function_call [3, 15] - [4, 20]
-              (path_expression [3, 15] - [3, 21]
-                (identifier [3, 15] - [3, 21]))
-              (function_arguments [4, 0] - [4, 19]
-                (function_argument [4, 0] - [4, 5]
-                  (expression [4, 0] - [4, 5]
-                    (binary_expression [4, 0] - [4, 5]
-                      (expression [4, 0] - [4, 1]
-                        (path_expression [4, 0] - [4, 1]
-                          (identifier [4, 0] - [4, 1])))
-                      (expression [4, 4] - [4, 5]
-                        (number [4, 4] - [4, 5])))))
-                (function_argument [4, 7] - [4, 16]
-                  (expression [4, 7] - [4, 16]
-                    (binary_expression [4, 7] - [4, 16]
-                      (expression [4, 7] - [4, 8]
-                        (path_expression [4, 7] - [4, 8]
-                          (identifier [4, 7] - [4, 8])))
-                      (expression [4, 11] - [4, 16]
-                        (string [4, 11] - [4, 16])))))
-                (function_argument [4, 18] - [4, 19]
-                  (expression [4, 18] - [4, 19]
-                    (path_expression [4, 18] - [4, 19]
-                      (identifier [4, 18] - [4, 19])))))))
-          (expression [4, 22] - [4, 23]
-            (path_expression [4, 22] - [4, 23]
-              (identifier [4, 22] - [4, 23])))
-          (expression [4, 25] - [4, 26]
-            (path_expression [4, 25] - [4, 26]
-              (identifier [4, 25] - [4, 26])))
-          (expression [4, 28] - [5, 1]
-            (function_call [4, 28] - [5, 1]
-              (path_expression [4, 28] - [4, 34]
-                (identifier [4, 28] - [4, 34]))
-              (function_arguments [4, 35] - [4, 39]
-                (function_argument [4, 35] - [4, 36]
-                  (expression [4, 35] - [4, 36]
-                    (path_expression [4, 35] - [4, 36]
-                      (identifier [4, 35] - [4, 36]))))
-                (function_argument [4, 38] - [4, 39]
-                  (expression [4, 38] - [4, 39]
-                    (path_expression [4, 38] - [4, 39]
-                      (identifier [4, 38] - [4, 39])))))))))))
+        (grouping_item_list [3, 9] - [5, 1]
+          (grouping_item [3, 9] - [3, 10]
+            (expression [3, 9] - [3, 10]
+              (number [3, 9] - [3, 10])))
+          (grouping_item [3, 12] - [3, 13]
+            (expression [3, 12] - [3, 13]
+              (number [3, 12] - [3, 13])))
+          (grouping_item [3, 15] - [4, 20]
+            (expression_list [4, 0] - [4, 19]
+              (expression [4, 0] - [4, 5]
+                (binary_expression [4, 0] - [4, 5]
+                  (expression [4, 0] - [4, 1]
+                    (path_expression [4, 0] - [4, 1]
+                      (identifier [4, 0] - [4, 1])))
+                  (expression [4, 4] - [4, 5]
+                    (number [4, 4] - [4, 5]))))
+              (expression [4, 7] - [4, 16]
+                (binary_expression [4, 7] - [4, 16]
+                  (expression [4, 7] - [4, 8]
+                    (path_expression [4, 7] - [4, 8]
+                      (identifier [4, 7] - [4, 8])))
+                  (expression [4, 11] - [4, 16]
+                    (string [4, 11] - [4, 16]))))
+              (expression [4, 18] - [4, 19]
+                (path_expression [4, 18] - [4, 19]
+                  (identifier [4, 18] - [4, 19])))))
+          (grouping_item [4, 22] - [4, 23]
+            (expression [4, 22] - [4, 23]
+              (path_expression [4, 22] - [4, 23]
+                (identifier [4, 22] - [4, 23]))))
+          (grouping_item [4, 25] - [4, 26]
+            (expression [4, 25] - [4, 26]
+              (path_expression [4, 25] - [4, 26]
+                (identifier [4, 25] - [4, 26]))))
+          (grouping_item [4, 28] - [5, 1]
+            (expression_list [4, 35] - [4, 39]
+              (expression [4, 35] - [4, 36]
+                (path_expression [4, 35] - [4, 36]
+                  (identifier [4, 35] - [4, 36])))
+              (expression [4, 38] - [4, 39]
+                (path_expression [4, 38] - [4, 39]
+                  (identifier [4, 38] - [4, 39])))))))))
   (comment [7, 0] - [61, 2]))
 
 ==================
@@ -344,7 +401,51 @@ QueryStatement [0-57] [select x,...GROUP BY x]
             Identifier(x) [56-57] [x]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [33, 2]
+  (comment [0, 0] - [0, 74])
+  (statement [1, 0] - [1, 58]
+    (select_statement [1, 0] - [1, 58]
+      (select_clause [1, 0] - [1, 39]
+        (select_list [1, 7] - [1, 39]
+          (select_expression [1, 7] - [1, 8]
+            (expression [1, 7] - [1, 8]
+              (path_expression [1, 7] - [1, 8]
+                (identifier [1, 7] - [1, 8]))))
+          (select_expression [1, 10] - [1, 20]
+            (expression [1, 10] - [1, 20]
+              (function_call [1, 10] - [1, 20]
+                (path_expression [1, 10] - [1, 18]
+                  (identifier [1, 10] - [1, 18])))))
+          (select_expression [1, 22] - [1, 39]
+            (expression [1, 22] - [1, 39]
+              (function_call [1, 22] - [1, 39]
+                (path_expression [1, 22] - [1, 30]
+                  (identifier [1, 22] - [1, 30]))
+                (function_arguments [1, 31] - [1, 38]
+                  (function_argument [1, 31] - [1, 32]
+                    (expression [1, 31] - [1, 32]
+                      (path_expression [1, 31] - [1, 32]
+                        (identifier [1, 31] - [1, 32]))))
+                  (function_argument [1, 34] - [1, 35]
+                    (expression [1, 34] - [1, 35]
+                      (path_expression [1, 34] - [1, 35]
+                        (identifier [1, 34] - [1, 35]))))
+                  (function_argument [1, 37] - [1, 38]
+                    (expression [1, 37] - [1, 38]
+                      (path_expression [1, 37] - [1, 38]
+                        (identifier [1, 37] - [1, 38]))))))))))
+      (from_clause [1, 40] - [1, 46]
+        (from_item [1, 45] - [1, 46]
+          (table_expression [1, 45] - [1, 46]
+            (path_expression [1, 45] - [1, 46]
+              (identifier [1, 45] - [1, 46])))))
+      (group_by_clause [1, 47] - [1, 57]
+        (grouping_item_list [1, 56] - [1, 57]
+          (grouping_item [1, 56] - [1, 57]
+            (expression [1, 56] - [1, 57]
+              (path_expression [1, 56] - [1, 57]
+                (identifier [1, 56] - [1, 57]))))))))
+  (comment [3, 0] - [33, 2]))
 
 ==================
 Test Case 6
@@ -384,9 +485,10 @@ QueryStatement [0-40] [select `rollup...BY `rollup`]
             (path_expression [0, 21] - [0, 22]
               (identifier [0, 21] - [0, 22])))))
       (group_by_clause [0, 23] - [0, 40]
-        (expression_list [0, 32] - [0, 40]
-          (expression [0, 32] - [0, 40]
-            (path_expression [0, 32] - [0, 40]
-              (identifier [0, 32] - [0, 40])))))))
+        (grouping_item_list [0, 32] - [0, 40]
+          (grouping_item [0, 32] - [0, 40]
+            (expression [0, 32] - [0, 40]
+              (path_expression [0, 32] - [0, 40]
+                (identifier [0, 32] - [0, 40]))))))))
   (comment [2, 0] - [18, 2]))
 

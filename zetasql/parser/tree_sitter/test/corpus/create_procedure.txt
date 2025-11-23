@@ -2,7 +2,6 @@
 Test Case 1
 ==================
 # valid minimum statement
-[default language_features=NONE,+NON_SQL_PROCEDURE]
 CREATE PROCEDURE procedure_name()
 BEGIN
 END;
@@ -239,18 +238,82 @@ CreateProcedureStatement [0-57] [CREATE PROCEDURE...BEGIN END]
 Test Case 8
 ==================
 # valid parameter with IN/OUT/INOUT and empty mode
-CREATE PROCEDURE procedure_name ({{IN|OUT|INOUT|}} param_a int32)
+CREATE PROCEDURE procedure_name (IN param_a int32)
 BEGIN
 END;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: IN
+CreateProcedureStatement [0-60] [CREATE PROCEDURE...BEGIN END]
+  PathExpression [17-31] [procedure_name]
+    Identifier(procedure_name) [17-31] [procedure_name]
+  FunctionParameters [32-50] [(IN param_a int32)]
+    FunctionParameter(mode=IN) [33-49] [IN param_a int32]
+      Identifier(param_a) [36-43] [param_a]
+      SimpleType [44-49] [int32]
+        PathExpression [44-49] [int32]
+          Identifier(int32) [44-49] [int32]
+  Script [51-60] [BEGIN END]
+    StatementList [51-60] [BEGIN END]
+      BeginEndBlock [51-60] [BEGIN END]
+        StatementList [56-56] []
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 9
+==================
+# valid parameter with IN/OUT/INOUT and empty mode
+CREATE PROCEDURE procedure_name (OUT param_a int32)
+BEGIN
+END;
+
+/* Expected ZetaSQL AST:
+CreateProcedureStatement [0-61] [CREATE PROCEDURE...BEGIN END]
+  PathExpression [17-31] [procedure_name]
+    Identifier(procedure_name) [17-31] [procedure_name]
+  FunctionParameters [32-51] [(OUT param_a int32)]
+    FunctionParameter(mode=OUT) [33-50] [OUT param_a int32]
+      Identifier(param_a) [37-44] [param_a]
+      SimpleType [45-50] [int32]
+        PathExpression [45-50] [int32]
+          Identifier(int32) [45-50] [int32]
+  Script [52-61] [BEGIN END]
+    StatementList [52-61] [BEGIN END]
+      BeginEndBlock [52-61] [BEGIN END]
+        StatementList [57-57] []
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# valid parameter with IN/OUT/INOUT and empty mode
+CREATE PROCEDURE procedure_name (INOUT param_a int32)
+BEGIN
+END;
+
+/* Expected ZetaSQL AST:
+CreateProcedureStatement [0-63] [CREATE PROCEDURE...BEGIN END]
+  PathExpression [17-31] [procedure_name]
+    Identifier(procedure_name) [17-31] [procedure_name]
+  FunctionParameters [32-53] [(INOUT param_a int32)]
+    FunctionParameter(mode=INOUT) [33-52] [INOUT param_a int32]
+      Identifier(param_a) [39-46] [param_a]
+      SimpleType [47-52] [int32]
+        PathExpression [47-52] [int32]
+          Identifier(int32) [47-52] [int32]
+  Script [54-63] [BEGIN END]
+    StatementList [54-63] [BEGIN END]
+      BeginEndBlock [54-63] [BEGIN END]
+        StatementList [59-59] []
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
 ==================
 # Procedure name being OUT
 CREATE PROCEDURE OUT(param_1 INT32)
@@ -276,7 +339,7 @@ CreateProcedureStatement [0-45] [CREATE PROCEDURE...BEGIN END]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 12
 ==================
 # procedure with return statement
 CREATE PROCEDURE procedure_name (param_a int32)
@@ -312,10 +375,9 @@ CreateProcedureStatement [0-101] [CREATE PROCEDURE...END IF; END]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 13
 ==================
 # Script with multiple CREATE PROCEDURE statements
-[mode=script]
 CREATE PROCEDURE procedure_name()
 BEGIN
   SELECT 1;
@@ -362,7 +424,7 @@ Script [0-114] [CREATE PROCEDURE...ECT 1; END;]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 14
 ==================
 CREATE PROCEDURE procedure_name()
 BEGIN
@@ -389,7 +451,7 @@ CreateProcedureStatement [0-67] [CREATE PROCEDURE...TERVAL; END]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 15
 ==================
 # Valid procedure with a default connection and language as clause
 CREATE PROCEDURE procedure_name(
@@ -438,7 +500,7 @@ CreateProcedureStatement [0-176] [CREATE PROCEDURE...ython code"]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 16
 ==================
 # Valid procedure with a custom connection and language as clause
 CREATE PROCEDURE procedure_name(
@@ -488,7 +550,7 @@ CreateProcedureStatement [0-182] [CREATE PROCEDURE...ython code"]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 17
 ==================
 # Valid procedure with the connection and language as clause and empty options
 CREATE PROCEDURE procedure_name(
@@ -530,7 +592,7 @@ CreateProcedureStatement [0-170] [CREATE PROCEDURE...ython code"]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 18
 ==================
 # Valid procedure with the language as clause
 CREATE PROCEDURE procedure_name(
@@ -575,7 +637,7 @@ CreateProcedureStatement [0-152] [CREATE PROCEDURE...ython code"]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 19
 ==================
 # Valid procedure with the language clause
 CREATE PROCEDURE procedure_name(
@@ -618,38 +680,113 @@ CreateProcedureStatement [0-135] [CREATE PROCEDURE...UAGE PYTHON]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 20
 ==================
 # Valid Python procedure with the external security clause
 CREATE PROCEDURE procedure_name()
-EXTERNAL SECURITY {{INVOKER|DEFINER|TURNIP|}}
+EXTERNAL SECURITY INVOKER
 OPTIONS(a = b)
 LANGUAGE PYTHON
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INVOKER
+CreateProcedureStatement(EXTERNAL SECURITY INVOKER) [0-90] [CREATE PROCEDURE...UAGE PYTHON]
+  PathExpression [17-31] [procedure_name]
+    Identifier(procedure_name) [17-31] [procedure_name]
+  FunctionParameters [31-33] [()]
+  OptionsList [67-74] [(a = b)]
+    OptionsEntry [68-73] [a = b]
+      Identifier(a) [68-69] [a]
+      PathExpression [72-73] [b]
+        Identifier(b) [72-73] [b]
+  Identifier(PYTHON) [75-90] [LANGUAGE PYTHON]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 21
+==================
+# Valid Python procedure with the external security clause
+CREATE PROCEDURE procedure_name()
+EXTERNAL SECURITY DEFINER
+OPTIONS(a = b)
+LANGUAGE PYTHON
+
+/* Expected ZetaSQL AST:
+CreateProcedureStatement(EXTERNAL SECURITY DEFINER) [0-90] [CREATE PROCEDURE...UAGE PYTHON]
+  PathExpression [17-31] [procedure_name]
+    Identifier(procedure_name) [17-31] [procedure_name]
+  FunctionParameters [31-33] [()]
+  OptionsList [67-74] [(a = b)]
+    OptionsEntry [68-73] [a = b]
+      Identifier(a) [68-69] [a]
+      PathExpression [72-73] [b]
+        Identifier(b) [72-73] [b]
+  Identifier(PYTHON) [75-90] [LANGUAGE PYTHON]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
 ==================
 # Valid Python procedure with the external security clause and connection clause
 CREATE PROCEDURE procedure_name()
-EXTERNAL SECURITY {{INVOKER|DEFINER|TURNIP|}}
+EXTERNAL SECURITY INVOKER
 WITH CONNECTION connection_id
 OPTIONS(a = b)
 LANGUAGE PYTHON
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INVOKER
+CreateProcedureStatement(EXTERNAL SECURITY INVOKER) [0-120] [CREATE PROCEDURE...UAGE PYTHON]
+  PathExpression [17-31] [procedure_name]
+    Identifier(procedure_name) [17-31] [procedure_name]
+  FunctionParameters [31-33] [()]
+  OptionsList [97-104] [(a = b)]
+    OptionsEntry [98-103] [a = b]
+      Identifier(a) [98-99] [a]
+      PathExpression [102-103] [b]
+        Identifier(b) [102-103] [b]
+  WithConnectionClause [60-89] [WITH CONNECTION connection_id]
+    ConnectionClause [65-89] [CONNECTION connection_id]
+      PathExpression [76-89] [connection_id]
+        Identifier(connection_id) [76-89] [connection_id]
+  Identifier(PYTHON) [105-120] [LANGUAGE PYTHON]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 23
+==================
+# Valid Python procedure with the external security clause and connection clause
+CREATE PROCEDURE procedure_name()
+EXTERNAL SECURITY DEFINER
+WITH CONNECTION connection_id
+OPTIONS(a = b)
+LANGUAGE PYTHON
+
+/* Expected ZetaSQL AST:
+CreateProcedureStatement(EXTERNAL SECURITY DEFINER) [0-120] [CREATE PROCEDURE...UAGE PYTHON]
+  PathExpression [17-31] [procedure_name]
+    Identifier(procedure_name) [17-31] [procedure_name]
+  FunctionParameters [31-33] [()]
+  OptionsList [97-104] [(a = b)]
+    OptionsEntry [98-103] [a = b]
+      Identifier(a) [98-99] [a]
+      PathExpression [102-103] [b]
+        Identifier(b) [102-103] [b]
+  WithConnectionClause [60-89] [WITH CONNECTION connection_id]
+    ConnectionClause [65-89] [CONNECTION connection_id]
+      PathExpression [76-89] [connection_id]
+        Identifier(connection_id) [76-89] [connection_id]
+  Identifier(PYTHON) [105-120] [LANGUAGE PYTHON]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
 ==================
 # Valid Python procedure with the external security clause and the language
 CREATE PROCEDURE procedure_name()
@@ -667,7 +804,7 @@ CreateProcedureStatement(EXTERNAL SECURITY INVOKER) [0-75] [CREATE PROCEDURE...U
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 25
 ==================
 # Function type argument will fail in the analyzer.
 CREATE PROCEDURE procedure_name(

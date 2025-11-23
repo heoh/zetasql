@@ -3,7 +3,6 @@ Test Case 1
 ==================
 # NOTE: CREATE MODEL syntax and tests are derived from those for
 # CREATE VIEW tests, except for the keyword.
-[default language_features=NONE,+REMOTE_FUNCTION]
 create model t1
 
 /* Expected ZetaSQL AST:
@@ -365,17 +364,74 @@ CreateModelStatement [0-56] [create model...* from t2]
 ==================
 Test Case 16
 ==================
-create {{temp|public|private}} model pkg1.`pkg2`.`t 2` as
+create temp model pkg1.`pkg2`.`t 2` as
 select 1 as a;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp
+CreateModelStatement(is_temp) [0-52] [create temp...select 1 as a]
+  PathExpression [18-35] [pkg1.`pkg2`.`t 2`]
+    Identifier(pkg1) [18-22] [pkg1]
+    Identifier(pkg2) [23-29] [`pkg2`]
+    Identifier(`t 2`) [30-35] [`t 2`]
+  Query [39-52] [select 1 as a]
+    Select [39-52] [select 1 as a]
+      SelectList [46-52] [1 as a]
+        SelectColumn [46-52] [1 as a]
+          IntLiteral(1) [46-47] [1]
+          Alias [48-52] [as a]
+            Identifier(a) [51-52] [a]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 17
+==================
+create public model pkg1.`pkg2`.`t 2` as
+select 1 as a;
+
+/* Expected ZetaSQL AST:
+CreateModelStatement(is_public) [0-54] [create public...select 1 as a]
+  PathExpression [20-37] [pkg1.`pkg2`.`t 2`]
+    Identifier(pkg1) [20-24] [pkg1]
+    Identifier(pkg2) [25-31] [`pkg2`]
+    Identifier(`t 2`) [32-37] [`t 2`]
+  Query [41-54] [select 1 as a]
+    Select [41-54] [select 1 as a]
+      SelectList [48-54] [1 as a]
+        SelectColumn [48-54] [1 as a]
+          IntLiteral(1) [48-49] [1]
+          Alias [50-54] [as a]
+            Identifier(a) [53-54] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+create private model pkg1.`pkg2`.`t 2` as
+select 1 as a;
+
+/* Expected ZetaSQL AST:
+CreateModelStatement(is_private) [0-55] [create private...select 1 as a]
+  PathExpression [21-38] [pkg1.`pkg2`.`t 2`]
+    Identifier(pkg1) [21-25] [pkg1]
+    Identifier(pkg2) [26-32] [`pkg2`]
+    Identifier(`t 2`) [33-38] [`t 2`]
+  Query [42-55] [select 1 as a]
+    Select [42-55] [select 1 as a]
+      SelectList [49-55] [1 as a]
+        SelectColumn [49-55] [1 as a]
+          IntLiteral(1) [49-50] [1]
+          Alias [51-55] [as a]
+            Identifier(a) [54-55] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
 ==================
 create temp model pkg1.`pkg2`.`t 2` as
 select 1 from t2 union all select 2 from t3 cross join t4
@@ -418,7 +474,7 @@ CreateModelStatement(is_temp) [0-96] [create temp...cross join t4]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 20
 ==================
 # WITH goes inside create model.
 create model t3 as
@@ -455,7 +511,7 @@ CreateModelStatement [0-71] [create model...* from tt]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 21
 ==================
 create model t4 options(x=y) as
 with t1 as (select 1), t2 as (select 2)
@@ -495,7 +551,7 @@ CreateModelStatement [0-80] [create model...) select 3]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 22
 ==================
 # Create model without AS.
 create model t4 options(x=y)
@@ -514,7 +570,7 @@ CreateModelStatement [0-28] [create model t4 options(x=y)]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 23
 ==================
 create model tt
 options (x = 1)
@@ -538,7 +594,7 @@ CreateModelStatement [0-43] [create model...as select 1]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 24
 ==================
 create model tt
 transform (a as b) options (x = 1)
@@ -569,7 +625,7 @@ CreateModelStatement [0-62] [create model...as select 1]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 25
 ==================
 create temporary model tt
 options (x = 5, y = 'abc', z = @param, zz = ident, zzz = @@sysvar)
@@ -610,7 +666,7 @@ CreateModelStatement(is_temp) [0-104] [create temporary...as select 2]
 (source_file (ERROR))
 
 ==================
-Test Case 24
+Test Case 26
 ==================
 create model tt
 options ()
@@ -631,7 +687,7 @@ CreateModelStatement [0-38] [create model...as select 2]
 (source_file (ERROR))
 
 ==================
-Test Case 25
+Test Case 27
 ==================
 create model tt
 options (x=5.5, y=a, z=b.c)
@@ -664,7 +720,7 @@ CreateModelStatement [0-55] [create model...as select 2]
 (source_file (ERROR))
 
 ==================
-Test Case 26
+Test Case 28
 ==================
 create model tt
 options (y='b.c', z=`b.c`)
@@ -693,7 +749,7 @@ CreateModelStatement [0-54] [create model...as select 2]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 29
 ==================
 # Options is a non-reserved keyword so can be used as an identifier.
 create model options as select 1 x;
@@ -714,7 +770,7 @@ CreateModelStatement [0-34] [create model...select 1 x]
 (source_file (ERROR))
 
 ==================
-Test Case 28
+Test Case 30
 ==================
 create model options OPTIONS (x=y) AS select 1 x;
 
@@ -739,59 +795,59 @@ CreateModelStatement [0-48] [create model...select 1 x]
 (source_file (ERROR))
 
 ==================
-Test Case 29
-==================
-# This is parsed as a model named options with an options clause.
-create model options options(x=y) as select 1 x;
-
-/* Expected ZetaSQL AST:
-CreateModelStatement [0-47] [create model...select 1 x]
-  PathExpression [13-20] [options]
-    Identifier(options) [13-20] [options]
-  OptionsList [28-33] [(x=y)]
-    OptionsEntry [29-32] [x=y]
-      Identifier(x) [29-30] [x]
-      PathExpression [31-32] [y]
-        Identifier(y) [31-32] [y]
-  Query [37-47] [select 1 x]
-    Select [37-47] [select 1 x]
-      SelectList [44-47] [1 x]
-        SelectColumn [44-47] [1 x]
-          IntLiteral(1) [44-45] [1]
-          Alias [46-47] [x]
-            Identifier(x) [46-47] [x]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 30
-==================
-# This is parsed as a model named options with an options clause.
-create model options options(x=y) as select 1 x;
-
-/* Expected ZetaSQL AST:
-CreateModelStatement [0-47] [create model...select 1 x]
-  PathExpression [13-20] [options]
-    Identifier(options) [13-20] [options]
-  OptionsList [28-33] [(x=y)]
-    OptionsEntry [29-32] [x=y]
-      Identifier(x) [29-30] [x]
-      PathExpression [31-32] [y]
-        Identifier(y) [31-32] [y]
-  Query [37-47] [select 1 x]
-    Select [37-47] [select 1 x]
-      SelectList [44-47] [1 x]
-        SelectColumn [44-47] [1 x]
-          IntLiteral(1) [44-45] [1]
-          Alias [46-47] [x]
-            Identifier(x) [46-47] [x]
-*/
----
-(source_file (ERROR))
-
-==================
 Test Case 31
+==================
+# This is parsed as a model named options with an options clause.
+create model options options(x=y) as select 1 x;
+
+/* Expected ZetaSQL AST:
+CreateModelStatement [0-47] [create model...select 1 x]
+  PathExpression [13-20] [options]
+    Identifier(options) [13-20] [options]
+  OptionsList [28-33] [(x=y)]
+    OptionsEntry [29-32] [x=y]
+      Identifier(x) [29-30] [x]
+      PathExpression [31-32] [y]
+        Identifier(y) [31-32] [y]
+  Query [37-47] [select 1 x]
+    Select [37-47] [select 1 x]
+      SelectList [44-47] [1 x]
+        SelectColumn [44-47] [1 x]
+          IntLiteral(1) [44-45] [1]
+          Alias [46-47] [x]
+            Identifier(x) [46-47] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 32
+==================
+# This is parsed as a model named options with an options clause.
+create model options options(x=y) as select 1 x;
+
+/* Expected ZetaSQL AST:
+CreateModelStatement [0-47] [create model...select 1 x]
+  PathExpression [13-20] [options]
+    Identifier(options) [13-20] [options]
+  OptionsList [28-33] [(x=y)]
+    OptionsEntry [29-32] [x=y]
+      Identifier(x) [29-30] [x]
+      PathExpression [31-32] [y]
+        Identifier(y) [31-32] [y]
+  Query [37-47] [select 1 x]
+    Select [37-47] [select 1 x]
+      SelectList [44-47] [1 x]
+        SelectColumn [44-47] [1 x]
+          IntLiteral(1) [44-45] [1]
+          Alias [46-47] [x]
+            Identifier(x) [46-47] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 33
 ==================
 create or replace model xyz as (select 1)
 
@@ -809,7 +865,7 @@ CreateModelStatement(is_or_replace) [0-41] [create or...(select 1)]
 (source_file (ERROR))
 
 ==================
-Test Case 32
+Test Case 34
 ==================
 create model if not exists xyz as (select 1)
 
@@ -827,7 +883,7 @@ CreateModelStatement(is_if_not_exists) [0-44] [create model...(select 1)]
 (source_file (ERROR))
 
 ==================
-Test Case 33
+Test Case 35
 ==================
 # One with everything.  This is not legal, but parses successfully.
 create or replace temporary model if not exists a.b.c options(d=e) as select 1
@@ -853,7 +909,7 @@ CreateModelStatement(is_temp, is_or_replace, is_if_not_exists) [0-78] [create or
 (source_file (ERROR))
 
 ==================
-Test Case 34
+Test Case 36
 ==================
 create model t as
 with q as (select 1), q2 as (select * from q)
@@ -896,7 +952,7 @@ CreateModelStatement [0-80] [create model...* from q2]
 (source_file (ERROR))
 
 ==================
-Test Case 35
+Test Case 37
 ==================
 # All remote model clauses
 create model t1
@@ -941,7 +997,7 @@ CreateModelStatement [0-111] [create model...abc = def)]
 (source_file (ERROR))
 
 ==================
-Test Case 36
+Test Case 38
 ==================
 # All clauses
 create model t1
@@ -1006,7 +1062,7 @@ CreateModelStatement [0-152] [create model...* from t2]
 (source_file (ERROR))
 
 ==================
-Test Case 37
+Test Case 39
 ==================
 # Create model with one query in aliased query list
 create model m
@@ -1036,7 +1092,7 @@ CreateModelStatement [0-48] [create model...from t1) )]
 (source_file (ERROR))
 
 ==================
-Test Case 38
+Test Case 40
 ==================
 # Create model with multiple queries in aliased query list
 create model m
@@ -1078,7 +1134,7 @@ CreateModelStatement [0-76] [create model...from t2) )]
 (source_file (ERROR))
 
 ==================
-Test Case 39
+Test Case 41
 ==================
 # Create model with select query within parenthesis. It should be treated as
 # ASTQuery.
@@ -1104,7 +1160,7 @@ CreateModelStatement [0-36] [create model...* from t1)]
 (source_file (ERROR))
 
 ==================
-Test Case 40
+Test Case 42
 ==================
 # Create model with a with clause inside of parenthesis. It should be treated as
 # ASTQuery
@@ -1142,7 +1198,7 @@ CreateModelStatement [0-66] [create model...* from a1)]
 (source_file (ERROR))
 
 ==================
-Test Case 41
+Test Case 43
 ==================
 # Create model with aliased query list with WITH clause in the subquery is
 # permitted.
@@ -1209,7 +1265,7 @@ CreateModelStatement [0-142] [create model...from aa2) )]
 (source_file (ERROR))
 
 ==================
-Test Case 42
+Test Case 44
 ==================
 create model m AS
 graph aml

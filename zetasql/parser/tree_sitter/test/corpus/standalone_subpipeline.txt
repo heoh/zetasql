@@ -17,7 +17,6 @@ SubpipelineStatement [0-13] [|> WHERE true]
 ==================
 Test Case 2
 ==================
-[default language_features=NONE,+PIPES,+PIPE_FORK]
 |> WHERE true
 
 /* Expected ZetaSQL AST:

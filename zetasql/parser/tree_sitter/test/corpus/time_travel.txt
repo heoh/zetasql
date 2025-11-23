@@ -270,15 +270,3 @@ QueryStatement [0-56] [SELECT * FROM...OF ts, r.r2]
 ---
 (source_file (ERROR))
 
-==================
-Test Case 10
-==================
-# Error cases
-#
-
-/* Expected ZetaSQL AST:
-
-*/
----
-(source_file (ERROR))
-

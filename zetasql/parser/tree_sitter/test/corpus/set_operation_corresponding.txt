@@ -891,10 +891,83 @@ QueryStatement [0-108] [select 3 UNION...select 2)]
 ==================
 Test Case 25
 ==================
-SELECT 3 {{UNION|INTERSECT|EXCEPT}} @5 ALL CORRESPONDING SELECT 2
+SELECT 3 UNION @5 ALL CORRESPONDING SELECT 2
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: UNION
+QueryStatement [0-44] [SELECT 3 UNION...DING SELECT 2]
+  Query [0-44] [SELECT 3 UNION...DING SELECT 2]
+    SetOperation(UNION ALL) [0-44] [SELECT 3 UNION...DING SELECT 2]
+      SetOperationMetadataList [9-35] [UNION @5 ALL CORRESPONDING]
+        SetOperationMetadata [9-35] [UNION @5 ALL CORRESPONDING]
+          SetOperationType [9-14] [UNION]
+          SetOperationAllOrDistinct [18-21] [ALL]
+          Hint [15-17] [@5]
+            IntLiteral(5) [16-17] [5]
+          SetOperationColumnMatchMode [22-35] [CORRESPONDING]
+      Select [0-8] [SELECT 3]
+        SelectList [7-8] [3]
+          SelectColumn [7-8] [3]
+            IntLiteral(3) [7-8] [3]
+      Select [36-44] [SELECT 2]
+        SelectList [43-44] [2]
+          SelectColumn [43-44] [2]
+            IntLiteral(2) [43-44] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+SELECT 3 INTERSECT @5 ALL CORRESPONDING SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 3 INTERSEC...G SELECT 2]
+  Query [0-48] [SELECT 3 INTERSEC...G SELECT 2]
+    SetOperation(INTERSECT ALL) [0-48] [SELECT 3 INTERSEC...G SELECT 2]
+      SetOperationMetadataList [9-39] [INTERSECT @5 ALL CORRESPONDING]
+        SetOperationMetadata [9-39] [INTERSECT @5 ALL CORRESPONDING]
+          SetOperationType [9-18] [INTERSECT]
+          SetOperationAllOrDistinct [22-25] [ALL]
+          Hint [19-21] [@5]
+            IntLiteral(5) [20-21] [5]
+          SetOperationColumnMatchMode [26-39] [CORRESPONDING]
+      Select [0-8] [SELECT 3]
+        SelectList [7-8] [3]
+          SelectColumn [7-8] [3]
+            IntLiteral(3) [7-8] [3]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+SELECT 3 EXCEPT @5 ALL CORRESPONDING SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-45] [SELECT 3 EXCEPT...ING SELECT 2]
+  Query [0-45] [SELECT 3 EXCEPT...ING SELECT 2]
+    SetOperation(EXCEPT ALL) [0-45] [SELECT 3 EXCEPT...ING SELECT 2]
+      SetOperationMetadataList [9-36] [EXCEPT @5 ALL CORRESPONDING]
+        SetOperationMetadata [9-36] [EXCEPT @5 ALL CORRESPONDING]
+          SetOperationType [9-15] [EXCEPT]
+          SetOperationAllOrDistinct [19-22] [ALL]
+          Hint [16-18] [@5]
+            IntLiteral(5) [17-18] [5]
+          SetOperationColumnMatchMode [23-36] [CORRESPONDING]
+      Select [0-8] [SELECT 3]
+        SelectList [7-8] [3]
+          SelectColumn [7-8] [3]
+            IntLiteral(3) [7-8] [3]
+      Select [37-45] [SELECT 2]
+        SelectList [44-45] [2]
+          SelectColumn [44-45] [2]
+            IntLiteral(2) [44-45] [2]
 */
 ---
 (source_file (ERROR))

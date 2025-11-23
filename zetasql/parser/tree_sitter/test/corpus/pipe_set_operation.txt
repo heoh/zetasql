@@ -110,16 +110,165 @@ Test Case 4
 ==================
 # All combinations of simple set ops work as pipe operator keywords.
 select 1
-|> {{union|intersect|except}} {{all|distinct}} (select 2)
+|> union all (select 2)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: union,all
+QueryStatement [0-32] [select 1 |...(select 2)]
+  Query [0-32] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-32] [|> union all (select 2)]
+      SetOperationMetadata [12-21] [union all]
+        SetOperationType [12-17] [union]
+        SetOperationAllOrDistinct [18-21] [all]
+      Query [23-31] [select 2]
+        Select [23-31] [select 2]
+          SelectList [30-31] [2]
+            SelectColumn [30-31] [2]
+              IntLiteral(2) [30-31] [2]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 5
+==================
+# All combinations of simple set ops work as pipe operator keywords.
+select 1
+|> union distinct (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-37] [select 1 |...(select 2)]
+  Query [0-37] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-37] [|> union distinct (select 2)]
+      SetOperationMetadata [12-26] [union distinct]
+        SetOperationType [12-17] [union]
+        SetOperationAllOrDistinct [18-26] [distinct]
+      Query [28-36] [select 2]
+        Select [28-36] [select 2]
+          SelectList [35-36] [2]
+            SelectColumn [35-36] [2]
+              IntLiteral(2) [35-36] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# All combinations of simple set ops work as pipe operator keywords.
+select 1
+|> intersect all (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-36] [select 1 |...(select 2)]
+  Query [0-36] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-36] [|> intersect all (select 2)]
+      SetOperationMetadata [12-25] [intersect all]
+        SetOperationType [12-21] [intersect]
+        SetOperationAllOrDistinct [22-25] [all]
+      Query [27-35] [select 2]
+        Select [27-35] [select 2]
+          SelectList [34-35] [2]
+            SelectColumn [34-35] [2]
+              IntLiteral(2) [34-35] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# All combinations of simple set ops work as pipe operator keywords.
+select 1
+|> intersect distinct (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [select 1 |...(select 2)]
+  Query [0-41] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-41] [|> intersect...(select 2)]
+      SetOperationMetadata [12-30] [intersect distinct]
+        SetOperationType [12-21] [intersect]
+        SetOperationAllOrDistinct [22-30] [distinct]
+      Query [32-40] [select 2]
+        Select [32-40] [select 2]
+          SelectList [39-40] [2]
+            SelectColumn [39-40] [2]
+              IntLiteral(2) [39-40] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# All combinations of simple set ops work as pipe operator keywords.
+select 1
+|> except all (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-33] [select 1 |...(select 2)]
+  Query [0-33] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-33] [|> except all (select 2)]
+      SetOperationMetadata [12-22] [except all]
+        SetOperationType [12-18] [except]
+        SetOperationAllOrDistinct [19-22] [all]
+      Query [24-32] [select 2]
+        Select [24-32] [select 2]
+          SelectList [31-32] [2]
+            SelectColumn [31-32] [2]
+              IntLiteral(2) [31-32] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# All combinations of simple set ops work as pipe operator keywords.
+select 1
+|> except distinct (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-38] [select 1 |...(select 2)]
+  Query [0-38] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-38] [|> except distinct (select 2)]
+      SetOperationMetadata [12-27] [except distinct]
+        SetOperationType [12-18] [except]
+        SetOperationAllOrDistinct [19-27] [distinct]
+      Query [29-37] [select 2]
+        Select [29-37] [select 2]
+          SelectList [36-37] [2]
+            SelectColumn [36-37] [2]
+              IntLiteral(2) [36-37] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
 ==================
 # CORRESPONDING modifiers work.
 select 1
@@ -174,7 +323,7 @@ QueryStatement [0-153] [select 1 |...(select 4)]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 11
 ==================
 # BY NAME modifiers work.
 select 1
@@ -228,20 +377,147 @@ QueryStatement [0-128] [select 1 |...(select 4)]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 12
 ==================
 # FULL/LEFT modifiers work at the start of the pipe operator
 select 1
-|> {{FULL|FULL OUTER|LEFT|LEFT OUTER|INNER}} UNION ALL (select 2)
+|> FULL UNION ALL (select 2)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: FULL
+QueryStatement [0-37] [select 1 |...(select 2)]
+  Query [0-37] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-37] [|> FULL UNION ALL (select 2)]
+      SetOperationMetadata [12-26] [FULL UNION ALL]
+        SetOperationType [17-22] [UNION]
+        SetOperationAllOrDistinct [23-26] [ALL]
+        SetOperationColumnPropagationMode [12-16] [FULL]
+      Query [28-36] [select 2]
+        Select [28-36] [select 2]
+          SelectList [35-36] [2]
+            SelectColumn [35-36] [2]
+              IntLiteral(2) [35-36] [2]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 13
+==================
+# FULL/LEFT modifiers work at the start of the pipe operator
+select 1
+|> FULL OUTER UNION ALL (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [select 1 |...(select 2)]
+  Query [0-43] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-43] [|> FULL OUTER...(select 2)]
+      SetOperationMetadata [12-32] [FULL OUTER UNION ALL]
+        SetOperationType [23-28] [UNION]
+        SetOperationAllOrDistinct [29-32] [ALL]
+        SetOperationColumnPropagationMode [12-22] [FULL OUTER]
+      Query [34-42] [select 2]
+        Select [34-42] [select 2]
+          SelectList [41-42] [2]
+            SelectColumn [41-42] [2]
+              IntLiteral(2) [41-42] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+# FULL/LEFT modifiers work at the start of the pipe operator
+select 1
+|> LEFT UNION ALL (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-37] [select 1 |...(select 2)]
+  Query [0-37] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-37] [|> LEFT UNION ALL (select 2)]
+      SetOperationMetadata [12-26] [LEFT UNION ALL]
+        SetOperationType [17-22] [UNION]
+        SetOperationAllOrDistinct [23-26] [ALL]
+        SetOperationColumnPropagationMode [12-16] [LEFT]
+      Query [28-36] [select 2]
+        Select [28-36] [select 2]
+          SelectList [35-36] [2]
+            SelectColumn [35-36] [2]
+              IntLiteral(2) [35-36] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+# FULL/LEFT modifiers work at the start of the pipe operator
+select 1
+|> LEFT OUTER UNION ALL (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [select 1 |...(select 2)]
+  Query [0-43] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-43] [|> LEFT OUTER...(select 2)]
+      SetOperationMetadata [12-32] [LEFT OUTER UNION ALL]
+        SetOperationType [23-28] [UNION]
+        SetOperationAllOrDistinct [29-32] [ALL]
+        SetOperationColumnPropagationMode [12-22] [LEFT OUTER]
+      Query [34-42] [select 2]
+        Select [34-42] [select 2]
+          SelectList [41-42] [2]
+            SelectColumn [41-42] [2]
+              IntLiteral(2) [41-42] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+# FULL/LEFT modifiers work at the start of the pipe operator
+select 1
+|> INNER UNION ALL (select 2)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-38] [select 1 |...(select 2)]
+  Query [0-38] [select 1 |...(select 2)]
+    Select [0-8] [select 1]
+      SelectList [7-8] [1]
+        SelectColumn [7-8] [1]
+          IntLiteral(1) [7-8] [1]
+    PipeSetOperation [9-38] [|> INNER UNION ALL (select 2)]
+      SetOperationMetadata [12-27] [INNER UNION ALL]
+        SetOperationType [18-23] [UNION]
+        SetOperationAllOrDistinct [24-27] [ALL]
+        SetOperationColumnPropagationMode [12-17] [INNER]
+      Query [29-37] [select 2]
+        Select [29-37] [select 2]
+          SelectList [36-37] [2]
+            SelectColumn [36-37] [2]
+              IntLiteral(2) [36-37] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
 ==================
 # Trailing comma is allowed, single input.
 select 1
@@ -268,7 +544,7 @@ QueryStatement [0-33] [select 1 |...select 2),]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 18
 ==================
 # Trailing comma is allowed, multiple inputs.
 select 1

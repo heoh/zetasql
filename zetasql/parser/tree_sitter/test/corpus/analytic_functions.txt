@@ -3,7 +3,6 @@ Test Case 1
 ==================
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default no_show_parse_location_text]
 select f() over () from T
 
 /* Expected ZetaSQL AST:
@@ -23,7 +22,25 @@ QueryStatement [0-25]
             Identifier(T) [24-25]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (comment [0, 0] - [0, 60])
+  (comment [1, 0] - [1, 22])
+  (statement [2, 0] - [2, 25]
+    (select_statement [2, 0] - [2, 25]
+      (select_clause [2, 0] - [2, 18]
+        (select_list [2, 7] - [2, 18]
+          (select_expression [2, 7] - [2, 18]
+            (expression [2, 7] - [2, 18]
+              (function_call [2, 7] - [2, 18]
+                (path_expression [2, 7] - [2, 8]
+                  (identifier [2, 7] - [2, 8]))
+                (over_clause [2, 11] - [2, 18]))))))
+      (from_clause [2, 19] - [2, 25]
+        (from_item [2, 24] - [2, 25]
+          (table_expression [2, 24] - [2, 25]
+            (path_expression [2, 24] - [2, 25]
+              (identifier [2, 24] - [2, 25])))))))
+  (comment [4, 0] - [19, 2]))
 
 ==================
 Test Case 2
@@ -58,7 +75,46 @@ QueryStatement [0-39]
             Identifier(T) [38-39]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [28, 2]
+  (statement [0, 0] - [0, 39]
+    (select_statement [0, 0] - [0, 39]
+      (select_clause [0, 0] - [0, 32]
+        (select_list [0, 7] - [0, 32]
+          (select_expression [0, 7] - [0, 32]
+            (expression [0, 7] - [0, 32]
+              (function_call [0, 7] - [0, 32]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 9] - [0, 23]
+                  (function_argument [0, 9] - [0, 10]
+                    (expression [0, 9] - [0, 10]
+                      (path_expression [0, 9] - [0, 10]
+                        (identifier [0, 9] - [0, 10]))))
+                  (function_argument [0, 12] - [0, 15]
+                    (expression [0, 12] - [0, 15]
+                      (binary_expression [0, 12] - [0, 15]
+                        (expression [0, 12] - [0, 13]
+                          (path_expression [0, 12] - [0, 13]
+                            (identifier [0, 12] - [0, 13])))
+                        (expression [0, 14] - [0, 15]
+                          (number [0, 14] - [0, 15])))))
+                  (function_argument [0, 17] - [0, 23]
+                    (expression [0, 17] - [0, 23]
+                      (function_call [0, 17] - [0, 23]
+                        (path_expression [0, 17] - [0, 20]
+                          (identifier [0, 17] - [0, 20]))
+                        (function_arguments [0, 21] - [0, 22]
+                          (function_argument [0, 21] - [0, 22]
+                            (expression [0, 21] - [0, 22]
+                              (path_expression [0, 21] - [0, 22]
+                                (identifier [0, 21] - [0, 22])))))))))
+                (over_clause [0, 25] - [0, 32]))))))
+      (from_clause [0, 33] - [0, 39]
+        (from_item [0, 38] - [0, 39]
+          (table_expression [0, 38] - [0, 39]
+            (path_expression [0, 38] - [0, 39]
+              (identifier [0, 38] - [0, 39])))))))
+  (comment [2, 0] - [28, 2]))
 
 ==================
 Test Case 3
@@ -86,7 +142,32 @@ QueryStatement [0-38]
             Identifier(T) [37-38]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 38]
+    (select_statement [0, 0] - [0, 38]
+      (select_clause [0, 0] - [0, 31]
+        (select_list [0, 7] - [0, 31]
+          (select_expression [0, 7] - [0, 31]
+            (expression [0, 7] - [0, 31]
+              (function_call [0, 7] - [0, 31]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 18] - [0, 22]
+                  (function_argument [0, 18] - [0, 19]
+                    (expression [0, 18] - [0, 19]
+                      (path_expression [0, 18] - [0, 19]
+                        (identifier [0, 18] - [0, 19]))))
+                  (function_argument [0, 21] - [0, 22]
+                    (expression [0, 21] - [0, 22]
+                      (path_expression [0, 21] - [0, 22]
+                        (identifier [0, 21] - [0, 22])))))
+                (over_clause [0, 24] - [0, 31]))))))
+      (from_clause [0, 32] - [0, 38]
+        (from_item [0, 37] - [0, 38]
+          (table_expression [0, 37] - [0, 38]
+            (path_expression [0, 37] - [0, 38]
+              (identifier [0, 37] - [0, 38])))))))
+  (comment [2, 0] - [21, 2]))
 
 ==================
 Test Case 4
@@ -123,7 +204,46 @@ QueryStatement [0-55]
             Identifier(T) [54-55]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (statement [0, 0] - [0, 55]
+    (select_statement [0, 0] - [0, 55]
+      (select_clause [0, 0] - [0, 48]
+        (select_list [0, 7] - [0, 48]
+          (select_expression [0, 7] - [0, 48]
+            (expression [0, 7] - [0, 48]
+              (function_call [0, 7] - [0, 48]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (over_clause [0, 11] - [0, 48]
+                  (partition_by_clause [0, 17] - [0, 47]
+                    (expression_list [0, 30] - [0, 47]
+                      (expression [0, 30] - [0, 31]
+                        (path_expression [0, 30] - [0, 31]
+                          (identifier [0, 30] - [0, 31])))
+                      (expression [0, 33] - [0, 36]
+                        (binary_expression [0, 33] - [0, 36]
+                          (expression [0, 33] - [0, 34]
+                            (path_expression [0, 33] - [0, 34]
+                              (identifier [0, 33] - [0, 34])))
+                          (expression [0, 35] - [0, 36]
+                            (number [0, 35] - [0, 36]))))
+                      (expression [0, 38] - [0, 39]
+                        (number [0, 38] - [0, 39]))
+                      (expression [0, 41] - [0, 47]
+                        (function_call [0, 41] - [0, 47]
+                          (path_expression [0, 41] - [0, 44]
+                            (identifier [0, 41] - [0, 44]))
+                          (function_arguments [0, 45] - [0, 46]
+                            (function_argument [0, 45] - [0, 46]
+                              (expression [0, 45] - [0, 46]
+                                (path_expression [0, 45] - [0, 46]
+                                  (identifier [0, 45] - [0, 46])))))))))))))))
+      (from_clause [0, 49] - [0, 55]
+        (from_item [0, 54] - [0, 55]
+          (table_expression [0, 54] - [0, 55]
+            (path_expression [0, 54] - [0, 55]
+              (identifier [0, 54] - [0, 55])))))))
+  (comment [2, 0] - [30, 2]))
 
 ==================
 Test Case 5
@@ -164,7 +284,50 @@ QueryStatement [0-51]
             Identifier(T) [50-51]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [34, 2]
+  (statement [0, 0] - [0, 51]
+    (select_statement [0, 0] - [0, 51]
+      (select_clause [0, 0] - [0, 44]
+        (select_list [0, 7] - [0, 44]
+          (select_expression [0, 7] - [0, 44]
+            (expression [0, 7] - [0, 44]
+              (function_call [0, 7] - [0, 44]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (over_clause [0, 11] - [0, 44]
+                  (order_by_clause [0, 17] - [0, 43]
+                    (order_expression_list [0, 26] - [0, 43]
+                      (order_expression [0, 26] - [0, 27]
+                        (expression [0, 26] - [0, 27]
+                          (path_expression [0, 26] - [0, 27]
+                            (identifier [0, 26] - [0, 27]))))
+                      (order_expression [0, 29] - [0, 32]
+                        (expression [0, 29] - [0, 32]
+                          (binary_expression [0, 29] - [0, 32]
+                            (expression [0, 29] - [0, 30]
+                              (path_expression [0, 29] - [0, 30]
+                                (identifier [0, 29] - [0, 30])))
+                            (expression [0, 31] - [0, 32]
+                              (number [0, 31] - [0, 32])))))
+                      (order_expression [0, 34] - [0, 35]
+                        (expression [0, 34] - [0, 35]
+                          (number [0, 34] - [0, 35])))
+                      (order_expression [0, 37] - [0, 43]
+                        (expression [0, 37] - [0, 43]
+                          (function_call [0, 37] - [0, 43]
+                            (path_expression [0, 37] - [0, 40]
+                              (identifier [0, 37] - [0, 40]))
+                            (function_arguments [0, 41] - [0, 42]
+                              (function_argument [0, 41] - [0, 42]
+                                (expression [0, 41] - [0, 42]
+                                  (path_expression [0, 41] - [0, 42]
+                                    (identifier [0, 41] - [0, 42]))))))))))))))))
+      (from_clause [0, 45] - [0, 51]
+        (from_item [0, 50] - [0, 51]
+          (table_expression [0, 50] - [0, 51]
+            (path_expression [0, 50] - [0, 51]
+              (identifier [0, 50] - [0, 51])))))))
+  (comment [2, 0] - [34, 2]))
 
 ==================
 Test Case 6
@@ -196,16 +359,54 @@ QueryStatement [0-50]
             Identifier(T) [49-50]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [25, 2]
+  (statement [0, 0] - [1, 6]
+    (select_statement [0, 0] - [1, 6]
+      (select_clause [0, 0] - [0, 43]
+        (select_list [0, 7] - [0, 43]
+          (select_expression [0, 7] - [0, 43]
+            (expression [0, 7] - [0, 43]
+              (function_call [0, 7] - [0, 43]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (over_clause [0, 11] - [0, 43]
+                  (partition_by_clause [0, 17] - [0, 31]
+                    (expression_list [0, 30] - [0, 31]
+                      (expression [0, 30] - [0, 31]
+                        (path_expression [0, 30] - [0, 31]
+                          (identifier [0, 30] - [0, 31])))))
+                  (order_by_clause [0, 32] - [0, 42]
+                    (order_expression_list [0, 41] - [0, 42]
+                      (order_expression [0, 41] - [0, 42]
+                        (expression [0, 41] - [0, 42]
+                          (path_expression [0, 41] - [0, 42]
+                            (identifier [0, 41] - [0, 42]))))))))))))
+      (from_clause [1, 0] - [1, 6]
+        (from_item [1, 5] - [1, 6]
+          (table_expression [1, 5] - [1, 6]
+            (path_expression [1, 5] - [1, 6]
+              (identifier [1, 5] - [1, 6])))))))
+  (comment [3, 0] - [25, 2]))
 
 ==================
 Test Case 7
 ==================
 # One-sided window.
-select f() over ({{rows|range}} unbounded preceding)
+select f() over (rows unbounded preceding)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: rows
+QueryStatement [0-42]
+  Query [0-42]
+    Select [0-42]
+      SelectList [7-42]
+        SelectColumn [7-42]
+          AnalyticFunctionCall [7-42]
+            FunctionCall [7-10]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+            WindowSpecification [16-42]
+              WindowFrame(ROWS) [17-41]
+                WindowFrameExpr(UNBOUNDED PRECEDING) [22-41]
 */
 ---
 (source_file (ERROR))
@@ -213,10 +414,22 @@ ALTERNATION GROUP: rows
 ==================
 Test Case 8
 ==================
-select f() over ({{rows|range}} 5+5 preceding)
+# One-sided window.
+select f() over (range unbounded preceding)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: rows
+QueryStatement [0-43]
+  Query [0-43]
+    Select [0-43]
+      SelectList [7-43]
+        SelectColumn [7-43]
+          AnalyticFunctionCall [7-43]
+            FunctionCall [7-10]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+            WindowSpecification [16-43]
+              WindowFrame(RANGE) [17-42]
+                WindowFrameExpr(UNBOUNDED PRECEDING) [23-42]
 */
 ---
 (source_file (ERROR))
@@ -224,10 +437,24 @@ ALTERNATION GROUP: rows
 ==================
 Test Case 9
 ==================
-select f() over ({{rows|range}} current row)
+select f() over (rows 5+5 preceding)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: rows
+QueryStatement [0-36]
+  Query [0-36]
+    Select [0-36]
+      SelectList [7-36]
+        SelectColumn [7-36]
+          AnalyticFunctionCall [7-36]
+            FunctionCall [7-10]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+            WindowSpecification [16-36]
+              WindowFrame(ROWS) [17-35]
+                WindowFrameExpr(OFFSET PRECEDING) [22-35]
+                  BinaryExpression(+) [22-25]
+                    IntLiteral(5) [22-23]
+                    IntLiteral(5) [24-25]
 */
 ---
 (source_file (ERROR))
@@ -235,19 +462,140 @@ ALTERNATION GROUP: rows
 ==================
 Test Case 10
 ==================
-# Two-sided window. Invalid framing boundaries will be captured by the resolver.
-# UNBOUNDED_PRECEDING as the ending boundary.
-select f() over ({{rows|range}} between 5+5 preceding and unbounded preceding)
-from T
+select f() over (range 5+5 preceding)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: rows
+QueryStatement [0-37]
+  Query [0-37]
+    Select [0-37]
+      SelectList [7-37]
+        SelectColumn [7-37]
+          AnalyticFunctionCall [7-37]
+            FunctionCall [7-10]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+            WindowSpecification [16-37]
+              WindowFrame(RANGE) [17-36]
+                WindowFrameExpr(OFFSET PRECEDING) [23-36]
+                  BinaryExpression(+) [23-26]
+                    IntLiteral(5) [23-24]
+                    IntLiteral(5) [25-26]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 11
+==================
+select f() over (rows current row)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-34]
+  Query [0-34]
+    Select [0-34]
+      SelectList [7-34]
+        SelectColumn [7-34]
+          AnalyticFunctionCall [7-34]
+            FunctionCall [7-10]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+            WindowSpecification [16-34]
+              WindowFrame(ROWS) [17-33]
+                WindowFrameExpr(CURRENT ROW) [22-33]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+select f() over (range current row)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-35]
+  Query [0-35]
+    Select [0-35]
+      SelectList [7-35]
+        SelectColumn [7-35]
+          AnalyticFunctionCall [7-35]
+            FunctionCall [7-10]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+            WindowSpecification [16-35]
+              WindowFrame(RANGE) [17-34]
+                WindowFrameExpr(CURRENT ROW) [23-34]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# Two-sided window. Invalid framing boundaries will be captured by the resolver.
+# UNBOUNDED_PRECEDING as the ending boundary.
+select f() over (rows between 5+5 preceding and unbounded preceding)
+from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-75]
+  Query [0-75]
+    Select [0-75]
+      SelectList [7-68]
+        SelectColumn [7-68]
+          AnalyticFunctionCall [7-68]
+            FunctionCall [7-10]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+            WindowSpecification [16-68]
+              WindowFrame(ROWS) [17-67]
+                WindowFrameExpr(OFFSET PRECEDING) [30-43]
+                  BinaryExpression(+) [30-33]
+                    IntLiteral(5) [30-31]
+                    IntLiteral(5) [32-33]
+                WindowFrameExpr(UNBOUNDED PRECEDING) [48-67]
+      FromClause [69-75]
+        TablePathExpression [74-75]
+          PathExpression [74-75]
+            Identifier(T) [74-75]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+# Two-sided window. Invalid framing boundaries will be captured by the resolver.
+# UNBOUNDED_PRECEDING as the ending boundary.
+select f() over (range between 5+5 preceding and unbounded preceding)
+from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-76]
+  Query [0-76]
+    Select [0-76]
+      SelectList [7-69]
+        SelectColumn [7-69]
+          AnalyticFunctionCall [7-69]
+            FunctionCall [7-10]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+            WindowSpecification [16-69]
+              WindowFrame(RANGE) [17-68]
+                WindowFrameExpr(OFFSET PRECEDING) [31-44]
+                  BinaryExpression(+) [31-34]
+                    IntLiteral(5) [31-32]
+                    IntLiteral(5) [33-34]
+                WindowFrameExpr(UNBOUNDED PRECEDING) [49-68]
+      FromClause [70-76]
+        TablePathExpression [75-76]
+          PathExpression [75-76]
+            Identifier(T) [75-76]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
 ==================
 # OFFSET_PRECEDING as the ending boundary.
 select f() over (rows between 5+5 preceding and 5+5 preceding)
@@ -282,7 +630,7 @@ QueryStatement [0-69]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 16
 ==================
 # CURRENT_ROW as the ending boundary.
 select f() over (range between 5+5 preceding and current row)
@@ -314,19 +662,7 @@ QueryStatement [0-68]
 (source_file (ERROR))
 
 ==================
-Test Case 13
-==================
-select f() over (range between 5+5 preceding and current {{rows|blah}})
-from T
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: rows
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 14
+Test Case 17
 ==================
 # OFFSET_FOLLOWING as the ending boundary.
 select f() over (rows between 5+5 preceding and 5+5 following)
@@ -361,7 +697,7 @@ QueryStatement [0-69]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 18
 ==================
 # UNBOUNDED_FOLLOWING as the ending boundary.
 select f() over (range between 5+5 preceding and unbounded following)
@@ -393,7 +729,7 @@ QueryStatement [0-76]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 19
 ==================
 select f() over (partition by a order by b rows current row) from T
 
@@ -426,7 +762,7 @@ QueryStatement [0-67]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 20
 ==================
 # partition by, order by and framing are all optional.
 # The resolver will validate the requirements for specific analytic functions.
@@ -457,7 +793,7 @@ QueryStatement [0-56]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 21
 ==================
 select f() over (order by a  rows current row) from T
 
@@ -487,7 +823,7 @@ QueryStatement [0-53]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 22
 ==================
 select f() over (partition by a order by a) from T
 
@@ -515,10 +851,37 @@ QueryStatement [0-50]
             Identifier(T) [49-50]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [24, 2]
+  (statement [0, 0] - [0, 50]
+    (select_statement [0, 0] - [0, 50]
+      (select_clause [0, 0] - [0, 43]
+        (select_list [0, 7] - [0, 43]
+          (select_expression [0, 7] - [0, 43]
+            (expression [0, 7] - [0, 43]
+              (function_call [0, 7] - [0, 43]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (over_clause [0, 11] - [0, 43]
+                  (partition_by_clause [0, 17] - [0, 31]
+                    (expression_list [0, 30] - [0, 31]
+                      (expression [0, 30] - [0, 31]
+                        (path_expression [0, 30] - [0, 31]
+                          (identifier [0, 30] - [0, 31])))))
+                  (order_by_clause [0, 32] - [0, 42]
+                    (order_expression_list [0, 41] - [0, 42]
+                      (order_expression [0, 41] - [0, 42]
+                        (expression [0, 41] - [0, 42]
+                          (path_expression [0, 41] - [0, 42]
+                            (identifier [0, 41] - [0, 42]))))))))))))
+      (from_clause [0, 44] - [0, 50]
+        (from_item [0, 49] - [0, 50]
+          (table_expression [0, 49] - [0, 50]
+            (path_expression [0, 49] - [0, 50]
+              (identifier [0, 49] - [0, 50])))))))
+  (comment [2, 0] - [24, 2]))
 
 ==================
-Test Case 20
+Test Case 23
 ==================
 # Window clauses.
 select * from T
@@ -576,7 +939,7 @@ QueryStatement [0-171]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 24
 ==================
 # Reference a window by name in the over clause.
 select f() over (w) from T
@@ -602,7 +965,7 @@ QueryStatement [0-26]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 25
 ==================
 select f() over (w partition by a, b order by a, b rows current row) from T
 
@@ -641,7 +1004,7 @@ QueryStatement [0-75]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 26
 ==================
 # Parentheses can be omitted only if no inline partition by, order by or frame
 # clause is specified.
@@ -665,40 +1028,29 @@ QueryStatement [0-24]
             Identifier(T) [23-24]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 22])
+  (statement [2, 0] - [2, 24]
+    (select_statement [2, 0] - [2, 24]
+      (select_clause [2, 0] - [2, 17]
+        (select_list [2, 7] - [2, 17]
+          (select_expression [2, 7] - [2, 17]
+            (expression [2, 7] - [2, 17]
+              (function_call [2, 7] - [2, 17]
+                (path_expression [2, 7] - [2, 8]
+                  (identifier [2, 7] - [2, 8]))
+                (over_clause [2, 11] - [2, 17]
+                  (identifier [2, 16] - [2, 17])))))))
+      (from_clause [2, 18] - [2, 24]
+        (from_item [2, 23] - [2, 24]
+          (table_expression [2, 23] - [2, 24]
+            (path_expression [2, 23] - [2, 24]
+              (identifier [2, 23] - [2, 24])))))))
+  (comment [4, 0] - [20, 2]))
 
 ==================
-Test Case 24
-==================
-# Analytic function call ends after OVER <identifier>, so OVER a.b gets parsed
-# as (... OVER a).b.
-select {{f() over a.b | f() over (a).b | (f() over a).b}}
-from T
-window a as ()
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: f() over a.b
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 25
-==================
-# Analytic function call ends after OVER <identifier>, so OVER a+b gets parsed
-# as (... OVER a)+b.
-select {{f() over a+b | f() over (a)+b | (f() over a)+b}}
-from T
-window a as ()
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: f() over a+b
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 26
+Test Case 27
 ==================
 # The parser allows analytic functions to appear in any places that admit an
 # expression. The resolver will report an error if an analytic function is not
@@ -829,7 +1181,7 @@ QueryStatement [0-326]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 28
 ==================
 # Analytic functions in order by after union all.
 select * from T
@@ -881,7 +1233,7 @@ QueryStatement [0-79]
 (source_file (ERROR))
 
 ==================
-Test Case 28
+Test Case 29
 ==================
 select f() over (order by k collate "latin1_german2_ci") from T
 
@@ -909,154 +1261,646 @@ QueryStatement [0-63]
             Identifier(T) [62-63]
 */
 ---
-(source_file (ERROR))
-
-==================
-Test Case 29
-==================
-select f(a {{ignore|respect}} nulls) over () from T
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
-*/
----
-(source_file (ERROR))
+(source_file [0, 0] - [24, 2]
+  (statement [0, 0] - [0, 63]
+    (select_statement [0, 0] - [0, 63]
+      (select_clause [0, 0] - [0, 56]
+        (select_list [0, 7] - [0, 56]
+          (select_expression [0, 7] - [0, 56]
+            (expression [0, 7] - [0, 56]
+              (function_call [0, 7] - [0, 56]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (over_clause [0, 11] - [0, 56]
+                  (order_by_clause [0, 17] - [0, 55]
+                    (order_expression_list [0, 26] - [0, 55]
+                      (order_expression [0, 26] - [0, 55]
+                        (expression [0, 26] - [0, 55]
+                          (collate_expression [0, 26] - [0, 55]
+                            (expression [0, 26] - [0, 27]
+                              (path_expression [0, 26] - [0, 27]
+                                (identifier [0, 26] - [0, 27])))
+                            (string [0, 36] - [0, 55]))))))))))))
+      (from_clause [0, 57] - [0, 63]
+        (from_item [0, 62] - [0, 63]
+          (table_expression [0, 62] - [0, 63]
+            (path_expression [0, 62] - [0, 63]
+              (identifier [0, 62] - [0, 63])))))))
+  (comment [2, 0] - [24, 2]))
 
 ==================
 Test Case 30
 ==================
-select f(a, b {{ignore|respect}} nulls) over () from T
+select f(a ignore nulls) over () from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-39]
+  Query [0-39]
+    Select [0-39]
+      SelectList [7-32]
+        SelectColumn [7-32]
+          AnalyticFunctionCall [7-32]
+            FunctionCall [7-24]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+              PathExpression [9-10]
+                Identifier(a) [9-10]
+            WindowSpecification [30-32]
+      FromClause [33-39]
+        TablePathExpression [38-39]
+          PathExpression [38-39]
+            Identifier(T) [38-39]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 39]
+    (select_statement [0, 0] - [0, 39]
+      (select_clause [0, 0] - [0, 32]
+        (select_list [0, 7] - [0, 32]
+          (select_expression [0, 7] - [0, 32]
+            (expression [0, 7] - [0, 32]
+              (function_call [0, 7] - [0, 32]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 9] - [0, 10]
+                  (function_argument [0, 9] - [0, 10]
+                    (expression [0, 9] - [0, 10]
+                      (path_expression [0, 9] - [0, 10]
+                        (identifier [0, 9] - [0, 10])))))
+                (null_handling_modifier [0, 11] - [0, 23])
+                (over_clause [0, 25] - [0, 32]))))))
+      (from_clause [0, 33] - [0, 39]
+        (from_item [0, 38] - [0, 39]
+          (table_expression [0, 38] - [0, 39]
+            (path_expression [0, 38] - [0, 39]
+              (identifier [0, 38] - [0, 39])))))))
+  (comment [2, 0] - [19, 2]))
 
 ==================
 Test Case 31
 ==================
-select
-  f(distinct a, b {{ignore|respect}} nulls order by c limit 1) over ()
-from T
+select f(a respect nulls) over () from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-40]
+  Query [0-40]
+    Select [0-40]
+      SelectList [7-33]
+        SelectColumn [7-33]
+          AnalyticFunctionCall [7-33]
+            FunctionCall [7-25]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+              PathExpression [9-10]
+                Identifier(a) [9-10]
+            WindowSpecification [31-33]
+      FromClause [34-40]
+        TablePathExpression [39-40]
+          PathExpression [39-40]
+            Identifier(T) [39-40]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 40]
+    (select_statement [0, 0] - [0, 40]
+      (select_clause [0, 0] - [0, 33]
+        (select_list [0, 7] - [0, 33]
+          (select_expression [0, 7] - [0, 33]
+            (expression [0, 7] - [0, 33]
+              (function_call [0, 7] - [0, 33]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 9] - [0, 10]
+                  (function_argument [0, 9] - [0, 10]
+                    (expression [0, 9] - [0, 10]
+                      (path_expression [0, 9] - [0, 10]
+                        (identifier [0, 9] - [0, 10])))))
+                (null_handling_modifier [0, 11] - [0, 24])
+                (over_clause [0, 26] - [0, 33]))))))
+      (from_clause [0, 34] - [0, 40]
+        (from_item [0, 39] - [0, 40]
+          (table_expression [0, 39] - [0, 40]
+            (path_expression [0, 39] - [0, 40]
+              (identifier [0, 39] - [0, 40])))))))
+  (comment [2, 0] - [19, 2]))
 
 ==================
 Test Case 32
 ==================
-select
-  f(a {{ignore|respect}}) over ()
-from T
+select f(a, b ignore nulls) over () from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-42]
+  Query [0-42]
+    Select [0-42]
+      SelectList [7-35]
+        SelectColumn [7-35]
+          AnalyticFunctionCall [7-35]
+            FunctionCall [7-27]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+              PathExpression [9-10]
+                Identifier(a) [9-10]
+              PathExpression [12-13]
+                Identifier(b) [12-13]
+            WindowSpecification [33-35]
+      FromClause [36-42]
+        TablePathExpression [41-42]
+          PathExpression [41-42]
+            Identifier(T) [41-42]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 42]
+    (select_statement [0, 0] - [0, 42]
+      (select_clause [0, 0] - [0, 35]
+        (select_list [0, 7] - [0, 35]
+          (select_expression [0, 7] - [0, 35]
+            (expression [0, 7] - [0, 35]
+              (function_call [0, 7] - [0, 35]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 9] - [0, 13]
+                  (function_argument [0, 9] - [0, 10]
+                    (expression [0, 9] - [0, 10]
+                      (path_expression [0, 9] - [0, 10]
+                        (identifier [0, 9] - [0, 10]))))
+                  (function_argument [0, 12] - [0, 13]
+                    (expression [0, 12] - [0, 13]
+                      (path_expression [0, 12] - [0, 13]
+                        (identifier [0, 12] - [0, 13])))))
+                (null_handling_modifier [0, 14] - [0, 26])
+                (over_clause [0, 28] - [0, 35]))))))
+      (from_clause [0, 36] - [0, 42]
+        (from_item [0, 41] - [0, 42]
+          (table_expression [0, 41] - [0, 42]
+            (path_expression [0, 41] - [0, 42]
+              (identifier [0, 41] - [0, 42])))))))
+  (comment [2, 0] - [21, 2]))
 
 ==================
 Test Case 33
 ==================
-select
-  f(a {{ignore|respect}} null) over ()
-from T
+select f(a, b respect nulls) over () from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-43]
+  Query [0-43]
+    Select [0-43]
+      SelectList [7-36]
+        SelectColumn [7-36]
+          AnalyticFunctionCall [7-36]
+            FunctionCall [7-28]
+              PathExpression [7-8]
+                Identifier(f) [7-8]
+              PathExpression [9-10]
+                Identifier(a) [9-10]
+              PathExpression [12-13]
+                Identifier(b) [12-13]
+            WindowSpecification [34-36]
+      FromClause [37-43]
+        TablePathExpression [42-43]
+          PathExpression [42-43]
+            Identifier(T) [42-43]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [0, 43]
+    (select_statement [0, 0] - [0, 43]
+      (select_clause [0, 0] - [0, 36]
+        (select_list [0, 7] - [0, 36]
+          (select_expression [0, 7] - [0, 36]
+            (expression [0, 7] - [0, 36]
+              (function_call [0, 7] - [0, 36]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 9] - [0, 13]
+                  (function_argument [0, 9] - [0, 10]
+                    (expression [0, 9] - [0, 10]
+                      (path_expression [0, 9] - [0, 10]
+                        (identifier [0, 9] - [0, 10]))))
+                  (function_argument [0, 12] - [0, 13]
+                    (expression [0, 12] - [0, 13]
+                      (path_expression [0, 12] - [0, 13]
+                        (identifier [0, 12] - [0, 13])))))
+                (null_handling_modifier [0, 14] - [0, 27])
+                (over_clause [0, 29] - [0, 36]))))))
+      (from_clause [0, 37] - [0, 43]
+        (from_item [0, 42] - [0, 43]
+          (table_expression [0, 42] - [0, 43]
+            (path_expression [0, 42] - [0, 43]
+              (identifier [0, 42] - [0, 43])))))))
+  (comment [2, 0] - [21, 2]))
 
 ==================
 Test Case 34
 ==================
 select
-  f(a {{ignore|respect}} nulls, b) over ()
+  f(distinct a, b ignore nulls order by c limit 1) over ()
 from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-72]
+  Query [0-72]
+    Select [0-72]
+      SelectList [9-65]
+        SelectColumn [9-65]
+          AnalyticFunctionCall [9-65]
+            FunctionCall(distinct=true) [9-57]
+              PathExpression [9-10]
+                Identifier(f) [9-10]
+              PathExpression [20-21]
+                Identifier(a) [20-21]
+              PathExpression [23-24]
+                Identifier(b) [23-24]
+              OrderBy [38-48]
+                OrderingExpression(ASC) [47-48]
+                  PathExpression [47-48]
+                    Identifier(c) [47-48]
+              LimitOffset [49-56]
+                Limit [49-56]
+                  IntLiteral(1) [55-56]
+            WindowSpecification [63-65]
+      FromClause [66-72]
+        TablePathExpression [71-72]
+          PathExpression [71-72]
+            Identifier(T) [71-72]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (statement [0, 0] - [2, 6]
+    (select_statement [0, 0] - [2, 6]
+      (select_clause [0, 0] - [1, 58]
+        (select_list [1, 2] - [1, 58]
+          (select_expression [1, 2] - [1, 58]
+            (expression [1, 2] - [1, 58]
+              (function_call [1, 2] - [1, 58]
+                (path_expression [1, 2] - [1, 3]
+                  (identifier [1, 2] - [1, 3]))
+                (function_arguments [1, 13] - [1, 17]
+                  (function_argument [1, 13] - [1, 14]
+                    (expression [1, 13] - [1, 14]
+                      (path_expression [1, 13] - [1, 14]
+                        (identifier [1, 13] - [1, 14]))))
+                  (function_argument [1, 16] - [1, 17]
+                    (expression [1, 16] - [1, 17]
+                      (path_expression [1, 16] - [1, 17]
+                        (identifier [1, 16] - [1, 17])))))
+                (null_handling_modifier [1, 18] - [1, 30])
+                (order_by_clause [1, 31] - [1, 41]
+                  (order_expression_list [1, 40] - [1, 41]
+                    (order_expression [1, 40] - [1, 41]
+                      (expression [1, 40] - [1, 41]
+                        (path_expression [1, 40] - [1, 41]
+                          (identifier [1, 40] - [1, 41]))))))
+                (limit_clause [1, 42] - [1, 49]
+                  (number [1, 48] - [1, 49]))
+                (over_clause [1, 51] - [1, 58]))))))
+      (from_clause [2, 0] - [2, 6]
+        (from_item [2, 5] - [2, 6]
+          (table_expression [2, 5] - [2, 6]
+            (path_expression [2, 5] - [2, 6]
+              (identifier [2, 5] - [2, 6])))))))
+  (comment [4, 0] - [30, 2]))
 
 ==================
 Test Case 35
 ==================
 select
-  f(a, {{ignore|respect}} nulls) over ()
+  f(distinct a, b respect nulls order by c limit 1) over ()
 from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-73]
+  Query [0-73]
+    Select [0-73]
+      SelectList [9-66]
+        SelectColumn [9-66]
+          AnalyticFunctionCall [9-66]
+            FunctionCall(distinct=true) [9-58]
+              PathExpression [9-10]
+                Identifier(f) [9-10]
+              PathExpression [20-21]
+                Identifier(a) [20-21]
+              PathExpression [23-24]
+                Identifier(b) [23-24]
+              OrderBy [39-49]
+                OrderingExpression(ASC) [48-49]
+                  PathExpression [48-49]
+                    Identifier(c) [48-49]
+              LimitOffset [50-57]
+                Limit [50-57]
+                  IntLiteral(1) [56-57]
+            WindowSpecification [64-66]
+      FromClause [67-73]
+        TablePathExpression [72-73]
+          PathExpression [72-73]
+            Identifier(T) [72-73]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (statement [0, 0] - [2, 6]
+    (select_statement [0, 0] - [2, 6]
+      (select_clause [0, 0] - [1, 59]
+        (select_list [1, 2] - [1, 59]
+          (select_expression [1, 2] - [1, 59]
+            (expression [1, 2] - [1, 59]
+              (function_call [1, 2] - [1, 59]
+                (path_expression [1, 2] - [1, 3]
+                  (identifier [1, 2] - [1, 3]))
+                (function_arguments [1, 13] - [1, 17]
+                  (function_argument [1, 13] - [1, 14]
+                    (expression [1, 13] - [1, 14]
+                      (path_expression [1, 13] - [1, 14]
+                        (identifier [1, 13] - [1, 14]))))
+                  (function_argument [1, 16] - [1, 17]
+                    (expression [1, 16] - [1, 17]
+                      (path_expression [1, 16] - [1, 17]
+                        (identifier [1, 16] - [1, 17])))))
+                (null_handling_modifier [1, 18] - [1, 31])
+                (order_by_clause [1, 32] - [1, 42]
+                  (order_expression_list [1, 41] - [1, 42]
+                    (order_expression [1, 41] - [1, 42]
+                      (expression [1, 41] - [1, 42]
+                        (path_expression [1, 41] - [1, 42]
+                          (identifier [1, 41] - [1, 42]))))))
+                (limit_clause [1, 43] - [1, 50]
+                  (number [1, 49] - [1, 50]))
+                (over_clause [1, 52] - [1, 59]))))))
+      (from_clause [2, 0] - [2, 6]
+        (from_item [2, 5] - [2, 6]
+          (table_expression [2, 5] - [2, 6]
+            (path_expression [2, 5] - [2, 6]
+              (identifier [2, 5] - [2, 6])))))))
+  (comment [4, 0] - [30, 2]))
 
 ==================
 Test Case 36
 ==================
+# This is expected to pass the parser, but will be rejected by the analyzer.
 select
-  f(a {{ignore|respect}} nulls {{ignore|respect}} nulls) over ()
+  count(* ignore nulls) over ()
 from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore,ignore
+QueryStatement [0-45]
+  Query [0-45]
+    Select [0-45]
+      SelectList [9-38]
+        SelectColumn [9-38]
+          AnalyticFunctionCall [9-38]
+            FunctionCall [9-30]
+              PathExpression [9-14]
+                Identifier(count) [9-14]
+              Star(*) [15-16]
+            WindowSpecification [36-38]
+      FromClause [39-45]
+        TablePathExpression [44-45]
+          PathExpression [44-45]
+            Identifier(T) [44-45]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (comment [0, 0] - [0, 76])
+  (statement [1, 0] - [3, 6]
+    (select_statement [1, 0] - [3, 6]
+      (select_clause [1, 0] - [2, 31]
+        (select_list [2, 2] - [2, 31]
+          (select_expression [2, 2] - [2, 31]
+            (expression [2, 2] - [2, 31]
+              (function_call [2, 2] - [2, 31]
+                (path_expression [2, 2] - [2, 7]
+                  (identifier [2, 2] - [2, 7]))
+                (null_handling_modifier [2, 10] - [2, 22])
+                (over_clause [2, 24] - [2, 31]))))))
+      (from_clause [3, 0] - [3, 6]
+        (from_item [3, 5] - [3, 6]
+          (table_expression [3, 5] - [3, 6]
+            (path_expression [3, 5] - [3, 6]
+              (identifier [3, 5] - [3, 6])))))))
+  (comment [5, 0] - [21, 2]))
 
 ==================
 Test Case 37
 ==================
 # This is expected to pass the parser, but will be rejected by the analyzer.
 select
-  {{count|anon_count}}(* {{ignore|respect}} nulls) over ()
+  count(* respect nulls) over ()
 from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: count,ignore
+QueryStatement [0-46]
+  Query [0-46]
+    Select [0-46]
+      SelectList [9-39]
+        SelectColumn [9-39]
+          AnalyticFunctionCall [9-39]
+            FunctionCall [9-31]
+              PathExpression [9-14]
+                Identifier(count) [9-14]
+              Star(*) [15-16]
+            WindowSpecification [37-39]
+      FromClause [40-46]
+        TablePathExpression [45-46]
+          PathExpression [45-46]
+            Identifier(T) [45-46]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (comment [0, 0] - [0, 76])
+  (statement [1, 0] - [3, 6]
+    (select_statement [1, 0] - [3, 6]
+      (select_clause [1, 0] - [2, 32]
+        (select_list [2, 2] - [2, 32]
+          (select_expression [2, 2] - [2, 32]
+            (expression [2, 2] - [2, 32]
+              (function_call [2, 2] - [2, 32]
+                (path_expression [2, 2] - [2, 7]
+                  (identifier [2, 2] - [2, 7]))
+                (null_handling_modifier [2, 10] - [2, 23])
+                (over_clause [2, 25] - [2, 32]))))))
+      (from_clause [3, 0] - [3, 6]
+        (from_item [3, 5] - [3, 6]
+          (table_expression [3, 5] - [3, 6]
+            (path_expression [3, 5] - [3, 6]
+              (identifier [3, 5] - [3, 6])))))))
+  (comment [5, 0] - [21, 2]))
 
 ==================
 Test Case 38
 ==================
+# This is expected to pass the parser, but will be rejected by the analyzer.
 select
-  f({{ignore|respect}} nulls) over ()
+  anon_count(* ignore nulls) over ()
 from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-50]
+  Query [0-50]
+    Select [0-50]
+      SelectList [9-43]
+        SelectColumn [9-43]
+          AnalyticFunctionCall [9-43]
+            FunctionCall [9-35]
+              PathExpression [9-19]
+                Identifier(anon_count) [9-19]
+              Star(*) [20-21]
+            WindowSpecification [41-43]
+      FromClause [44-50]
+        TablePathExpression [49-50]
+          PathExpression [49-50]
+            Identifier(T) [49-50]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (comment [0, 0] - [0, 76])
+  (statement [1, 0] - [3, 6]
+    (select_statement [1, 0] - [3, 6]
+      (select_clause [1, 0] - [2, 36]
+        (select_list [2, 2] - [2, 36]
+          (select_expression [2, 2] - [2, 36]
+            (expression [2, 2] - [2, 36]
+              (function_call [2, 2] - [2, 36]
+                (path_expression [2, 2] - [2, 12]
+                  (identifier [2, 2] - [2, 12]))
+                (null_handling_modifier [2, 15] - [2, 27])
+                (over_clause [2, 29] - [2, 36]))))))
+      (from_clause [3, 0] - [3, 6]
+        (from_item [3, 5] - [3, 6]
+          (table_expression [3, 5] - [3, 6]
+            (path_expression [3, 5] - [3, 6]
+              (identifier [3, 5] - [3, 6])))))))
+  (comment [5, 0] - [21, 2]))
 
 ==================
 Test Case 39
 ==================
-select f(a, b order by c {{ignore|respect}} nulls) over () from T
+# This is expected to pass the parser, but will be rejected by the analyzer.
+select
+  anon_count(* respect nulls) over ()
+from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-51]
+  Query [0-51]
+    Select [0-51]
+      SelectList [9-44]
+        SelectColumn [9-44]
+          AnalyticFunctionCall [9-44]
+            FunctionCall [9-36]
+              PathExpression [9-19]
+                Identifier(anon_count) [9-19]
+              Star(*) [20-21]
+            WindowSpecification [42-44]
+      FromClause [45-51]
+        TablePathExpression [50-51]
+          PathExpression [50-51]
+            Identifier(T) [50-51]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (comment [0, 0] - [0, 76])
+  (statement [1, 0] - [3, 6]
+    (select_statement [1, 0] - [3, 6]
+      (select_clause [1, 0] - [2, 37]
+        (select_list [2, 2] - [2, 37]
+          (select_expression [2, 2] - [2, 37]
+            (expression [2, 2] - [2, 37]
+              (function_call [2, 2] - [2, 37]
+                (path_expression [2, 2] - [2, 12]
+                  (identifier [2, 2] - [2, 12]))
+                (null_handling_modifier [2, 15] - [2, 28])
+                (over_clause [2, 30] - [2, 37]))))))
+      (from_clause [3, 0] - [3, 6]
+        (from_item [3, 5] - [3, 6]
+          (table_expression [3, 5] - [3, 6]
+            (path_expression [3, 5] - [3, 6]
+              (identifier [3, 5] - [3, 6])))))))
+  (comment [5, 0] - [21, 2]))
 
 ==================
 Test Case 40
 ==================
-select f(a, b limit 1 {{ignore|respect}} nulls) over () from T
+select
+  f(ignore nulls) over ()
+from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ignore
+QueryStatement [0-39]
+  Query [0-39]
+    Select [0-39]
+      SelectList [9-32]
+        SelectColumn [9-32]
+          AnalyticFunctionCall [9-32]
+            FunctionCall [9-24]
+              PathExpression [9-10]
+                Identifier(f) [9-10]
+            WindowSpecification [30-32]
+      FromClause [33-39]
+        TablePathExpression [38-39]
+          PathExpression [38-39]
+            Identifier(T) [38-39]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [2, 6]
+    (select_statement [0, 0] - [2, 6]
+      (select_clause [0, 0] - [1, 25]
+        (select_list [1, 2] - [1, 25]
+          (select_expression [1, 2] - [1, 25]
+            (expression [1, 2] - [1, 25]
+              (function_call [1, 2] - [1, 25]
+                (path_expression [1, 2] - [1, 3]
+                  (identifier [1, 2] - [1, 3]))
+                (null_handling_modifier [1, 4] - [1, 16])
+                (over_clause [1, 18] - [1, 25]))))))
+      (from_clause [2, 0] - [2, 6]
+        (from_item [2, 5] - [2, 6]
+          (table_expression [2, 5] - [2, 6]
+            (path_expression [2, 5] - [2, 6]
+              (identifier [2, 5] - [2, 6])))))))
+  (comment [4, 0] - [19, 2]))
+
+==================
+Test Case 41
+==================
+select
+  f(respect nulls) over ()
+from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-40]
+  Query [0-40]
+    Select [0-40]
+      SelectList [9-33]
+        SelectColumn [9-33]
+          AnalyticFunctionCall [9-33]
+            FunctionCall [9-25]
+              PathExpression [9-10]
+                Identifier(f) [9-10]
+            WindowSpecification [31-33]
+      FromClause [34-40]
+        TablePathExpression [39-40]
+          PathExpression [39-40]
+            Identifier(T) [39-40]
+*/
+---
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [2, 6]
+    (select_statement [0, 0] - [2, 6]
+      (select_clause [0, 0] - [1, 26]
+        (select_list [1, 2] - [1, 26]
+          (select_expression [1, 2] - [1, 26]
+            (expression [1, 2] - [1, 26]
+              (function_call [1, 2] - [1, 26]
+                (path_expression [1, 2] - [1, 3]
+                  (identifier [1, 2] - [1, 3]))
+                (null_handling_modifier [1, 4] - [1, 17])
+                (over_clause [1, 19] - [1, 26]))))))
+      (from_clause [2, 0] - [2, 6]
+        (from_item [2, 5] - [2, 6]
+          (table_expression [2, 5] - [2, 6]
+            (path_expression [2, 5] - [2, 6]
+              (identifier [2, 5] - [2, 6])))))))
+  (comment [4, 0] - [19, 2]))
 

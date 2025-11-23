@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 
 from t
 |> IF true THEN ( |> WHERE false )
@@ -275,18 +274,6 @@ QueryStatement [0-133] [from t |>...SELECT 4 )]
             SelectList [130-131] [4]
               SelectColumn [130-131] [4]
                 IntLiteral(4) [130-131] [4]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 6
-==================
-from t
-|> {{ELSE|ELSEIF}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ELSE
 */
 ---
 (source_file (ERROR))

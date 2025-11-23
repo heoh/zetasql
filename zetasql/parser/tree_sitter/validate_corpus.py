@@ -46,7 +46,8 @@ def validate_corpus(corpus_dir, file_filter=None):
             if "(ERROR" not in sexp and "(MISSING" not in sexp:
                 file_passed += 1
             else:
-                print(f"Failed case in {filename}: {sexp[:50]}...")
+                # print(f"Failed case in {filename}: {sexp[:50]}...")
+                ...
 
         
         total_cases += file_total

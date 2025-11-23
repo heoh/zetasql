@@ -144,7 +144,30 @@ QueryStatement [0-61] [select 'abc...U00012346"]
             StringLiteralComponent("\\U00012346") [48-61] ["\\U00012346"]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [25, 2]
+  (statement [0, 0] - [0, 61]
+    (select_statement [0, 0] - [0, 61]
+      (select_clause [0, 0] - [0, 61]
+        (select_list [0, 7] - [0, 61]
+          (select_expression [0, 7] - [0, 12]
+            (expression [0, 7] - [0, 12]
+              (string [0, 7] - [0, 12])))
+          (select_expression [0, 14] - [0, 19]
+            (expression [0, 14] - [0, 19]
+              (string [0, 14] - [0, 19])))
+          (select_expression [0, 21] - [0, 26]
+            (expression [0, 21] - [0, 26]
+              (string [0, 21] - [0, 26])))
+          (select_expression [0, 28] - [0, 35]
+            (expression [0, 28] - [0, 35]
+              (string [0, 28] - [0, 35])))
+          (select_expression [0, 37] - [0, 46]
+            (expression [0, 37] - [0, 46]
+              (string [0, 37] - [0, 46])))
+          (select_expression [0, 48] - [0, 61]
+            (expression [0, 48] - [0, 61]
+              (string [0, 48] - [0, 61])))))))
+  (comment [2, 0] - [25, 2]))
 
 ==================
 Test Case 4
@@ -282,33 +305,6 @@ QueryStatement [0-75] [select '''...U000022FD''']
 ==================
 Test Case 11
 ==================
-select """line1
-line2
-line3""",
-'
-
-/* Expected ZetaSQL AST:
-
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 12
-==================
-select """line1\\
-line2""",
-'
-
-/* Expected ZetaSQL AST:
-
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 13
-==================
 select """a'''a'''a"""
 
 /* Expected ZetaSQL AST:
@@ -324,7 +320,7 @@ QueryStatement [0-22] [select """a'''a'''a"""]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 12
 ==================
 select '''a"""a"""a'''
 
@@ -341,7 +337,7 @@ QueryStatement [0-22] [select '''a"""a"""a''']
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 13
 ==================
 select
 """line1""",
@@ -367,7 +363,7 @@ QueryStatement [0-44] [select """...""line3"""]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 14
 ==================
 select /* comment "a"*/ "a", /* comment """a*/ """a"""
 
@@ -387,7 +383,7 @@ QueryStatement [0-54] [select /*...* / """a"""]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 15
 ==================
 select "a /* comment */ ", """a /* comment */"""
 
@@ -407,7 +403,7 @@ QueryStatement [0-48] [select "a...comment * /"""]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 16
 ==================
 select """abc # """, """ def
 
@@ -418,7 +414,7 @@ select """abc # """, """ def
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 17
 ==================
 # Basic tests for all the valid escapes.
 select '\x53'        as OneHexByte
@@ -552,7 +548,7 @@ QueryStatement [0-695] [select '\x53...long_UTF8_char]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 18
 ==================
 # Some more interesting valid escape sequences.
 select 'ab\x41g'
@@ -567,10 +563,19 @@ QueryStatement [0-16] [select 'ab\x41g']
             StringLiteralComponent('ab\x41g') [7-16] ['ab\x41g']
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [11, 2]
+  (comment [0, 0] - [0, 47])
+  (statement [1, 0] - [1, 16]
+    (select_statement [1, 0] - [1, 16]
+      (select_clause [1, 0] - [1, 16]
+        (select_list [1, 7] - [1, 16]
+          (select_expression [1, 7] - [1, 16]
+            (expression [1, 7] - [1, 16]
+              (string [1, 7] - [1, 16])))))))
+  (comment [3, 0] - [11, 2]))
 
 ==================
-Test Case 21
+Test Case 19
 ==================
 # 'ab' followed by 3 octal characters.
 select 'ab\012\345\067'
@@ -585,10 +590,19 @@ QueryStatement [0-23] [select 'ab\012\345\067']
             StringLiteralComponent('ab\012\345\067') [7-23] ['ab\012\345\067']
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [11, 2]
+  (comment [0, 0] - [0, 38])
+  (statement [1, 0] - [1, 23]
+    (select_statement [1, 0] - [1, 23]
+      (select_clause [1, 0] - [1, 23]
+        (select_list [1, 7] - [1, 23]
+          (select_expression [1, 7] - [1, 23]
+            (expression [1, 7] - [1, 23]
+              (string [1, 7] - [1, 23])))))))
+  (comment [3, 0] - [11, 2]))
 
 ==================
-Test Case 22
+Test Case 20
 ==================
 # Valid octal escape limited from \000 - \377
 select 'ab\000A', 'ab\377B'
@@ -606,10 +620,22 @@ QueryStatement [0-27] [select 'ab\000A', 'ab\377B']
             StringLiteralComponent('ab\377B') [18-27] ['ab\377B']
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [14, 2]
+  (comment [0, 0] - [0, 45])
+  (statement [1, 0] - [1, 27]
+    (select_statement [1, 0] - [1, 27]
+      (select_clause [1, 0] - [1, 27]
+        (select_list [1, 7] - [1, 27]
+          (select_expression [1, 7] - [1, 16]
+            (expression [1, 7] - [1, 16]
+              (string [1, 7] - [1, 16])))
+          (select_expression [1, 18] - [1, 27]
+            (expression [1, 18] - [1, 27]
+              (string [1, 18] - [1, 27])))))))
+  (comment [3, 0] - [14, 2]))
 
 ==================
-Test Case 23
+Test Case 21
 ==================
 # Valid hex escapes are from \x00 - \xff.
 select 'abc\x00\x99\xffd'
@@ -624,10 +650,19 @@ QueryStatement [0-25] [select 'abc\x00\x99\xffd']
             StringLiteralComponent('abc\x00\x99\xffd') [7-25] ['abc\x00\x99\xffd']
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [11, 2]
+  (comment [0, 0] - [0, 41])
+  (statement [1, 0] - [1, 25]
+    (select_statement [1, 0] - [1, 25]
+      (select_clause [1, 0] - [1, 25]
+        (select_list [1, 7] - [1, 25]
+          (select_expression [1, 7] - [1, 25]
+            (expression [1, 7] - [1, 25]
+              (string [1, 7] - [1, 25])))))))
+  (comment [3, 0] - [11, 2]))
 
 ==================
-Test Case 24
+Test Case 22
 ==================
 # TODO: See if we could mandate a space between string literals and
 # their corresponding aliases in the parser.
@@ -645,10 +680,21 @@ QueryStatement [0-10] [select ""a]
             Identifier(a) [9-10] [a]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [14, 2]
+  (comment [0, 0] - [0, 67])
+  (comment [1, 0] - [1, 44])
+  (statement [2, 0] - [2, 10]
+    (select_statement [2, 0] - [2, 10]
+      (select_clause [2, 0] - [2, 10]
+        (select_list [2, 7] - [2, 10]
+          (select_expression [2, 7] - [2, 10]
+            (expression [2, 7] - [2, 9]
+              (string [2, 7] - [2, 9]))
+            (identifier [2, 9] - [2, 10]))))))
+  (comment [4, 0] - [14, 2]))
 
 ==================
-Test Case 25
+Test Case 23
 ==================
 # Zero length strings
 select '', "", """""", ''''''
@@ -675,7 +721,7 @@ QueryStatement [0-29] [select '', "", """""", '''''']
 (source_file (ERROR))
 
 ==================
-Test Case 26
+Test Case 24
 ==================
 select b'abc', B"def", B'"', B"'", B'`', B"`"
 
@@ -707,7 +753,7 @@ QueryStatement [0-45] [select b'abc...B'`', B"`"]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 25
 ==================
 select b"""abc""", B'''def''', B"""'''a'''""", b'''"a"''', B'''`''', B"""`"""
 
@@ -739,7 +785,7 @@ QueryStatement [0-77] [select b""..., B"""`"""]
 (source_file (ERROR))
 
 ==================
-Test Case 28
+Test Case 26
 ==================
 select b'\x53'   as OneHexByte
      , b'\001'   as OneOctalByte
@@ -854,7 +900,7 @@ QueryStatement [0-509] [select b'\...double_back_tick]
 (source_file (ERROR))
 
 ==================
-Test Case 29
+Test Case 27
 ==================
 select b'''\x53'''   as OneHexByte
      , b'''\001'''   as OneOctalByte
@@ -969,7 +1015,7 @@ QueryStatement [0-577] [select b''...double_back_tick]
 (source_file (ERROR))
 
 ==================
-Test Case 30
+Test Case 28
 ==================
 select b'''...
            ...'''
@@ -988,7 +1034,7 @@ QueryStatement [0-32] [select b''......''']
 (source_file (ERROR))
 
 ==================
-Test Case 31
+Test Case 29
 ==================
 # Zero length bytes.
 select b'', B"", b'''''', B""""""
@@ -1015,7 +1061,7 @@ QueryStatement [0-33] [select b''...', B""""""]
 (source_file (ERROR))
 
 ==================
-Test Case 32
+Test Case 30
 ==================
 select b'''abc\'''', B'''abc\\'''
 
@@ -1035,18 +1081,7 @@ QueryStatement [0-33] [select b''...''abc\\''']
 (source_file (ERROR))
 
 ==================
-Test Case 33
-==================
-select r{{'\'|'\\\'}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: '\'
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 34
+Test Case 31
 ==================
 select r'\\', r'\\\\'
 
@@ -1066,18 +1101,7 @@ QueryStatement [0-21] [select r'\\', r'\\\\']
 (source_file (ERROR))
 
 ==================
-Test Case 35
-==================
-select r{{'a'b'|"a"b"|'''a'''b'''|"""a"""b"""}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: 'a'b'
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 36
+Test Case 32
 ==================
 select r'a\'b', r"a\"b",
        r'''a\'''b''', r'''a'\''b''', r'''a''\'b''',
@@ -1117,7 +1141,7 @@ QueryStatement [0-127] [select r'a..."a""\"b"""]
 (source_file (ERROR))
 
 ==================
-Test Case 37
+Test Case 33
 ==================
 select r'''...
            ...''',
@@ -1166,7 +1190,7 @@ QueryStatement [0-213] [select r''......''']
 (source_file (ERROR))
 
 ==================
-Test Case 38
+Test Case 34
 ==================
 # Empty raw strings.
 select r'', r"", r'''''', r""""""
@@ -1193,7 +1217,7 @@ QueryStatement [0-33] [select r''...', r""""""]
 (source_file (ERROR))
 
 ==================
-Test Case 39
+Test Case 35
 ==================
 # b/239628302: String literals with ")" reducted correctly
 select
@@ -1224,7 +1248,7 @@ QueryStatement [0-158] [select   '...quotes''']
 (source_file (ERROR))
 
 ==================
-Test Case 40
+Test Case 36
 ==================
 # Empty raw bytes.
 select rb'', br'', rb"", br"", rb'''''', br'''''', rb"""""", br""""""
@@ -1263,7 +1287,7 @@ QueryStatement [0-69] [select rb'..., br""""""]
 (source_file (ERROR))
 
 ==================
-Test Case 41
+Test Case 37
 ==================
 select x0
 
@@ -1289,7 +1313,7 @@ QueryStatement [0-9] [select x0]
   (comment [2, 0] - [10, 2]))
 
 ==================
-Test Case 42
+Test Case 38
 ==================
 select 0x0 + 0x1
 
@@ -1307,7 +1331,7 @@ QueryStatement [0-16] [select 0x0 + 0x1]
 (source_file (ERROR))
 
 ==================
-Test Case 43
+Test Case 39
 ==================
 select a, sum(b) from foo
 group by 0x1
@@ -1348,7 +1372,7 @@ QueryStatement [0-72] [select a,...offset 0x4]
 (source_file (ERROR))
 
 ==================
-Test Case 44
+Test Case 40
 ==================
 # Note that some of the literals here do not construct valid NUMERIC values.
 # The validation happens in the resolver, though, and therefore all these
@@ -1484,7 +1508,7 @@ QueryStatement [0-693] [select NUMERIC...NUMERIC '-']
 (source_file (ERROR))
 
 ==================
-Test Case 45
+Test Case 41
 ==================
 select NUMERIC '100' `NUMERIC`
 
@@ -1504,7 +1528,7 @@ QueryStatement [0-30] [select NUMERIC '100' `NUMERIC`]
 (source_file (ERROR))
 
 ==================
-Test Case 46
+Test Case 42
 ==================
 select NUMERIC '100' numeric
 
@@ -1524,7 +1548,7 @@ QueryStatement [0-28] [select NUMERIC '100' numeric]
 (source_file (ERROR))
 
 ==================
-Test Case 47
+Test Case 43
 ==================
 select NUMERIC '100.1' + NUMERIC '200'
 
@@ -1546,7 +1570,7 @@ QueryStatement [0-38] [select NUMERIC...NUMERIC '200']
 (source_file (ERROR))
 
 ==================
-Test Case 48
+Test Case 44
 ==================
 # This is a test for application of the unary minus operation to a NUMERIC
 # literal. A negative literal can be always formed by writing a negative number
@@ -1565,10 +1589,27 @@ QueryStatement [0-21] [select -NUMERIC '100']
                 StringLiteralComponent('100') [16-21] ['100']
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (comment [0, 0] - [0, 74])
+  (comment [1, 0] - [1, 79])
+  (comment [2, 0] - [2, 41])
+  (statement [3, 0] - [3, 21]
+    (select_statement [3, 0] - [3, 21]
+      (select_clause [3, 0] - [3, 21]
+        (select_list [3, 6] - [3, 21]
+          (select_expression [3, 6] - [3, 21]
+            (expression [3, 6] - [3, 21]
+              (binary_expression [3, 6] - [3, 21]
+                (expression [3, 6] - [3, 6]
+                  (boolean_literal [3, 6] - [3, 6]))
+                (ERROR [3, 8] - [3, 15]
+                  (identifier [3, 8] - [3, 15]))
+                (expression [3, 16] - [3, 21]
+                  (string [3, 16] - [3, 21])))))))))
+  (comment [5, 0] - [15, 2]))
 
 ==================
-Test Case 49
+Test Case 45
 ==================
 # Note that some of the literals here do not construct valid BIGNUMERIC values.
 # The validation happens in the resolver, though, and therefore all these
@@ -1704,7 +1745,7 @@ QueryStatement [0-941] [select BIGNUMERIC...UMERIC '-']
 (source_file (ERROR))
 
 ==================
-Test Case 50
+Test Case 46
 ==================
 select BIGNUMERIC '100' `BIGNUMERIC`
 
@@ -1724,7 +1765,7 @@ QueryStatement [0-36] [select BIGNUMERIC...IGNUMERIC`]
 (source_file (ERROR))
 
 ==================
-Test Case 51
+Test Case 47
 ==================
 select BIGNUMERIC '100' numeric
 
@@ -1744,7 +1785,7 @@ QueryStatement [0-31] [select BIGNUMERIC...0' numeric]
 (source_file (ERROR))
 
 ==================
-Test Case 52
+Test Case 48
 ==================
 select BIGNUMERIC '100.1' + BIGNUMERIC '200'
 
@@ -1766,7 +1807,7 @@ QueryStatement [0-44] [select BIGNUMERIC...ERIC '200']
 (source_file (ERROR))
 
 ==================
-Test Case 53
+Test Case 49
 ==================
 # This is a test for application of the unary minus operation to a BIGNUMERIC
 # literal. A negative literal can be always formed by writing a negative number
@@ -1785,10 +1826,27 @@ QueryStatement [0-24] [select -BIGNUMERIC '100']
                 StringLiteralComponent('100') [19-24] ['100']
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (comment [0, 0] - [0, 77])
+  (comment [1, 0] - [1, 79])
+  (comment [2, 0] - [2, 44])
+  (statement [3, 0] - [3, 24]
+    (select_statement [3, 0] - [3, 24]
+      (select_clause [3, 0] - [3, 24]
+        (select_list [3, 6] - [3, 24]
+          (select_expression [3, 6] - [3, 24]
+            (expression [3, 6] - [3, 24]
+              (binary_expression [3, 6] - [3, 24]
+                (expression [3, 6] - [3, 6]
+                  (boolean_literal [3, 6] - [3, 6]))
+                (ERROR [3, 8] - [3, 18]
+                  (identifier [3, 8] - [3, 18]))
+                (expression [3, 19] - [3, 24]
+                  (string [3, 19] - [3, 24])))))))))
+  (comment [5, 0] - [15, 2]))
 
 ==================
-Test Case 54
+Test Case 50
 ==================
 select JSON '1'
 
@@ -1806,7 +1864,7 @@ QueryStatement [0-15] [select JSON '1']
 (source_file (ERROR))
 
 ==================
-Test Case 55
+Test Case 51
 ==================
 select JSON "true",
        JSON '\'value\'',
@@ -1909,7 +1967,7 @@ QueryStatement [0-412] [select JSON...JSON "-123"]
 (source_file (ERROR))
 
 ==================
-Test Case 56
+Test Case 52
 ==================
 select JSON '100' json
 
@@ -1929,7 +1987,7 @@ QueryStatement [0-22] [select JSON '100' json]
 (source_file (ERROR))
 
 ==================
-Test Case 57
+Test Case 53
 ==================
 select DECIMAL '1.1',
        DECIMAL '0.123',
@@ -2062,7 +2120,7 @@ QueryStatement [0-693] [select DECIMAL...DECIMAL '-']
 (source_file (ERROR))
 
 ==================
-Test Case 58
+Test Case 54
 ==================
 select BIGDECIMAL '1.1',
        BIGDECIMAL '0.123',

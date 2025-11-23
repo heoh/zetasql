@@ -2,10 +2,22 @@
 Test Case 1
 ==================
 select x
-|> SET x = 1+2 {{|,}}
+|> SET x = 1+2 ,
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-25] [select x |> SET x = 1+2 ,]
+  Query [0-25] [select x |> SET x = 1+2 ,]
+    Select [0-8] [select x]
+      SelectList [7-8] [x]
+        SelectColumn [7-8] [x]
+          PathExpression [7-8] [x]
+            Identifier(x) [7-8] [x]
+    PipeSet [9-25] [|> SET x = 1+2 ,]
+      PipeSetItem [16-23] [x = 1+2]
+        Identifier(x) [16-17] [x]
+        BinaryExpression(+) [20-23] [1+2]
+          IntLiteral(1) [20-21] [1]
+          IntLiteral(2) [22-23] [2]
 */
 ---
 (source_file (ERROR))
@@ -14,58 +26,29 @@ ALTERNATION GROUP: <empty>
 Test Case 2
 ==================
 select x
-|> set x = 1+2, y = 3, z = z {{|,}}
+|> set x = 1+2, y = 3, z = z ,
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 3
-==================
-select x
-|>{{| set}}{{|,}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 4
-==================
-select x
-|> {{|set}} x
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 5
-==================
-select x
-|> {{|set}} x y
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 6
-==================
-select x
-|> {{|set}} x AS y
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-39] [select x |...3, z = z ,]
+  Query [0-39] [select x |...3, z = z ,]
+    Select [0-8] [select x]
+      SelectList [7-8] [x]
+        SelectColumn [7-8] [x]
+          PathExpression [7-8] [x]
+            Identifier(x) [7-8] [x]
+    PipeSet [9-39] [|> set x = 1+2, y = 3, z = z ,]
+      PipeSetItem [16-23] [x = 1+2]
+        Identifier(x) [16-17] [x]
+        BinaryExpression(+) [20-23] [1+2]
+          IntLiteral(1) [20-21] [1]
+          IntLiteral(2) [22-23] [2]
+      PipeSetItem [25-30] [y = 3]
+        Identifier(y) [25-26] [y]
+        IntLiteral(3) [29-30] [3]
+      PipeSetItem [32-37] [z = z]
+        Identifier(z) [32-33] [z]
+        PathExpression [36-37] [z]
+          Identifier(z) [36-37] [z]
 */
 ---
 (source_file (ERROR))

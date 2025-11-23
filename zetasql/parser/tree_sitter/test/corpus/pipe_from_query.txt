@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 from t
 
 /* Expected ZetaSQL AST:
@@ -80,9 +79,8 @@ Test Case 4
 ==================
 # Test the errors for other operators not allowed after FROM queries.
 # Common ones give a suggestion to use the pipe operator.
-[language_features=NONE,{{|+PIPES}}]
 from t
-{{where true|group by 1|having x|qualify y|offset 10}}
+where true
 
 /* Expected ZetaSQL AST:
 ALTERNATION GROUPS:
@@ -98,12 +96,87 @@ ALTERNATION GROUPS:
 ==================
 Test Case 5
 ==================
+# Test the errors for other operators not allowed after FROM queries.
+# Common ones give a suggestion to use the pipe operator.
+from t
+group by 1
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    where true
+    group by 1
+    having x
+    qualify y
+    offset 10
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Test the errors for other operators not allowed after FROM queries.
+# Common ones give a suggestion to use the pipe operator.
+from t
+having x
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    where true
+    group by 1
+    having x
+    qualify y
+    offset 10
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Test the errors for other operators not allowed after FROM queries.
+# Common ones give a suggestion to use the pipe operator.
+from t
+qualify y
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    where true
+    group by 1
+    having x
+    qualify y
+    offset 10
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Test the errors for other operators not allowed after FROM queries.
+# Common ones give a suggestion to use the pipe operator.
+from t
+offset 10
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    where true
+    group by 1
+    having x
+    qualify y
+    offset 10
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
 # LIMIT, ORDER BY and set operations are not allowed when starting from a
 # standalone FROM.  The FROM clause is a whole query, not a query_primary.
 # These suggest using the pipe operator, or parenthesizing, which also works.
-[language_features=NONE,{{|+PIPES}}]
 from t
-{{limit 5|order by x|union all from t2|intersect|except distinct abc}}
+limit 5
 
 /* Expected ZetaSQL AST:
 ALTERNATION GROUPS:
@@ -117,55 +190,87 @@ ALTERNATION GROUPS:
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 10
 ==================
-# EXCEPT has some special case handling that makes it
-# behave slightly differently from UNION on some cases.
+# LIMIT, ORDER BY and set operations are not allowed when starting from a
+# standalone FROM.  The FROM clause is a whole query, not a query_primary.
+# These suggest using the pipe operator, or parenthesizing, which also works.
 from t
-{{except|union}}
-from t2
+order by x
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: except
+ALTERNATION GROUPS:
+    limit 5
+    order by x
+    union all from t2
+    intersect
+    except distinct abc
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 11
 ==================
-# Helpful error for FROM after a set op.
-[language_features=NONE,{{|+PIPES}}]
-select 1
-union all
-from t2
+# LIMIT, ORDER BY and set operations are not allowed when starting from a
+# standalone FROM.  The FROM clause is a whole query, not a query_primary.
+# These suggest using the pipe operator, or parenthesizing, which also works.
+from t
+union all from t2
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+ALTERNATION GROUPS:
+    limit 5
+    order by x
+    union all from t2
+    intersect
+    except distinct abc
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 12
 ==================
-# Helpful error for FROM after a set op.  Separate parser rule for second
-# vs third or later input query.
-[language_features=NONE,{{|+PIPES}}]
-select 1
-intersect all
-select 2
-except all
-from t3
+# LIMIT, ORDER BY and set operations are not allowed when starting from a
+# standalone FROM.  The FROM clause is a whole query, not a query_primary.
+# These suggest using the pipe operator, or parenthesizing, which also works.
+from t
+intersect
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+ALTERNATION GROUPS:
+    limit 5
+    order by x
+    union all from t2
+    intersect
+    except distinct abc
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 13
+==================
+# LIMIT, ORDER BY and set operations are not allowed when starting from a
+# standalone FROM.  The FROM clause is a whole query, not a query_primary.
+# These suggest using the pipe operator, or parenthesizing, which also works.
+from t
+except distinct abc
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    limit 5
+    order by x
+    union all from t2
+    intersect
+    except distinct abc
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
 ==================
 select *
 from
@@ -202,7 +307,7 @@ QueryStatement [0-49] [select * from...using (x)]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 15
 ==================
 from (select * from t)
 
@@ -226,7 +331,7 @@ QueryStatement [0-22] [from (select * from t)]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 16
 ==================
 select (from t), EXISTS(from t1), ARRAY(from t2)
 from (from t)
@@ -273,7 +378,7 @@ QueryStatement [0-62] [select (from...from (from t)]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 17
 ==================
 from tvf(1,2)
 
@@ -294,7 +399,7 @@ QueryStatement [0-13] [from tvf(1,2)]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 18
 ==================
 select * from tvf((from t))
 
@@ -322,7 +427,7 @@ QueryStatement [0-27] [select * from tvf((from t))]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 19
 ==================
 WITH q1 AS (from t)
 from t2
@@ -349,20 +454,7 @@ QueryStatement [0-27] [WITH q1 AS (from t) from t2]
 (source_file (ERROR))
 
 ==================
-Test Case 15
-==================
-# Test the special case error for trailing comma in the WITH clause.
-WITH q1 AS (from t),
-{{from t2|select 5}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: from t2
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 16
+Test Case 20
 ==================
 with q1 as (from t |> where true)
 from q1
@@ -396,7 +488,7 @@ QueryStatement [0-56] [with q1 as...where false]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 21
 ==================
 # Test other postfix table operators allowed in the FROM clause,
 # mostly from `table_path_expression`.

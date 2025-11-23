@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default macro_expansion_mode=lenient]
 DEFINE MACRO m1 FROM $group.tbl_$suffix a, r'b;"c'
 
 /* Expected ZetaSQL AST:

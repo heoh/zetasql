@@ -1,10 +1,7 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
 
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 select gt.* from
 graph_table(aml
   match (n)

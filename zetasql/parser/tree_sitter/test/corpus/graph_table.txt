@@ -2,7 +2,6 @@
 Test Case 1
 ==================
 # Ensure that GRAPH_TABLE is not reserved when the flag is off
-[no_reserve_graph_table]
 select 1 AS graph_table
 
 /* Expected ZetaSQL AST:
@@ -16,13 +15,22 @@ QueryStatement [0-23] [select 1 AS graph_table]
             Identifier(`graph_table`) [12-23] [graph_table]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [12, 2]
+  (comment [0, 0] - [0, 62])
+  (statement [1, 0] - [1, 23]
+    (select_statement [1, 0] - [1, 23]
+      (select_clause [1, 0] - [1, 23]
+        (select_list [1, 7] - [1, 23]
+          (select_expression [1, 7] - [1, 23]
+            (expression [1, 7] - [1, 8]
+              (number [1, 7] - [1, 8]))
+            (identifier [1, 12] - [1, 23]))))))
+  (comment [3, 0] - [12, 2]))
 
 ==================
 Test Case 2
 ==================
 # Ensure that GRAPH_TABLE is not reserved when the flag is off, can be a TVF
-[no_reserve_graph_table]
 select 1 AS one FROM graph_table()
 
 /* Expected ZetaSQL AST:

@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+BRACED_PROTO_CONSTRUCTORS]
 select 1;
 
 /* Expected ZetaSQL AST:
@@ -13,7 +12,15 @@ QueryStatement [0-8] [select 1]
           IntLiteral(1) [7-8] [1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [9, 2]
+  (statement [0, 0] - [0, 9]
+    (select_statement [0, 0] - [0, 9]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (number [0, 7] - [0, 8])))))))
+  (comment [2, 0] - [9, 2]))
 
 ==================
 Test Case 2
@@ -108,7 +115,9 @@ Test Case 7
 select
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [5, 2]
+  (comment [0, 0] - [0, 3])
+  (comment [2, 0] - [5, 2]))
 
 ==================
 Test Case 8
@@ -120,7 +129,9 @@ Test Case 8
 select
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [5, 2]
+  (comment [0, 0] - [0, 3])
+  (comment [2, 0] - [5, 2]))
 
 ==================
 Test Case 9
@@ -392,7 +403,34 @@ QueryStatement [0-40] [select f1,...f1, "b" f2)]
                     Identifier(f2) [37-39] [f2]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [27, 2]
+  (statement [0, 0] - [0, 41]
+    (select_statement [0, 0] - [0, 41]
+      (select_clause [0, 0] - [0, 13]
+        (select_list [0, 7] - [0, 13]
+          (select_expression [0, 7] - [0, 9]
+            (expression [0, 7] - [0, 9]
+              (path_expression [0, 7] - [0, 9]
+                (identifier [0, 7] - [0, 9]))))
+          (select_expression [0, 11] - [0, 13]
+            (expression [0, 11] - [0, 13]
+              (path_expression [0, 11] - [0, 13]
+                (identifier [0, 11] - [0, 13]))))))
+      (from_clause [0, 14] - [0, 40]
+        (from_item [0, 19] - [0, 40]
+          (table_expression [0, 19] - [0, 40]
+            (select_statement [0, 20] - [0, 39]
+              (select_clause [0, 20] - [0, 39]
+                (select_list [0, 27] - [0, 39]
+                  (select_expression [0, 27] - [0, 31]
+                    (expression [0, 27] - [0, 28]
+                      (number [0, 27] - [0, 28]))
+                    (identifier [0, 29] - [0, 31]))
+                  (select_expression [0, 33] - [0, 39]
+                    (expression [0, 33] - [0, 36]
+                      (string [0, 33] - [0, 36]))
+                    (identifier [0, 37] - [0, 39]))))))))))
+  (comment [2, 0] - [27, 2]))
 
 ==================
 Test Case 22
@@ -432,7 +470,37 @@ QueryStatement [0-80] [select f1...subquery_alias_2]
               Identifier(subquery_alias_2) [64-80] [subquery_alias_2]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [33, 2]
+  (statement [0, 0] - [0, 80]
+    (select_statement [0, 0] - [0, 80]
+      (select_clause [0, 0] - [0, 9]
+        (select_list [0, 7] - [0, 9]
+          (select_expression [0, 7] - [0, 9]
+            (expression [0, 7] - [0, 9]
+              (path_expression [0, 7] - [0, 9]
+                (identifier [0, 7] - [0, 9]))))))
+      (from_clause [0, 10] - [0, 80]
+        (from_item [0, 15] - [0, 48]
+          (table_expression [0, 15] - [0, 28]
+            (select_statement [0, 16] - [0, 27]
+              (select_clause [0, 16] - [0, 27]
+                (select_list [0, 23] - [0, 27]
+                  (select_expression [0, 23] - [0, 27]
+                    (expression [0, 23] - [0, 24]
+                      (number [0, 23] - [0, 24]))
+                    (identifier [0, 25] - [0, 27]))))))
+          (identifier [0, 32] - [0, 48]))
+        (from_item [0, 50] - [0, 80]
+          (table_expression [0, 50] - [0, 63]
+            (select_statement [0, 51] - [0, 62]
+              (select_clause [0, 51] - [0, 62]
+                (select_list [0, 58] - [0, 62]
+                  (select_expression [0, 58] - [0, 62]
+                    (expression [0, 58] - [0, 59]
+                      (number [0, 58] - [0, 59]))
+                    (identifier [0, 60] - [0, 62]))))))
+          (identifier [0, 64] - [0, 80])))))
+  (comment [2, 0] - [33, 2]))
 
 ==================
 Test Case 23
@@ -678,7 +746,45 @@ QueryStatement [0-59] [select count...1) from T]
             Identifier(T) [58-59] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [30, 2]
+  (statement [0, 0] - [0, 60]
+    (select_statement [0, 0] - [0, 60]
+      (select_clause [0, 0] - [0, 52]
+        (select_list [0, 7] - [0, 52]
+          (select_expression [0, 7] - [0, 21]
+            (expression [0, 7] - [0, 21]
+              (function_call [0, 7] - [0, 21]
+                (path_expression [0, 7] - [0, 12]
+                  (identifier [0, 7] - [0, 12]))
+                (function_arguments [0, 13] - [0, 20]
+                  (function_argument [0, 13] - [0, 20]
+                    (expression [0, 13] - [0, 20]
+                      (path_expression [0, 13] - [0, 20]
+                        (identifier [0, 13] - [0, 16])
+                        (identifier [0, 17] - [0, 20]))))))))
+          (select_expression [0, 23] - [0, 31]
+            (expression [0, 23] - [0, 31]
+              (function_call [0, 23] - [0, 31]
+                (path_expression [0, 23] - [0, 28]
+                  (identifier [0, 23] - [0, 28])))))
+          (select_expression [0, 33] - [0, 52]
+            (expression [0, 33] - [0, 52]
+              (function_call [0, 33] - [0, 52]
+                (path_expression [0, 33] - [0, 43]
+                  (identifier [0, 33] - [0, 43]))
+                (function_arguments [0, 47] - [0, 51]
+                  (function_argument [0, 47] - [0, 48]
+                    (expression [0, 47] - [0, 48]
+                      (number [0, 47] - [0, 48])))
+                  (function_argument [0, 50] - [0, 51]
+                    (expression [0, 50] - [0, 51]
+                      (number [0, 50] - [0, 51])))))))))
+      (from_clause [0, 53] - [0, 59]
+        (from_item [0, 58] - [0, 59]
+          (table_expression [0, 58] - [0, 59]
+            (path_expression [0, 58] - [0, 59]
+              (identifier [0, 58] - [0, 59])))))))
+  (comment [2, 0] - [30, 2]))
 
 ==================
 Test Case 28
@@ -895,7 +1001,47 @@ QueryStatement [0-45] [select f(1...bar from T]
             Identifier(T) [44-45] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [28, 2]
+  (statement [0, 0] - [0, 46]
+    (select_statement [0, 0] - [0, 46]
+      (select_clause [0, 0] - [0, 38]
+        (select_list [0, 7] - [0, 38]
+          (select_expression [0, 7] - [0, 38]
+            (expression [0, 7] - [0, 31]
+              (function_call [0, 7] - [0, 31]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (function_arguments [0, 9] - [0, 30]
+                  (function_argument [0, 9] - [0, 10]
+                    (expression [0, 9] - [0, 10]
+                      (number [0, 9] - [0, 10])))
+                  (function_argument [0, 12] - [0, 13]
+                    (expression [0, 12] - [0, 13]
+                      (path_expression [0, 12] - [0, 13]
+                        (identifier [0, 12] - [0, 13]))))
+                  (function_argument [0, 15] - [0, 18]
+                    (expression [0, 15] - [0, 18]
+                      (string [0, 15] - [0, 18])))
+                  (function_argument [0, 20] - [0, 24]
+                    (expression [0, 20] - [0, 24]
+                      (boolean_literal [0, 20] - [0, 24])))
+                  (function_argument [0, 26] - [0, 30]
+                    (expression [0, 26] - [0, 30]
+                      (function_call [0, 26] - [0, 30]
+                        (path_expression [0, 26] - [0, 27]
+                          (identifier [0, 26] - [0, 27]))
+                        (function_arguments [0, 28] - [0, 29]
+                          (function_argument [0, 28] - [0, 29]
+                            (expression [0, 28] - [0, 29]
+                              (path_expression [0, 28] - [0, 29]
+                                (identifier [0, 28] - [0, 29])))))))))))
+            (identifier [0, 35] - [0, 38]))))
+      (from_clause [0, 39] - [0, 45]
+        (from_item [0, 44] - [0, 45]
+          (table_expression [0, 44] - [0, 45]
+            (path_expression [0, 44] - [0, 45]
+              (identifier [0, 44] - [0, 45])))))))
+  (comment [2, 0] - [28, 2]))
 
 ==================
 Test Case 32
@@ -1024,7 +1170,41 @@ QueryStatement [0-125] [select 1 as...as `\\x54`]
             Identifier(`\\x54`) [118-125] [`\\x54`]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [38, 2]
+  (comment [0, 0] - [0, 62])
+  (statement [1, 0] - [2, 46]
+    (select_statement [1, 0] - [2, 46]
+      (select_clause [1, 0] - [2, 45]
+        (select_list [1, 7] - [2, 45]
+          (select_expression [1, 7] - [1, 17]
+            (expression [1, 7] - [1, 8]
+              (number [1, 7] - [1, 8]))
+            (identifier [1, 12] - [1, 17]))
+          (select_expression [1, 19] - [1, 29]
+            (expression [1, 19] - [1, 20]
+              (number [1, 19] - [1, 20]))
+            (identifier [1, 24] - [1, 29]))
+          (select_expression [1, 31] - [1, 43]
+            (expression [1, 31] - [1, 32]
+              (number [1, 31] - [1, 32]))
+            (identifier [1, 36] - [1, 43]))
+          (select_expression [1, 45] - [1, 58]
+            (expression [1, 45] - [1, 46]
+              (number [1, 45] - [1, 46]))
+            (identifier [1, 50] - [1, 58]))
+          (select_expression [1, 60] - [1, 78]
+            (expression [1, 60] - [1, 61]
+              (number [1, 60] - [1, 61]))
+            (identifier [1, 65] - [1, 78]))
+          (select_expression [2, 7] - [2, 25]
+            (expression [2, 7] - [2, 8]
+              (number [2, 7] - [2, 8]))
+            (identifier [2, 12] - [2, 25]))
+          (select_expression [2, 27] - [2, 45]
+            (expression [2, 27] - [2, 34]
+              (string [2, 27] - [2, 34]))
+            (identifier [2, 38] - [2, 45]))))))
+  (comment [4, 0] - [38, 2]))
 
 ==================
 Test Case 35
@@ -1048,7 +1228,20 @@ QueryStatement [0-61] [select '\\...U00012345`]
             Identifier(`\\U00012345`) [48-61] [`\\U00012345`]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (statement [0, 0] - [0, 62]
+    (select_statement [0, 0] - [0, 62]
+      (select_clause [0, 0] - [0, 61]
+        (select_list [0, 7] - [0, 61]
+          (select_expression [0, 7] - [0, 29]
+            (expression [0, 7] - [0, 16]
+              (string [0, 7] - [0, 16]))
+            (identifier [0, 20] - [0, 29]))
+          (select_expression [0, 31] - [0, 61]
+            (expression [0, 31] - [0, 44]
+              (string [0, 31] - [0, 44]))
+            (identifier [0, 48] - [0, 61]))))))
+  (comment [2, 0] - [17, 2]))
 
 ==================
 Test Case 36
@@ -1098,16 +1291,47 @@ QueryStatement [0-28] [SELECT safe.cast(1 as int32)]
 ==================
 Test Case 38
 ==================
-select {{safe_cast|cast}}("1" as int32);
+select safe_cast("1" as int32);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: safe_cast
+QueryStatement [0-30] [select safe_cast("1" as int32)]
+  Query [0-30] [select safe_cast("1" as int32)]
+    Select [0-30] [select safe_cast("1" as int32)]
+      SelectList [7-30] [safe_cast("1" as int32)]
+        SelectColumn [7-30] [safe_cast("1" as int32)]
+          CastExpression(return_null_on_error=true) [7-30] [safe_cast("1" as int32)]
+            StringLiteral [17-20] ["1"]
+              StringLiteralComponent("1") [17-20] ["1"]
+            SimpleType [24-29] [int32]
+              PathExpression [24-29] [int32]
+                Identifier(int32) [24-29] [int32]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 39
+==================
+select cast("1" as int32);
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-25] [select cast("1" as int32)]
+  Query [0-25] [select cast("1" as int32)]
+    Select [0-25] [select cast("1" as int32)]
+      SelectList [7-25] [cast("1" as int32)]
+        SelectColumn [7-25] [cast("1" as int32)]
+          CastExpression [7-25] [cast("1" as int32)]
+            StringLiteral [12-15] ["1"]
+              StringLiteralComponent("1") [12-15] ["1"]
+            SimpleType [19-24] [int32]
+              PathExpression [19-24] [int32]
+                Identifier(int32) [19-24] [int32]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 40
 ==================
 select cast(x as string(10));
 
@@ -1130,7 +1354,7 @@ QueryStatement [0-28] [select cast(x as string(10))]
 (source_file (ERROR))
 
 ==================
-Test Case 40
+Test Case 41
 ==================
 select cast(x as string collate 'und:ci');
 
@@ -1154,7 +1378,7 @@ QueryStatement [0-41] [select cast...'und:ci')]
 (source_file (ERROR))
 
 ==================
-Test Case 41
+Test Case 42
 ==================
 select cast(x as double collate 'und:ci');
 
@@ -1178,7 +1402,7 @@ QueryStatement [0-41] [select cast...'und:ci')]
 (source_file (ERROR))
 
 ==================
-Test Case 42
+Test Case 43
 ==================
 select cast(x as struct<x string collate 'und:ci'>);
 
@@ -1205,7 +1429,7 @@ QueryStatement [0-51] [select cast...'und:ci'>)]
 (source_file (ERROR))
 
 ==================
-Test Case 43
+Test Case 44
 ==================
 select cast(x as struct<x string> collate 'und:ci');
 
@@ -1232,7 +1456,7 @@ QueryStatement [0-51] [select cast...'und:ci')]
 (source_file (ERROR))
 
 ==================
-Test Case 44
+Test Case 45
 ==================
 select cast(x as array<string collate 'und:ci'>);
 
@@ -1257,7 +1481,7 @@ QueryStatement [0-48] [select cast...'und:ci'>)]
 (source_file (ERROR))
 
 ==================
-Test Case 45
+Test Case 46
 ==================
 select cast(x as array<string> collate 'und:ci');
 
@@ -1282,29 +1506,105 @@ QueryStatement [0-48] [select cast...'und:ci')]
 (source_file (ERROR))
 
 ==================
-Test Case 46
-==================
-select {{cast|safe_cast}}(`date` as date) from A;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: cast
-*/
----
-(source_file (ERROR))
-
-==================
 Test Case 47
 ==================
-select {{cast|safe_cast}}([1,2,3] as array<string>)
+select cast(`date` as date) from A;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: cast
+QueryStatement [0-34] [select cast...date) from A]
+  Query [0-34] [select cast...date) from A]
+    Select [0-34] [select cast...date) from A]
+      SelectList [7-27] [cast(`date` as date)]
+        SelectColumn [7-27] [cast(`date` as date)]
+          CastExpression [7-27] [cast(`date` as date)]
+            PathExpression [12-18] [`date`]
+              Identifier(date) [12-18] [`date`]
+            SimpleType [22-26] [date]
+              PathExpression [22-26] [date]
+                Identifier(date) [22-26] [date]
+      FromClause [28-34] [from A]
+        TablePathExpression [33-34] [A]
+          PathExpression [33-34] [A]
+            Identifier(A) [33-34] [A]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 48
+==================
+select safe_cast(`date` as date) from A;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-39] [select safe_cast...ate) from A]
+  Query [0-39] [select safe_cast...ate) from A]
+    Select [0-39] [select safe_cast...ate) from A]
+      SelectList [7-32] [safe_cast(`date` as date)]
+        SelectColumn [7-32] [safe_cast(`date` as date)]
+          CastExpression(return_null_on_error=true) [7-32] [safe_cast(`date` as date)]
+            PathExpression [17-23] [`date`]
+              Identifier(date) [17-23] [`date`]
+            SimpleType [27-31] [date]
+              PathExpression [27-31] [date]
+                Identifier(date) [27-31] [date]
+      FromClause [33-39] [from A]
+        TablePathExpression [38-39] [A]
+          PathExpression [38-39] [A]
+            Identifier(A) [38-39] [A]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 49
+==================
+select cast([1,2,3] as array<string>)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-37] [select cast...array<string>)]
+  Query [0-37] [select cast...array<string>)]
+    Select [0-37] [select cast...array<string>)]
+      SelectList [7-37] [cast([1,2,3] as array<string>)]
+        SelectColumn [7-37] [cast([1,2,3] as array<string>)]
+          CastExpression [7-37] [cast([1,2,3] as array<string>)]
+            ArrayConstructor [12-19] [[1,2,3]]
+              IntLiteral(1) [13-14] [1]
+              IntLiteral(2) [15-16] [2]
+              IntLiteral(3) [17-18] [3]
+            ArrayType [23-36] [array<string>]
+              SimpleType [29-35] [string]
+                PathExpression [29-35] [string]
+                  Identifier(string) [29-35] [string]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 50
+==================
+select safe_cast([1,2,3] as array<string>)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [select safe_cast...ay<string>)]
+  Query [0-42] [select safe_cast...ay<string>)]
+    Select [0-42] [select safe_cast...ay<string>)]
+      SelectList [7-42] [safe_cast(...array<string>)]
+        SelectColumn [7-42] [safe_cast(...array<string>)]
+          CastExpression(return_null_on_error=true) [7-42] [safe_cast(...array<string>)]
+            ArrayConstructor [17-24] [[1,2,3]]
+              IntLiteral(1) [18-19] [1]
+              IntLiteral(2) [20-21] [2]
+              IntLiteral(3) [22-23] [3]
+            ArrayType [28-41] [array<string>]
+              SimpleType [34-40] [string]
+                PathExpression [34-40] [string]
+                  Identifier(string) [34-40] [string]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 51
 ==================
 select cast("1" as int32), cast(1 as string),
        cast(t as TimeStamp_Millis),
@@ -1383,7 +1683,7 @@ QueryStatement [0-272] [select cast...myenum`) from T]
 (source_file (ERROR))
 
 ==================
-Test Case 49
+Test Case 52
 ==================
 select safe_cast("1" as int32),
        safe_cast(1 as string),
@@ -1463,7 +1763,7 @@ QueryStatement [0-319] [select safe_cast...um`) from T]
 (source_file (ERROR))
 
 ==================
-Test Case 50
+Test Case 53
 ==================
 select cast(x as foo),
        cast(x as a.b),
@@ -1582,7 +1882,7 @@ QueryStatement [0-306] [select cast...bytes>) from T]
 (source_file (ERROR))
 
 ==================
-Test Case 51
+Test Case 54
 ==================
 select safe_cast(x as foo),
        safe_cast(x as a.b),
@@ -1701,40 +2001,191 @@ QueryStatement [0-351] [select safe_cast...es>) from T]
 (source_file (ERROR))
 
 ==================
-Test Case 52
-==================
-select {{cast|safe_cast}}(expr as string format format_string) from t;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: cast
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 53
-==================
-select {{cast|safe_cast}}('literal' as int64 format format_string) from t;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: cast
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 54
-==================
-select {{cast|safe_cast}}(expr AS date FORMAT format_string At tImE ZoNe hour || ':' || minute) from t;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: cast
-*/
----
-(source_file (ERROR))
-
-==================
 Test Case 55
+==================
+select cast(expr as string format format_string) from t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-55] [select cast...t_string) from t]
+  Query [0-55] [select cast...t_string) from t]
+    Select [0-55] [select cast...t_string) from t]
+      SelectList [7-48] [cast(expr...format_string)]
+        SelectColumn [7-48] [cast(expr...format_string)]
+          CastExpression [7-48] [cast(expr...format_string)]
+            PathExpression [12-16] [expr]
+              Identifier(expr) [12-16] [expr]
+            SimpleType [20-26] [string]
+              PathExpression [20-26] [string]
+                Identifier(string) [20-26] [string]
+            FormatClause [27-47] [format format_string]
+              PathExpression [34-47] [format_string]
+                Identifier(format_string) [34-47] [format_string]
+      FromClause [49-55] [from t]
+        TablePathExpression [54-55] [t]
+          PathExpression [54-55] [t]
+            Identifier(t) [54-55] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 56
+==================
+select safe_cast(expr as string format format_string) from t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [select safe_cast...ing) from t]
+  Query [0-60] [select safe_cast...ing) from t]
+    Select [0-60] [select safe_cast...ing) from t]
+      SelectList [7-53] [safe_cast(...format_string)]
+        SelectColumn [7-53] [safe_cast(...format_string)]
+          CastExpression(return_null_on_error=true) [7-53] [safe_cast(...format_string)]
+            PathExpression [17-21] [expr]
+              Identifier(expr) [17-21] [expr]
+            SimpleType [25-31] [string]
+              PathExpression [25-31] [string]
+                Identifier(string) [25-31] [string]
+            FormatClause [32-52] [format format_string]
+              PathExpression [39-52] [format_string]
+                Identifier(format_string) [39-52] [format_string]
+      FromClause [54-60] [from t]
+        TablePathExpression [59-60] [t]
+          PathExpression [59-60] [t]
+            Identifier(t) [59-60] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 57
+==================
+select cast('literal' as int64 format format_string) from t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [select cast...t_string) from t]
+  Query [0-59] [select cast...t_string) from t]
+    Select [0-59] [select cast...t_string) from t]
+      SelectList [7-52] [cast('literal...format_string)]
+        SelectColumn [7-52] [cast('literal...format_string)]
+          CastExpression [7-52] [cast('literal...format_string)]
+            StringLiteral [12-21] ['literal']
+              StringLiteralComponent('literal') [12-21] ['literal']
+            SimpleType [25-30] [int64]
+              PathExpression [25-30] [int64]
+                Identifier(int64) [25-30] [int64]
+            FormatClause [31-51] [format format_string]
+              PathExpression [38-51] [format_string]
+                Identifier(format_string) [38-51] [format_string]
+      FromClause [53-59] [from t]
+        TablePathExpression [58-59] [t]
+          PathExpression [58-59] [t]
+            Identifier(t) [58-59] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 58
+==================
+select safe_cast('literal' as int64 format format_string) from t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-64] [select safe_cast...ing) from t]
+  Query [0-64] [select safe_cast...ing) from t]
+    Select [0-64] [select safe_cast...ing) from t]
+      SelectList [7-57] [safe_cast(...format_string)]
+        SelectColumn [7-57] [safe_cast(...format_string)]
+          CastExpression(return_null_on_error=true) [7-57] [safe_cast(...format_string)]
+            StringLiteral [17-26] ['literal']
+              StringLiteralComponent('literal') [17-26] ['literal']
+            SimpleType [30-35] [int64]
+              PathExpression [30-35] [int64]
+                Identifier(int64) [30-35] [int64]
+            FormatClause [36-56] [format format_string]
+              PathExpression [43-56] [format_string]
+                Identifier(format_string) [43-56] [format_string]
+      FromClause [58-64] [from t]
+        TablePathExpression [63-64] [t]
+          PathExpression [63-64] [t]
+            Identifier(t) [63-64] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 59
+==================
+select cast(expr AS date FORMAT format_string At tImE ZoNe hour || ':' || minute) from t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-88] [select cast...minute) from t]
+  Query [0-88] [select cast...minute) from t]
+    Select [0-88] [select cast...minute) from t]
+      SelectList [7-81] [cast(expr...|| minute)]
+        SelectColumn [7-81] [cast(expr...|| minute)]
+          CastExpression [7-81] [cast(expr...|| minute)]
+            PathExpression [12-16] [expr]
+              Identifier(expr) [12-16] [expr]
+            SimpleType [20-24] [date]
+              PathExpression [20-24] [date]
+                Identifier(date) [20-24] [date]
+            FormatClause [25-80] [FORMAT format_str...|| minute]
+              PathExpression [32-45] [format_string]
+                Identifier(format_string) [32-45] [format_string]
+              BinaryExpression(||) [59-80] [hour || ':' || minute]
+                BinaryExpression(||) [59-70] [hour || ':']
+                  PathExpression [59-63] [hour]
+                    Identifier(hour) [59-63] [hour]
+                  StringLiteral [67-70] [':']
+                    StringLiteralComponent(':') [67-70] [':']
+                PathExpression [74-80] [minute]
+                  Identifier(minute) [74-80] [minute]
+      FromClause [82-88] [from t]
+        TablePathExpression [87-88] [t]
+          PathExpression [87-88] [t]
+            Identifier(t) [87-88] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 60
+==================
+select safe_cast(expr AS date FORMAT format_string At tImE ZoNe hour || ':' || minute) from t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-93] [select safe_cast...ute) from t]
+  Query [0-93] [select safe_cast...ute) from t]
+    Select [0-93] [select safe_cast...ute) from t]
+      SelectList [7-86] [safe_cast(...|| minute)]
+        SelectColumn [7-86] [safe_cast(...|| minute)]
+          CastExpression(return_null_on_error=true) [7-86] [safe_cast(...|| minute)]
+            PathExpression [17-21] [expr]
+              Identifier(expr) [17-21] [expr]
+            SimpleType [25-29] [date]
+              PathExpression [25-29] [date]
+                Identifier(date) [25-29] [date]
+            FormatClause [30-85] [FORMAT format_str...|| minute]
+              PathExpression [37-50] [format_string]
+                Identifier(format_string) [37-50] [format_string]
+              BinaryExpression(||) [64-85] [hour || ':' || minute]
+                BinaryExpression(||) [64-75] [hour || ':']
+                  PathExpression [64-68] [hour]
+                    Identifier(hour) [64-68] [hour]
+                  StringLiteral [72-75] [':']
+                    StringLiteralComponent(':') [72-75] [':']
+                PathExpression [79-85] [minute]
+                  Identifier(minute) [79-85] [minute]
+      FromClause [87-93] [from t]
+        TablePathExpression [92-93] [t]
+          PathExpression [92-93] [t]
+            Identifier(t) [92-93] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 61
 ==================
 select count(*), anon_count(*, 0, 1), count(distinct x), sum(x),
        sum(distinct x), group_concat(distinct x, '|')
@@ -1789,10 +2240,80 @@ QueryStatement [0-125] [select count...|') from T]
             Identifier(T) [124-125] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [51, 2]
+  (statement [0, 0] - [2, 7]
+    (select_statement [0, 0] - [2, 7]
+      (select_clause [0, 0] - [1, 53]
+        (select_list [0, 7] - [1, 53]
+          (select_expression [0, 7] - [0, 15]
+            (expression [0, 7] - [0, 15]
+              (function_call [0, 7] - [0, 15]
+                (path_expression [0, 7] - [0, 12]
+                  (identifier [0, 7] - [0, 12])))))
+          (select_expression [0, 17] - [0, 36]
+            (expression [0, 17] - [0, 36]
+              (function_call [0, 17] - [0, 36]
+                (path_expression [0, 17] - [0, 27]
+                  (identifier [0, 17] - [0, 27]))
+                (function_arguments [0, 31] - [0, 35]
+                  (function_argument [0, 31] - [0, 32]
+                    (expression [0, 31] - [0, 32]
+                      (number [0, 31] - [0, 32])))
+                  (function_argument [0, 34] - [0, 35]
+                    (expression [0, 34] - [0, 35]
+                      (number [0, 34] - [0, 35])))))))
+          (select_expression [0, 38] - [0, 55]
+            (expression [0, 38] - [0, 55]
+              (function_call [0, 38] - [0, 55]
+                (path_expression [0, 38] - [0, 43]
+                  (identifier [0, 38] - [0, 43]))
+                (function_arguments [0, 53] - [0, 54]
+                  (function_argument [0, 53] - [0, 54]
+                    (expression [0, 53] - [0, 54]
+                      (path_expression [0, 53] - [0, 54]
+                        (identifier [0, 53] - [0, 54]))))))))
+          (select_expression [0, 57] - [0, 63]
+            (expression [0, 57] - [0, 63]
+              (function_call [0, 57] - [0, 63]
+                (path_expression [0, 57] - [0, 60]
+                  (identifier [0, 57] - [0, 60]))
+                (function_arguments [0, 61] - [0, 62]
+                  (function_argument [0, 61] - [0, 62]
+                    (expression [0, 61] - [0, 62]
+                      (path_expression [0, 61] - [0, 62]
+                        (identifier [0, 61] - [0, 62]))))))))
+          (select_expression [1, 7] - [1, 22]
+            (expression [1, 7] - [1, 22]
+              (function_call [1, 7] - [1, 22]
+                (path_expression [1, 7] - [1, 10]
+                  (identifier [1, 7] - [1, 10]))
+                (function_arguments [1, 20] - [1, 21]
+                  (function_argument [1, 20] - [1, 21]
+                    (expression [1, 20] - [1, 21]
+                      (path_expression [1, 20] - [1, 21]
+                        (identifier [1, 20] - [1, 21]))))))))
+          (select_expression [1, 24] - [1, 53]
+            (expression [1, 24] - [1, 53]
+              (function_call [1, 24] - [1, 53]
+                (path_expression [1, 24] - [1, 36]
+                  (identifier [1, 24] - [1, 36]))
+                (function_arguments [1, 46] - [1, 52]
+                  (function_argument [1, 46] - [1, 47]
+                    (expression [1, 46] - [1, 47]
+                      (path_expression [1, 46] - [1, 47]
+                        (identifier [1, 46] - [1, 47]))))
+                  (function_argument [1, 49] - [1, 52]
+                    (expression [1, 49] - [1, 52]
+                      (string [1, 49] - [1, 52])))))))))
+      (from_clause [2, 0] - [2, 6]
+        (from_item [2, 5] - [2, 6]
+          (table_expression [2, 5] - [2, 6]
+            (path_expression [2, 5] - [2, 6]
+              (identifier [2, 5] - [2, 6])))))))
+  (comment [4, 0] - [51, 2]))
 
 ==================
-Test Case 56
+Test Case 62
 ==================
 select count(distinct);
 
@@ -1807,10 +2328,20 @@ QueryStatement [0-22] [select count(distinct)]
               Identifier(count) [7-12] [count]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [11, 2]
+  (statement [0, 0] - [0, 23]
+    (select_statement [0, 0] - [0, 23]
+      (select_clause [0, 0] - [0, 22]
+        (select_list [0, 7] - [0, 22]
+          (select_expression [0, 7] - [0, 22]
+            (expression [0, 7] - [0, 22]
+              (function_call [0, 7] - [0, 22]
+                (path_expression [0, 7] - [0, 12]
+                  (identifier [0, 7] - [0, 12])))))))))
+  (comment [2, 0] - [11, 2]))
 
 ==================
-Test Case 57
+Test Case 63
 ==================
 # WITH reserved word works in a path expression.
 select nested1.field1, field2 from table1.with.dots
@@ -1835,10 +2366,32 @@ QueryStatement [0-51] [select nested1....with.dots]
             Identifier(dots) [47-51] [dots]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (comment [0, 0] - [0, 48])
+  (statement [1, 0] - [1, 51]
+    (select_statement [1, 0] - [1, 51]
+      (select_clause [1, 0] - [1, 29]
+        (select_list [1, 7] - [1, 29]
+          (select_expression [1, 7] - [1, 21]
+            (expression [1, 7] - [1, 21]
+              (path_expression [1, 7] - [1, 21]
+                (identifier [1, 7] - [1, 14])
+                (identifier [1, 15] - [1, 21]))))
+          (select_expression [1, 23] - [1, 29]
+            (expression [1, 23] - [1, 29]
+              (path_expression [1, 23] - [1, 29]
+                (identifier [1, 23] - [1, 29]))))))
+      (from_clause [1, 30] - [1, 51]
+        (from_item [1, 35] - [1, 51]
+          (table_expression [1, 35] - [1, 51]
+            (path_expression [1, 35] - [1, 51]
+              (identifier [1, 35] - [1, 41])
+              (identifier [1, 42] - [1, 46])
+              (identifier [1, 47] - [1, 51])))))))
+  (comment [3, 0] - [21, 2]))
 
 ==================
-Test Case 58
+Test Case 64
 ==================
 # PROTO reserved word works in a path expression.
 select nested1.proto
@@ -1854,10 +2407,21 @@ QueryStatement [0-20] [select nested1.proto]
             Identifier(`proto`) [15-20] [proto]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [12, 2]
+  (comment [0, 0] - [0, 49])
+  (statement [1, 0] - [1, 20]
+    (select_statement [1, 0] - [1, 20]
+      (select_clause [1, 0] - [1, 20]
+        (select_list [1, 7] - [1, 20]
+          (select_expression [1, 7] - [1, 20]
+            (expression [1, 7] - [1, 20]
+              (path_expression [1, 7] - [1, 20]
+                (identifier [1, 7] - [1, 14])
+                (identifier [1, 15] - [1, 20]))))))))
+  (comment [3, 0] - [12, 2]))
 
 ==================
-Test Case 59
+Test Case 65
 ==================
 # Table name with backticks
 select nested1.field1, field2 from `table.with.dots`
@@ -1880,10 +2444,30 @@ QueryStatement [0-52] [select nested1...with.dots`]
             Identifier(`table.with.dots`) [35-52] [`table.with.dots`]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (comment [0, 0] - [0, 27])
+  (statement [1, 0] - [1, 52]
+    (select_statement [1, 0] - [1, 52]
+      (select_clause [1, 0] - [1, 29]
+        (select_list [1, 7] - [1, 29]
+          (select_expression [1, 7] - [1, 21]
+            (expression [1, 7] - [1, 21]
+              (path_expression [1, 7] - [1, 21]
+                (identifier [1, 7] - [1, 14])
+                (identifier [1, 15] - [1, 21]))))
+          (select_expression [1, 23] - [1, 29]
+            (expression [1, 23] - [1, 29]
+              (path_expression [1, 23] - [1, 29]
+                (identifier [1, 23] - [1, 29]))))))
+      (from_clause [1, 30] - [1, 52]
+        (from_item [1, 35] - [1, 52]
+          (table_expression [1, 35] - [1, 52]
+            (path_expression [1, 35] - [1, 52]
+              (identifier [1, 35] - [1, 52])))))))
+  (comment [3, 0] - [19, 2]))
 
 ==================
-Test Case 60
+Test Case 66
 ==================
 select f(column.field_name) like 'pattern%';
 
@@ -1907,7 +2491,7 @@ QueryStatement [0-43] [select f(column...'pattern%']
 (source_file (ERROR))
 
 ==================
-Test Case 61
+Test Case 67
 ==================
 select a NOT LIKE b;
 
@@ -1927,7 +2511,7 @@ QueryStatement [0-19] [select a NOT LIKE b]
 (source_file (ERROR))
 
 ==================
-Test Case 62
+Test Case 68
 ==================
 select 1 IS NULL
 
@@ -1942,10 +2526,21 @@ QueryStatement [0-16] [select 1 IS NULL]
             NullLiteral(NULL) [12-16] [NULL]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [11, 2]
+  (statement [0, 0] - [0, 16]
+    (select_statement [0, 0] - [0, 16]
+      (select_clause [0, 0] - [0, 16]
+        (select_list [0, 7] - [0, 16]
+          (select_expression [0, 7] - [0, 16]
+            (expression [0, 7] - [0, 16]
+              (is_expression [0, 7] - [0, 16]
+                (expression [0, 7] - [0, 8]
+                  (number [0, 7] - [0, 8]))
+                (null_literal [0, 12] - [0, 16]))))))))
+  (comment [2, 0] - [11, 2]))
 
 ==================
-Test Case 63
+Test Case 69
 ==================
 select a from t where (f(a) + b[c]) IS NOT NULL
 
@@ -1981,7 +2576,7 @@ QueryStatement [0-47] [select a from...IS NOT NULL]
 (source_file (ERROR))
 
 ==================
-Test Case 64
+Test Case 70
 ==================
 select NULL IS NULL
 
@@ -1996,10 +2591,21 @@ QueryStatement [0-19] [select NULL IS NULL]
             NullLiteral(NULL) [15-19] [NULL]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [11, 2]
+  (statement [0, 0] - [0, 19]
+    (select_statement [0, 0] - [0, 19]
+      (select_clause [0, 0] - [0, 19]
+        (select_list [0, 7] - [0, 19]
+          (select_expression [0, 7] - [0, 19]
+            (expression [0, 7] - [0, 19]
+              (is_expression [0, 7] - [0, 19]
+                (expression [0, 7] - [0, 11]
+                  (null_literal [0, 7] - [0, 11]))
+                (null_literal [0, 15] - [0, 19]))))))))
+  (comment [2, 0] - [11, 2]))
 
 ==================
-Test Case 65
+Test Case 71
 ==================
 select NOT NULL IS NOT NULL
 
@@ -2018,7 +2624,7 @@ QueryStatement [0-27] [select NOT NULL IS NOT NULL]
 (source_file (ERROR))
 
 ==================
-Test Case 66
+Test Case 72
 ==================
 select 1 from T where TRUE IS NOT TRUE
 
@@ -2039,10 +2645,29 @@ QueryStatement [0-38] [select 1 from...IS NOT TRUE]
           BooleanLiteral(TRUE) [34-38] [TRUE]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (statement [0, 0] - [0, 38]
+    (select_statement [0, 0] - [0, 38]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (number [0, 7] - [0, 8])))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (where_clause [0, 16] - [0, 38]
+        (expression [0, 22] - [0, 38]
+          (is_expression [0, 22] - [0, 38]
+            (expression [0, 22] - [0, 26]
+              (boolean_literal [0, 22] - [0, 26]))
+            (boolean_literal [0, 34] - [0, 38]))))))
+  (comment [2, 0] - [17, 2]))
 
 ==================
-Test Case 67
+Test Case 73
 ==================
 select 1 from T where TRUE IS NOT FALSE
 
@@ -2063,10 +2688,29 @@ QueryStatement [0-39] [select 1 from...NOT FALSE]
           BooleanLiteral(FALSE) [34-39] [FALSE]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (statement [0, 0] - [0, 39]
+    (select_statement [0, 0] - [0, 39]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (number [0, 7] - [0, 8])))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (where_clause [0, 16] - [0, 39]
+        (expression [0, 22] - [0, 39]
+          (is_expression [0, 22] - [0, 39]
+            (expression [0, 22] - [0, 26]
+              (boolean_literal [0, 22] - [0, 26]))
+            (boolean_literal [0, 34] - [0, 39]))))))
+  (comment [2, 0] - [17, 2]))
 
 ==================
-Test Case 68
+Test Case 74
 ==================
 select FALSE from T where NULL IS TRUE
 
@@ -2087,10 +2731,29 @@ QueryStatement [0-38] [select FALSE...NULL IS TRUE]
           BooleanLiteral(TRUE) [34-38] [TRUE]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (statement [0, 0] - [0, 38]
+    (select_statement [0, 0] - [0, 38]
+      (select_clause [0, 0] - [0, 12]
+        (select_list [0, 7] - [0, 12]
+          (select_expression [0, 7] - [0, 12]
+            (expression [0, 7] - [0, 12]
+              (boolean_literal [0, 7] - [0, 12])))))
+      (from_clause [0, 13] - [0, 19]
+        (from_item [0, 18] - [0, 19]
+          (table_expression [0, 18] - [0, 19]
+            (path_expression [0, 18] - [0, 19]
+              (identifier [0, 18] - [0, 19])))))
+      (where_clause [0, 20] - [0, 38]
+        (expression [0, 26] - [0, 38]
+          (is_expression [0, 26] - [0, 38]
+            (expression [0, 26] - [0, 30]
+              (null_literal [0, 26] - [0, 30]))
+            (boolean_literal [0, 34] - [0, 38]))))))
+  (comment [2, 0] - [17, 2]))
 
 ==================
-Test Case 69
+Test Case 75
 ==================
 select * from Table1 where col BETWEEN value1 AND value2;
 
@@ -2142,33 +2805,7 @@ QueryStatement [0-56] [select * from...AND value2]
   (comment [2, 0] - [22, 2]))
 
 ==================
-Test Case 70
-==================
-# Unbalanced parentheses/brackets tokenizes correctly (or at least without
-# crashing) but doesn't parse.
-SELECT {{(|{|[|}} foo {{)|}|]}} {{)|}|]}}, foo
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: (,),)
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 71
-==================
-# Closing parentheses/brackets in the middle of a BETWEEN tokenizes correctly
-# but doesn't parse.
-SELECT {{(|{|[}} x BETWEEN y{{)|}|]}}, foo
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: (,)
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 72
+Test Case 76
 ==================
 select key, kv.key, kv, (kv).key from KeyValue kv;
 
@@ -2203,7 +2840,7 @@ QueryStatement [0-49] [select key...KeyValue kv]
 (source_file (ERROR))
 
 ==================
-Test Case 73
+Test Case 77
 ==================
 # NOT IN is handled specially, but NOTIN shouldn't be.
 SELECT 1 AS NOTIN;
@@ -2219,10 +2856,20 @@ QueryStatement [0-17] [SELECT 1 AS NOTIN]
             Identifier(NOTIN) [12-17] [NOTIN]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [12, 2]
+  (comment [0, 0] - [0, 54])
+  (statement [1, 0] - [1, 18]
+    (select_statement [1, 0] - [1, 18]
+      (select_clause [1, 0] - [1, 17]
+        (select_list [1, 7] - [1, 17]
+          (select_expression [1, 7] - [1, 17]
+            (expression [1, 7] - [1, 8]
+              (number [1, 7] - [1, 8]))
+            (identifier [1, 12] - [1, 17]))))))
+  (comment [3, 0] - [12, 2]))
 
 ==================
-Test Case 74
+Test Case 78
 ==================
 # NOT BETWEEN is handled specially, but NOTBETWEEN shouldn't be.
 SELECT 1 AS NOTBETWEEN;
@@ -2238,10 +2885,20 @@ QueryStatement [0-22] [SELECT 1 AS NOTBETWEEN]
             Identifier(NOTBETWEEN) [12-22] [NOTBETWEEN]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [12, 2]
+  (comment [0, 0] - [0, 64])
+  (statement [1, 0] - [1, 23]
+    (select_statement [1, 0] - [1, 23]
+      (select_clause [1, 0] - [1, 22]
+        (select_list [1, 7] - [1, 22]
+          (select_expression [1, 7] - [1, 22]
+            (expression [1, 7] - [1, 8]
+              (number [1, 7] - [1, 8]))
+            (identifier [1, 12] - [1, 22]))))))
+  (comment [3, 0] - [12, 2]))
 
 ==================
-Test Case 75
+Test Case 79
 ==================
 # NOT LIKE is handled specially, but NOTLIKE shouldn't be.
 SELECT 1 AS NOTLIKE;
@@ -2257,10 +2914,20 @@ QueryStatement [0-19] [SELECT 1 AS NOTLIKE]
             Identifier(NOTLIKE) [12-19] [NOTLIKE]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [12, 2]
+  (comment [0, 0] - [0, 58])
+  (statement [1, 0] - [1, 20]
+    (select_statement [1, 0] - [1, 20]
+      (select_clause [1, 0] - [1, 19]
+        (select_list [1, 7] - [1, 19]
+          (select_expression [1, 7] - [1, 19]
+            (expression [1, 7] - [1, 8]
+              (number [1, 7] - [1, 8]))
+            (identifier [1, 12] - [1, 19]))))))
+  (comment [3, 0] - [12, 2]))
 
 ==================
-Test Case 76
+Test Case 80
 ==================
 # <> and != are different operators at the parser level. They should be
 # unparsed as themselves.
@@ -2284,10 +2951,10 @@ QueryStatement [0-21] [SELECT 1 <> 1, 1 != 1]
 (source_file (ERROR))
 
 ==================
-Test Case 77
+Test Case 81
 ==================
 # Various C-style comment corner cases.
-/* C-style comment with {{* in the middle|/ in the middle|trailing *|trailing**}}*/
+/* C-style comment with * in the middle*/
 SELECT foo;
 
 /* Expected ZetaSQL AST:
@@ -2296,10 +2963,99 @@ ALTERNATION GROUPS:
     / in the middle
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [8, 2]
+  (comment [0, 0] - [0, 39])
+  (comment [1, 0] - [1, 41])
+  (statement [2, 0] - [2, 11]
+    (select_statement [2, 0] - [2, 11]
+      (select_clause [2, 0] - [2, 10]
+        (select_list [2, 7] - [2, 10]
+          (select_expression [2, 7] - [2, 10]
+            (expression [2, 7] - [2, 10]
+              (path_expression [2, 7] - [2, 10]
+                (identifier [2, 7] - [2, 10]))))))))
+  (comment [4, 0] - [8, 2]))
 
 ==================
-Test Case 78
+Test Case 82
+==================
+# Various C-style comment corner cases.
+/* C-style comment with / in the middle*/
+SELECT foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    * in the middle
+    / in the middle
+*/
+---
+(source_file [0, 0] - [8, 2]
+  (comment [0, 0] - [0, 39])
+  (comment [1, 0] - [1, 41])
+  (statement [2, 0] - [2, 11]
+    (select_statement [2, 0] - [2, 11]
+      (select_clause [2, 0] - [2, 10]
+        (select_list [2, 7] - [2, 10]
+          (select_expression [2, 7] - [2, 10]
+            (expression [2, 7] - [2, 10]
+              (path_expression [2, 7] - [2, 10]
+                (identifier [2, 7] - [2, 10]))))))))
+  (comment [4, 0] - [8, 2]))
+
+==================
+Test Case 83
+==================
+# Various C-style comment corner cases.
+/* C-style comment with trailing **/
+SELECT foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    * in the middle
+    / in the middle
+*/
+---
+(source_file [0, 0] - [8, 2]
+  (comment [0, 0] - [0, 39])
+  (comment [1, 0] - [1, 36])
+  (statement [2, 0] - [2, 11]
+    (select_statement [2, 0] - [2, 11]
+      (select_clause [2, 0] - [2, 10]
+        (select_list [2, 7] - [2, 10]
+          (select_expression [2, 7] - [2, 10]
+            (expression [2, 7] - [2, 10]
+              (path_expression [2, 7] - [2, 10]
+                (identifier [2, 7] - [2, 10]))))))))
+  (comment [4, 0] - [8, 2]))
+
+==================
+Test Case 84
+==================
+# Various C-style comment corner cases.
+/* C-style comment with trailing***/
+SELECT foo;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    * in the middle
+    / in the middle
+*/
+---
+(source_file [0, 0] - [8, 2]
+  (comment [0, 0] - [0, 39])
+  (comment [1, 0] - [1, 36])
+  (statement [2, 0] - [2, 11]
+    (select_statement [2, 0] - [2, 11]
+      (select_clause [2, 0] - [2, 10]
+        (select_list [2, 7] - [2, 10]
+          (select_expression [2, 7] - [2, 10]
+            (expression [2, 7] - [2, 10]
+              (path_expression [2, 7] - [2, 10]
+                (identifier [2, 7] - [2, 10]))))))))
+  (comment [4, 0] - [8, 2]))
+
+==================
+Test Case 85
 ==================
 # Parenthesized ANDs should not be merged.
 SELECT (TRUE AND FALSE) AND (FALSE AND TRUE)
@@ -2319,10 +3075,33 @@ QueryStatement [0-44] [SELECT (TRUE...AND TRUE)]
               BooleanLiteral(TRUE) [39-43] [TRUE]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (comment [0, 0] - [0, 42])
+  (statement [1, 0] - [1, 44]
+    (select_statement [1, 0] - [1, 44]
+      (select_clause [1, 0] - [1, 44]
+        (select_list [1, 7] - [1, 44]
+          (select_expression [1, 7] - [1, 44]
+            (expression [1, 7] - [1, 44]
+              (binary_expression [1, 7] - [1, 44]
+                (expression [1, 7] - [1, 23]
+                  (expression [1, 8] - [1, 22]
+                    (binary_expression [1, 8] - [1, 22]
+                      (expression [1, 8] - [1, 12]
+                        (boolean_literal [1, 8] - [1, 12]))
+                      (expression [1, 17] - [1, 22]
+                        (boolean_literal [1, 17] - [1, 22])))))
+                (expression [1, 28] - [1, 44]
+                  (expression [1, 29] - [1, 43]
+                    (binary_expression [1, 29] - [1, 43]
+                      (expression [1, 29] - [1, 34]
+                        (boolean_literal [1, 29] - [1, 34]))
+                      (expression [1, 39] - [1, 43]
+                        (boolean_literal [1, 39] - [1, 43]))))))))))))
+  (comment [3, 0] - [16, 2]))
 
 ==================
-Test Case 79
+Test Case 86
 ==================
 # Parenthesized ORs should not be merged.
 SELECT (TRUE OR FALSE) OR (FALSE OR TRUE)
@@ -2342,13 +3121,35 @@ QueryStatement [0-41] [SELECT (TRUE...FALSE OR TRUE)]
               BooleanLiteral(TRUE) [36-40] [TRUE]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (comment [0, 0] - [0, 41])
+  (statement [1, 0] - [1, 41]
+    (select_statement [1, 0] - [1, 41]
+      (select_clause [1, 0] - [1, 41]
+        (select_list [1, 7] - [1, 41]
+          (select_expression [1, 7] - [1, 41]
+            (expression [1, 7] - [1, 41]
+              (binary_expression [1, 7] - [1, 41]
+                (expression [1, 7] - [1, 22]
+                  (expression [1, 8] - [1, 21]
+                    (binary_expression [1, 8] - [1, 21]
+                      (expression [1, 8] - [1, 12]
+                        (boolean_literal [1, 8] - [1, 12]))
+                      (expression [1, 16] - [1, 21]
+                        (boolean_literal [1, 16] - [1, 21])))))
+                (expression [1, 26] - [1, 41]
+                  (expression [1, 27] - [1, 40]
+                    (binary_expression [1, 27] - [1, 40]
+                      (expression [1, 27] - [1, 32]
+                        (boolean_literal [1, 27] - [1, 32]))
+                      (expression [1, 36] - [1, 40]
+                        (boolean_literal [1, 36] - [1, 40]))))))))))))
+  (comment [3, 0] - [16, 2]))
 
 ==================
-Test Case 80
+Test Case 87
 ==================
 # Query ending in an end-of-line comment without a newline.
-[strip_trailing_newline]
 SELECT 1 # End of line comment
 
 /* Expected ZetaSQL AST:
@@ -2360,15 +3161,245 @@ QueryStatement [0-8] [SELECT 1]
           IntLiteral(1) [7-8] [1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [10, 2]
+  (comment [0, 0] - [0, 59])
+  (statement [1, 0] - [1, 8]
+    (select_statement [1, 0] - [1, 8]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8]
+            (expression [1, 7] - [1, 8]
+              (number [1, 7] - [1, 8])))))))
+  (comment [1, 9] - [1, 30])
+  (comment [3, 0] - [10, 2]))
 
 ==================
-Test Case 81
+Test Case 88
 ==================
 # Function call operator can only be applied to an *unparenthesized* path
 # expression.
-select {{(foo)|(foo.bar)|(3)|3|(current_date)|(current_date())}}
-       ({{DISTINCT|}} foo)
+select (foo)
+       (DISTINCT foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 89
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (foo)
+       ( foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 90
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (foo.bar)
+       (DISTINCT foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 91
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (foo.bar)
+       ( foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 92
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (3)
+       (DISTINCT foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 93
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (3)
+       ( foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 94
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select 3
+       (DISTINCT foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 95
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select 3
+       ( foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 96
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (current_date)
+       (DISTINCT foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 97
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (current_date)
+       ( foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 98
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (current_date())
+       (DISTINCT foo)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    (foo),DISTINCT
+    (foo.bar),DISTINCT
+    (3),DISTINCT
+    3,DISTINCT
+    (current_date),DISTINCT
+    (current_date()),DISTINCT
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 99
+==================
+# Function call operator can only be applied to an *unparenthesized* path
+# expression.
+select (current_date())
+       ( foo)
 
 /* Expected ZetaSQL AST:
 ALTERNATION GROUPS:

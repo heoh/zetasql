@@ -443,30 +443,28 @@ UpdateStatement [0-35] [update T set...default, z=z]
 ==================
 Test Case 16
 ==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-update a-100.b.c
-set x=y
+# Update statement with a table alias.
+UPDATE T AS a SET a.x=1
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+UpdateStatement [0-23] [UPDATE T AS a SET a.x=1]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  Alias [9-13] [AS a]
+    Identifier(a) [12-13] [a]
+  UpdateItemList [18-23] [a.x=1]
+    UpdateItem [18-23] [a.x=1]
+      UpdateSetValue [18-23] [a.x=1]
+        PathExpression [18-21] [a.x]
+          Identifier(a) [18-19] [a]
+          Identifier(x) [20-21] [x]
+        IntLiteral(1) [22-23] [1]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 17
-==================
-# Update statement with a table alias.
-UPDATE T {{AS|}} a SET a.x=1
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 18
 ==================
 # Nested DML statements.
 update T
@@ -520,7 +518,7 @@ UpdateStatement [0-100] [update T set...z=default]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 18
 ==================
 # Nested DML statements with generalized path targets.
 update T
@@ -571,7 +569,7 @@ UpdateStatement [0-95] [update T set...set d = 10)]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 19
 ==================
 # Another set of nested DML statements with generalized path targets, this time
 # with a generalized field access in the middle.
@@ -629,7 +627,7 @@ UpdateStatement [0-101] [update T set...set d = 10)]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 20
 ==================
 # Nested DML statements with generalized path targets involving array element
 # modifications. These parse but the resolver doesn't allow array element
@@ -693,17 +691,125 @@ UpdateStatement [0-106] [update T set...set d = 10)]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 21
 ==================
 # Nested DML statement with alias.
-update T {{AS|}} a
+update T AS a
 set a.x=y,
-    (delete a.x {{AS|}} na where na.x=1),
-    (update a.x {{AS|}} na set na.x=1),
+    (delete a.x AS na where na.x=1),
+    (update a.x AS na set na.x=1),
     (insert a.x values (5))
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS,AS,AS
+UpdateStatement [0-124] [update T AS...values (5))]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  Alias [9-13] [AS a]
+    Identifier(a) [12-13] [a]
+  UpdateItemList [18-124] [a.x=y,...values (5))]
+    UpdateItem [18-23] [a.x=y]
+      UpdateSetValue [18-23] [a.x=y]
+        PathExpression [18-21] [a.x]
+          Identifier(a) [18-19] [a]
+          Identifier(x) [20-21] [x]
+        PathExpression [22-23] [y]
+          Identifier(y) [22-23] [y]
+    UpdateItem [29-60] [(delete a....where na.x=1)]
+      DeleteStatement [30-59] [delete a.x AS na where na.x=1]
+        PathExpression [37-40] [a.x]
+          Identifier(a) [37-38] [a]
+          Identifier(x) [39-40] [x]
+        Alias [41-46] [AS na]
+          Identifier(na) [44-46] [na]
+        BinaryExpression(=) [53-59] [na.x=1]
+          PathExpression [53-57] [na.x]
+            Identifier(na) [53-55] [na]
+            Identifier(x) [56-57] [x]
+          IntLiteral(1) [58-59] [1]
+    UpdateItem [66-95] [(update a.x AS na set na.x=1)]
+      UpdateStatement [67-94] [update a.x AS na set na.x=1]
+        PathExpression [74-77] [a.x]
+          Identifier(a) [74-75] [a]
+          Identifier(x) [76-77] [x]
+        Alias [78-83] [AS na]
+          Identifier(na) [81-83] [na]
+        UpdateItemList [88-94] [na.x=1]
+          UpdateItem [88-94] [na.x=1]
+            UpdateSetValue [88-94] [na.x=1]
+              PathExpression [88-92] [na.x]
+                Identifier(na) [88-90] [na]
+                Identifier(x) [91-92] [x]
+              IntLiteral(1) [93-94] [1]
+    UpdateItem [101-124] [(insert a.x values (5))]
+      InsertStatement [102-123] [insert a.x values (5)]
+        PathExpression [109-112] [a.x]
+          Identifier(a) [109-110] [a]
+          Identifier(x) [111-112] [x]
+        InsertValuesRowList [113-123] [values (5)]
+          InsertValuesRow [120-123] [(5)]
+            IntLiteral(5) [121-122] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+# Nested DML statement with alias.
+update T AS a
+set a.x=y,
+    (delete a.x AS na where na.x=1),
+    (update a.x  na set na.x=1),
+    (insert a.x values (5))
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-122] [update T AS...values (5))]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  Alias [9-13] [AS a]
+    Identifier(a) [12-13] [a]
+  UpdateItemList [18-122] [a.x=y,...values (5))]
+    UpdateItem [18-23] [a.x=y]
+      UpdateSetValue [18-23] [a.x=y]
+        PathExpression [18-21] [a.x]
+          Identifier(a) [18-19] [a]
+          Identifier(x) [20-21] [x]
+        PathExpression [22-23] [y]
+          Identifier(y) [22-23] [y]
+    UpdateItem [29-60] [(delete a....where na.x=1)]
+      DeleteStatement [30-59] [delete a.x AS na where na.x=1]
+        PathExpression [37-40] [a.x]
+          Identifier(a) [37-38] [a]
+          Identifier(x) [39-40] [x]
+        Alias [41-46] [AS na]
+          Identifier(na) [44-46] [na]
+        BinaryExpression(=) [53-59] [na.x=1]
+          PathExpression [53-57] [na.x]
+            Identifier(na) [53-55] [na]
+            Identifier(x) [56-57] [x]
+          IntLiteral(1) [58-59] [1]
+    UpdateItem [66-93] [(update a.x  na set na.x=1)]
+      UpdateStatement [67-92] [update a.x  na set na.x=1]
+        PathExpression [74-77] [a.x]
+          Identifier(a) [74-75] [a]
+          Identifier(x) [76-77] [x]
+        Alias [79-81] [na]
+          Identifier(na) [79-81] [na]
+        UpdateItemList [86-92] [na.x=1]
+          UpdateItem [86-92] [na.x=1]
+            UpdateSetValue [86-92] [na.x=1]
+              PathExpression [86-90] [na.x]
+                Identifier(na) [86-88] [na]
+                Identifier(x) [89-90] [x]
+              IntLiteral(1) [91-92] [1]
+    UpdateItem [99-122] [(insert a.x values (5))]
+      InsertStatement [100-121] [insert a.x values (5)]
+        PathExpression [107-110] [a.x]
+          Identifier(a) [107-108] [a]
+          Identifier(x) [109-110] [x]
+        InsertValuesRowList [111-121] [values (5)]
+          InsertValuesRow [118-121] [(5)]
+            IntLiteral(5) [119-120] [5]
 */
 ---
 (source_file (ERROR))
@@ -711,12 +817,61 @@ ALTERNATION GROUP: AS,AS,AS
 ==================
 Test Case 23
 ==================
-# Nested insert statemnent does not support table alias.
-update T a
-set (insert a.x {{AS|}} na values (5))
+# Nested DML statement with alias.
+update T AS a
+set a.x=y,
+    (delete a.x  na where na.x=1),
+    (update a.x AS na set na.x=1),
+    (insert a.x values (5))
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
+UpdateStatement [0-122] [update T AS...values (5))]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  Alias [9-13] [AS a]
+    Identifier(a) [12-13] [a]
+  UpdateItemList [18-122] [a.x=y,...values (5))]
+    UpdateItem [18-23] [a.x=y]
+      UpdateSetValue [18-23] [a.x=y]
+        PathExpression [18-21] [a.x]
+          Identifier(a) [18-19] [a]
+          Identifier(x) [20-21] [x]
+        PathExpression [22-23] [y]
+          Identifier(y) [22-23] [y]
+    UpdateItem [29-58] [(delete a.x  na where na.x=1)]
+      DeleteStatement [30-57] [delete a.x  na where na.x=1]
+        PathExpression [37-40] [a.x]
+          Identifier(a) [37-38] [a]
+          Identifier(x) [39-40] [x]
+        Alias [42-44] [na]
+          Identifier(na) [42-44] [na]
+        BinaryExpression(=) [51-57] [na.x=1]
+          PathExpression [51-55] [na.x]
+            Identifier(na) [51-53] [na]
+            Identifier(x) [54-55] [x]
+          IntLiteral(1) [56-57] [1]
+    UpdateItem [64-93] [(update a.x AS na set na.x=1)]
+      UpdateStatement [65-92] [update a.x AS na set na.x=1]
+        PathExpression [72-75] [a.x]
+          Identifier(a) [72-73] [a]
+          Identifier(x) [74-75] [x]
+        Alias [76-81] [AS na]
+          Identifier(na) [79-81] [na]
+        UpdateItemList [86-92] [na.x=1]
+          UpdateItem [86-92] [na.x=1]
+            UpdateSetValue [86-92] [na.x=1]
+              PathExpression [86-90] [na.x]
+                Identifier(na) [86-88] [na]
+                Identifier(x) [89-90] [x]
+              IntLiteral(1) [91-92] [1]
+    UpdateItem [99-122] [(insert a.x values (5))]
+      InsertStatement [100-121] [insert a.x values (5)]
+        PathExpression [107-110] [a.x]
+          Identifier(a) [107-108] [a]
+          Identifier(x) [109-110] [x]
+        InsertValuesRowList [111-121] [values (5)]
+          InsertValuesRow [118-121] [(5)]
+            IntLiteral(5) [119-120] [5]
 */
 ---
 (source_file (ERROR))
@@ -724,15 +879,61 @@ ALTERNATION GROUP: AS
 ==================
 Test Case 24
 ==================
-# Nested update with offset.
-update T set
-  (update a with offset {{|as}} {{|offset|foo}}
-   set x = y
-   where offset = 0)
-where true
+# Nested DML statement with alias.
+update T AS a
+set a.x=y,
+    (delete a.x  na where na.x=1),
+    (update a.x  na set na.x=1),
+    (insert a.x values (5))
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+UpdateStatement [0-120] [update T AS...values (5))]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  Alias [9-13] [AS a]
+    Identifier(a) [12-13] [a]
+  UpdateItemList [18-120] [a.x=y,...values (5))]
+    UpdateItem [18-23] [a.x=y]
+      UpdateSetValue [18-23] [a.x=y]
+        PathExpression [18-21] [a.x]
+          Identifier(a) [18-19] [a]
+          Identifier(x) [20-21] [x]
+        PathExpression [22-23] [y]
+          Identifier(y) [22-23] [y]
+    UpdateItem [29-58] [(delete a.x  na where na.x=1)]
+      DeleteStatement [30-57] [delete a.x  na where na.x=1]
+        PathExpression [37-40] [a.x]
+          Identifier(a) [37-38] [a]
+          Identifier(x) [39-40] [x]
+        Alias [42-44] [na]
+          Identifier(na) [42-44] [na]
+        BinaryExpression(=) [51-57] [na.x=1]
+          PathExpression [51-55] [na.x]
+            Identifier(na) [51-53] [na]
+            Identifier(x) [54-55] [x]
+          IntLiteral(1) [56-57] [1]
+    UpdateItem [64-91] [(update a.x  na set na.x=1)]
+      UpdateStatement [65-90] [update a.x  na set na.x=1]
+        PathExpression [72-75] [a.x]
+          Identifier(a) [72-73] [a]
+          Identifier(x) [74-75] [x]
+        Alias [77-79] [na]
+          Identifier(na) [77-79] [na]
+        UpdateItemList [84-90] [na.x=1]
+          UpdateItem [84-90] [na.x=1]
+            UpdateSetValue [84-90] [na.x=1]
+              PathExpression [84-88] [na.x]
+                Identifier(na) [84-86] [na]
+                Identifier(x) [87-88] [x]
+              IntLiteral(1) [89-90] [1]
+    UpdateItem [97-120] [(insert a.x values (5))]
+      InsertStatement [98-119] [insert a.x values (5)]
+        PathExpression [105-108] [a.x]
+          Identifier(a) [105-106] [a]
+          Identifier(x) [107-108] [x]
+        InsertValuesRowList [109-119] [values (5)]
+          InsertValuesRow [116-119] [(5)]
+            IntLiteral(5) [117-118] [5]
 */
 ---
 (source_file (ERROR))
@@ -740,19 +941,133 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 25
 ==================
-# Nested delete with offset.
+# Nested update with offset.
 update T set
-  (delete a with offset {{|as}} {{|offset|foo}} where true)
+  (update a with offset as offset
+   set x = y
+   where offset = 0)
 where true
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+UpdateStatement [0-91] [update T set...where true]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [15-80] [(update a...offset = 0)]
+    UpdateItem [15-80] [(update a...offset = 0)]
+      UpdateStatement [16-79] [update a with...offset = 0]
+        PathExpression [23-24] [a]
+          Identifier(a) [23-24] [a]
+        WithOffset [25-46] [with offset as offset]
+          Alias [37-46] [as offset]
+            Identifier(offset) [40-46] [offset]
+        UpdateItemList [54-59] [x = y]
+          UpdateItem [54-59] [x = y]
+            UpdateSetValue [54-59] [x = y]
+              PathExpression [54-55] [x]
+                Identifier(x) [54-55] [x]
+              PathExpression [58-59] [y]
+                Identifier(y) [58-59] [y]
+        BinaryExpression(=) [69-79] [offset = 0]
+          PathExpression [69-75] [offset]
+            Identifier(offset) [69-75] [offset]
+          IntLiteral(0) [78-79] [0]
+  BooleanLiteral(true) [87-91] [true]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 26
+==================
+# Nested update with offset.
+update T set
+  (update a with offset as foo
+   set x = y
+   where offset = 0)
+where true
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-88] [update T set...where true]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [15-77] [(update a...offset = 0)]
+    UpdateItem [15-77] [(update a...offset = 0)]
+      UpdateStatement [16-76] [update a with...offset = 0]
+        PathExpression [23-24] [a]
+          Identifier(a) [23-24] [a]
+        WithOffset [25-43] [with offset as foo]
+          Alias [37-43] [as foo]
+            Identifier(foo) [40-43] [foo]
+        UpdateItemList [51-56] [x = y]
+          UpdateItem [51-56] [x = y]
+            UpdateSetValue [51-56] [x = y]
+              PathExpression [51-52] [x]
+                Identifier(x) [51-52] [x]
+              PathExpression [55-56] [y]
+                Identifier(y) [55-56] [y]
+        BinaryExpression(=) [66-76] [offset = 0]
+          PathExpression [66-72] [offset]
+            Identifier(offset) [66-72] [offset]
+          IntLiteral(0) [75-76] [0]
+  BooleanLiteral(true) [84-88] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+# Nested delete with offset.
+update T set
+  (delete a with offset as offset where true)
+where true
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-69] [update T set...where true]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [15-58] [(delete a...where true)]
+    UpdateItem [15-58] [(delete a...where true)]
+      DeleteStatement [16-57] [delete a with...where true]
+        PathExpression [23-24] [a]
+          Identifier(a) [23-24] [a]
+        WithOffset [25-46] [with offset as offset]
+          Alias [37-46] [as offset]
+            Identifier(offset) [40-46] [offset]
+        BooleanLiteral(true) [53-57] [true]
+  BooleanLiteral(true) [65-69] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+# Nested delete with offset.
+update T set
+  (delete a with offset as foo where true)
+where true
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-66] [update T set...where true]
+  PathExpression [7-8] [T]
+    Identifier(T) [7-8] [T]
+  UpdateItemList [15-55] [(delete a...where true)]
+    UpdateItem [15-55] [(delete a...where true)]
+      DeleteStatement [16-54] [delete a with...where true]
+        PathExpression [23-24] [a]
+          Identifier(a) [23-24] [a]
+        WithOffset [25-43] [with offset as foo]
+          Alias [37-43] [as foo]
+            Identifier(foo) [40-43] [foo]
+        BooleanLiteral(true) [50-54] [true]
+  BooleanLiteral(true) [62-66] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
 ==================
 # Multiple levels of nested UPDATEs.
 update T
@@ -805,7 +1120,7 @@ UpdateStatement [0-277] [update T set...rows_modified 2]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 30
 ==================
 UPDATE T
 SET x = T1.y
@@ -840,7 +1155,7 @@ UpdateStatement [0-46] [UPDATE T SET...T.a = T1.b]
 (source_file (ERROR))
 
 ==================
-Test Case 28
+Test Case 31
 ==================
 UPDATE T
 SET x = T2.c
@@ -888,7 +1203,7 @@ UpdateStatement [0-69] [UPDATE T SET...T.a < T1.b]
 (source_file (ERROR))
 
 ==================
-Test Case 29
+Test Case 32
 ==================
 UPDATE T
 SET x = T2.c
@@ -928,7 +1243,7 @@ UpdateStatement [0-50] [UPDATE T SET...T.a < T1.b]
 (source_file (ERROR))
 
 ==================
-Test Case 30
+Test Case 33
 ==================
 UPDATE T SET x = 1
 FROM (T1 JOIN T2) JOIN T3
@@ -965,18 +1280,151 @@ UpdateStatement [0-55] [UPDATE T SET...WHERE true]
 (source_file (ERROR))
 
 ==================
-Test Case 31
+Test Case 34
 ==================
 UPDATE TestTable SET
   KitchenSink.int32_val = 1,
-  (INSERT {{|OR REPLACE|OR IGNORE|OR UPDATE}} KitchenSink.repeated_int64_val
+  (INSERT OR REPLACE KitchenSink.repeated_int64_val
    VALUES (1), (1 + 2), ((select 1))
    ASSERT_ROWS_MODIFIED 1)
 WHERE true
 ASSERT_ROWS_MODIFIED 1
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+UpdateStatement [0-199] [UPDATE TestTable..._MODIFIED 1]
+  PathExpression [7-16] [TestTable]
+    Identifier(TestTable) [7-16] [TestTable]
+  UpdateItemList [23-165] [KitchenSink...ROWS_MODIFIED 1)]
+    UpdateItem [23-48] [KitchenSink.int32_val = 1]
+      UpdateSetValue [23-48] [KitchenSink.int32_val = 1]
+        PathExpression [23-44] [KitchenSink.int32_val]
+          Identifier(KitchenSink) [23-34] [KitchenSink]
+          Identifier(int32_val) [35-44] [int32_val]
+        IntLiteral(1) [47-48] [1]
+    UpdateItem [52-165] [(INSERT OR..._ROWS_MODIFIED 1)]
+      InsertStatement(insert_mode=REPLACE) [53-164] [INSERT OR...RT_ROWS_MODIFIED 1]
+        PathExpression [71-101] [KitchenSink.repeated_int64_val]
+          Identifier(KitchenSink) [71-82] [KitchenSink]
+          Identifier(repeated_int64_val) [83-101] [repeated_int64_val]
+        InsertValuesRowList [105-138] [VALUES (1)...select 1))]
+          InsertValuesRow [112-115] [(1)]
+            IntLiteral(1) [113-114] [1]
+          InsertValuesRow [117-124] [(1 + 2)]
+            BinaryExpression(+) [118-123] [1 + 2]
+              IntLiteral(1) [118-119] [1]
+              IntLiteral(2) [122-123] [2]
+          InsertValuesRow [126-138] [((select 1))]
+            ExpressionSubquery [127-137] [(select 1)]
+              Query [128-136] [select 1]
+                Select [128-136] [select 1]
+                  SelectList [135-136] [1]
+                    SelectColumn [135-136] [1]
+                      IntLiteral(1) [135-136] [1]
+        AssertRowsModified [142-164] [ASSERT_ROWS_MODIFIED 1]
+          IntLiteral(1) [163-164] [1]
+  BooleanLiteral(true) [172-176] [true]
+  AssertRowsModified [177-199] [ASSERT_ROWS_MODIFIED 1]
+    IntLiteral(1) [198-199] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 35
+==================
+UPDATE TestTable SET
+  KitchenSink.int32_val = 1,
+  (INSERT OR IGNORE KitchenSink.repeated_int64_val
+   VALUES (1), (1 + 2), ((select 1))
+   ASSERT_ROWS_MODIFIED 1)
+WHERE true
+ASSERT_ROWS_MODIFIED 1
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-198] [UPDATE TestTable..._MODIFIED 1]
+  PathExpression [7-16] [TestTable]
+    Identifier(TestTable) [7-16] [TestTable]
+  UpdateItemList [23-164] [KitchenSink...ROWS_MODIFIED 1)]
+    UpdateItem [23-48] [KitchenSink.int32_val = 1]
+      UpdateSetValue [23-48] [KitchenSink.int32_val = 1]
+        PathExpression [23-44] [KitchenSink.int32_val]
+          Identifier(KitchenSink) [23-34] [KitchenSink]
+          Identifier(int32_val) [35-44] [int32_val]
+        IntLiteral(1) [47-48] [1]
+    UpdateItem [52-164] [(INSERT OR..._ROWS_MODIFIED 1)]
+      InsertStatement(insert_mode=IGNORE) [53-163] [INSERT OR...RT_ROWS_MODIFIED 1]
+        PathExpression [70-100] [KitchenSink.repeated_int64_val]
+          Identifier(KitchenSink) [70-81] [KitchenSink]
+          Identifier(repeated_int64_val) [82-100] [repeated_int64_val]
+        InsertValuesRowList [104-137] [VALUES (1)...select 1))]
+          InsertValuesRow [111-114] [(1)]
+            IntLiteral(1) [112-113] [1]
+          InsertValuesRow [116-123] [(1 + 2)]
+            BinaryExpression(+) [117-122] [1 + 2]
+              IntLiteral(1) [117-118] [1]
+              IntLiteral(2) [121-122] [2]
+          InsertValuesRow [125-137] [((select 1))]
+            ExpressionSubquery [126-136] [(select 1)]
+              Query [127-135] [select 1]
+                Select [127-135] [select 1]
+                  SelectList [134-135] [1]
+                    SelectColumn [134-135] [1]
+                      IntLiteral(1) [134-135] [1]
+        AssertRowsModified [141-163] [ASSERT_ROWS_MODIFIED 1]
+          IntLiteral(1) [162-163] [1]
+  BooleanLiteral(true) [171-175] [true]
+  AssertRowsModified [176-198] [ASSERT_ROWS_MODIFIED 1]
+    IntLiteral(1) [197-198] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 36
+==================
+UPDATE TestTable SET
+  KitchenSink.int32_val = 1,
+  (INSERT OR UPDATE KitchenSink.repeated_int64_val
+   VALUES (1), (1 + 2), ((select 1))
+   ASSERT_ROWS_MODIFIED 1)
+WHERE true
+ASSERT_ROWS_MODIFIED 1
+
+/* Expected ZetaSQL AST:
+UpdateStatement [0-198] [UPDATE TestTable..._MODIFIED 1]
+  PathExpression [7-16] [TestTable]
+    Identifier(TestTable) [7-16] [TestTable]
+  UpdateItemList [23-164] [KitchenSink...ROWS_MODIFIED 1)]
+    UpdateItem [23-48] [KitchenSink.int32_val = 1]
+      UpdateSetValue [23-48] [KitchenSink.int32_val = 1]
+        PathExpression [23-44] [KitchenSink.int32_val]
+          Identifier(KitchenSink) [23-34] [KitchenSink]
+          Identifier(int32_val) [35-44] [int32_val]
+        IntLiteral(1) [47-48] [1]
+    UpdateItem [52-164] [(INSERT OR..._ROWS_MODIFIED 1)]
+      InsertStatement(insert_mode=UPDATE) [53-163] [INSERT OR...RT_ROWS_MODIFIED 1]
+        PathExpression [70-100] [KitchenSink.repeated_int64_val]
+          Identifier(KitchenSink) [70-81] [KitchenSink]
+          Identifier(repeated_int64_val) [82-100] [repeated_int64_val]
+        InsertValuesRowList [104-137] [VALUES (1)...select 1))]
+          InsertValuesRow [111-114] [(1)]
+            IntLiteral(1) [112-113] [1]
+          InsertValuesRow [116-123] [(1 + 2)]
+            BinaryExpression(+) [117-122] [1 + 2]
+              IntLiteral(1) [117-118] [1]
+              IntLiteral(2) [121-122] [2]
+          InsertValuesRow [125-137] [((select 1))]
+            ExpressionSubquery [126-136] [(select 1)]
+              Query [127-135] [select 1]
+                Select [127-135] [select 1]
+                  SelectList [134-135] [1]
+                    SelectColumn [134-135] [1]
+                      IntLiteral(1) [134-135] [1]
+        AssertRowsModified [141-163] [ASSERT_ROWS_MODIFIED 1]
+          IntLiteral(1) [162-163] [1]
+  BooleanLiteral(true) [171-175] [true]
+  AssertRowsModified [176-198] [ASSERT_ROWS_MODIFIED 1]
+    IntLiteral(1) [197-198] [1]
 */
 ---
 (source_file (ERROR))

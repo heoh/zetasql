@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=ALL]
 select 1;
 
 /* Expected ZetaSQL AST:
@@ -13,7 +12,15 @@ QueryStatement [0-8] [select 1]
           IntLiteral(1) [7-8] [1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [9, 2]
+  (statement [0, 0] - [0, 9]
+    (select_statement [0, 0] - [0, 9]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (number [0, 7] - [0, 8])))))))
+  (comment [2, 0] - [9, 2]))
 
 ==================
 Test Case 2
@@ -30,5 +37,13 @@ QueryStatement [0-12] [select "abc"]
             StringLiteralComponent("abc") [7-12] ["abc"]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [10, 2]
+  (statement [0, 0] - [0, 13]
+    (select_statement [0, 0] - [0, 13]
+      (select_clause [0, 0] - [0, 12]
+        (select_list [0, 7] - [0, 12]
+          (select_expression [0, 7] - [0, 12]
+            (expression [0, 7] - [0, 12]
+              (string [0, 7] - [0, 12])))))))
+  (comment [2, 0] - [10, 2]))
 

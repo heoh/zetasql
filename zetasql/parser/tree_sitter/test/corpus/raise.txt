@@ -2,13 +2,19 @@
 Test Case 1
 ==================
 # Simple raise
-[default mode=script]
 BEGIN EXCEPTION WHEN ERROR THEN
-{{raise|RAISE}};
+raise;
 END;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: raise
+Script [0-43] [BEGIN EXCEPTION...raise; END;]
+  StatementList [0-43] [BEGIN EXCEPTION...raise; END;]
+    BeginEndBlock [0-42] [BEGIN EXCEPTION...raise; END]
+      StatementList [5-5] []
+      ExceptionHandlerList [6-38] [EXCEPTION...THEN raise;]
+        ExceptionHandler [16-38] [WHEN ERROR THEN raise;]
+          StatementList [32-38] [raise;]
+            RaiseStatement [32-37] [raise]
 */
 ---
 (source_file (ERROR))
@@ -16,17 +22,40 @@ ALTERNATION GROUP: raise
 ==================
 Test Case 2
 ==================
-# Invalid raise outside of error handler
-RAISE{{;|}}
+# Simple raise
+BEGIN EXCEPTION WHEN ERROR THEN
+RAISE;
+END;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ;
+Script [0-43] [BEGIN EXCEPTION...RAISE; END;]
+  StatementList [0-43] [BEGIN EXCEPTION...RAISE; END;]
+    BeginEndBlock [0-42] [BEGIN EXCEPTION...RAISE; END]
+      StatementList [5-5] []
+      ExceptionHandlerList [6-38] [EXCEPTION...THEN RAISE;]
+        ExceptionHandler [16-38] [WHEN ERROR THEN RAISE;]
+          StatementList [32-38] [RAISE;]
+            RaiseStatement [32-37] [RAISE]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 3
+==================
+# Invalid raise outside of error handler
+RAISE;
+
+/* Expected ZetaSQL AST:
+Script [0-6] [RAISE;]
+  StatementList [0-6] [RAISE;]
+    RaiseStatement [0-5] [RAISE]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
 ==================
 # Invalid raise after error handler terminates
 BEGIN EXCEPTION WHEN ERROR THEN END;
@@ -46,7 +75,7 @@ Script [0-43] [BEGIN EXCEPTION...END; RAISE;]
 (source_file (ERROR))
 
 ==================
-Test Case 4
+Test Case 5
 ==================
 # raises in nested exception handlers
 BEGIN EXCEPTION WHEN ERROR THEN
@@ -76,19 +105,263 @@ Script [0-97] [BEGIN EXCEPTION...RAISE; END;]
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 6
 ==================
 # raise with literal message
-{{raise|RAISE}} {{using|USING}} {{message|MESSAGE}} = 'test'{{;|}}
+raise using message = 'test';
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: raise,using,message,;
+Script [0-29] [raise using message = 'test';]
+  StatementList [0-29] [raise using message = 'test';]
+    RaiseStatement [0-28] [raise using message = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 7
+==================
+# raise with literal message
+raise using message = 'test'
+
+/* Expected ZetaSQL AST:
+Script [0-28] [raise using message = 'test']
+  StatementList [0-28] [raise using message = 'test']
+    RaiseStatement [0-28] [raise using message = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# raise with literal message
+raise using MESSAGE = 'test';
+
+/* Expected ZetaSQL AST:
+Script [0-29] [raise using MESSAGE = 'test';]
+  StatementList [0-29] [raise using MESSAGE = 'test';]
+    RaiseStatement [0-28] [raise using MESSAGE = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# raise with literal message
+raise using MESSAGE = 'test'
+
+/* Expected ZetaSQL AST:
+Script [0-28] [raise using MESSAGE = 'test']
+  StatementList [0-28] [raise using MESSAGE = 'test']
+    RaiseStatement [0-28] [raise using MESSAGE = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# raise with literal message
+raise USING message = 'test';
+
+/* Expected ZetaSQL AST:
+Script [0-29] [raise USING message = 'test';]
+  StatementList [0-29] [raise USING message = 'test';]
+    RaiseStatement [0-28] [raise USING message = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# raise with literal message
+raise USING message = 'test'
+
+/* Expected ZetaSQL AST:
+Script [0-28] [raise USING message = 'test']
+  StatementList [0-28] [raise USING message = 'test']
+    RaiseStatement [0-28] [raise USING message = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# raise with literal message
+raise USING MESSAGE = 'test';
+
+/* Expected ZetaSQL AST:
+Script [0-29] [raise USING MESSAGE = 'test';]
+  StatementList [0-29] [raise USING MESSAGE = 'test';]
+    RaiseStatement [0-28] [raise USING MESSAGE = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# raise with literal message
+raise USING MESSAGE = 'test'
+
+/* Expected ZetaSQL AST:
+Script [0-28] [raise USING MESSAGE = 'test']
+  StatementList [0-28] [raise USING MESSAGE = 'test']
+    RaiseStatement [0-28] [raise USING MESSAGE = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+# raise with literal message
+RAISE using message = 'test';
+
+/* Expected ZetaSQL AST:
+Script [0-29] [RAISE using message = 'test';]
+  StatementList [0-29] [RAISE using message = 'test';]
+    RaiseStatement [0-28] [RAISE using message = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+# raise with literal message
+RAISE using message = 'test'
+
+/* Expected ZetaSQL AST:
+Script [0-28] [RAISE using message = 'test']
+  StatementList [0-28] [RAISE using message = 'test']
+    RaiseStatement [0-28] [RAISE using message = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+# raise with literal message
+RAISE using MESSAGE = 'test';
+
+/* Expected ZetaSQL AST:
+Script [0-29] [RAISE using MESSAGE = 'test';]
+  StatementList [0-29] [RAISE using MESSAGE = 'test';]
+    RaiseStatement [0-28] [RAISE using MESSAGE = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+# raise with literal message
+RAISE using MESSAGE = 'test'
+
+/* Expected ZetaSQL AST:
+Script [0-28] [RAISE using MESSAGE = 'test']
+  StatementList [0-28] [RAISE using MESSAGE = 'test']
+    RaiseStatement [0-28] [RAISE using MESSAGE = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# raise with literal message
+RAISE USING message = 'test';
+
+/* Expected ZetaSQL AST:
+Script [0-29] [RAISE USING message = 'test';]
+  StatementList [0-29] [RAISE USING message = 'test';]
+    RaiseStatement [0-28] [RAISE USING message = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+# raise with literal message
+RAISE USING message = 'test'
+
+/* Expected ZetaSQL AST:
+Script [0-28] [RAISE USING message = 'test']
+  StatementList [0-28] [RAISE USING message = 'test']
+    RaiseStatement [0-28] [RAISE USING message = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+# raise with literal message
+RAISE USING MESSAGE = 'test';
+
+/* Expected ZetaSQL AST:
+Script [0-29] [RAISE USING MESSAGE = 'test';]
+  StatementList [0-29] [RAISE USING MESSAGE = 'test';]
+    RaiseStatement [0-28] [RAISE USING MESSAGE = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# raise with literal message
+RAISE USING MESSAGE = 'test'
+
+/* Expected ZetaSQL AST:
+Script [0-28] [RAISE USING MESSAGE = 'test']
+  StatementList [0-28] [RAISE USING MESSAGE = 'test']
+    RaiseStatement [0-28] [RAISE USING MESSAGE = 'test']
+      StringLiteral [22-28] ['test']
+        StringLiteralComponent('test') [22-28] ['test']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
 ==================
 # raise with nonliteral message
 raise using message = CONCAT('test', '_', 'foo');
@@ -111,19 +384,56 @@ Script [0-49] [raise using...', 'foo');]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 23
 ==================
 # raise with variable, system variable, and query param
-raise using message = {{a|@a|@@a}};
+raise using message = a;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: a
+Script [0-24] [raise using message = a;]
+  StatementList [0-24] [raise using message = a;]
+    RaiseStatement [0-23] [raise using message = a]
+      PathExpression [22-23] [a]
+        Identifier(a) [22-23] [a]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 24
+==================
+# raise with variable, system variable, and query param
+raise using message = @a;
+
+/* Expected ZetaSQL AST:
+Script [0-25] [raise using message = @a;]
+  StatementList [0-25] [raise using message = @a;]
+    RaiseStatement [0-24] [raise using message = @a]
+      ParameterExpr [22-24] [@a]
+        Identifier(a) [23-24] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+# raise with variable, system variable, and query param
+raise using message = @@a;
+
+/* Expected ZetaSQL AST:
+Script [0-26] [raise using message = @@a;]
+  StatementList [0-26] [raise using message = @@a;]
+    RaiseStatement [0-25] [raise using message = @@a]
+      SystemVariableExpr [22-25] [@@a]
+        PathExpression [24-25] [a]
+          Identifier(a) [24-25] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
 ==================
 # Raise statement in a larger script
 IF x < 0 THEN
@@ -147,7 +457,7 @@ Script [0-62] [IF x < 0 THEN...'; END IF;]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 27
 ==================
 # raise keywords used as identifiers (except for USING, which is reserved).
 SELECT RAISE, MESSAGE FROM t;
@@ -171,5 +481,24 @@ Script [0-29] [SELECT RAISE, MESSAGE FROM t;]
                 Identifier(t) [27-28] [t]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (comment [0, 0] - [0, 75])
+  (statement [1, 0] - [1, 29]
+    (select_statement [1, 0] - [1, 29]
+      (select_clause [1, 0] - [1, 21]
+        (select_list [1, 7] - [1, 21]
+          (select_expression [1, 7] - [1, 12]
+            (expression [1, 7] - [1, 12]
+              (path_expression [1, 7] - [1, 12]
+                (identifier [1, 7] - [1, 12]))))
+          (select_expression [1, 14] - [1, 21]
+            (expression [1, 14] - [1, 21]
+              (path_expression [1, 14] - [1, 21]
+                (identifier [1, 14] - [1, 21]))))))
+      (from_clause [1, 22] - [1, 28]
+        (from_item [1, 27] - [1, 28]
+          (table_expression [1, 27] - [1, 28]
+            (path_expression [1, 27] - [1, 28]
+              (identifier [1, 27] - [1, 28])))))))
+  (comment [3, 0] - [20, 2]))
 

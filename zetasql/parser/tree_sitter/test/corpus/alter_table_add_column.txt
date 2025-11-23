@@ -4,8 +4,6 @@ Test Case 1
 # ALTER TABLE to add column.
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default no_show_parse_location_text]
-[default language_features=NONE,+COLUMN_DEFAULT_VALUE]
 ALTER TABLE foo ADD COLUMN bar STRING;
 
 /* Expected ZetaSQL AST:
@@ -186,17 +184,6 @@ AlterTableStatement [0-54]
 ==================
 Test Case 9
 ==================
-ALTER TABLE foo ADD COLUMN bar STRING NOT NULL PRIMARY KEY{{| ENFORCED| NOT ENFORCED}} FILL USING a + b;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 10
-==================
 # ALTER TABLE add column with NOT NULL and PRIMARY KEY attributes and fill expression
 ALTER TABLE foo ADD COLUMN bar STRING NOT NULL PRIMARY KEY FILL USING a + b;
 
@@ -224,7 +211,7 @@ AlterTableStatement [0-75]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 10
 ==================
 # ALTER TABLE add column with position and fill expression
 ALTER TABLE foo ADD COLUMN bar STRING FOLLOWING baz FILL USING a + b;
@@ -252,7 +239,7 @@ AlterTableStatement [0-68]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 11
 ==================
 # ALTER TABLE several add column actions
 ALTER TABLE foo ADD COLUMN bar STRING FILL USING a + b, ADD COLUMN baz INT64;
@@ -284,7 +271,7 @@ AlterTableStatement [0-76]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 12
 ==================
 # ALTER TABLE several add column actions with special names
 ALTER TABLE foo ADD COLUMN column STRING FILL USING a + b,
@@ -326,19 +313,7 @@ AlterTableStatement [0-155]
 (source_file (ERROR))
 
 ==================
-Test Case 14
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-ALTER TABLE foo-bar-123 ADD COLUMN baz STRING;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 15
+Test Case 13
 ==================
 # ALTER TABLE add column with COLLATE
 ALTER TABLE foo ADD COLUMN column STRING COLLATE 'unicode:ci';
@@ -362,19 +337,56 @@ AlterTableStatement [0-61]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 14
 ==================
 # ALTER TABLE add column with COLLATE with query parameters
-ALTER TABLE foo ADD COLUMN column STRING COLLATE {{@|@@}}a;
+ALTER TABLE foo ADD COLUMN column STRING COLLATE @a;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+AlterTableStatement [0-51]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-51]
+    AddColumnAction [16-51]
+      ColumnDefinition [27-51]
+        Identifier(column) [27-33]
+        SimpleColumnSchema [34-51]
+          PathExpression [34-40]
+            Identifier(STRING) [34-40]
+          Collate [41-51]
+            ParameterExpr [49-51]
+              Identifier(a) [50-51]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 15
+==================
+# ALTER TABLE add column with COLLATE with query parameters
+ALTER TABLE foo ADD COLUMN column STRING COLLATE @@a;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-52]
+  PathExpression [12-15]
+    Identifier(foo) [12-15]
+  AlterActionList [16-52]
+    AddColumnAction [16-52]
+      ColumnDefinition [27-52]
+        Identifier(column) [27-33]
+        SimpleColumnSchema [34-52]
+          PathExpression [34-40]
+            Identifier(STRING) [34-40]
+          Collate [41-52]
+            SystemVariableExpr [49-52]
+              PathExpression [51-52]
+                Identifier(a) [51-52]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
 ==================
 # ALTER TABLE add column with COLLATE with unnamed parameter
 ALTER TABLE foo ADD COLUMN column STRING COLLATE ?;
@@ -397,7 +409,7 @@ AlterTableStatement [0-50]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 17
 ==================
 # ALTER TABLE add column with default static value
 ALTER TABLE foo ADD COLUMN bar STRING DEFAULT "default string";
@@ -420,7 +432,7 @@ AlterTableStatement [0-62]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 18
 ==================
 # ALTER TABLE add column with default function
 ALTER TABLE foo ADD COLUMN bar STRING DEFAULT SESSION_USER();

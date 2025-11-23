@@ -1,8 +1,7 @@
 ==================
 Test Case 1
 ==================
-[language_features=NONE{{|,+PIPES}}{{|,+STATEMENT_WITH_PIPE_OPERATORS}}]
-{{commit|show tables}}
+commit
 |> WHERE true
 
 /* Expected ZetaSQL AST:
@@ -18,7 +17,22 @@ ALTERNATION GROUPS:
 ==================
 Test Case 2
 ==================
-[default language_features=NONE,+PIPES,+RUN_STATEMENT,+STATEMENT_WITH_PIPE_OPERATORS]
+show tables
+|> WHERE true
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    commit
+    ,+STATEMENT_WITH_PIPE_OPERATORS,commit
+    ,+PIPES,,commit
+    ,+PIPES,,+STATEMENT_WITH_PIPE_OPERATORS,commit
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
 
 show tables
 |> WHERE true
@@ -42,7 +56,7 @@ StatementWithPipeOperators [0-37] [show tables...> LIMIT 10]
 (source_file (ERROR))
 
 ==================
-Test Case 3
+Test Case 4
 ==================
 describe abc
 |> AGGREGATE COUNT(*)
@@ -71,7 +85,7 @@ StatementWithPipeOperators [0-48] [describe abc...WHERE true]
 (source_file (ERROR))
 
 ==================
-Test Case 4
+Test Case 5
 ==================
 # RUN might produce a table.
 RUN "abc.sql"
@@ -95,7 +109,7 @@ StatementWithPipeOperators [0-25] [RUN "abc.sql" |> SELECT x]
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 6
 ==================
 # CALL might produce a table.
 CALL proc(123)
@@ -121,7 +135,7 @@ StatementWithPipeOperators [0-26] [CALL proc(123) |> SELECT x]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 7
 ==================
 EXECUTE IMMEDIATE "select 1"
 |> WHERE true
@@ -141,7 +155,7 @@ StatementWithPipeOperators [0-42] [EXECUTE IMMEDIATE...WHERE true]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 8
 ==================
 # HintedStatement composes outside StatementWithPipeOperators.
 @{hint=1}
@@ -168,7 +182,7 @@ HintedStatement [0-36] [@{hint=1}...WHERE true]
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 9
 ==================
 # EXPLAIN around a statement with pipe operators.
 # Pipe suffixes attach to the inner statement.
@@ -193,7 +207,7 @@ ExplainStatement [0-34] [EXPLAIN DESCRIBE...WHERE true]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 10
 ==================
 # Hints with EXPLAIN with pipes.
 @{outer_hint=1}
@@ -228,7 +242,7 @@ HintedStatement [0-66] [@{outer_hint...WHERE true]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 11
 ==================
 # After a query, chains of |> INSERT parse as pipe operators.
 FROM t

@@ -1,15 +1,67 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+LIKE_ANY_SOME_ALL,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
-
+# LIKE ANY|SOME|ALL with graph subquery
 GRAPH aml
 MATCH (n:Person)
-RETURN {{ ARRAY | EXISTS | VALUE}} { {{ | GRAPH aml}} {{ | MATCH (p:Person) }} RETURN 1 as one } as arr
+WHERE n.name LIKE ANY ( VALUE { MATCH (p:Person) RETURN 1 as one} )
+RETURN true AS val
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP:  ARRAY , ,
+QueryStatement [0-113] [GRAPH aml...true AS val]
+  Query [0-113] [GRAPH aml...true AS val]
+    GqlQuery [0-113] [GRAPH aml...true AS val]
+      GraphTableQuery [0-113] [GRAPH aml...true AS val]
+        PathExpression [6-9] [aml]
+          Identifier(aml) [6-9] [aml]
+        GqlOperatorList [10-113] [MATCH (n:Person...true AS val]
+          GqlOperatorList [10-113] [MATCH (n:Person...true AS val]
+            GqlMatch [10-94] [MATCH (n:Person...as one} )]
+              GraphPattern [16-94] [(n:Person)...as one} )]
+                GraphPathPattern [16-26] [(n:Person)]
+                  GraphNodePattern [16-26] [(n:Person)]
+                    GraphElementPatternFiller [17-25] [n:Person]
+                      Identifier(n) [17-18] [n]
+                      GraphLabelFilter [18-25] [:Person]
+                        GraphElementLabel [19-25] [Person]
+                          Identifier(Person) [19-25] [Person]
+                WhereClause [27-94] [WHERE n.name...as one} )]
+                  LikeExpression(LIKE) [33-94] [n.name LIKE...as one} )]
+                    PathExpression [33-39] [n.name]
+                      Identifier(n) [33-34] [n]
+                      Identifier(name) [35-39] [name]
+                    Location [40-44] [LIKE]
+                    AnySomeAllOp(ANY) [45-48] [ANY]
+                    InList [51-92] [VALUE { MATCH...1 as one}]
+                      ExpressionSubquery(modifier=VALUE) [51-92] [VALUE { MATCH...1 as one}]
+                        Query [57-92] [{ MATCH (p...1 as one}]
+                          GqlQuery [57-92] [{ MATCH (p...1 as one}]
+                            GraphTableQuery [57-92] [{ MATCH (p...1 as one}]
+                              GqlOperatorList [59-91] [MATCH (p:Person...URN 1 as one]
+                                GqlOperatorList [59-91] [MATCH (p:Person...URN 1 as one]
+                                  GqlMatch [59-75] [MATCH (p:Person)]
+                                    GraphPattern [65-75] [(p:Person)]
+                                      GraphPathPattern [65-75] [(p:Person)]
+                                        GraphNodePattern [65-75] [(p:Person)]
+                                          GraphElementPatternFiller [66-74] [p:Person]
+                                            Identifier(p) [66-67] [p]
+                                            GraphLabelFilter [67-74] [:Person]
+                                              GraphElementLabel [68-74] [Person]
+                                                Identifier(Person) [68-74] [Person]
+                                  GqlReturn [76-91] [RETURN 1 as one]
+                                    Select [83-91] [1 as one]
+                                      SelectList [83-91] [1 as one]
+                                        SelectColumn [83-91] [1 as one]
+                                          IntLiteral(1) [83-84] [1]
+                                          Alias [85-91] [as one]
+                                            Identifier(one) [88-91] [one]
+            GqlReturn [95-113] [RETURN true AS val]
+              Select [102-113] [true AS val]
+                SelectList [102-113] [true AS val]
+                  SelectColumn [102-113] [true AS val]
+                    BooleanLiteral(true) [102-106] [true]
+                    Alias [107-113] [AS val]
+                      Identifier(val) [110-113] [val]
 */
 ---
 (source_file (ERROR))
@@ -20,11 +72,64 @@ Test Case 2
 # LIKE ANY|SOME|ALL with graph subquery
 GRAPH aml
 MATCH (n:Person)
-WHERE n.name LIKE {{ANY|SOME|ALL}} ( VALUE { MATCH (p:Person) RETURN 1 as one} )
+WHERE n.name LIKE SOME ( VALUE { MATCH (p:Person) RETURN 1 as one} )
 RETURN true AS val
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ANY
+QueryStatement [0-114] [GRAPH aml...true AS val]
+  Query [0-114] [GRAPH aml...true AS val]
+    GqlQuery [0-114] [GRAPH aml...true AS val]
+      GraphTableQuery [0-114] [GRAPH aml...true AS val]
+        PathExpression [6-9] [aml]
+          Identifier(aml) [6-9] [aml]
+        GqlOperatorList [10-114] [MATCH (n:Person...true AS val]
+          GqlOperatorList [10-114] [MATCH (n:Person...true AS val]
+            GqlMatch [10-95] [MATCH (n:Person...as one} )]
+              GraphPattern [16-95] [(n:Person)...as one} )]
+                GraphPathPattern [16-26] [(n:Person)]
+                  GraphNodePattern [16-26] [(n:Person)]
+                    GraphElementPatternFiller [17-25] [n:Person]
+                      Identifier(n) [17-18] [n]
+                      GraphLabelFilter [18-25] [:Person]
+                        GraphElementLabel [19-25] [Person]
+                          Identifier(Person) [19-25] [Person]
+                WhereClause [27-95] [WHERE n.name...as one} )]
+                  LikeExpression(LIKE) [33-95] [n.name LIKE...as one} )]
+                    PathExpression [33-39] [n.name]
+                      Identifier(n) [33-34] [n]
+                      Identifier(name) [35-39] [name]
+                    Location [40-44] [LIKE]
+                    AnySomeAllOp(SOME) [45-49] [SOME]
+                    InList [52-93] [VALUE { MATCH...1 as one}]
+                      ExpressionSubquery(modifier=VALUE) [52-93] [VALUE { MATCH...1 as one}]
+                        Query [58-93] [{ MATCH (p...1 as one}]
+                          GqlQuery [58-93] [{ MATCH (p...1 as one}]
+                            GraphTableQuery [58-93] [{ MATCH (p...1 as one}]
+                              GqlOperatorList [60-92] [MATCH (p:Person...URN 1 as one]
+                                GqlOperatorList [60-92] [MATCH (p:Person...URN 1 as one]
+                                  GqlMatch [60-76] [MATCH (p:Person)]
+                                    GraphPattern [66-76] [(p:Person)]
+                                      GraphPathPattern [66-76] [(p:Person)]
+                                        GraphNodePattern [66-76] [(p:Person)]
+                                          GraphElementPatternFiller [67-75] [p:Person]
+                                            Identifier(p) [67-68] [p]
+                                            GraphLabelFilter [68-75] [:Person]
+                                              GraphElementLabel [69-75] [Person]
+                                                Identifier(Person) [69-75] [Person]
+                                  GqlReturn [77-92] [RETURN 1 as one]
+                                    Select [84-92] [1 as one]
+                                      SelectList [84-92] [1 as one]
+                                        SelectColumn [84-92] [1 as one]
+                                          IntLiteral(1) [84-85] [1]
+                                          Alias [86-92] [as one]
+                                            Identifier(one) [89-92] [one]
+            GqlReturn [96-114] [RETURN true AS val]
+              Select [103-114] [true AS val]
+                SelectList [103-114] [true AS val]
+                  SelectColumn [103-114] [true AS val]
+                    BooleanLiteral(true) [103-107] [true]
+                    Alias [108-114] [AS val]
+                      Identifier(val) [111-114] [val]
 */
 ---
 (source_file (ERROR))
@@ -32,14 +137,67 @@ ALTERNATION GROUP: ANY
 ==================
 Test Case 3
 ==================
-# LIKE ANY|SOME|ALL do not support braced graph subquery directly
+# LIKE ANY|SOME|ALL with graph subquery
 GRAPH aml
 MATCH (n:Person)
-WHERE n.name LIKE {{ANY|SOME|ALL}} { MATCH (p:Person) RETURN "name" as name }
+WHERE n.name LIKE ALL ( VALUE { MATCH (p:Person) RETURN 1 as one} )
 RETURN true AS val
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ANY
+QueryStatement [0-113] [GRAPH aml...true AS val]
+  Query [0-113] [GRAPH aml...true AS val]
+    GqlQuery [0-113] [GRAPH aml...true AS val]
+      GraphTableQuery [0-113] [GRAPH aml...true AS val]
+        PathExpression [6-9] [aml]
+          Identifier(aml) [6-9] [aml]
+        GqlOperatorList [10-113] [MATCH (n:Person...true AS val]
+          GqlOperatorList [10-113] [MATCH (n:Person...true AS val]
+            GqlMatch [10-94] [MATCH (n:Person...as one} )]
+              GraphPattern [16-94] [(n:Person)...as one} )]
+                GraphPathPattern [16-26] [(n:Person)]
+                  GraphNodePattern [16-26] [(n:Person)]
+                    GraphElementPatternFiller [17-25] [n:Person]
+                      Identifier(n) [17-18] [n]
+                      GraphLabelFilter [18-25] [:Person]
+                        GraphElementLabel [19-25] [Person]
+                          Identifier(Person) [19-25] [Person]
+                WhereClause [27-94] [WHERE n.name...as one} )]
+                  LikeExpression(LIKE) [33-94] [n.name LIKE...as one} )]
+                    PathExpression [33-39] [n.name]
+                      Identifier(n) [33-34] [n]
+                      Identifier(name) [35-39] [name]
+                    Location [40-44] [LIKE]
+                    AnySomeAllOp(ALL) [45-48] [ALL]
+                    InList [51-92] [VALUE { MATCH...1 as one}]
+                      ExpressionSubquery(modifier=VALUE) [51-92] [VALUE { MATCH...1 as one}]
+                        Query [57-92] [{ MATCH (p...1 as one}]
+                          GqlQuery [57-92] [{ MATCH (p...1 as one}]
+                            GraphTableQuery [57-92] [{ MATCH (p...1 as one}]
+                              GqlOperatorList [59-91] [MATCH (p:Person...URN 1 as one]
+                                GqlOperatorList [59-91] [MATCH (p:Person...URN 1 as one]
+                                  GqlMatch [59-75] [MATCH (p:Person)]
+                                    GraphPattern [65-75] [(p:Person)]
+                                      GraphPathPattern [65-75] [(p:Person)]
+                                        GraphNodePattern [65-75] [(p:Person)]
+                                          GraphElementPatternFiller [66-74] [p:Person]
+                                            Identifier(p) [66-67] [p]
+                                            GraphLabelFilter [67-74] [:Person]
+                                              GraphElementLabel [68-74] [Person]
+                                                Identifier(Person) [68-74] [Person]
+                                  GqlReturn [76-91] [RETURN 1 as one]
+                                    Select [83-91] [1 as one]
+                                      SelectList [83-91] [1 as one]
+                                        SelectColumn [83-91] [1 as one]
+                                          IntLiteral(1) [83-84] [1]
+                                          Alias [85-91] [as one]
+                                            Identifier(one) [88-91] [one]
+            GqlReturn [95-113] [RETURN true AS val]
+              Select [102-113] [true AS val]
+                SelectList [102-113] [true AS val]
+                  SelectColumn [102-113] [true AS val]
+                    BooleanLiteral(true) [102-106] [true]
+                    Alias [107-113] [AS val]
+                      Identifier(val) [110-113] [val]
 */
 ---
 (source_file (ERROR))
@@ -50,11 +208,63 @@ Test Case 4
 # testing IN subquery
 GRAPH aml
 MATCH (n1:Person)
-WHERE n1.name IN { {{|GRAPH fin}} MATCH (n2:Person) RETURN n2.name }
+WHERE n1.name IN { GRAPH fin MATCH (n2:Person) RETURN n2.name }
 RETURN n1.id
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-104] [GRAPH aml...RETURN n1.id]
+  Query [0-104] [GRAPH aml...RETURN n1.id]
+    GqlQuery [0-104] [GRAPH aml...RETURN n1.id]
+      GraphTableQuery [0-104] [GRAPH aml...RETURN n1.id]
+        PathExpression [6-9] [aml]
+          Identifier(aml) [6-9] [aml]
+        GqlOperatorList [10-104] [MATCH (n1:...RETURN n1.id]
+          GqlOperatorList [10-104] [MATCH (n1:...RETURN n1.id]
+            GqlMatch [10-91] [MATCH (n1:...n2.name }]
+              GraphPattern [16-91] [(n1:Person...n2.name }]
+                GraphPathPattern [16-27] [(n1:Person)]
+                  GraphNodePattern [16-27] [(n1:Person)]
+                    GraphElementPatternFiller [17-26] [n1:Person]
+                      Identifier(n1) [17-19] [n1]
+                      GraphLabelFilter [19-26] [:Person]
+                        GraphElementLabel [20-26] [Person]
+                          Identifier(Person) [20-26] [Person]
+                WhereClause [28-91] [WHERE n1.name...n2.name }]
+                  InExpression(IN) [34-91] [n1.name IN...n2.name }]
+                    PathExpression [34-41] [n1.name]
+                      Identifier(n1) [34-36] [n1]
+                      Identifier(name) [37-41] [name]
+                    Location [42-44] [IN]
+                    Query [45-91] [{ GRAPH fin...n2.name }]
+                      GqlQuery [45-91] [{ GRAPH fin...n2.name }]
+                        GraphTableQuery [45-91] [{ GRAPH fin...n2.name }]
+                          PathExpression [53-56] [fin]
+                            Identifier(fin) [53-56] [fin]
+                          GqlOperatorList [57-89] [MATCH (n2:...RETURN n2.name]
+                            GqlOperatorList [57-89] [MATCH (n2:...RETURN n2.name]
+                              GqlMatch [57-74] [MATCH (n2:Person)]
+                                GraphPattern [63-74] [(n2:Person)]
+                                  GraphPathPattern [63-74] [(n2:Person)]
+                                    GraphNodePattern [63-74] [(n2:Person)]
+                                      GraphElementPatternFiller [64-73] [n2:Person]
+                                        Identifier(n2) [64-66] [n2]
+                                        GraphLabelFilter [66-73] [:Person]
+                                          GraphElementLabel [67-73] [Person]
+                                            Identifier(Person) [67-73] [Person]
+                              GqlReturn [75-89] [RETURN n2.name]
+                                Select [82-89] [n2.name]
+                                  SelectList [82-89] [n2.name]
+                                    SelectColumn [82-89] [n2.name]
+                                      PathExpression [82-89] [n2.name]
+                                        Identifier(n2) [82-84] [n2]
+                                        Identifier(name) [85-89] [name]
+            GqlReturn [92-104] [RETURN n1.id]
+              Select [99-104] [n1.id]
+                SelectList [99-104] [n1.id]
+                  SelectColumn [99-104] [n1.id]
+                    PathExpression [99-104] [n1.id]
+                      Identifier(n1) [99-101] [n1]
+                      Identifier(id) [102-104] [id]
 */
 ---
 (source_file (ERROR))
@@ -65,11 +275,50 @@ Test Case 5
 # EXISTS {graph pattern} subquery
 GRAPH aml
 MATCH (n1:Person)
-WHERE EXISTS {{ |@{hint=1} }}{ {{|GRAPH fin}} (n2:Person) }
+WHERE EXISTS @{hint=1} {  (n2:Person) }
 RETURN n1.id
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP:  ,
+QueryStatement [0-80] [GRAPH aml...RETURN n1.id]
+  Query [0-80] [GRAPH aml...RETURN n1.id]
+    GqlQuery [0-80] [GRAPH aml...RETURN n1.id]
+      GraphTableQuery [0-80] [GRAPH aml...RETURN n1.id]
+        PathExpression [6-9] [aml]
+          Identifier(aml) [6-9] [aml]
+        GqlOperatorList [10-80] [MATCH (n1:...RETURN n1.id]
+          GqlOperatorList [10-80] [MATCH (n1:...RETURN n1.id]
+            GqlMatch [10-67] [MATCH (n1:...:Person) }]
+              GraphPattern [16-67] [(n1:Person...:Person) }]
+                GraphPathPattern [16-27] [(n1:Person)]
+                  GraphNodePattern [16-27] [(n1:Person)]
+                    GraphElementPatternFiller [17-26] [n1:Person]
+                      Identifier(n1) [17-19] [n1]
+                      GraphLabelFilter [19-26] [:Person]
+                        GraphElementLabel [20-26] [Person]
+                          Identifier(Person) [20-26] [Person]
+                WhereClause [28-67] [WHERE EXISTS...:Person) }]
+                  ExpressionSubquery(modifier=EXISTS) [34-67] [EXISTS @{hint...:Person) }]
+                    Hint [41-50] [@{hint=1}]
+                      HintEntry [43-49] [hint=1]
+                        Identifier(hint) [43-47] [hint]
+                        IntLiteral(1) [48-49] [1]
+                    Query [34-67] [EXISTS @{hint...:Person) }]
+                      GqlGraphPatternQuery [34-67] [EXISTS @{hint...:Person) }]
+                        GraphPattern [54-65] [(n2:Person)]
+                          GraphPathPattern [54-65] [(n2:Person)]
+                            GraphNodePattern [54-65] [(n2:Person)]
+                              GraphElementPatternFiller [55-64] [n2:Person]
+                                Identifier(n2) [55-57] [n2]
+                                GraphLabelFilter [57-64] [:Person]
+                                  GraphElementLabel [58-64] [Person]
+                                    Identifier(Person) [58-64] [Person]
+            GqlReturn [68-80] [RETURN n1.id]
+              Select [75-80] [n1.id]
+                SelectList [75-80] [n1.id]
+                  SelectColumn [75-80] [n1.id]
+                    PathExpression [75-80] [n1.id]
+                      Identifier(n1) [75-77] [n1]
+                      Identifier(id) [78-80] [id]
 */
 ---
 (source_file (ERROR))
@@ -77,17 +326,167 @@ ALTERNATION GROUP:  ,
 ==================
 Test Case 6
 ==================
+# EXISTS {graph pattern} subquery
+GRAPH aml
+MATCH (n1:Person)
+WHERE EXISTS @{hint=1} { GRAPH fin (n2:Person) }
+RETURN n1.id
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-89] [GRAPH aml...RETURN n1.id]
+  Query [0-89] [GRAPH aml...RETURN n1.id]
+    GqlQuery [0-89] [GRAPH aml...RETURN n1.id]
+      GraphTableQuery [0-89] [GRAPH aml...RETURN n1.id]
+        PathExpression [6-9] [aml]
+          Identifier(aml) [6-9] [aml]
+        GqlOperatorList [10-89] [MATCH (n1:...RETURN n1.id]
+          GqlOperatorList [10-89] [MATCH (n1:...RETURN n1.id]
+            GqlMatch [10-76] [MATCH (n1:...:Person) }]
+              GraphPattern [16-76] [(n1:Person...:Person) }]
+                GraphPathPattern [16-27] [(n1:Person)]
+                  GraphNodePattern [16-27] [(n1:Person)]
+                    GraphElementPatternFiller [17-26] [n1:Person]
+                      Identifier(n1) [17-19] [n1]
+                      GraphLabelFilter [19-26] [:Person]
+                        GraphElementLabel [20-26] [Person]
+                          Identifier(Person) [20-26] [Person]
+                WhereClause [28-76] [WHERE EXISTS...:Person) }]
+                  ExpressionSubquery(modifier=EXISTS) [34-76] [EXISTS @{hint...:Person) }]
+                    Hint [41-50] [@{hint=1}]
+                      HintEntry [43-49] [hint=1]
+                        Identifier(hint) [43-47] [hint]
+                        IntLiteral(1) [48-49] [1]
+                    Query [34-76] [EXISTS @{hint...:Person) }]
+                      GqlGraphPatternQuery [34-76] [EXISTS @{hint...:Person) }]
+                        PathExpression [59-62] [fin]
+                          Identifier(fin) [59-62] [fin]
+                        GraphPattern [63-74] [(n2:Person)]
+                          GraphPathPattern [63-74] [(n2:Person)]
+                            GraphNodePattern [63-74] [(n2:Person)]
+                              GraphElementPatternFiller [64-73] [n2:Person]
+                                Identifier(n2) [64-66] [n2]
+                                GraphLabelFilter [66-73] [:Person]
+                                  GraphElementLabel [67-73] [Person]
+                                    Identifier(Person) [67-73] [Person]
+            GqlReturn [77-89] [RETURN n1.id]
+              Select [84-89] [n1.id]
+                SelectList [84-89] [n1.id]
+                  SelectColumn [84-89] [n1.id]
+                    PathExpression [84-89] [n1.id]
+                      Identifier(n1) [84-86] [n1]
+                      Identifier(id) [87-89] [id]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
 # EXISTS {linear ops} subquery
 GRAPH aml
 
-RETURN EXISTS {{ |@{hint=1} }} {
-  {{|GRAPH fin}}
+RETURN EXISTS @{hint=1}  {
+  
   MATCH (n1:Person)
   OPTIONAL MATCH (n2:Person)
 }
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP:  ,
+QueryStatement [0-91] [GRAPH aml...:Person) }]
+  Query [0-91] [GRAPH aml...:Person) }]
+    GqlQuery [0-91] [GRAPH aml...:Person) }]
+      GraphTableQuery [0-91] [GRAPH aml...:Person) }]
+        PathExpression [6-9] [aml]
+          Identifier(aml) [6-9] [aml]
+        GqlOperatorList [11-91] [RETURN EXISTS...:Person) }]
+          GqlOperatorList [11-91] [RETURN EXISTS...:Person) }]
+            GqlReturn [11-91] [RETURN EXISTS...:Person) }]
+              Select [18-91] [EXISTS @{hint...:Person) }]
+                SelectList [18-91] [EXISTS @{hint...:Person) }]
+                  SelectColumn [18-91] [EXISTS @{hint...:Person) }]
+                    ExpressionSubquery(modifier=EXISTS) [18-91] [EXISTS @{hint...:Person) }]
+                      Hint [25-34] [@{hint=1}]
+                        HintEntry [27-33] [hint=1]
+                          Identifier(hint) [27-31] [hint]
+                          IntLiteral(1) [32-33] [1]
+                      Query [18-91] [EXISTS @{hint...:Person) }]
+                        GqlLinearOpsQuery [18-91] [EXISTS @{hint...:Person) }]
+                          GqlOperatorList [43-89] [MATCH (n1:...n2:Person)]
+                            GqlMatch [43-60] [MATCH (n1:Person)]
+                              GraphPattern [49-60] [(n1:Person)]
+                                GraphPathPattern [49-60] [(n1:Person)]
+                                  GraphNodePattern [49-60] [(n1:Person)]
+                                    GraphElementPatternFiller [50-59] [n1:Person]
+                                      Identifier(n1) [50-52] [n1]
+                                      GraphLabelFilter [52-59] [:Person]
+                                        GraphElementLabel [53-59] [Person]
+                                          Identifier(Person) [53-59] [Person]
+                            GqlMatch (optional) [63-89] [OPTIONAL MATCH (n2:Person)]
+                              GraphPattern [78-89] [(n2:Person)]
+                                GraphPathPattern [78-89] [(n2:Person)]
+                                  GraphNodePattern [78-89] [(n2:Person)]
+                                    GraphElementPatternFiller [79-88] [n2:Person]
+                                      Identifier(n2) [79-81] [n2]
+                                      GraphLabelFilter [81-88] [:Person]
+                                        GraphElementLabel [82-88] [Person]
+                                          Identifier(Person) [82-88] [Person]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# EXISTS {linear ops} subquery
+GRAPH aml
+
+RETURN EXISTS @{hint=1}  {
+  GRAPH fin
+  MATCH (n1:Person)
+  OPTIONAL MATCH (n2:Person)
+}
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-100] [GRAPH aml...:Person) }]
+  Query [0-100] [GRAPH aml...:Person) }]
+    GqlQuery [0-100] [GRAPH aml...:Person) }]
+      GraphTableQuery [0-100] [GRAPH aml...:Person) }]
+        PathExpression [6-9] [aml]
+          Identifier(aml) [6-9] [aml]
+        GqlOperatorList [11-100] [RETURN EXISTS...:Person) }]
+          GqlOperatorList [11-100] [RETURN EXISTS...:Person) }]
+            GqlReturn [11-100] [RETURN EXISTS...:Person) }]
+              Select [18-100] [EXISTS @{hint...:Person) }]
+                SelectList [18-100] [EXISTS @{hint...:Person) }]
+                  SelectColumn [18-100] [EXISTS @{hint...:Person) }]
+                    ExpressionSubquery(modifier=EXISTS) [18-100] [EXISTS @{hint...:Person) }]
+                      Hint [25-34] [@{hint=1}]
+                        HintEntry [27-33] [hint=1]
+                          Identifier(hint) [27-31] [hint]
+                          IntLiteral(1) [32-33] [1]
+                      Query [18-100] [EXISTS @{hint...:Person) }]
+                        GqlLinearOpsQuery [18-100] [EXISTS @{hint...:Person) }]
+                          PathExpression [46-49] [fin]
+                            Identifier(fin) [46-49] [fin]
+                          GqlOperatorList [52-98] [MATCH (n1:...n2:Person)]
+                            GqlMatch [52-69] [MATCH (n1:Person)]
+                              GraphPattern [58-69] [(n1:Person)]
+                                GraphPathPattern [58-69] [(n1:Person)]
+                                  GraphNodePattern [58-69] [(n1:Person)]
+                                    GraphElementPatternFiller [59-68] [n1:Person]
+                                      Identifier(n1) [59-61] [n1]
+                                      GraphLabelFilter [61-68] [:Person]
+                                        GraphElementLabel [62-68] [Person]
+                                          Identifier(Person) [62-68] [Person]
+                            GqlMatch (optional) [72-98] [OPTIONAL MATCH (n2:Person)]
+                              GraphPattern [87-98] [(n2:Person)]
+                                GraphPathPattern [87-98] [(n2:Person)]
+                                  GraphNodePattern [87-98] [(n2:Person)]
+                                    GraphElementPatternFiller [88-97] [n2:Person]
+                                      Identifier(n2) [88-90] [n2]
+                                      GraphLabelFilter [90-97] [:Person]
+                                        GraphElementLabel [91-97] [Person]
+                                          Identifier(Person) [91-97] [Person]
 */
 ---
 (source_file (ERROR))

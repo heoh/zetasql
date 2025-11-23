@@ -226,10 +226,11 @@ QueryStatement [0-37] [select a from...order by 1]
             (path_expression [0, 14] - [0, 15]
               (identifier [0, 14] - [0, 15])))))
       (group_by_clause [0, 16] - [0, 26]
-        (expression_list [0, 25] - [0, 26]
-          (expression [0, 25] - [0, 26]
-            (path_expression [0, 25] - [0, 26]
-              (identifier [0, 25] - [0, 26])))))
+        (grouping_item_list [0, 25] - [0, 26]
+          (grouping_item [0, 25] - [0, 26]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))))
       (order_by_clause [0, 27] - [0, 37]
         (order_expression_list [0, 36] - [0, 37]
           (order_expression [0, 36] - [0, 37]
@@ -283,10 +284,11 @@ QueryStatement [0-50] [select a from...order by 1]
             (path_expression [0, 14] - [0, 15]
               (identifier [0, 14] - [0, 15])))))
       (group_by_clause [0, 16] - [0, 26]
-        (expression_list [0, 25] - [0, 26]
-          (expression [0, 25] - [0, 26]
-            (path_expression [0, 25] - [0, 26]
-              (identifier [0, 25] - [0, 26])))))
+        (grouping_item_list [0, 25] - [0, 26]
+          (grouping_item [0, 25] - [0, 26]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))))
       (having_clause [0, 27] - [0, 39]
         (expression [0, 34] - [0, 39]
           (binary_expression [0, 34] - [0, 39]
@@ -422,7 +424,33 @@ QueryStatement [0-42] [select * from...order by 1)]
                 IntLiteral(1) [40-41] [1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [24, 2]
+  (statement [0, 0] - [0, 43]
+    (select_statement [0, 0] - [0, 43]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 42]
+        (from_item [0, 14] - [0, 42]
+          (table_expression [0, 14] - [0, 42]
+            (select_statement [0, 15] - [0, 41]
+              (select_clause [0, 15] - [0, 23]
+                (select_list [0, 22] - [0, 23]
+                  (select_expression [0, 22] - [0, 23]
+                    (expression [0, 22] - [0, 23]
+                      (path_expression [0, 22] - [0, 23]
+                        (identifier [0, 22] - [0, 23]))))))
+              (from_clause [0, 24] - [0, 30]
+                (from_item [0, 29] - [0, 30]
+                  (table_expression [0, 29] - [0, 30]
+                    (path_expression [0, 29] - [0, 30]
+                      (identifier [0, 29] - [0, 30])))))
+              (order_by_clause [0, 31] - [0, 41]
+                (order_expression_list [0, 40] - [0, 41]
+                  (order_expression [0, 40] - [0, 41]
+                    (expression [0, 40] - [0, 41]
+                      (number [0, 40] - [0, 41])))))))))))
+  (comment [2, 0] - [24, 2]))
 
 ==================
 Test Case 10
@@ -645,13 +673,15 @@ QueryStatement [0-64] [select sum...by the_sum]
             (path_expression [0, 32] - [0, 33]
               (identifier [0, 32] - [0, 33])))))
       (group_by_clause [0, 34] - [0, 47]
-        (expression_list [0, 43] - [0, 47]
-          (expression [0, 43] - [0, 44]
-            (path_expression [0, 43] - [0, 44]
-              (identifier [0, 43] - [0, 44])))
-          (expression [0, 46] - [0, 47]
-            (path_expression [0, 46] - [0, 47]
-              (identifier [0, 46] - [0, 47])))))
+        (grouping_item_list [0, 43] - [0, 47]
+          (grouping_item [0, 43] - [0, 44]
+            (expression [0, 43] - [0, 44]
+              (path_expression [0, 43] - [0, 44]
+                (identifier [0, 43] - [0, 44]))))
+          (grouping_item [0, 46] - [0, 47]
+            (expression [0, 46] - [0, 47]
+              (path_expression [0, 46] - [0, 47]
+                (identifier [0, 46] - [0, 47]))))))
       (order_by_clause [0, 48] - [0, 64]
         (order_expression_list [0, 57] - [0, 64]
           (order_expression [0, 57] - [0, 64]
@@ -663,16 +693,189 @@ QueryStatement [0-64] [select sum...by the_sum]
 ==================
 Test Case 14
 ==================
-select a from T order by a {{|asc|desc}} nulls {{first|last}};
+select a from T order by a asc nulls first;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: first
+QueryStatement [0-42] [select a from...nulls first]
+  Query [0-42] [select a from...nulls first]
+    Select [0-15] [select a from T]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-42] [order by a asc nulls first]
+      OrderingExpression(ASC EXPLICITLY) [25-42] [a asc nulls first]
+        PathExpression [25-26] [a]
+          Identifier(a) [25-26] [a]
+        NullOrder(NULLS FIRST) [31-42] [nulls first]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 43]
+    (select_statement [0, 0] - [0, 43]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 42]
+        (order_expression_list [0, 25] - [0, 42]
+          (order_expression [0, 25] - [0, 42]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))))))
+  (comment [2, 0] - [19, 2]))
 
 ==================
 Test Case 15
+==================
+select a from T order by a asc nulls last;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [select a from...nulls last]
+  Query [0-41] [select a from...nulls last]
+    Select [0-15] [select a from T]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-41] [order by a asc nulls last]
+      OrderingExpression(ASC EXPLICITLY) [25-41] [a asc nulls last]
+        PathExpression [25-26] [a]
+          Identifier(a) [25-26] [a]
+        NullOrder(NULLS LAST) [31-41] [nulls last]
+*/
+---
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 42]
+    (select_statement [0, 0] - [0, 42]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 41]
+        (order_expression_list [0, 25] - [0, 41]
+          (order_expression [0, 25] - [0, 41]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))))))
+  (comment [2, 0] - [19, 2]))
+
+==================
+Test Case 16
+==================
+select a from T order by a desc nulls first;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [select a from...nulls first]
+  Query [0-43] [select a from...nulls first]
+    Select [0-15] [select a from T]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-43] [order by a desc nulls first]
+      OrderingExpression(DESC) [25-43] [a desc nulls first]
+        PathExpression [25-26] [a]
+          Identifier(a) [25-26] [a]
+        NullOrder(NULLS FIRST) [32-43] [nulls first]
+*/
+---
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 44]
+    (select_statement [0, 0] - [0, 44]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 43]
+        (order_expression_list [0, 25] - [0, 43]
+          (order_expression [0, 25] - [0, 43]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))))))
+  (comment [2, 0] - [19, 2]))
+
+==================
+Test Case 17
+==================
+select a from T order by a desc nulls last;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [select a from...nulls last]
+  Query [0-42] [select a from...nulls last]
+    Select [0-15] [select a from T]
+      SelectList [7-8] [a]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-42] [order by a desc nulls last]
+      OrderingExpression(DESC) [25-42] [a desc nulls last]
+        PathExpression [25-26] [a]
+          Identifier(a) [25-26] [a]
+        NullOrder(NULLS LAST) [32-42] [nulls last]
+*/
+---
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [0, 43]
+    (select_statement [0, 0] - [0, 43]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 42]
+        (order_expression_list [0, 25] - [0, 42]
+          (order_expression [0, 25] - [0, 42]
+            (expression [0, 25] - [0, 26]
+              (path_expression [0, 25] - [0, 26]
+                (identifier [0, 25] - [0, 26]))))))))
+  (comment [2, 0] - [19, 2]))
+
+==================
+Test Case 18
 ==================
 select a from T order by 1 nulls last, first desc nulls first, last asc nulls last;
 
@@ -702,5 +905,32 @@ QueryStatement [0-82] [select a from...nulls last]
         NullOrder(NULLS LAST) [72-82] [nulls last]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [26, 2]
+  (statement [0, 0] - [0, 83]
+    (select_statement [0, 0] - [0, 83]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8]
+            (expression [0, 7] - [0, 8]
+              (path_expression [0, 7] - [0, 8]
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [0, 16] - [0, 82]
+        (order_expression_list [0, 25] - [0, 82]
+          (order_expression [0, 25] - [0, 37]
+            (expression [0, 25] - [0, 26]
+              (number [0, 25] - [0, 26])))
+          (order_expression [0, 39] - [0, 61]
+            (expression [0, 39] - [0, 44]
+              (path_expression [0, 39] - [0, 44]
+                (identifier [0, 39] - [0, 44]))))
+          (order_expression [0, 63] - [0, 82]
+            (expression [0, 63] - [0, 67]
+              (path_expression [0, 63] - [0, 67]
+                (identifier [0, 63] - [0, 67]))))))))
+  (comment [2, 0] - [26, 2]))
 

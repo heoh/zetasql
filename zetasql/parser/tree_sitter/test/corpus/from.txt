@@ -732,16 +732,97 @@ QueryStatement [0-78] [select 1 from...FULL JOIN f)]
 Test Case 16
 ==================
 # RIGHT JOIN and FULL JOIN require parentheses when following a comma join.
-select * FROM A, B {{INNER|CROSS|LEFT|RIGHT|FULL}} JOIN C
+select * FROM A, B INNER JOIN C
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INNER
+QueryStatement [0-31] [select * FROM...INNER JOIN C]
+  Query [0-31] [select * FROM...INNER JOIN C]
+    Select [0-31] [select * FROM...INNER JOIN C]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-31] [FROM A, B INNER JOIN C]
+        Join(INNER) [14-31] [A, B INNER JOIN C]
+          Join(COMMA) [14-18] [A, B]
+            TablePathExpression [14-15] [A]
+              PathExpression [14-15] [A]
+                Identifier(A) [14-15] [A]
+            Location [15-16] [,]
+            TablePathExpression [17-18] [B]
+              PathExpression [17-18] [B]
+                Identifier(B) [17-18] [B]
+          Location [19-29] [INNER JOIN]
+          TablePathExpression [30-31] [C]
+            PathExpression [30-31] [C]
+              Identifier(C) [30-31] [C]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 17
+==================
+# RIGHT JOIN and FULL JOIN require parentheses when following a comma join.
+select * FROM A, B CROSS JOIN C
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-31] [select * FROM...CROSS JOIN C]
+  Query [0-31] [select * FROM...CROSS JOIN C]
+    Select [0-31] [select * FROM...CROSS JOIN C]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-31] [FROM A, B CROSS JOIN C]
+        Join(CROSS) [14-31] [A, B CROSS JOIN C]
+          Join(COMMA) [14-18] [A, B]
+            TablePathExpression [14-15] [A]
+              PathExpression [14-15] [A]
+                Identifier(A) [14-15] [A]
+            Location [15-16] [,]
+            TablePathExpression [17-18] [B]
+              PathExpression [17-18] [B]
+                Identifier(B) [17-18] [B]
+          Location [19-29] [CROSS JOIN]
+          TablePathExpression [30-31] [C]
+            PathExpression [30-31] [C]
+              Identifier(C) [30-31] [C]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# RIGHT JOIN and FULL JOIN require parentheses when following a comma join.
+select * FROM A, B LEFT JOIN C
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-30] [select * FROM A, B LEFT JOIN C]
+  Query [0-30] [select * FROM A, B LEFT JOIN C]
+    Select [0-30] [select * FROM A, B LEFT JOIN C]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-30] [FROM A, B LEFT JOIN C]
+        Join(LEFT) [14-30] [A, B LEFT JOIN C]
+          Join(COMMA) [14-18] [A, B]
+            TablePathExpression [14-15] [A]
+              PathExpression [14-15] [A]
+                Identifier(A) [14-15] [A]
+            Location [15-16] [,]
+            TablePathExpression [17-18] [B]
+              PathExpression [17-18] [B]
+                Identifier(B) [17-18] [B]
+          Location [19-28] [LEFT JOIN]
+          TablePathExpression [29-30] [C]
+            PathExpression [29-30] [C]
+              Identifier(C) [29-30] [C]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
 ==================
 # Fix by parenthesizing the FULL JOIN.
 select * FROM A, B JOIN (C FULL JOIN D)
@@ -778,7 +859,7 @@ QueryStatement [0-39] [select * FROM...FULL JOIN D)]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 20
 ==================
 # Commas to the right of FULL/RIGHT join are okay.
 select * FROM A RIGHT JOIN B FULL JOIN C, D LEFT JOIN E
@@ -819,7 +900,7 @@ QueryStatement [0-55] [select * FROM...LEFT JOIN E]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 21
 ==================
 select * from t1 LOOKUP JOIN t2
 
@@ -844,7 +925,7 @@ QueryStatement [0-31] [select * from...LOOKUP JOIN t2]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 22
 ==================
 select * from t1 HASH JOIN t2
 
@@ -869,7 +950,7 @@ QueryStatement [0-29] [select * from t1 HASH JOIN t2]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 23
 ==================
 select * from t1 as a1 HASH JOIN t2
 
@@ -896,7 +977,7 @@ QueryStatement [0-35] [select * from...HASH JOIN t2]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 24
 ==================
 select * from t1 as a1 LOOKUP JOIN t2
 
@@ -923,7 +1004,7 @@ QueryStatement [0-37] [select * from...LOOKUP JOIN t2]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 25
 ==================
 # Table is a non-reserved keyword.
 select * from Table
@@ -941,10 +1022,22 @@ QueryStatement [0-19] [select * from Table]
             Identifier(Table) [14-19] [Table]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [14, 2]
+  (comment [0, 0] - [0, 34])
+  (statement [1, 0] - [1, 19]
+    (select_statement [1, 0] - [1, 19]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 19]
+        (from_item [1, 14] - [1, 19]
+          (table_expression [1, 14] - [1, 19]
+            (path_expression [1, 14] - [1, 19]
+              (identifier [1, 14] - [1, 19])))))))
+  (comment [3, 0] - [14, 2]))
 
 ==================
-Test Case 24
+Test Case 26
 ==================
 # select is a reserved keyword.
 select * from `select`
@@ -962,10 +1055,22 @@ QueryStatement [0-22] [select * from `select`]
             Identifier(`select`) [14-22] [`select`]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [14, 2]
+  (comment [0, 0] - [0, 31])
+  (statement [1, 0] - [1, 22]
+    (select_statement [1, 0] - [1, 22]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 22]
+        (from_item [1, 14] - [1, 22]
+          (table_expression [1, 14] - [1, 22]
+            (path_expression [1, 14] - [1, 22]
+              (identifier [1, 14] - [1, 22])))))))
+  (comment [3, 0] - [14, 2]))
 
 ==================
-Test Case 25
+Test Case 27
 ==================
 select * from `Table`
 
@@ -996,7 +1101,7 @@ QueryStatement [0-21] [select * from `Table`]
   (comment [2, 0] - [13, 2]))
 
 ==================
-Test Case 26
+Test Case 28
 ==================
 select * from `pRoTo`
 
@@ -1027,7 +1132,7 @@ QueryStatement [0-21] [select * from `pRoTo`]
   (comment [2, 0] - [13, 2]))
 
 ==================
-Test Case 27
+Test Case 29
 ==================
 select a, from T1
 
@@ -1048,21 +1153,21 @@ QueryStatement [0-17] [select a, from T1]
 (source_file [0, 0] - [14, 2]
   (statement [0, 0] - [0, 17]
     (select_statement [0, 0] - [0, 17]
-      (select_clause [0, 0] - [0, 17]
-        (select_list [0, 7] - [0, 17]
+      (select_clause [0, 0] - [0, 9]
+        (select_list [0, 7] - [0, 9]
           (select_expression [0, 7] - [0, 8]
             (expression [0, 7] - [0, 8]
               (path_expression [0, 7] - [0, 8]
-                (identifier [0, 7] - [0, 8]))))
-          (select_expression [0, 10] - [0, 17]
-            (expression [0, 10] - [0, 14]
-              (path_expression [0, 10] - [0, 14]
-                (identifier [0, 10] - [0, 14])))
-            (identifier [0, 15] - [0, 17]))))))
+                (identifier [0, 7] - [0, 8]))))))
+      (from_clause [0, 10] - [0, 17]
+        (from_item [0, 15] - [0, 17]
+          (table_expression [0, 15] - [0, 17]
+            (path_expression [0, 15] - [0, 17]
+              (identifier [0, 15] - [0, 17])))))))
   (comment [2, 0] - [14, 2]))
 
 ==================
-Test Case 28
+Test Case 30
 ==================
 select a, b, from T1
 
@@ -1086,8 +1191,8 @@ QueryStatement [0-20] [select a, b, from T1]
 (source_file [0, 0] - [17, 2]
   (statement [0, 0] - [0, 20]
     (select_statement [0, 0] - [0, 20]
-      (select_clause [0, 0] - [0, 20]
-        (select_list [0, 7] - [0, 20]
+      (select_clause [0, 0] - [0, 12]
+        (select_list [0, 7] - [0, 12]
           (select_expression [0, 7] - [0, 8]
             (expression [0, 7] - [0, 8]
               (path_expression [0, 7] - [0, 8]
@@ -1095,16 +1200,16 @@ QueryStatement [0-20] [select a, b, from T1]
           (select_expression [0, 10] - [0, 11]
             (expression [0, 10] - [0, 11]
               (path_expression [0, 10] - [0, 11]
-                (identifier [0, 10] - [0, 11]))))
-          (select_expression [0, 13] - [0, 20]
-            (expression [0, 13] - [0, 17]
-              (path_expression [0, 13] - [0, 17]
-                (identifier [0, 13] - [0, 17])))
-            (identifier [0, 18] - [0, 20]))))))
+                (identifier [0, 10] - [0, 11]))))))
+      (from_clause [0, 13] - [0, 20]
+        (from_item [0, 18] - [0, 20]
+          (table_expression [0, 18] - [0, 20]
+            (path_expression [0, 18] - [0, 20]
+              (identifier [0, 18] - [0, 20])))))))
   (comment [2, 0] - [17, 2]))
 
 ==================
-Test Case 29
+Test Case 31
 ==================
 select *, from T1
 
@@ -1124,18 +1229,18 @@ QueryStatement [0-17] [select *, from T1]
 (source_file [0, 0] - [13, 2]
   (statement [0, 0] - [0, 17]
     (select_statement [0, 0] - [0, 17]
-      (select_clause [0, 0] - [0, 17]
-        (select_list [0, 7] - [0, 17]
-          (select_expression [0, 7] - [0, 8])
-          (select_expression [0, 10] - [0, 17]
-            (expression [0, 10] - [0, 14]
-              (path_expression [0, 10] - [0, 14]
-                (identifier [0, 10] - [0, 14])))
-            (identifier [0, 15] - [0, 17]))))))
+      (select_clause [0, 0] - [0, 9]
+        (select_list [0, 7] - [0, 9]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 10] - [0, 17]
+        (from_item [0, 15] - [0, 17]
+          (table_expression [0, 15] - [0, 17]
+            (path_expression [0, 15] - [0, 17]
+              (identifier [0, 15] - [0, 17])))))))
   (comment [2, 0] - [13, 2]))
 
 ==================
-Test Case 30
+Test Case 32
 ==================
 select * except(a), from T1
 
@@ -1158,7 +1263,7 @@ QueryStatement [0-27] [select * except(a), from T1]
 (source_file (ERROR))
 
 ==================
-Test Case 31
+Test Case 33
 ==================
 select * replace(a+1 as a), from T1
 
@@ -1185,7 +1290,7 @@ QueryStatement [0-35] [select * replace...), from T1]
 (source_file (ERROR))
 
 ==================
-Test Case 32
+Test Case 34
 ==================
 select a.*, from T1
 
@@ -1207,19 +1312,19 @@ QueryStatement [0-19] [select a.*, from T1]
 (source_file [0, 0] - [15, 2]
   (statement [0, 0] - [0, 19]
     (select_statement [0, 0] - [0, 19]
-      (select_clause [0, 0] - [0, 19]
-        (select_list [0, 7] - [0, 19]
+      (select_clause [0, 0] - [0, 11]
+        (select_list [0, 7] - [0, 11]
           (select_expression [0, 7] - [0, 10]
-            (identifier [0, 7] - [0, 8]))
-          (select_expression [0, 12] - [0, 19]
-            (expression [0, 12] - [0, 16]
-              (path_expression [0, 12] - [0, 16]
-                (identifier [0, 12] - [0, 16])))
-            (identifier [0, 17] - [0, 19]))))))
+            (identifier [0, 7] - [0, 8]))))
+      (from_clause [0, 12] - [0, 19]
+        (from_item [0, 17] - [0, 19]
+          (table_expression [0, 17] - [0, 19]
+            (path_expression [0, 17] - [0, 19]
+              (identifier [0, 17] - [0, 19])))))))
   (comment [2, 0] - [15, 2]))
 
 ==================
-Test Case 33
+Test Case 35
 ==================
 select T1.a, T2.b, from T1 left join T2
 
@@ -1250,26 +1355,40 @@ QueryStatement [0-39] [select T1....left join T2]
 (source_file (ERROR))
 
 ==================
-Test Case 34
+Test Case 36
 ==================
 # No FROM clause with or without trailing comma
-select 1 a, 'foo' b {{|,}}
+select 1 a, 'foo' b ,
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-21] [select 1 a, 'foo' b ,]
+  Query [0-21] [select 1 a, 'foo' b ,]
+    Select [0-21] [select 1 a, 'foo' b ,]
+      SelectList [7-21] [1 a, 'foo' b ,]
+        SelectColumn [7-10] [1 a]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [a]
+            Identifier(a) [9-10] [a]
+        SelectColumn [12-19] ['foo' b]
+          StringLiteral [12-17] ['foo']
+            StringLiteralComponent('foo') [12-17] ['foo']
+          Alias [18-19] [b]
+            Identifier(b) [18-19] [b]
 */
 ---
-(source_file (ERROR))
-
-==================
-Test Case 35
-==================
-# Empty SELECT list
-select {{|@{a=b}|ALL|DISTINCT|AS foo|@{a=b} DISTINCT AS foo}} from t
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 47])
+  (statement [1, 0] - [1, 21]
+    (select_statement [1, 0] - [1, 21]
+      (select_clause [1, 0] - [1, 21]
+        (select_list [1, 7] - [1, 21]
+          (select_expression [1, 7] - [1, 10]
+            (expression [1, 7] - [1, 8]
+              (number [1, 7] - [1, 8]))
+            (identifier [1, 9] - [1, 10]))
+          (select_expression [1, 12] - [1, 19]
+            (expression [1, 12] - [1, 17]
+              (string [1, 12] - [1, 17]))
+            (identifier [1, 18] - [1, 19]))))))
+  (comment [3, 0] - [17, 2]))
 

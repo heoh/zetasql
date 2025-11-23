@@ -655,10 +655,27 @@ QueryStatement [0-55] [select * from...RVOIR (1 ROWS)]
 Test Case 22
 ==================
 SELECT * FROM Users TABLESAMPLE RESERVOIR (1 ROWS)
-WITH WEIGHT {{|weight|AS weight}} {{|REPEATABLE(1)}}
+WITH WEIGHT weight 
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-69] [SELECT * FROM...WEIGHT weight]
+  Query [0-69] [SELECT * FROM...WEIGHT weight]
+    Select [0-69] [SELECT * FROM...WEIGHT weight]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-69] [FROM Users...WEIGHT weight]
+        TablePathExpression [14-69] [Users TABLESAMPLE...GHT weight]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-69] [TABLESAMPLE...WEIGHT weight]
+            Identifier(RESERVOIR) [32-41] [RESERVOIR]
+            SampleSize [43-49] [1 ROWS]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [51-69] [WITH WEIGHT weight]
+              WithWeight [51-69] [WITH WEIGHT weight]
+                Alias [63-69] [weight]
+                  Identifier(weight) [63-69] [weight]
 */
 ---
 (source_file (ERROR))
@@ -666,17 +683,448 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 23
 ==================
-SELECT * FROM Users TABLESAMPLE {{BERNOULLI|SYSTEM}} (1 PERCENT)
-WITH WEIGHT {{|weight|AS weight}} {{|REPEATABLE(1)}}
+SELECT * FROM Users TABLESAMPLE RESERVOIR (1 ROWS)
+WITH WEIGHT weight REPEATABLE(1)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: BERNOULLI,,
+QueryStatement [0-83] [SELECT * FROM...REPEATABLE(1)]
+  Query [0-83] [SELECT * FROM...REPEATABLE(1)]
+    Select [0-83] [SELECT * FROM...REPEATABLE(1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-83] [FROM Users...REPEATABLE(1)]
+        TablePathExpression [14-83] [Users TABLESAMPLE...EATABLE(1)]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-83] [TABLESAMPLE...REPEATABLE(1)]
+            Identifier(RESERVOIR) [32-41] [RESERVOIR]
+            SampleSize [43-49] [1 ROWS]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [51-83] [WITH WEIGHT...REPEATABLE(1)]
+              WithWeight [51-83] [WITH WEIGHT...REPEATABLE(1)]
+                Alias [63-69] [weight]
+                  Identifier(weight) [63-69] [weight]
+              RepeatableClause [70-83] [REPEATABLE(1)]
+                IntLiteral(1) [81-82] [1]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 24
+==================
+SELECT * FROM Users TABLESAMPLE RESERVOIR (1 ROWS)
+WITH WEIGHT AS weight 
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-72] [SELECT * FROM...AS weight]
+  Query [0-72] [SELECT * FROM...AS weight]
+    Select [0-72] [SELECT * FROM...AS weight]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-72] [FROM Users...AS weight]
+        TablePathExpression [14-72] [Users TABLESAMPLE...AS weight]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-72] [TABLESAMPLE...AS weight]
+            Identifier(RESERVOIR) [32-41] [RESERVOIR]
+            SampleSize [43-49] [1 ROWS]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [51-72] [WITH WEIGHT AS weight]
+              WithWeight [51-72] [WITH WEIGHT AS weight]
+                Alias [63-72] [AS weight]
+                  Identifier(weight) [66-72] [weight]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+SELECT * FROM Users TABLESAMPLE RESERVOIR (1 ROWS)
+WITH WEIGHT AS weight REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-86] [SELECT * FROM...REPEATABLE(1)]
+  Query [0-86] [SELECT * FROM...REPEATABLE(1)]
+    Select [0-86] [SELECT * FROM...REPEATABLE(1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-86] [FROM Users...REPEATABLE(1)]
+        TablePathExpression [14-86] [Users TABLESAMPLE...EATABLE(1)]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-86] [TABLESAMPLE...REPEATABLE(1)]
+            Identifier(RESERVOIR) [32-41] [RESERVOIR]
+            SampleSize [43-49] [1 ROWS]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [51-86] [WITH WEIGHT...REPEATABLE(1)]
+              WithWeight [51-86] [WITH WEIGHT...REPEATABLE(1)]
+                Alias [63-72] [AS weight]
+                  Identifier(weight) [66-72] [weight]
+              RepeatableClause [73-86] [REPEATABLE(1)]
+                IntLiteral(1) [84-85] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+SELECT * FROM Users TABLESAMPLE BERNOULLI (1 PERCENT)
+WITH WEIGHT  
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-65] [SELECT * FROM...WITH WEIGHT]
+  Query [0-65] [SELECT * FROM...WITH WEIGHT]
+    Select [0-65] [SELECT * FROM...WITH WEIGHT]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-65] [FROM Users...WITH WEIGHT]
+        TablePathExpression [14-65] [Users TABLESAMPLE...ITH WEIGHT]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-65] [TABLESAMPLE...WITH WEIGHT]
+            Identifier(BERNOULLI) [32-41] [BERNOULLI]
+            SampleSize [43-52] [1 PERCENT]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [54-65] [WITH WEIGHT]
+              WithWeight [54-65] [WITH WEIGHT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+SELECT * FROM Users TABLESAMPLE BERNOULLI (1 PERCENT)
+WITH WEIGHT  REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-80] [SELECT * FROM...REPEATABLE(1)]
+  Query [0-80] [SELECT * FROM...REPEATABLE(1)]
+    Select [0-80] [SELECT * FROM...REPEATABLE(1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-80] [FROM Users...REPEATABLE(1)]
+        TablePathExpression [14-80] [Users TABLESAMPLE...EATABLE(1)]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-80] [TABLESAMPLE...REPEATABLE(1)]
+            Identifier(BERNOULLI) [32-41] [BERNOULLI]
+            SampleSize [43-52] [1 PERCENT]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [54-80] [WITH WEIGHT  REPEATABLE(1)]
+              WithWeight [54-80] [WITH WEIGHT  REPEATABLE(1)]
+              RepeatableClause [67-80] [REPEATABLE(1)]
+                IntLiteral(1) [78-79] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+SELECT * FROM Users TABLESAMPLE BERNOULLI (1 PERCENT)
+WITH WEIGHT weight 
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-72] [SELECT * FROM...WEIGHT weight]
+  Query [0-72] [SELECT * FROM...WEIGHT weight]
+    Select [0-72] [SELECT * FROM...WEIGHT weight]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-72] [FROM Users...WEIGHT weight]
+        TablePathExpression [14-72] [Users TABLESAMPLE...GHT weight]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-72] [TABLESAMPLE...WEIGHT weight]
+            Identifier(BERNOULLI) [32-41] [BERNOULLI]
+            SampleSize [43-52] [1 PERCENT]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [54-72] [WITH WEIGHT weight]
+              WithWeight [54-72] [WITH WEIGHT weight]
+                Alias [66-72] [weight]
+                  Identifier(weight) [66-72] [weight]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
+==================
+SELECT * FROM Users TABLESAMPLE BERNOULLI (1 PERCENT)
+WITH WEIGHT weight REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-86] [SELECT * FROM...REPEATABLE(1)]
+  Query [0-86] [SELECT * FROM...REPEATABLE(1)]
+    Select [0-86] [SELECT * FROM...REPEATABLE(1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-86] [FROM Users...REPEATABLE(1)]
+        TablePathExpression [14-86] [Users TABLESAMPLE...EATABLE(1)]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-86] [TABLESAMPLE...REPEATABLE(1)]
+            Identifier(BERNOULLI) [32-41] [BERNOULLI]
+            SampleSize [43-52] [1 PERCENT]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [54-86] [WITH WEIGHT...REPEATABLE(1)]
+              WithWeight [54-86] [WITH WEIGHT...REPEATABLE(1)]
+                Alias [66-72] [weight]
+                  Identifier(weight) [66-72] [weight]
+              RepeatableClause [73-86] [REPEATABLE(1)]
+                IntLiteral(1) [84-85] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 30
+==================
+SELECT * FROM Users TABLESAMPLE BERNOULLI (1 PERCENT)
+WITH WEIGHT AS weight 
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-75] [SELECT * FROM...AS weight]
+  Query [0-75] [SELECT * FROM...AS weight]
+    Select [0-75] [SELECT * FROM...AS weight]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-75] [FROM Users...AS weight]
+        TablePathExpression [14-75] [Users TABLESAMPLE...AS weight]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-75] [TABLESAMPLE...AS weight]
+            Identifier(BERNOULLI) [32-41] [BERNOULLI]
+            SampleSize [43-52] [1 PERCENT]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [54-75] [WITH WEIGHT AS weight]
+              WithWeight [54-75] [WITH WEIGHT AS weight]
+                Alias [66-75] [AS weight]
+                  Identifier(weight) [69-75] [weight]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 31
+==================
+SELECT * FROM Users TABLESAMPLE BERNOULLI (1 PERCENT)
+WITH WEIGHT AS weight REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-89] [SELECT * FROM...REPEATABLE(1)]
+  Query [0-89] [SELECT * FROM...REPEATABLE(1)]
+    Select [0-89] [SELECT * FROM...REPEATABLE(1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-89] [FROM Users...REPEATABLE(1)]
+        TablePathExpression [14-89] [Users TABLESAMPLE...EATABLE(1)]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-89] [TABLESAMPLE...REPEATABLE(1)]
+            Identifier(BERNOULLI) [32-41] [BERNOULLI]
+            SampleSize [43-52] [1 PERCENT]
+              IntLiteral(1) [43-44] [1]
+            SampleSuffix [54-89] [WITH WEIGHT...REPEATABLE(1)]
+              WithWeight [54-89] [WITH WEIGHT...REPEATABLE(1)]
+                Alias [66-75] [AS weight]
+                  Identifier(weight) [69-75] [weight]
+              RepeatableClause [76-89] [REPEATABLE(1)]
+                IntLiteral(1) [87-88] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 32
+==================
+SELECT * FROM Users TABLESAMPLE SYSTEM (1 PERCENT)
+WITH WEIGHT  
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-62] [SELECT * FROM...WITH WEIGHT]
+  Query [0-62] [SELECT * FROM...WITH WEIGHT]
+    Select [0-62] [SELECT * FROM...WITH WEIGHT]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-62] [FROM Users...WITH WEIGHT]
+        TablePathExpression [14-62] [Users TABLESAMPLE...ITH WEIGHT]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-62] [TABLESAMPLE...WITH WEIGHT]
+            Identifier(SYSTEM) [32-38] [SYSTEM]
+            SampleSize [40-49] [1 PERCENT]
+              IntLiteral(1) [40-41] [1]
+            SampleSuffix [51-62] [WITH WEIGHT]
+              WithWeight [51-62] [WITH WEIGHT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 33
+==================
+SELECT * FROM Users TABLESAMPLE SYSTEM (1 PERCENT)
+WITH WEIGHT  REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-77] [SELECT * FROM...REPEATABLE(1)]
+  Query [0-77] [SELECT * FROM...REPEATABLE(1)]
+    Select [0-77] [SELECT * FROM...REPEATABLE(1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-77] [FROM Users...REPEATABLE(1)]
+        TablePathExpression [14-77] [Users TABLESAMPLE...EATABLE(1)]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-77] [TABLESAMPLE...REPEATABLE(1)]
+            Identifier(SYSTEM) [32-38] [SYSTEM]
+            SampleSize [40-49] [1 PERCENT]
+              IntLiteral(1) [40-41] [1]
+            SampleSuffix [51-77] [WITH WEIGHT  REPEATABLE(1)]
+              WithWeight [51-77] [WITH WEIGHT  REPEATABLE(1)]
+              RepeatableClause [64-77] [REPEATABLE(1)]
+                IntLiteral(1) [75-76] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
+==================
+SELECT * FROM Users TABLESAMPLE SYSTEM (1 PERCENT)
+WITH WEIGHT weight 
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-69] [SELECT * FROM...WEIGHT weight]
+  Query [0-69] [SELECT * FROM...WEIGHT weight]
+    Select [0-69] [SELECT * FROM...WEIGHT weight]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-69] [FROM Users...WEIGHT weight]
+        TablePathExpression [14-69] [Users TABLESAMPLE...GHT weight]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-69] [TABLESAMPLE...WEIGHT weight]
+            Identifier(SYSTEM) [32-38] [SYSTEM]
+            SampleSize [40-49] [1 PERCENT]
+              IntLiteral(1) [40-41] [1]
+            SampleSuffix [51-69] [WITH WEIGHT weight]
+              WithWeight [51-69] [WITH WEIGHT weight]
+                Alias [63-69] [weight]
+                  Identifier(weight) [63-69] [weight]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 35
+==================
+SELECT * FROM Users TABLESAMPLE SYSTEM (1 PERCENT)
+WITH WEIGHT weight REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-83] [SELECT * FROM...REPEATABLE(1)]
+  Query [0-83] [SELECT * FROM...REPEATABLE(1)]
+    Select [0-83] [SELECT * FROM...REPEATABLE(1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-83] [FROM Users...REPEATABLE(1)]
+        TablePathExpression [14-83] [Users TABLESAMPLE...EATABLE(1)]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-83] [TABLESAMPLE...REPEATABLE(1)]
+            Identifier(SYSTEM) [32-38] [SYSTEM]
+            SampleSize [40-49] [1 PERCENT]
+              IntLiteral(1) [40-41] [1]
+            SampleSuffix [51-83] [WITH WEIGHT...REPEATABLE(1)]
+              WithWeight [51-83] [WITH WEIGHT...REPEATABLE(1)]
+                Alias [63-69] [weight]
+                  Identifier(weight) [63-69] [weight]
+              RepeatableClause [70-83] [REPEATABLE(1)]
+                IntLiteral(1) [81-82] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 36
+==================
+SELECT * FROM Users TABLESAMPLE SYSTEM (1 PERCENT)
+WITH WEIGHT AS weight 
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-72] [SELECT * FROM...AS weight]
+  Query [0-72] [SELECT * FROM...AS weight]
+    Select [0-72] [SELECT * FROM...AS weight]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-72] [FROM Users...AS weight]
+        TablePathExpression [14-72] [Users TABLESAMPLE...AS weight]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-72] [TABLESAMPLE...AS weight]
+            Identifier(SYSTEM) [32-38] [SYSTEM]
+            SampleSize [40-49] [1 PERCENT]
+              IntLiteral(1) [40-41] [1]
+            SampleSuffix [51-72] [WITH WEIGHT AS weight]
+              WithWeight [51-72] [WITH WEIGHT AS weight]
+                Alias [63-72] [AS weight]
+                  Identifier(weight) [66-72] [weight]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 37
+==================
+SELECT * FROM Users TABLESAMPLE SYSTEM (1 PERCENT)
+WITH WEIGHT AS weight REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-86] [SELECT * FROM...REPEATABLE(1)]
+  Query [0-86] [SELECT * FROM...REPEATABLE(1)]
+    Select [0-86] [SELECT * FROM...REPEATABLE(1)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-86] [FROM Users...REPEATABLE(1)]
+        TablePathExpression [14-86] [Users TABLESAMPLE...EATABLE(1)]
+          PathExpression [14-19] [Users]
+            Identifier(Users) [14-19] [Users]
+          SampleClause [20-86] [TABLESAMPLE...REPEATABLE(1)]
+            Identifier(SYSTEM) [32-38] [SYSTEM]
+            SampleSize [40-49] [1 PERCENT]
+              IntLiteral(1) [40-41] [1]
+            SampleSuffix [51-86] [WITH WEIGHT...REPEATABLE(1)]
+              WithWeight [51-86] [WITH WEIGHT...REPEATABLE(1)]
+                Alias [63-72] [AS weight]
+                  Identifier(weight) [66-72] [weight]
+              RepeatableClause [73-86] [REPEATABLE(1)]
+                IntLiteral(1) [84-85] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 38
 ==================
 # REPEATABLE is non-reserved keyword, hence, can be used as an alias for weight.
 SELECT * FROM Users TABLESAMPLE RESERVOIR(1 ROWS) WITH WEIGHT REPEATABLE
@@ -705,7 +1153,7 @@ QueryStatement [0-72] [SELECT * FROM...REPEATABLE]
 (source_file (ERROR))
 
 ==================
-Test Case 25
+Test Case 39
 ==================
 # WEIGHT is non-reserved keyword and can be used as an identifier.
 SELECT 4 WEIGHT
@@ -733,7 +1181,7 @@ QueryStatement [0-57] [SELECT 4 WEIGHT...OIR (1 ROWS)]
 (source_file (ERROR))
 
 ==================
-Test Case 26
+Test Case 40
 ==================
 # Query should fail while resolving. Sampling on arrays is not supported.
 select * from UNNEST(array_expr) TABLESAMPLE RESERVOIR (1 ROWS)
@@ -760,7 +1208,7 @@ QueryStatement [0-63] [select * from...RVOIR (1 ROWS)]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 41
 ==================
 select * from UNNEST(array_expr) WITH OFFSET pos TABLESAMPLE RESERVOIR (1 ROWS)
 
@@ -789,7 +1237,7 @@ QueryStatement [0-79] [select * from...RVOIR (1 ROWS)]
 (source_file (ERROR))
 
 ==================
-Test Case 28
+Test Case 42
 ==================
 select * from Users
 where a IN (select * from a_s TABLESAMPLE RESERVOIR (1 ROWS))
@@ -828,7 +1276,7 @@ QueryStatement [0-81] [select * from...(1 ROWS))]
 (source_file (ERROR))
 
 ==================
-Test Case 29
+Test Case 43
 ==================
 select uId
 from ( a TABLESAMPLE RESERVOIR (1 ROWS) JOIN
@@ -902,7 +1350,7 @@ QueryStatement [0-278] [select uId...0 PERCENT)]
 (source_file (ERROR))
 
 ==================
-Test Case 30
+Test Case 44
 ==================
 select a FROM b TABLESAMPLE SYSTEM (1 ROWS) WHERE true ORDER BY a LIMIT 5
 
@@ -936,7 +1384,7 @@ QueryStatement [0-73] [select a FROM...a LIMIT 5]
 (source_file (ERROR))
 
 ==================
-Test Case 31
+Test Case 45
 ==================
 # Multiple table operators, this becomes an analyzer error
 select a FROM b TABLESAMPLE SYSTEM (1 ROWS) TABLESAMPLE SYSTEM (2 ROWS)

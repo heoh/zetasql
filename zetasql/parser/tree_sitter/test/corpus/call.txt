@@ -4,7 +4,6 @@ Test Case 1
 # Empty argument list.
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default no_show_parse_location_text]
 call myprocedure()
 
 /* Expected ZetaSQL AST:
@@ -188,10 +187,31 @@ CallStatement [0-26]
 Test Case 10
 ==================
 # CALL statements can have placeholders.
-CALL fn({{?|@x}})
+CALL fn(?)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ?
+CallStatement [0-10]
+  PathExpression [5-7]
+    Identifier(fn) [5-7]
+  TVFArgument [8-9]
+    ParameterExpr(1) [8-9]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# CALL statements can have placeholders.
+CALL fn(@x)
+
+/* Expected ZetaSQL AST:
+CallStatement [0-11]
+  PathExpression [5-7]
+    Identifier(fn) [5-7]
+  TVFArgument [8-10]
+    ParameterExpr [8-10]
+      Identifier(x) [9-10]
 */
 ---
 (source_file (ERROR))

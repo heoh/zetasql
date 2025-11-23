@@ -853,10 +853,26 @@ QueryStatement [0-80] [select 3 UNION...select 2)]
 ==================
 Test Case 25
 ==================
-SELECT 3 {{UNION|INTERSECT|EXCEPT}} @5 ALL SELECT 2
+SELECT 3 UNION @5 ALL SELECT 2
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: UNION
+QueryStatement [0-30] [SELECT 3 UNION @5 ALL SELECT 2]
+  Query [0-30] [SELECT 3 UNION @5 ALL SELECT 2]
+    SetOperation(UNION ALL) [0-30] [SELECT 3 UNION @5 ALL SELECT 2]
+      SetOperationMetadataList [9-21] [UNION @5 ALL]
+        SetOperationMetadata [9-21] [UNION @5 ALL]
+          SetOperationType [9-14] [UNION]
+          SetOperationAllOrDistinct [18-21] [ALL]
+          Hint [15-17] [@5]
+            IntLiteral(5) [16-17] [5]
+      Select [0-8] [SELECT 3]
+        SelectList [7-8] [3]
+          SelectColumn [7-8] [3]
+            IntLiteral(3) [7-8] [3]
+      Select [22-30] [SELECT 2]
+        SelectList [29-30] [2]
+          SelectColumn [29-30] [2]
+            IntLiteral(2) [29-30] [2]
 */
 ---
 (source_file (ERROR))
@@ -864,10 +880,53 @@ ALTERNATION GROUP: UNION
 ==================
 Test Case 26
 ==================
-SELECT {{UNION|INTERSECT|EXCEPT}} @param;
+SELECT 3 INTERSECT @5 ALL SELECT 2
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: UNION
+QueryStatement [0-34] [SELECT 3 INTERSEC...L SELECT 2]
+  Query [0-34] [SELECT 3 INTERSEC...L SELECT 2]
+    SetOperation(INTERSECT ALL) [0-34] [SELECT 3 INTERSEC...L SELECT 2]
+      SetOperationMetadataList [9-25] [INTERSECT @5 ALL]
+        SetOperationMetadata [9-25] [INTERSECT @5 ALL]
+          SetOperationType [9-18] [INTERSECT]
+          SetOperationAllOrDistinct [22-25] [ALL]
+          Hint [19-21] [@5]
+            IntLiteral(5) [20-21] [5]
+      Select [0-8] [SELECT 3]
+        SelectList [7-8] [3]
+          SelectColumn [7-8] [3]
+            IntLiteral(3) [7-8] [3]
+      Select [26-34] [SELECT 2]
+        SelectList [33-34] [2]
+          SelectColumn [33-34] [2]
+            IntLiteral(2) [33-34] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+SELECT 3 EXCEPT @5 ALL SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-31] [SELECT 3 EXCEPT...ALL SELECT 2]
+  Query [0-31] [SELECT 3 EXCEPT...ALL SELECT 2]
+    SetOperation(EXCEPT ALL) [0-31] [SELECT 3 EXCEPT...ALL SELECT 2]
+      SetOperationMetadataList [9-22] [EXCEPT @5 ALL]
+        SetOperationMetadata [9-22] [EXCEPT @5 ALL]
+          SetOperationType [9-15] [EXCEPT]
+          SetOperationAllOrDistinct [19-22] [ALL]
+          Hint [16-18] [@5]
+            IntLiteral(5) [17-18] [5]
+      Select [0-8] [SELECT 3]
+        SelectList [7-8] [3]
+          SelectColumn [7-8] [3]
+            IntLiteral(3) [7-8] [3]
+      Select [23-31] [SELECT 2]
+        SelectList [30-31] [2]
+          SelectColumn [30-31] [2]
+            IntLiteral(2) [30-31] [2]
 */
 ---
 (source_file (ERROR))

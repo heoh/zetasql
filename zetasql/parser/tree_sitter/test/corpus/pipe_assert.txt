@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 
 from t
 |> assert x+1 = 5

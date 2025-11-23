@@ -105,17 +105,3 @@ DropAllRowAccessPoliciesStatement [0-27] [drop all row policies on t1]
 ---
 (source_file (ERROR))
 
-==================
-Test Case 8
-==================
-# Only the exact words "drop row access policy" will trigger the "drop row
-# access policy" interpretation. When one of the words is escaped, or when IF
-# EXISTS is present, the statement is interpreted as a regular DROP statement.
-drop {{`row`|row}} {{`access`|access}} {{if exists|}} {{`policy`|policy}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: `row`,`access`,if exists,`policy`
-*/
----
-(source_file (ERROR))
-

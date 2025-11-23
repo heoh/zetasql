@@ -1,10 +1,25 @@
 ==================
 Test Case 1
 ==================
-select * from T where {{@|@@}}aId = {{@|@@}}bId
+select * from T where @aId = @bId
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @,@
+QueryStatement [0-33] [select * from...aId = @bId]
+  Query [0-33] [select * from...aId = @bId]
+    Select [0-33] [select * from...aId = @bId]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      WhereClause [16-33] [where @aId = @bId]
+        BinaryExpression(=) [22-33] [@aId = @bId]
+          ParameterExpr [22-26] [@aId]
+            Identifier(aId) [23-26] [aId]
+          ParameterExpr [29-33] [@bId]
+            Identifier(bId) [30-33] [bId]
 */
 ---
 (source_file (ERROR))
@@ -12,13 +27,26 @@ ALTERNATION GROUP: @,@
 ==================
 Test Case 2
 ==================
-# This test is here to document current behavior and notice regressions in case
-# some customer has started doing this. We suspect the authors never intended
-# the @ or @@ token to be separated from the variable name by whitespace.
-select * from T where {{@|@@}} aId = {{@|@@}} bId
+select * from T where @aId = @@bId
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @,@
+QueryStatement [0-34] [select * from...aId = @@bId]
+  Query [0-34] [select * from...aId = @@bId]
+    Select [0-34] [select * from...aId = @@bId]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      WhereClause [16-34] [where @aId = @@bId]
+        BinaryExpression(=) [22-34] [@aId = @@bId]
+          ParameterExpr [22-26] [@aId]
+            Identifier(aId) [23-26] [aId]
+          SystemVariableExpr [29-34] [@@bId]
+            PathExpression [31-34] [bId]
+              Identifier(bId) [31-34] [bId]
 */
 ---
 (source_file (ERROR))
@@ -26,11 +54,26 @@ ALTERNATION GROUP: @,@
 ==================
 Test Case 3
 ==================
-# This test is here to document current behavior and notice regressions.
-select {{@|@@}} aId {{AS|FROM|3d}} t;
+select * from T where @@aId = @bId
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @,AS
+QueryStatement [0-34] [select * from...aId = @bId]
+  Query [0-34] [select * from...aId = @bId]
+    Select [0-34] [select * from...aId = @bId]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      WhereClause [16-34] [where @@aId = @bId]
+        BinaryExpression(=) [22-34] [@@aId = @bId]
+          SystemVariableExpr [22-27] [@@aId]
+            PathExpression [24-27] [aId]
+              Identifier(aId) [24-27] [aId]
+          ParameterExpr [30-34] [@bId]
+            Identifier(bId) [31-34] [bId]
 */
 ---
 (source_file (ERROR))
@@ -38,11 +81,27 @@ ALTERNATION GROUP: @,AS
 ==================
 Test Case 4
 ==================
-# These two cases parse differently. I think thats a bug.
-SELECT @@FROM{{|x}}.fieldname.subsequent_field
+select * from T where @@aId = @@bId
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-35] [select * from...aId = @@bId]
+  Query [0-35] [select * from...aId = @@bId]
+    Select [0-35] [select * from...aId = @@bId]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      WhereClause [16-35] [where @@aId = @@bId]
+        BinaryExpression(=) [22-35] [@@aId = @@bId]
+          SystemVariableExpr [22-27] [@@aId]
+            PathExpression [24-27] [aId]
+              Identifier(aId) [24-27] [aId]
+          SystemVariableExpr [30-35] [@@bId]
+            PathExpression [32-35] [bId]
+              Identifier(bId) [32-35] [bId]
 */
 ---
 (source_file (ERROR))
@@ -50,16 +109,275 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 5
 ==================
-select {{@|@@}}ValidIds from T
+# This test is here to document current behavior and notice regressions in case
+# some customer has started doing this. We suspect the authors never intended
+# the @ or @@ token to be separated from the variable name by whitespace.
+select * from T where @ aId = @ bId
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+QueryStatement [0-35] [select * from...aId = @ bId]
+  Query [0-35] [select * from...aId = @ bId]
+    Select [0-35] [select * from...aId = @ bId]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      WhereClause [16-35] [where @ aId = @ bId]
+        BinaryExpression(=) [22-35] [@ aId = @ bId]
+          ParameterExpr [22-27] [@ aId]
+            Identifier(aId) [24-27] [aId]
+          ParameterExpr [30-35] [@ bId]
+            Identifier(bId) [32-35] [bId]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 6
+==================
+# This test is here to document current behavior and notice regressions in case
+# some customer has started doing this. We suspect the authors never intended
+# the @ or @@ token to be separated from the variable name by whitespace.
+select * from T where @ aId = @@ bId
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-36] [select * from...aId = @@ bId]
+  Query [0-36] [select * from...aId = @@ bId]
+    Select [0-36] [select * from...aId = @@ bId]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      WhereClause [16-36] [where @ aId = @@ bId]
+        BinaryExpression(=) [22-36] [@ aId = @@ bId]
+          ParameterExpr [22-27] [@ aId]
+            Identifier(aId) [24-27] [aId]
+          SystemVariableExpr [30-36] [@@ bId]
+            PathExpression [33-36] [bId]
+              Identifier(bId) [33-36] [bId]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# This test is here to document current behavior and notice regressions in case
+# some customer has started doing this. We suspect the authors never intended
+# the @ or @@ token to be separated from the variable name by whitespace.
+select * from T where @@ aId = @ bId
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-36] [select * from...aId = @ bId]
+  Query [0-36] [select * from...aId = @ bId]
+    Select [0-36] [select * from...aId = @ bId]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      WhereClause [16-36] [where @@ aId = @ bId]
+        BinaryExpression(=) [22-36] [@@ aId = @ bId]
+          SystemVariableExpr [22-28] [@@ aId]
+            PathExpression [25-28] [aId]
+              Identifier(aId) [25-28] [aId]
+          ParameterExpr [31-36] [@ bId]
+            Identifier(bId) [33-36] [bId]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# This test is here to document current behavior and notice regressions in case
+# some customer has started doing this. We suspect the authors never intended
+# the @ or @@ token to be separated from the variable name by whitespace.
+select * from T where @@ aId = @@ bId
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-37] [select * from...aId = @@ bId]
+  Query [0-37] [select * from...aId = @@ bId]
+    Select [0-37] [select * from...aId = @@ bId]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+      WhereClause [16-37] [where @@ aId = @@ bId]
+        BinaryExpression(=) [22-37] [@@ aId = @@ bId]
+          SystemVariableExpr [22-28] [@@ aId]
+            PathExpression [25-28] [aId]
+              Identifier(aId) [25-28] [aId]
+          SystemVariableExpr [31-37] [@@ bId]
+            PathExpression [34-37] [bId]
+              Identifier(bId) [34-37] [bId]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# This test is here to document current behavior and notice regressions.
+select @ aId AS t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [select @ aId AS t]
+  Query [0-17] [select @ aId AS t]
+    Select [0-17] [select @ aId AS t]
+      SelectList [7-17] [@ aId AS t]
+        SelectColumn [7-17] [@ aId AS t]
+          ParameterExpr [7-12] [@ aId]
+            Identifier(aId) [9-12] [aId]
+          Alias [13-17] [AS t]
+            Identifier(t) [16-17] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# This test is here to document current behavior and notice regressions.
+select @ aId FROM t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-19] [select @ aId FROM t]
+  Query [0-19] [select @ aId FROM t]
+    Select [0-19] [select @ aId FROM t]
+      SelectList [7-12] [@ aId]
+        SelectColumn [7-12] [@ aId]
+          ParameterExpr [7-12] [@ aId]
+            Identifier(aId) [9-12] [aId]
+      FromClause [13-19] [FROM t]
+        TablePathExpression [18-19] [t]
+          PathExpression [18-19] [t]
+            Identifier(t) [18-19] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# This test is here to document current behavior and notice regressions.
+select @@ aId AS t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select @@ aId AS t]
+  Query [0-18] [select @@ aId AS t]
+    Select [0-18] [select @@ aId AS t]
+      SelectList [7-18] [@@ aId AS t]
+        SelectColumn [7-18] [@@ aId AS t]
+          SystemVariableExpr [7-13] [@@ aId]
+            PathExpression [10-13] [aId]
+              Identifier(aId) [10-13] [aId]
+          Alias [14-18] [AS t]
+            Identifier(t) [17-18] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# This test is here to document current behavior and notice regressions.
+select @@ aId FROM t;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-20] [select @@ aId FROM t]
+  Query [0-20] [select @@ aId FROM t]
+    Select [0-20] [select @@ aId FROM t]
+      SelectList [7-13] [@@ aId]
+        SelectColumn [7-13] [@@ aId]
+          SystemVariableExpr [7-13] [@@ aId]
+            PathExpression [10-13] [aId]
+              Identifier(aId) [10-13] [aId]
+      FromClause [14-20] [FROM t]
+        TablePathExpression [19-20] [t]
+          PathExpression [19-20] [t]
+            Identifier(t) [19-20] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# These two cases parse differently. I think thats a bug.
+SELECT @@FROMx.fieldname.subsequent_field
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [SELECT @@FROMx...sequent_field]
+  Query [0-41] [SELECT @@FROMx...sequent_field]
+    Select [0-41] [SELECT @@FROMx...sequent_field]
+      SelectList [7-41] [@@FROMx.fieldname...uent_field]
+        SelectColumn [7-41] [@@FROMx.fieldname...uent_field]
+          SystemVariableExpr [7-41] [@@FROMx.fieldname...uent_field]
+            PathExpression [9-41] [FROMx.fieldname...equent_field]
+              Identifier(FROMx) [9-14] [FROMx]
+              Identifier(fieldname) [15-24] [fieldname]
+              Identifier(subsequent_field) [25-41] [subsequent_field]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+select @ValidIds from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-23] [select @ValidIds from T]
+  Query [0-23] [select @ValidIds from T]
+    Select [0-23] [select @ValidIds from T]
+      SelectList [7-16] [@ValidIds]
+        SelectColumn [7-16] [@ValidIds]
+          ParameterExpr [7-16] [@ValidIds]
+            Identifier(ValidIds) [8-16] [ValidIds]
+      FromClause [17-23] [from T]
+        TablePathExpression [22-23] [T]
+          PathExpression [22-23] [T]
+            Identifier(T) [22-23] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+select @@ValidIds from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-24] [select @@ValidIds from T]
+  Query [0-24] [select @@ValidIds from T]
+    Select [0-24] [select @@ValidIds from T]
+      SelectList [7-17] [@@ValidIds]
+        SelectColumn [7-17] [@@ValidIds]
+          SystemVariableExpr [7-17] [@@ValidIds]
+            PathExpression [9-17] [ValidIds]
+              Identifier(ValidIds) [9-17] [ValidIds]
+      FromClause [18-24] [from T]
+        TablePathExpression [23-24] [T]
+          PathExpression [23-24] [T]
+            Identifier(T) [23-24] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
 ==================
 select @`ValidIds` from T
 
@@ -80,18 +398,50 @@ QueryStatement [0-25] [select @`ValidIds` from T]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 17
 ==================
-select {{@|@@}} ValidIds from T
+select @ ValidIds from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+QueryStatement [0-24] [select @ ValidIds from T]
+  Query [0-24] [select @ ValidIds from T]
+    Select [0-24] [select @ ValidIds from T]
+      SelectList [7-17] [@ ValidIds]
+        SelectColumn [7-17] [@ ValidIds]
+          ParameterExpr [7-17] [@ ValidIds]
+            Identifier(ValidIds) [9-17] [ValidIds]
+      FromClause [18-24] [from T]
+        TablePathExpression [23-24] [T]
+          PathExpression [23-24] [T]
+            Identifier(T) [23-24] [T]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 18
+==================
+select @@ ValidIds from T
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-25] [select @@ ValidIds from T]
+  Query [0-25] [select @@ ValidIds from T]
+    Select [0-25] [select @@ ValidIds from T]
+      SelectList [7-18] [@@ ValidIds]
+        SelectColumn [7-18] [@@ ValidIds]
+          SystemVariableExpr [7-18] [@@ ValidIds]
+            PathExpression [10-18] [ValidIds]
+              Identifier(ValidIds) [10-18] [ValidIds]
+      FromClause [19-25] [from T]
+        TablePathExpression [24-25] [T]
+          PathExpression [24-25] [T]
+            Identifier(T) [24-25] [T]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
 ==================
 select @@a AS a from a where @@a IN (@@a) AND @@a + a[@@a] = @@a
 
@@ -141,7 +491,7 @@ QueryStatement [0-64] [select @@a...@@a] = @@a]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 20
 ==================
 select @a AS a from a where @a IN (@a) AND @a + a[@a] = @a
 
@@ -185,7 +535,7 @@ QueryStatement [0-58] [select @a...a[@a] = @a]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 21
 ==================
 select * from T where ? = ?
 
@@ -209,7 +559,7 @@ QueryStatement [0-27] [select * from T where ? = ?]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 22
 ==================
 select ?, @val, @@sysvar, * from T where ? = @param or @@sysvar = @param
 
@@ -250,78 +600,220 @@ QueryStatement [0-72] [select ?,...sysvar = @param]
 (source_file (ERROR))
 
 ==================
-Test Case 12
-==================
-# Query params should not be associated with table names.
-select a from {{@a|?|@@a}};
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: @a
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 13
+Test Case 23
 ==================
 # Parameter name is an unreserved keyword
-select {{@|@@}}aggregate
+select @aggregate
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+QueryStatement [0-17] [select @aggregate]
+  Query [0-17] [select @aggregate]
+    Select [0-17] [select @aggregate]
+      SelectList [7-17] [@aggregate]
+        SelectColumn [7-17] [@aggregate]
+          ParameterExpr [7-17] [@aggregate]
+            Identifier(aggregate) [8-17] [aggregate]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 24
+==================
+# Parameter name is an unreserved keyword
+select @@aggregate
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-18] [select @@aggregate]
+  Query [0-18] [select @@aggregate]
+    Select [0-18] [select @@aggregate]
+      SelectList [7-18] [@@aggregate]
+        SelectColumn [7-18] [@@aggregate]
+          SystemVariableExpr [7-18] [@@aggregate]
+            PathExpression [9-18] [aggregate]
+              Identifier(aggregate) [9-18] [aggregate]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
 ==================
 # Parameter name is a reserved keyword
-select {{@|@@}}proto
+select @proto
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+QueryStatement [0-13] [select @proto]
+  Query [0-13] [select @proto]
+    Select [0-13] [select @proto]
+      SelectList [7-13] [@proto]
+        SelectColumn [7-13] [@proto]
+          ParameterExpr [7-13] [@proto]
+            Identifier(`proto`) [8-13] [proto]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 26
 ==================
 # Parameter name is a reserved keyword
-select {{@|@@}}FrOm
+select @@proto
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+QueryStatement [0-14] [select @@proto]
+  Query [0-14] [select @@proto]
+    Select [0-14] [select @@proto]
+      SelectList [7-14] [@@proto]
+        SelectColumn [7-14] [@@proto]
+          SystemVariableExpr [7-14] [@@proto]
+            PathExpression [9-14] [proto]
+              Identifier(`proto`) [9-14] [proto]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 27
+==================
+# Parameter name is a reserved keyword
+select @FrOm
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-12] [select @FrOm]
+  Query [0-12] [select @FrOm]
+    Select [0-12] [select @FrOm]
+      SelectList [7-12] [@FrOm]
+        SelectColumn [7-12] [@FrOm]
+          ParameterExpr [7-12] [@FrOm]
+            Identifier(`FrOm`) [8-12] [FrOm]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+# Parameter name is a reserved keyword
+select @@FrOm
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-13] [select @@FrOm]
+  Query [0-13] [select @@FrOm]
+    Select [0-13] [select @@FrOm]
+      SelectList [7-13] [@@FrOm]
+        SelectColumn [7-13] [@@FrOm]
+          SystemVariableExpr [7-13] [@@FrOm]
+            PathExpression [9-13] [FrOm]
+              Identifier(`FrOm`) [9-13] [FrOm]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
 ==================
 # Trailing comma after parameter
-select a, {{@|@@}}b, from T
+select a, @b, from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+QueryStatement [0-20] [select a, @b, from T]
+  Query [0-20] [select a, @b, from T]
+    Select [0-20] [select a, @b, from T]
+      SelectList [7-13] [a, @b,]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+        SelectColumn [10-12] [@b]
+          ParameterExpr [10-12] [@b]
+            Identifier(b) [11-12] [b]
+      FromClause [14-20] [from T]
+        TablePathExpression [19-20] [T]
+          PathExpression [19-20] [T]
+            Identifier(T) [19-20] [T]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 30
 ==================
-SELECT @{{UNION|INTERSECT|EXCEPT}};
+# Trailing comma after parameter
+select a, @@b, from T
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: UNION
+QueryStatement [0-21] [select a, @@b, from T]
+  Query [0-21] [select a, @@b, from T]
+    Select [0-21] [select a, @@b, from T]
+      SelectList [7-14] [a, @@b,]
+        SelectColumn [7-8] [a]
+          PathExpression [7-8] [a]
+            Identifier(a) [7-8] [a]
+        SelectColumn [10-13] [@@b]
+          SystemVariableExpr [10-13] [@@b]
+            PathExpression [12-13] [b]
+              Identifier(b) [12-13] [b]
+      FromClause [15-21] [from T]
+        TablePathExpression [20-21] [T]
+          PathExpression [20-21] [T]
+            Identifier(T) [20-21] [T]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 31
+==================
+SELECT @UNION;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-13] [SELECT @UNION]
+  Query [0-13] [SELECT @UNION]
+    Select [0-13] [SELECT @UNION]
+      SelectList [7-13] [@UNION]
+        SelectColumn [7-13] [@UNION]
+          ParameterExpr [7-13] [@UNION]
+            Identifier(`UNION`) [8-13] [UNION]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 32
+==================
+SELECT @INTERSECT;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-17] [SELECT @INTERSECT]
+  Query [0-17] [SELECT @INTERSECT]
+    Select [0-17] [SELECT @INTERSECT]
+      SelectList [7-17] [@INTERSECT]
+        SelectColumn [7-17] [@INTERSECT]
+          ParameterExpr [7-17] [@INTERSECT]
+            Identifier(`INTERSECT`) [8-17] [INTERSECT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 33
+==================
+SELECT @EXCEPT;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-14] [SELECT @EXCEPT]
+  Query [0-14] [SELECT @EXCEPT]
+    Select [0-14] [SELECT @EXCEPT]
+      SelectList [7-14] [@EXCEPT]
+        SelectColumn [7-14] [@EXCEPT]
+          ParameterExpr [7-14] [@EXCEPT]
+            Identifier(`EXCEPT`) [8-14] [EXCEPT]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
 ==================
 SELECT @FULL
 
@@ -338,7 +830,7 @@ QueryStatement [0-12] [SELECT @FULL]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 35
 ==================
 SELECT @FULL.LEFT
 
@@ -357,7 +849,7 @@ QueryStatement [0-17] [SELECT @FULL.LEFT]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 36
 ==================
 SELECT @FULL.1
 
@@ -376,7 +868,7 @@ QueryStatement [0-14] [SELECT @FULL.1]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 37
 ==================
 SELECT @@FULL
 
@@ -394,7 +886,7 @@ QueryStatement [0-13] [SELECT @@FULL]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 38
 ==================
 SELECT @@FULL.LEFT
 
@@ -413,7 +905,7 @@ QueryStatement [0-18] [SELECT @@FULL.LEFT]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 39
 ==================
 SELECT @@FULL.1
 
@@ -432,7 +924,7 @@ QueryStatement [0-15] [SELECT @@FULL.1]
 (source_file (ERROR))
 
 ==================
-Test Case 24
+Test Case 40
 ==================
 SELECT @FULL.FULL.FULL.FULL
 
@@ -455,7 +947,7 @@ QueryStatement [0-27] [SELECT @FULL.FULL.FULL.FULL]
 (source_file (ERROR))
 
 ==================
-Test Case 25
+Test Case 41
 ==================
 SELECT @@FULL.FULL.FULL.FULL
 

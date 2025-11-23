@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+ORDERED_PRIMARY_KEYS]
 create external table t1
 options (a=b, c="def")
 
@@ -25,11 +24,20 @@ CreateExternalTableStatement [0-47] [create external..., c="def")]
 ==================
 Test Case 2
 ==================
-create {{temp|temporary|public|private}} external table a.b.c.t1
+create temp external table a.b.c.t1
 options (size=10)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp
+CreateExternalTableStatement(is_temp) [0-53] [create temp...(size=10)]
+  PathExpression [27-35] [a.b.c.t1]
+    Identifier(a) [27-28] [a]
+    Identifier(b) [29-30] [b]
+    Identifier(c) [31-32] [c]
+    Identifier(t1) [33-35] [t1]
+  OptionsList [44-53] [(size=10)]
+    OptionsEntry [45-52] [size=10]
+      Identifier(size) [45-49] [size]
+      IntLiteral(10) [50-52] [10]
 */
 ---
 (source_file (ERROR))
@@ -37,11 +45,20 @@ ALTERNATION GROUP: temp
 ==================
 Test Case 3
 ==================
-create {{|or replace}} {{|temporary|temp}} external table {{|if not exists}} T
-options ()
+create temporary external table a.b.c.t1
+options (size=10)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateExternalTableStatement(is_temp) [0-58] [create temporary...(size=10)]
+  PathExpression [32-40] [a.b.c.t1]
+    Identifier(a) [32-33] [a]
+    Identifier(b) [34-35] [b]
+    Identifier(c) [36-37] [c]
+    Identifier(t1) [38-40] [t1]
+  OptionsList [49-58] [(size=10)]
+    OptionsEntry [50-57] [size=10]
+      Identifier(size) [50-54] [size]
+      IntLiteral(10) [55-57] [10]
 */
 ---
 (source_file (ERROR))
@@ -49,13 +66,20 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 4
 ==================
-create external table `function` options();
+create public external table a.b.c.t1
+options (size=10)
 
 /* Expected ZetaSQL AST:
-CreateExternalTableStatement [0-42] [create external...options()]
-  PathExpression [22-32] [`function`]
-    Identifier(`function`) [22-32] [`function`]
-  OptionsList [40-42] [()]
+CreateExternalTableStatement(is_public) [0-55] [create public...(size=10)]
+  PathExpression [29-37] [a.b.c.t1]
+    Identifier(a) [29-30] [a]
+    Identifier(b) [31-32] [b]
+    Identifier(c) [33-34] [c]
+    Identifier(t1) [35-37] [t1]
+  OptionsList [46-55] [(size=10)]
+    OptionsEntry [47-54] [size=10]
+      Identifier(size) [47-51] [size]
+      IntLiteral(10) [52-54] [10]
 */
 ---
 (source_file (ERROR))
@@ -63,6 +87,117 @@ CreateExternalTableStatement [0-42] [create external...options()]
 ==================
 Test Case 5
 ==================
+create private external table a.b.c.t1
+options (size=10)
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_private) [0-56] [create private...(size=10)]
+  PathExpression [30-38] [a.b.c.t1]
+    Identifier(a) [30-31] [a]
+    Identifier(b) [32-33] [b]
+    Identifier(c) [34-35] [c]
+    Identifier(t1) [36-38] [t1]
+  OptionsList [47-56] [(size=10)]
+    OptionsEntry [48-55] [size=10]
+      Identifier(size) [48-52] [size]
+      IntLiteral(10) [53-55] [10]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+create or replace  external table  T
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_or_replace) [0-47] [create or...options ()]
+  PathExpression [35-36] [T]
+    Identifier(T) [35-36] [T]
+  OptionsList [45-47] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+create or replace  external table if not exists T
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_or_replace, is_if_not_exists) [0-60] [create or...options ()]
+  PathExpression [48-49] [T]
+    Identifier(T) [48-49] [T]
+  OptionsList [58-60] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+create or replace temporary external table  T
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_temp, is_or_replace) [0-56] [create or...options ()]
+  PathExpression [44-45] [T]
+    Identifier(T) [44-45] [T]
+  OptionsList [54-56] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+create or replace temporary external table if not exists T
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_temp, is_or_replace, is_if_not_exists) [0-69] [create or...options ()]
+  PathExpression [57-58] [T]
+    Identifier(T) [57-58] [T]
+  OptionsList [67-69] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+create or replace temp external table  T
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_temp, is_or_replace) [0-51] [create or...options ()]
+  PathExpression [39-40] [T]
+    Identifier(T) [39-40] [T]
+  OptionsList [49-51] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+create or replace temp external table if not exists T
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_temp, is_or_replace, is_if_not_exists) [0-64] [create or...options ()]
+  PathExpression [52-53] [T]
+    Identifier(T) [52-53] [T]
+  OptionsList [62-64] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
 create external table `function` options();
 
 /* Expected ZetaSQL AST:
@@ -75,31 +210,189 @@ CreateExternalTableStatement [0-42] [create external...options()]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 13
 ==================
-create {{|temp|temporary|public|private}} external table t(x int64)
-options ()
+create external table `function` options();
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateExternalTableStatement [0-42] [create external...options()]
+  PathExpression [22-32] [`function`]
+    Identifier(`function`) [22-32] [`function`]
+  OptionsList [40-42] [()]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 14
 ==================
-create {{|or replace}} {{|temp}} external table {{|if not exists}} t(x int64)
+create temp external table t(x int64)
 options ()
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateExternalTableStatement(is_temp) [0-48] [create temp...options ()]
+  PathExpression [27-28] [t]
+    Identifier(t) [27-28] [t]
+  TableElementList [28-37] [(x int64)]
+    ColumnDefinition [29-36] [x int64]
+      Identifier(x) [29-30] [x]
+      SimpleColumnSchema [31-36] [int64]
+        PathExpression [31-36] [int64]
+          Identifier(int64) [31-36] [int64]
+  OptionsList [46-48] [()]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 15
+==================
+create temporary external table t(x int64)
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_temp) [0-53] [create temporary...options ()]
+  PathExpression [32-33] [t]
+    Identifier(t) [32-33] [t]
+  TableElementList [33-42] [(x int64)]
+    ColumnDefinition [34-41] [x int64]
+      Identifier(x) [34-35] [x]
+      SimpleColumnSchema [36-41] [int64]
+        PathExpression [36-41] [int64]
+          Identifier(int64) [36-41] [int64]
+  OptionsList [51-53] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+create public external table t(x int64)
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_public) [0-50] [create public...options ()]
+  PathExpression [29-30] [t]
+    Identifier(t) [29-30] [t]
+  TableElementList [30-39] [(x int64)]
+    ColumnDefinition [31-38] [x int64]
+      Identifier(x) [31-32] [x]
+      SimpleColumnSchema [33-38] [int64]
+        PathExpression [33-38] [int64]
+          Identifier(int64) [33-38] [int64]
+  OptionsList [48-50] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+create private external table t(x int64)
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_private) [0-51] [create private...options ()]
+  PathExpression [30-31] [t]
+    Identifier(t) [30-31] [t]
+  TableElementList [31-40] [(x int64)]
+    ColumnDefinition [32-39] [x int64]
+      Identifier(x) [32-33] [x]
+      SimpleColumnSchema [34-39] [int64]
+        PathExpression [34-39] [int64]
+          Identifier(int64) [34-39] [int64]
+  OptionsList [49-51] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+create or replace  external table  t(x int64)
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_or_replace) [0-56] [create or...options ()]
+  PathExpression [35-36] [t]
+    Identifier(t) [35-36] [t]
+  TableElementList [36-45] [(x int64)]
+    ColumnDefinition [37-44] [x int64]
+      Identifier(x) [37-38] [x]
+      SimpleColumnSchema [39-44] [int64]
+        PathExpression [39-44] [int64]
+          Identifier(int64) [39-44] [int64]
+  OptionsList [54-56] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+create or replace  external table if not exists t(x int64)
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_or_replace, is_if_not_exists) [0-69] [create or...options ()]
+  PathExpression [48-49] [t]
+    Identifier(t) [48-49] [t]
+  TableElementList [49-58] [(x int64)]
+    ColumnDefinition [50-57] [x int64]
+      Identifier(x) [50-51] [x]
+      SimpleColumnSchema [52-57] [int64]
+        PathExpression [52-57] [int64]
+          Identifier(int64) [52-57] [int64]
+  OptionsList [67-69] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+create or replace temp external table  t(x int64)
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_temp, is_or_replace) [0-60] [create or...options ()]
+  PathExpression [39-40] [t]
+    Identifier(t) [39-40] [t]
+  TableElementList [40-49] [(x int64)]
+    ColumnDefinition [41-48] [x int64]
+      Identifier(x) [41-42] [x]
+      SimpleColumnSchema [43-48] [int64]
+        PathExpression [43-48] [int64]
+          Identifier(int64) [43-48] [int64]
+  OptionsList [58-60] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+create or replace temp external table if not exists t(x int64)
+options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement(is_temp, is_or_replace, is_if_not_exists) [0-73] [create or...options ()]
+  PathExpression [52-53] [t]
+    Identifier(t) [52-53] [t]
+  TableElementList [53-62] [(x int64)]
+    ColumnDefinition [54-61] [x int64]
+      Identifier(x) [54-55] [x]
+      SimpleColumnSchema [56-61] [int64]
+        PathExpression [56-61] [int64]
+          Identifier(int64) [56-61] [int64]
+  OptionsList [71-73] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
 ==================
 create external table t1(element1 bool, element2 string)
 options (a='{"jsonkey": "jsonvalue"}', c="def")
@@ -133,7 +426,7 @@ CreateExternalTableStatement [0-104] [create external..., c="def")]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 23
 ==================
 create external table t1(x int64 NOT NULL)
 options(a=b)
@@ -160,7 +453,7 @@ CreateExternalTableStatement [0-55] [create external...options(a=b)]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 24
 ==================
 create external table projectid.datasetid.tablename(
   x int64,
@@ -209,20 +502,7 @@ CreateExternalTableStatement [0-135] [create external...ptions (a=b)]
 (source_file (ERROR))
 
 ==================
-Test Case 11
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-create external table t1-2
-options (a=b, c="def")
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 12
+Test Case 25
 ==================
 create external table projectid.datasetid.tablename
 with partition columns
@@ -241,7 +521,7 @@ CreateExternalTableStatement [0-85] [create external...options ()]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 26
 ==================
 create external table projectid.datasetid.tablename(x int64)
 with partition columns (y int64, z string)
@@ -277,7 +557,7 @@ CreateExternalTableStatement [0-114] [create external...options ()]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 27
 ==================
 create external table projectid.datasetid.tablename
 with partition columns (y int64, PRIMARY KEY(y))
@@ -306,7 +586,7 @@ CreateExternalTableStatement [0-111] [create external...options ()]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 28
 ==================
 create external table projectid.datasetid.tablename(x int64, PRIMARY KEY(x))
 with partition columns (CHECK(x > 0))
@@ -341,7 +621,7 @@ CreateExternalTableStatement [0-125] [create external...options ()]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 29
 ==================
 create external table projectid.datasetid.tablename(x int64)
 with connection default
@@ -372,7 +652,7 @@ CreateExternalTableStatement [0-100] [create external...ions (x=foo)]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 30
 ==================
 create external table projectid.datasetid.tablename(x int64)
 with connection conn_1
@@ -404,7 +684,7 @@ CreateExternalTableStatement [0-99] [create external...ions (x=foo)]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 31
 ==================
 create external table projectid.datasetid.tablename(x int64)
 with connection proj.loc.conn_id
@@ -438,7 +718,7 @@ CreateExternalTableStatement [0-109] [create external...ions (x=foo)]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 32
 ==================
 # WITH CLAUSE order: PARTITION COLUMNS, CONNECTION
 create external table projectid.datasetid.tablename(x int64)
@@ -473,41 +753,143 @@ CreateExternalTableStatement [0-155] [create external...ions (x=bar)]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 33
 ==================
 create external table t(x int64)
 with partition columns (
   y int64,
-  PRIMARY KEY(y {{|ASC|DESC}})
+  PRIMARY KEY(y ASC)
 )
 with connection a.b.c
 options (x=baz)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateExternalTableStatement [0-129] [create external...ions (x=baz)]
+  PathExpression [22-23] [t]
+    Identifier(t) [22-23] [t]
+  TableElementList [23-32] [(x int64)]
+    ColumnDefinition [24-31] [x int64]
+      Identifier(x) [24-25] [x]
+      SimpleColumnSchema [26-31] [int64]
+        PathExpression [26-31] [int64]
+          Identifier(int64) [26-31] [int64]
+  WithPartitionColumnsClause [33-91] [with partition...KEY(y ASC) )]
+    TableElementList [56-91] [(   y int64...KEY(y ASC) )]
+      ColumnDefinition [60-67] [y int64]
+        Identifier(y) [60-61] [y]
+        SimpleColumnSchema [62-67] [int64]
+          PathExpression [62-67] [int64]
+            Identifier(int64) [62-67] [int64]
+      PrimaryKey(ENFORCED) [71-89] [PRIMARY KEY(y ASC)]
+        PrimaryKeyElementList [82-89] [(y ASC)]
+          PrimaryKeyElement(ASC EXPLICITLY) [83-88] [y ASC]
+            Identifier(y) [83-84] [y]
+  WithConnectionClause [92-113] [with connection a.b.c]
+    ConnectionClause [97-113] [connection a.b.c]
+      PathExpression [108-113] [a.b.c]
+        Identifier(a) [108-109] [a]
+        Identifier(b) [110-111] [b]
+        Identifier(c) [112-113] [c]
+  OptionsList [122-129] [(x=baz)]
+    OptionsEntry [123-128] [x=baz]
+      Identifier(x) [123-124] [x]
+      PathExpression [125-128] [baz]
+        Identifier(baz) [125-128] [baz]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 34
 ==================
-create external table t1 (a int32, PRIMARY KEY(a {{|ASC|DESC}})) options ()
+create external table t(x int64)
+with partition columns (
+  y int64,
+  PRIMARY KEY(y DESC)
+)
+with connection a.b.c
+options (x=baz)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateExternalTableStatement [0-130] [create external...ions (x=baz)]
+  PathExpression [22-23] [t]
+    Identifier(t) [22-23] [t]
+  TableElementList [23-32] [(x int64)]
+    ColumnDefinition [24-31] [x int64]
+      Identifier(x) [24-25] [x]
+      SimpleColumnSchema [26-31] [int64]
+        PathExpression [26-31] [int64]
+          Identifier(int64) [26-31] [int64]
+  WithPartitionColumnsClause [33-92] [with partition...(y DESC) )]
+    TableElementList [56-92] [(   y int64...(y DESC) )]
+      ColumnDefinition [60-67] [y int64]
+        Identifier(y) [60-61] [y]
+        SimpleColumnSchema [62-67] [int64]
+          PathExpression [62-67] [int64]
+            Identifier(int64) [62-67] [int64]
+      PrimaryKey(ENFORCED) [71-90] [PRIMARY KEY(y DESC)]
+        PrimaryKeyElementList [82-90] [(y DESC)]
+          PrimaryKeyElement(DESC) [83-89] [y DESC]
+            Identifier(y) [83-84] [y]
+  WithConnectionClause [93-114] [with connection a.b.c]
+    ConnectionClause [98-114] [connection a.b.c]
+      PathExpression [109-114] [a.b.c]
+        Identifier(a) [109-110] [a]
+        Identifier(b) [111-112] [b]
+        Identifier(c) [113-114] [c]
+  OptionsList [123-130] [(x=baz)]
+    OptionsEntry [124-129] [x=baz]
+      Identifier(x) [124-125] [x]
+      PathExpression [126-129] [baz]
+        Identifier(baz) [126-129] [baz]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 35
 ==================
-[language_features=NONE]
-create external table t1 (a int32, PRIMARY KEY(a {{|ASC|DESC}})) options ()
+create external table t1 (a int32, PRIMARY KEY(a ASC)) options ()
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateExternalTableStatement [0-65] [create external...options ()]
+  PathExpression [22-24] [t1]
+    Identifier(t1) [22-24] [t1]
+  TableElementList [25-54] [(a int32, PRIMARY KEY(a ASC))]
+    ColumnDefinition [26-33] [a int32]
+      Identifier(a) [26-27] [a]
+      SimpleColumnSchema [28-33] [int32]
+        PathExpression [28-33] [int32]
+          Identifier(int32) [28-33] [int32]
+    PrimaryKey(ENFORCED) [35-53] [PRIMARY KEY(a ASC)]
+      PrimaryKeyElementList [46-53] [(a ASC)]
+        PrimaryKeyElement(ASC EXPLICITLY) [47-52] [a ASC]
+          Identifier(a) [47-48] [a]
+  OptionsList [63-65] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 36
+==================
+create external table t1 (a int32, PRIMARY KEY(a DESC)) options ()
+
+/* Expected ZetaSQL AST:
+CreateExternalTableStatement [0-66] [create external...options ()]
+  PathExpression [22-24] [t1]
+    Identifier(t1) [22-24] [t1]
+  TableElementList [25-55] [(a int32, PRIMARY KEY(a DESC))]
+    ColumnDefinition [26-33] [a int32]
+      Identifier(a) [26-27] [a]
+      SimpleColumnSchema [28-33] [int32]
+        PathExpression [28-33] [int32]
+          Identifier(int32) [28-33] [int32]
+    PrimaryKey(ENFORCED) [35-54] [PRIMARY KEY(a DESC)]
+      PrimaryKeyElementList [46-54] [(a DESC)]
+        PrimaryKeyElement(DESC) [47-53] [a DESC]
+          Identifier(a) [47-48] [a]
+  OptionsList [64-66] [()]
 */
 ---
 (source_file (ERROR))

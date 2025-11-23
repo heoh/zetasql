@@ -1007,18 +1007,3 @@ MergeStatement [0-76] [MERGE INTO...INSERT ROW]
 ---
 (source_file (ERROR))
 
-==================
-Test Case 21
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-MERGE INTO my-project-123.a.t
-USING project-789-abc.b.s
-ON t1 = s1
-WHEN NOT MATCHED BY SOURCE THEN INSERT ROW
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-

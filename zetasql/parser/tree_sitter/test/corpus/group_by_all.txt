@@ -32,40 +32,195 @@ QueryStatement [0-28] [SELECT * FROM T GROUP BY ALL]
             (path_expression [1, 5] - [1, 6]
               (identifier [1, 5] - [1, 6])))))
       (group_by_clause [2, 0] - [2, 12]
-        (expression_list [2, 9] - [2, 12]
-          (expression [2, 9] - [2, 12]
-            (path_expression [2, 9] - [2, 12]
-              (identifier [2, 9] - [2, 12])))))))
+        (grouping_item_list [2, 9] - [2, 12]
+          (grouping_item [2, 9] - [2, 12]
+            (expression [2, 9] - [2, 12]
+              (path_expression [2, 9] - [2, 12]
+                (identifier [2, 9] - [2, 12]))))))))
   (comment [4, 0] - [17, 2]))
 
 ==================
 Test Case 2
 ==================
 SELECT *
-FROM table AS {{T|`ALL`}}
-GROUP BY {{ALL|`ALL`}}
+FROM table AS T
+GROUP BY ALL
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: T,ALL
+QueryStatement [0-37] [SELECT * FROM...GROUP BY ALL]
+  Query [0-37] [SELECT * FROM...GROUP BY ALL]
+    Select [0-37] [SELECT * FROM...GROUP BY ALL]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-24] [FROM table AS T]
+        TablePathExpression [14-24] [table AS T]
+          PathExpression [14-19] [table]
+            Identifier(table) [14-19] [table]
+          Alias [20-24] [AS T]
+            Identifier(T) [23-24] [T]
+      GroupBy [25-37] [GROUP BY ALL]
+        GroupByAll [34-37] [ALL]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [2, 12]
+    (select_statement [0, 0] - [2, 12]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [1, 0] - [1, 15]
+        (from_item [1, 5] - [1, 15]
+          (table_expression [1, 5] - [1, 10]
+            (path_expression [1, 5] - [1, 10]
+              (identifier [1, 5] - [1, 10])))
+          (identifier [1, 14] - [1, 15])))
+      (group_by_clause [2, 0] - [2, 12]
+        (grouping_item_list [2, 9] - [2, 12]
+          (grouping_item [2, 9] - [2, 12]
+            (expression [2, 9] - [2, 12]
+              (path_expression [2, 9] - [2, 12]
+                (identifier [2, 9] - [2, 12]))))))))
+  (comment [4, 0] - [19, 2]))
 
 ==================
 Test Case 3
 ==================
 SELECT *
-FROM T
-GROUP BY {{|DISTINCT}}
+FROM table AS T
+GROUP BY `ALL`
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-39] [SELECT * FROM...GROUP BY `ALL`]
+  Query [0-39] [SELECT * FROM...GROUP BY `ALL`]
+    Select [0-39] [SELECT * FROM...GROUP BY `ALL`]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-24] [FROM table AS T]
+        TablePathExpression [14-24] [table AS T]
+          PathExpression [14-19] [table]
+            Identifier(table) [14-19] [table]
+          Alias [20-24] [AS T]
+            Identifier(T) [23-24] [T]
+      GroupBy [25-39] [GROUP BY `ALL`]
+        GroupingItem [34-39] [`ALL`]
+          PathExpression [34-39] [`ALL`]
+            Identifier(`ALL`) [34-39] [`ALL`]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [2, 14]
+    (select_statement [0, 0] - [2, 14]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [1, 0] - [1, 15]
+        (from_item [1, 5] - [1, 15]
+          (table_expression [1, 5] - [1, 10]
+            (path_expression [1, 5] - [1, 10]
+              (identifier [1, 5] - [1, 10])))
+          (identifier [1, 14] - [1, 15])))
+      (group_by_clause [2, 0] - [2, 14]
+        (grouping_item_list [2, 9] - [2, 14]
+          (grouping_item [2, 9] - [2, 14]
+            (expression [2, 9] - [2, 14]
+              (path_expression [2, 9] - [2, 14]
+                (identifier [2, 9] - [2, 14]))))))))
+  (comment [4, 0] - [21, 2]))
 
 ==================
 Test Case 4
+==================
+SELECT *
+FROM table AS `ALL`
+GROUP BY ALL
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [SELECT * FROM...GROUP BY ALL]
+  Query [0-41] [SELECT * FROM...GROUP BY ALL]
+    Select [0-41] [SELECT * FROM...GROUP BY ALL]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-28] [FROM table AS `ALL`]
+        TablePathExpression [14-28] [table AS `ALL`]
+          PathExpression [14-19] [table]
+            Identifier(table) [14-19] [table]
+          Alias [20-28] [AS `ALL`]
+            Identifier(`ALL`) [23-28] [`ALL`]
+      GroupBy [29-41] [GROUP BY ALL]
+        GroupByAll [38-41] [ALL]
+*/
+---
+(source_file [0, 0] - [19, 2]
+  (statement [0, 0] - [2, 12]
+    (select_statement [0, 0] - [2, 12]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [1, 0] - [1, 19]
+        (from_item [1, 5] - [1, 19]
+          (table_expression [1, 5] - [1, 10]
+            (path_expression [1, 5] - [1, 10]
+              (identifier [1, 5] - [1, 10])))
+          (identifier [1, 14] - [1, 19])))
+      (group_by_clause [2, 0] - [2, 12]
+        (grouping_item_list [2, 9] - [2, 12]
+          (grouping_item [2, 9] - [2, 12]
+            (expression [2, 9] - [2, 12]
+              (path_expression [2, 9] - [2, 12]
+                (identifier [2, 9] - [2, 12]))))))))
+  (comment [4, 0] - [19, 2]))
+
+==================
+Test Case 5
+==================
+SELECT *
+FROM table AS `ALL`
+GROUP BY `ALL`
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [SELECT * FROM...GROUP BY `ALL`]
+  Query [0-43] [SELECT * FROM...GROUP BY `ALL`]
+    Select [0-43] [SELECT * FROM...GROUP BY `ALL`]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-28] [FROM table AS `ALL`]
+        TablePathExpression [14-28] [table AS `ALL`]
+          PathExpression [14-19] [table]
+            Identifier(table) [14-19] [table]
+          Alias [20-28] [AS `ALL`]
+            Identifier(`ALL`) [23-28] [`ALL`]
+      GroupBy [29-43] [GROUP BY `ALL`]
+        GroupingItem [38-43] [`ALL`]
+          PathExpression [38-43] [`ALL`]
+            Identifier(`ALL`) [38-43] [`ALL`]
+*/
+---
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [2, 14]
+    (select_statement [0, 0] - [2, 14]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [1, 0] - [1, 19]
+        (from_item [1, 5] - [1, 19]
+          (table_expression [1, 5] - [1, 10]
+            (path_expression [1, 5] - [1, 10]
+              (identifier [1, 5] - [1, 10])))
+          (identifier [1, 14] - [1, 19])))
+      (group_by_clause [2, 0] - [2, 14]
+        (grouping_item_list [2, 9] - [2, 14]
+          (grouping_item [2, 9] - [2, 14]
+            (expression [2, 9] - [2, 14]
+              (path_expression [2, 9] - [2, 14]
+                (identifier [2, 9] - [2, 14]))))))))
+  (comment [4, 0] - [21, 2]))
+
+==================
+Test Case 6
 ==================
 SELECT *
 FROM T
@@ -93,23 +248,8 @@ QueryStatement [0-41] [SELECT * FROM...5 } BY ALL]
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 7
 ==================
-SELECT *
-FROM T
-GROUP BY ALL {{ALL|a|1}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ALL
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 6
-==================
-[language_features=NONE,+QUALIFY]
-[{{|no_}}qualify_reserved]
 SELECT *
 FROM T
 GROUP BY ALL
@@ -133,19 +273,6 @@ QueryStatement [0-42] [SELECT * FROM...QUALIFY a = 1]
           PathExpression [37-38] [a]
             Identifier(a) [37-38] [a]
           IntLiteral(1) [41-42] [1]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 7
-==================
-SELECT *
-FROM T
-GROUP BY ALL, {{a|1}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: a
 */
 ---
 (source_file (ERROR))

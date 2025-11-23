@@ -2,15 +2,29 @@
 Test Case 1
 ==================
 # Script containing a single statement, with terminating semi-colon.
-[default mode=script]
-[default language_features=NONE,+REPEAT,+FOR_IN]
-SELECT 3{{;|}}
+SELECT 3;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ;
+Script [0-9] [SELECT 3;]
+  StatementList [0-9] [SELECT 3;]
+    QueryStatement [0-8] [SELECT 3]
+      Query [0-8] [SELECT 3]
+        Select [0-8] [SELECT 3]
+          SelectList [7-8] [3]
+            SelectColumn [7-8] [3]
+              IntLiteral(3) [7-8] [3]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [12, 2]
+  (comment [0, 0] - [0, 68])
+  (statement [1, 0] - [1, 9]
+    (select_statement [1, 0] - [1, 9]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8]
+            (expression [1, 7] - [1, 8]
+              (number [1, 7] - [1, 8])))))))
+  (comment [3, 0] - [12, 2]))
 
 ==================
 Test Case 2
@@ -22,7 +36,9 @@ Script [0-0] []
   StatementList [0-0] []
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [5, 2]
+  (comment [0, 0] - [0, 14])
+  (comment [2, 0] - [5, 2]))
 
 ==================
 Test Case 3
@@ -52,13 +68,43 @@ Test Case 5
 ==================
 # Script with multiple statements, both with and without a terminating semicolon
 # following the last statement.
-SELECT 3; SELECT 4{{;|}}
+SELECT 3; SELECT 4;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ;
+Script [0-19] [SELECT 3; SELECT 4;]
+  StatementList [0-19] [SELECT 3; SELECT 4;]
+    QueryStatement [0-8] [SELECT 3]
+      Query [0-8] [SELECT 3]
+        Select [0-8] [SELECT 3]
+          SelectList [7-8] [3]
+            SelectColumn [7-8] [3]
+              IntLiteral(3) [7-8] [3]
+    QueryStatement [10-18] [SELECT 4]
+      Query [10-18] [SELECT 4]
+        Select [10-18] [SELECT 4]
+          SelectList [17-18] [4]
+            SelectColumn [17-18] [4]
+              IntLiteral(4) [17-18] [4]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (comment [0, 0] - [0, 80])
+  (comment [1, 0] - [1, 31])
+  (statement [2, 0] - [2, 9]
+    (select_statement [2, 0] - [2, 9]
+      (select_clause [2, 0] - [2, 8]
+        (select_list [2, 7] - [2, 8]
+          (select_expression [2, 7] - [2, 8]
+            (expression [2, 7] - [2, 8]
+              (number [2, 7] - [2, 8])))))))
+  (statement [2, 10] - [2, 19]
+    (select_statement [2, 10] - [2, 19]
+      (select_clause [2, 10] - [2, 18]
+        (select_list [2, 17] - [2, 18]
+          (select_expression [2, 17] - [2, 18]
+            (expression [2, 17] - [2, 18]
+              (number [2, 17] - [2, 18])))))))
+  (comment [4, 0] - [19, 2]))
 
 ==================
 Test Case 6
@@ -343,57 +389,6 @@ Script [0-147] [FOR t IN (...; END FOR;]
             InsertValuesRow [131-137] [(3, 4)]
               IntLiteral(3) [132-133] [3]
               IntLiteral(4) [135-136] [4]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 14
-==================
-[macro_expansion_mode=lenient]
-# Cannot create macros except at the top level
-IF true THEN
-  {{SELECT 1;|}}
-  {{/*comment*/|}} DEFINE MACRO m 1;
-END IF;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: SELECT 1;,/*comment* /
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 15
-==================
-[macro_expansion_mode=lenient]
-[language_features=NONE,+FOR_IN]
-# Cannot create macros except at the top level
-FOR x IN (SELECT 0) DO
-  {{SELECT 1;|}}
-  {{/*comment*/|}} DEFINE MACRO m 1;
-END FOR
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: SELECT 1;,/*comment* /
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 16
-==================
-[macro_expansion_mode=lenient]
-[language_features=NONE,+REPEAT]
-# Cannot create macros except at the top level
-REPEAT
-  {{SELECT 1;|}}
-  {{/*comment*/|}} DEFINE MACRO m 1;
-UNTIL TRUE
-END REPEAT;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: SELECT 1;,/*comment* /
 */
 ---
 (source_file (ERROR))

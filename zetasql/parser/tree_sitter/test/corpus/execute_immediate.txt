@@ -1,10 +1,12 @@
 ==================
 Test Case 1
 ==================
-EXECUTE IMMEDIATE {{;|}}
+EXECUTE IMMEDIATE "select 1";
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ;
+ExecuteImmediateStatement [0-28] [EXECUTE IMMEDIATE "select 1"]
+  StringLiteral [18-28] ["select 1"]
+    StringLiteralComponent("select 1") [18-28] ["select 1"]
 */
 ---
 (source_file (ERROR))
@@ -12,10 +14,17 @@ ALTERNATION GROUP: ;
 ==================
 Test Case 2
 ==================
-EXECUTE IMMEDIATE {{"select 1"|CONCAT("a", "b")|x|@x|@@x}};
+EXECUTE IMMEDIATE CONCAT("a", "b");
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: "select 1"
+ExecuteImmediateStatement [0-34] [EXECUTE IMMEDIATE...("a", "b")]
+  FunctionCall [18-34] [CONCAT("a", "b")]
+    PathExpression [18-24] [CONCAT]
+      Identifier(CONCAT) [18-24] [CONCAT]
+    StringLiteral [25-28] ["a"]
+      StringLiteralComponent("a") [25-28] ["a"]
+    StringLiteral [30-33] ["b"]
+      StringLiteralComponent("b") [30-33] ["b"]
 */
 ---
 (source_file (ERROR))
@@ -23,10 +32,12 @@ ALTERNATION GROUP: "select 1"
 ==================
 Test Case 3
 ==================
-EXECUTE IMMEDIATE x INTO {{a|a, b|@c|@@d}};
+EXECUTE IMMEDIATE x;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: a
+ExecuteImmediateStatement [0-19] [EXECUTE IMMEDIATE x]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
 */
 ---
 (source_file (ERROR))
@@ -34,10 +45,12 @@ ALTERNATION GROUP: a
 ==================
 Test Case 4
 ==================
-EXECUTE IMMEDIATE {{"?" USING 0|"? ?" USING 0, 1}};
+EXECUTE IMMEDIATE @x;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: "?" USING 0
+ExecuteImmediateStatement [0-20] [EXECUTE IMMEDIATE @x]
+  ParameterExpr [18-20] [@x]
+    Identifier(x) [19-20] [x]
 */
 ---
 (source_file (ERROR))
@@ -45,10 +58,13 @@ ALTERNATION GROUP: "?" USING 0
 ==================
 Test Case 5
 ==================
-EXECUTE IMMEDIATE x USING {{4 AS y|4 AS y, 5 AS z|@t AS y|@@t AS y}};
+EXECUTE IMMEDIATE @@x;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: 4 AS y
+ExecuteImmediateStatement [0-21] [EXECUTE IMMEDIATE @@x]
+  SystemVariableExpr [18-21] [@@x]
+    PathExpression [20-21] [x]
+      Identifier(x) [20-21] [x]
 */
 ---
 (source_file (ERROR))
@@ -56,16 +72,245 @@ ALTERNATION GROUP: 4 AS y
 ==================
 Test Case 6
 ==================
-EXECUTE IMMEDIATE x INTO {{a|a, b}} USING {{4 AS y|4 AS y, 5 AS z}};
+EXECUTE IMMEDIATE x INTO a;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: a,4 AS y
+ExecuteImmediateStatement [0-26] [EXECUTE IMMEDIATE x INTO a]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteIntoClause [20-26] [INTO a]
+    IdentifierList [25-26] [a]
+      Identifier(a) [25-26] [a]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 7
+==================
+EXECUTE IMMEDIATE x INTO a, b;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-29] [EXECUTE IMMEDIATE x INTO a, b]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteIntoClause [20-29] [INTO a, b]
+    IdentifierList [25-29] [a, b]
+      Identifier(a) [25-26] [a]
+      Identifier(b) [28-29] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+EXECUTE IMMEDIATE "?" USING 0;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-29] [EXECUTE IMMEDIATE "?" USING 0]
+  StringLiteral [18-21] ["?"]
+    StringLiteralComponent("?") [18-21] ["?"]
+  ExecuteUsingClause [28-29] [0]
+    ExecuteUsingArgument [28-29] [0]
+      IntLiteral(0) [28-29] [0]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+EXECUTE IMMEDIATE "? ?" USING 0, 1;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-34] [EXECUTE IMMEDIATE...USING 0, 1]
+  StringLiteral [18-23] ["? ?"]
+    StringLiteralComponent("? ?") [18-23] ["? ?"]
+  ExecuteUsingClause [30-34] [0, 1]
+    ExecuteUsingArgument [30-31] [0]
+      IntLiteral(0) [30-31] [0]
+    ExecuteUsingArgument [33-34] [1]
+      IntLiteral(1) [33-34] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+EXECUTE IMMEDIATE x USING 4 AS y;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-32] [EXECUTE IMMEDIATE...ING 4 AS y]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteUsingClause [26-32] [4 AS y]
+    ExecuteUsingArgument [26-32] [4 AS y]
+      IntLiteral(4) [26-27] [4]
+      Alias [31-32] [y]
+        Identifier(y) [31-32] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+EXECUTE IMMEDIATE x USING 4 AS y, 5 AS z;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-40] [EXECUTE IMMEDIATE...y, 5 AS z]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteUsingClause [26-40] [4 AS y, 5 AS z]
+    ExecuteUsingArgument [26-32] [4 AS y]
+      IntLiteral(4) [26-27] [4]
+      Alias [31-32] [y]
+        Identifier(y) [31-32] [y]
+    ExecuteUsingArgument [34-40] [5 AS z]
+      IntLiteral(5) [34-35] [5]
+      Alias [39-40] [z]
+        Identifier(z) [39-40] [z]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+EXECUTE IMMEDIATE x USING @t AS y;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-33] [EXECUTE IMMEDIATE...NG @t AS y]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteUsingClause [26-33] [@t AS y]
+    ExecuteUsingArgument [26-33] [@t AS y]
+      ParameterExpr [26-28] [@t]
+        Identifier(t) [27-28] [t]
+      Alias [32-33] [y]
+        Identifier(y) [32-33] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+EXECUTE IMMEDIATE x USING @@t AS y;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-34] [EXECUTE IMMEDIATE...G @@t AS y]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteUsingClause [26-34] [@@t AS y]
+    ExecuteUsingArgument [26-34] [@@t AS y]
+      SystemVariableExpr [26-29] [@@t]
+        PathExpression [28-29] [t]
+          Identifier(t) [28-29] [t]
+      Alias [33-34] [y]
+        Identifier(y) [33-34] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+EXECUTE IMMEDIATE x INTO a USING 4 AS y;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-39] [EXECUTE IMMEDIATE...ING 4 AS y]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteIntoClause [20-26] [INTO a]
+    IdentifierList [25-26] [a]
+      Identifier(a) [25-26] [a]
+  ExecuteUsingClause [33-39] [4 AS y]
+    ExecuteUsingArgument [33-39] [4 AS y]
+      IntLiteral(4) [33-34] [4]
+      Alias [38-39] [y]
+        Identifier(y) [38-39] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+EXECUTE IMMEDIATE x INTO a USING 4 AS y, 5 AS z;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-47] [EXECUTE IMMEDIATE...y, 5 AS z]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteIntoClause [20-26] [INTO a]
+    IdentifierList [25-26] [a]
+      Identifier(a) [25-26] [a]
+  ExecuteUsingClause [33-47] [4 AS y, 5 AS z]
+    ExecuteUsingArgument [33-39] [4 AS y]
+      IntLiteral(4) [33-34] [4]
+      Alias [38-39] [y]
+        Identifier(y) [38-39] [y]
+    ExecuteUsingArgument [41-47] [5 AS z]
+      IntLiteral(5) [41-42] [5]
+      Alias [46-47] [z]
+        Identifier(z) [46-47] [z]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+EXECUTE IMMEDIATE x INTO a, b USING 4 AS y;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-42] [EXECUTE IMMEDIATE...ING 4 AS y]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteIntoClause [20-29] [INTO a, b]
+    IdentifierList [25-29] [a, b]
+      Identifier(a) [25-26] [a]
+      Identifier(b) [28-29] [b]
+  ExecuteUsingClause [36-42] [4 AS y]
+    ExecuteUsingArgument [36-42] [4 AS y]
+      IntLiteral(4) [36-37] [4]
+      Alias [41-42] [y]
+        Identifier(y) [41-42] [y]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+EXECUTE IMMEDIATE x INTO a, b USING 4 AS y, 5 AS z;
+
+/* Expected ZetaSQL AST:
+ExecuteImmediateStatement [0-50] [EXECUTE IMMEDIATE...y, 5 AS z]
+  PathExpression [18-19] [x]
+    Identifier(x) [18-19] [x]
+  ExecuteIntoClause [20-29] [INTO a, b]
+    IdentifierList [25-29] [a, b]
+      Identifier(a) [25-26] [a]
+      Identifier(b) [28-29] [b]
+  ExecuteUsingClause [36-50] [4 AS y, 5 AS z]
+    ExecuteUsingArgument [36-42] [4 AS y]
+      IntLiteral(4) [36-37] [4]
+      Alias [41-42] [y]
+        Identifier(y) [41-42] [y]
+    ExecuteUsingArgument [44-50] [5 AS z]
+      IntLiteral(5) [44-45] [5]
+      Alias [49-50] [z]
+        Identifier(z) [49-50] [z]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
 ==================
 SELECT EXECUTE FROM IMMEDIATE;
 
@@ -100,7 +345,7 @@ QueryStatement [0-29] [SELECT EXECUTE FROM IMMEDIATE]
   (comment [2, 0] - [14, 2]))
 
 ==================
-Test Case 8
+Test Case 19
 ==================
 EXECUTE IMMEDIATE "select ?, @x" USING 0, 5 AS x;
 

@@ -741,11 +741,48 @@ Test Case 18
 ==================
 # PIVOT combined with TABLESAMPLE
 SELECT * FROM
-t PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) {{AS t_pivot|}}
+t PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) AS t_pivot
 TABLESAMPLE RESERVOIR (100 ROWS) REPEATABLE(10)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS t_pivot
+QueryStatement [0-119] [SELECT * FROM...REPEATABLE(10)]
+  Query [0-119] [SELECT * FROM...REPEATABLE(10)]
+    Select [0-119] [SELECT * FROM...REPEATABLE(10)]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-119] [FROM t PIVOT...REPEATABLE(10)]
+        TablePathExpression [14-119] [t PIVOT(SUM...REPEATABLE(10)]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          PivotClause [16-71] [PIVOT(SUM(...AS t_pivot]
+            PivotExpressionList [22-35] [SUM(a) AS sum]
+              PivotExpression [22-35] [SUM(a) AS sum]
+                FunctionCall [22-28] [SUM(a)]
+                  PathExpression [22-25] [SUM]
+                    Identifier(SUM) [22-25] [SUM]
+                  PathExpression [26-27] [a]
+                    Identifier(a) [26-27] [a]
+                Alias [29-35] [AS sum]
+                  Identifier(sum) [32-35] [sum]
+            PathExpression [40-41] [b]
+              Identifier(b) [40-41] [b]
+            PivotValueList [46-58] [0 AS zero, 1]
+              PivotValue [46-55] [0 AS zero]
+                IntLiteral(0) [46-47] [0]
+                Alias [48-55] [AS zero]
+                  Identifier(zero) [51-55] [zero]
+              PivotValue [57-58] [1]
+                IntLiteral(1) [57-58] [1]
+            Alias [61-71] [AS t_pivot]
+              Identifier(t_pivot) [64-71] [t_pivot]
+          SampleClause [72-119] [TABLESAMPLE...REPEATABLE(10)]
+            Identifier(RESERVOIR) [84-93] [RESERVOIR]
+            SampleSize [95-103] [100 ROWS]
+              IntLiteral(100) [95-98] [100]
+            SampleSuffix [105-119] [REPEATABLE(10)]
+              RepeatableClause [105-119] [REPEATABLE(10)]
+                IntLiteral(10) [116-118] [10]
 */
 ---
 (source_file (ERROR))
@@ -874,7 +911,20 @@ QueryStatement [0-21] [SELECT * FROM t PIVOT]
             Identifier(PIVOT) [16-21] [PIVOT]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (comment [0, 0] - [0, 73])
+  (statement [1, 0] - [1, 22]
+    (select_statement [1, 0] - [1, 22]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 21]
+        (from_item [1, 14] - [1, 21]
+          (table_expression [1, 14] - [1, 15]
+            (path_expression [1, 14] - [1, 15]
+              (identifier [1, 14] - [1, 15])))
+          (identifier [1, 16] - [1, 21])))))
+  (comment [3, 0] - [16, 2]))
 
 ==================
 Test Case 22
@@ -892,7 +942,17 @@ QueryStatement [0-12] [SELECT PIVOT]
             Identifier(PIVOT) [7-12] [PIVOT]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [11, 2]
+  (comment [0, 0] - [0, 46])
+  (statement [1, 0] - [1, 13]
+    (select_statement [1, 0] - [1, 13]
+      (select_clause [1, 0] - [1, 12]
+        (select_list [1, 7] - [1, 12]
+          (select_expression [1, 7] - [1, 12]
+            (expression [1, 7] - [1, 12]
+              (path_expression [1, 7] - [1, 12]
+                (identifier [1, 7] - [1, 12]))))))))
+  (comment [3, 0] - [11, 2]))
 
 ==================
 Test Case 23
@@ -915,7 +975,20 @@ QueryStatement [0-24] [SELECT * FROM t AS PIVOT]
             Identifier(PIVOT) [19-24] [PIVOT]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (comment [0, 0] - [0, 33])
+  (statement [1, 0] - [1, 25]
+    (select_statement [1, 0] - [1, 25]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 24]
+        (from_item [1, 14] - [1, 24]
+          (table_expression [1, 14] - [1, 15]
+            (path_expression [1, 14] - [1, 15]
+              (identifier [1, 14] - [1, 15])))
+          (identifier [1, 19] - [1, 24])))))
+  (comment [3, 0] - [16, 2]))
 
 ==================
 Test Case 24
@@ -1073,13 +1146,17 @@ QueryStatement [0-53] [SELECT * FROM...3, 4+5+6))]
 ==================
 Test Case 28
 ==================
-# The SQL Standard allows a parenthesized column list to follow a table alias.
-# ZetaSQL does not support this, but make sure that, when the table alias is
-# "PIVOT", the query fails.
-SELECT * FROM t PIVOT({{x|x,|x,y|x,y,}});
+# WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) AS t_alias
+WITH OFFSET AS t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: x
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -1090,8 +1167,8 @@ Test Case 29
 # WITH OFFSET on pivot result (with and without alias)
 SELECT * FROM
 t
-PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) {{AS t_alias|t_alias|}}
-WITH OFFSET {{AS t_alias|t_alias|}};
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) AS t_alias
+WITH OFFSET t_alias;
 
 /* Expected ZetaSQL AST:
 ALTERNATION GROUPS:
@@ -1105,11 +1182,17 @@ ALTERNATION GROUPS:
 ==================
 Test Case 30
 ==================
-# Alias on input table of PIVOT, both with and without AS keyword.
-SELECT * FROM t {{AS|}} t1 PIVOT(a FOR b IN (c));
+# WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) AS t_alias
+WITH OFFSET ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -1117,12 +1200,17 @@ ALTERNATION GROUP: AS
 ==================
 Test Case 31
 ==================
-# Alias on both input table and result of PIVOT,
-# both with and without AS keyword.
-SELECT * FROM t {{AS|}} t1 PIVOT(a FOR b IN (c)) {{AS|}} t2;
+# WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) t_alias
+WITH OFFSET AS t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS,AS
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -1130,14 +1218,17 @@ ALTERNATION GROUP: AS,AS
 ==================
 Test Case 32
 ==================
-# PIVOT on UNNEST() is an error on the resolver (because unnest() returns
-# a value table), but it's allowed on the parser layer.
-# Test both with and without a WITH OFFSET clause.
-SELECT * FROM UNNEST([1, 2, 3]) {{WITH OFFSET|WITH OFFSET x|WITH OFFSET AS x|}}
-PIVOT(SUM(x) FOR x IN (4, 5)) AS x;
+# WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) t_alias
+WITH OFFSET t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: WITH OFFSET
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -1145,11 +1236,17 @@ ALTERNATION GROUP: WITH OFFSET
 ==================
 Test Case 33
 ==================
-# ERROR: qualified alias for pivot input
-SELECT * FROM t p.d.t1 PIVOT(a FOR b IN (c)) {{AS|}} t2;
+# WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) t_alias
+WITH OFFSET ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -1157,11 +1254,17 @@ ALTERNATION GROUP: AS
 ==================
 Test Case 34
 ==================
-# ERROR: qualified alias for pivot output
-SELECT * FROM t t1 PIVOT(a FOR b IN (c)) {{AS|}} p.d.t2;
+# WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) 
+WITH OFFSET AS t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
@@ -1169,17 +1272,327 @@ ALTERNATION GROUP: AS
 ==================
 Test Case 35
 ==================
-# Qualified references to column from input table within pivot clause
-SELECT * FROM t PIVOT(t.a FOR t.b IN (c)) {{AS|}} t2;
+# WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) 
+WITH OFFSET t_alias;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 36
+==================
+# WITH OFFSET on pivot result (with and without alias)
+SELECT * FROM
+t
+PIVOT(SUM(a) AS sum FOR b IN (0 AS zero, 1)) 
+WITH OFFSET ;
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    AS t_alias,AS t_alias
+    t_alias,AS t_alias
+    AS t_alias
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 37
+==================
+# Alias on input table of PIVOT, both with and without AS keyword.
+SELECT * FROM t AS t1 PIVOT(a FOR b IN (c));
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [SELECT * FROM...b IN (c))]
+  Query [0-43] [SELECT * FROM...b IN (c))]
+    Select [0-43] [SELECT * FROM...b IN (c))]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-43] [FROM t AS...b IN (c))]
+        TablePathExpression [14-43] [t AS t1 PIVOT(a FOR b IN (c))]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          Alias [16-21] [AS t1]
+            Identifier(t1) [19-21] [t1]
+          PivotClause [22-43] [PIVOT(a FOR b IN (c))]
+            PivotExpressionList [28-29] [a]
+              PivotExpression [28-29] [a]
+                PathExpression [28-29] [a]
+                  Identifier(a) [28-29] [a]
+            PathExpression [34-35] [b]
+              Identifier(b) [34-35] [b]
+            PivotValueList [40-41] [c]
+              PivotValue [40-41] [c]
+                PathExpression [40-41] [c]
+                  Identifier(c) [40-41] [c]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 38
+==================
+# Alias on both input table and result of PIVOT,
+# both with and without AS keyword.
+SELECT * FROM t AS t1 PIVOT(a FOR b IN (c)) AS t2;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT * FROM...(c)) AS t2]
+  Query [0-49] [SELECT * FROM...(c)) AS t2]
+    Select [0-49] [SELECT * FROM...(c)) AS t2]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-49] [FROM t AS...(c)) AS t2]
+        TablePathExpression [14-49] [t AS t1 PIVOT...(c)) AS t2]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          Alias [16-21] [AS t1]
+            Identifier(t1) [19-21] [t1]
+          PivotClause [22-49] [PIVOT(a FOR b IN (c)) AS t2]
+            PivotExpressionList [28-29] [a]
+              PivotExpression [28-29] [a]
+                PathExpression [28-29] [a]
+                  Identifier(a) [28-29] [a]
+            PathExpression [34-35] [b]
+              Identifier(b) [34-35] [b]
+            PivotValueList [40-41] [c]
+              PivotValue [40-41] [c]
+                PathExpression [40-41] [c]
+                  Identifier(c) [40-41] [c]
+            Alias [44-49] [AS t2]
+              Identifier(t2) [47-49] [t2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 39
+==================
+# Alias on both input table and result of PIVOT,
+# both with and without AS keyword.
+SELECT * FROM t AS t1 PIVOT(a FOR b IN (c))  t2;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT * FROM...IN (c))  t2]
+  Query [0-47] [SELECT * FROM...IN (c))  t2]
+    Select [0-47] [SELECT * FROM...IN (c))  t2]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-47] [FROM t AS...IN (c))  t2]
+        TablePathExpression [14-47] [t AS t1 PIVOT...IN (c))  t2]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          Alias [16-21] [AS t1]
+            Identifier(t1) [19-21] [t1]
+          PivotClause [22-47] [PIVOT(a FOR b IN (c))  t2]
+            PivotExpressionList [28-29] [a]
+              PivotExpression [28-29] [a]
+                PathExpression [28-29] [a]
+                  Identifier(a) [28-29] [a]
+            PathExpression [34-35] [b]
+              Identifier(b) [34-35] [b]
+            PivotValueList [40-41] [c]
+              PivotValue [40-41] [c]
+                PathExpression [40-41] [c]
+                  Identifier(c) [40-41] [c]
+            Alias [45-47] [t2]
+              Identifier(t2) [45-47] [t2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 40
+==================
+# PIVOT on UNNEST() is an error on the resolver (because unnest() returns
+# a value table), but it's allowed on the parser layer.
+# Test both with and without a WITH OFFSET clause.
+SELECT * FROM UNNEST([1, 2, 3]) WITH OFFSET
+PIVOT(SUM(x) FOR x IN (4, 5)) AS x;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-78] [SELECT * FROM..., 5)) AS x]
+  Query [0-78] [SELECT * FROM..., 5)) AS x]
+    Select [0-78] [SELECT * FROM..., 5)) AS x]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-78] [FROM UNNEST..., 5)) AS x]
+        TablePathExpression [14-78] [UNNEST([1,..., 5)) AS x]
+          UnnestExpression [14-31] [UNNEST([1, 2, 3])]
+            ExpressionWithOptAlias [21-30] [[1, 2, 3]]
+              ArrayConstructor [21-30] [[1, 2, 3]]
+                IntLiteral(1) [22-23] [1]
+                IntLiteral(2) [25-26] [2]
+                IntLiteral(3) [28-29] [3]
+          WithOffset [32-43] [WITH OFFSET]
+          PivotClause [44-78] [PIVOT(SUM(..., 5)) AS x]
+            PivotExpressionList [50-56] [SUM(x)]
+              PivotExpression [50-56] [SUM(x)]
+                FunctionCall [50-56] [SUM(x)]
+                  PathExpression [50-53] [SUM]
+                    Identifier(SUM) [50-53] [SUM]
+                  PathExpression [54-55] [x]
+                    Identifier(x) [54-55] [x]
+            PathExpression [61-62] [x]
+              Identifier(x) [61-62] [x]
+            PivotValueList [67-71] [4, 5]
+              PivotValue [67-68] [4]
+                IntLiteral(4) [67-68] [4]
+              PivotValue [70-71] [5]
+                IntLiteral(5) [70-71] [5]
+            Alias [74-78] [AS x]
+              Identifier(x) [77-78] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 41
+==================
+# PIVOT on UNNEST() is an error on the resolver (because unnest() returns
+# a value table), but it's allowed on the parser layer.
+# Test both with and without a WITH OFFSET clause.
+SELECT * FROM UNNEST([1, 2, 3]) WITH OFFSET x
+PIVOT(SUM(x) FOR x IN (4, 5)) AS x;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-80] [SELECT * FROM..., 5)) AS x]
+  Query [0-80] [SELECT * FROM..., 5)) AS x]
+    Select [0-80] [SELECT * FROM..., 5)) AS x]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-80] [FROM UNNEST..., 5)) AS x]
+        TablePathExpression [14-80] [UNNEST([1,..., 5)) AS x]
+          UnnestExpression [14-31] [UNNEST([1, 2, 3])]
+            ExpressionWithOptAlias [21-30] [[1, 2, 3]]
+              ArrayConstructor [21-30] [[1, 2, 3]]
+                IntLiteral(1) [22-23] [1]
+                IntLiteral(2) [25-26] [2]
+                IntLiteral(3) [28-29] [3]
+          WithOffset [32-45] [WITH OFFSET x]
+            Alias [44-45] [x]
+              Identifier(x) [44-45] [x]
+          PivotClause [46-80] [PIVOT(SUM(..., 5)) AS x]
+            PivotExpressionList [52-58] [SUM(x)]
+              PivotExpression [52-58] [SUM(x)]
+                FunctionCall [52-58] [SUM(x)]
+                  PathExpression [52-55] [SUM]
+                    Identifier(SUM) [52-55] [SUM]
+                  PathExpression [56-57] [x]
+                    Identifier(x) [56-57] [x]
+            PathExpression [63-64] [x]
+              Identifier(x) [63-64] [x]
+            PivotValueList [69-73] [4, 5]
+              PivotValue [69-70] [4]
+                IntLiteral(4) [69-70] [4]
+              PivotValue [72-73] [5]
+                IntLiteral(5) [72-73] [5]
+            Alias [76-80] [AS x]
+              Identifier(x) [79-80] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 42
+==================
+# PIVOT on UNNEST() is an error on the resolver (because unnest() returns
+# a value table), but it's allowed on the parser layer.
+# Test both with and without a WITH OFFSET clause.
+SELECT * FROM UNNEST([1, 2, 3]) WITH OFFSET AS x
+PIVOT(SUM(x) FOR x IN (4, 5)) AS x;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-83] [SELECT * FROM..., 5)) AS x]
+  Query [0-83] [SELECT * FROM..., 5)) AS x]
+    Select [0-83] [SELECT * FROM..., 5)) AS x]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-83] [FROM UNNEST..., 5)) AS x]
+        TablePathExpression [14-83] [UNNEST([1,..., 5)) AS x]
+          UnnestExpression [14-31] [UNNEST([1, 2, 3])]
+            ExpressionWithOptAlias [21-30] [[1, 2, 3]]
+              ArrayConstructor [21-30] [[1, 2, 3]]
+                IntLiteral(1) [22-23] [1]
+                IntLiteral(2) [25-26] [2]
+                IntLiteral(3) [28-29] [3]
+          WithOffset [32-48] [WITH OFFSET AS x]
+            Alias [44-48] [AS x]
+              Identifier(x) [47-48] [x]
+          PivotClause [49-83] [PIVOT(SUM(..., 5)) AS x]
+            PivotExpressionList [55-61] [SUM(x)]
+              PivotExpression [55-61] [SUM(x)]
+                FunctionCall [55-61] [SUM(x)]
+                  PathExpression [55-58] [SUM]
+                    Identifier(SUM) [55-58] [SUM]
+                  PathExpression [59-60] [x]
+                    Identifier(x) [59-60] [x]
+            PathExpression [66-67] [x]
+              Identifier(x) [66-67] [x]
+            PivotValueList [72-76] [4, 5]
+              PivotValue [72-73] [4]
+                IntLiteral(4) [72-73] [4]
+              PivotValue [75-76] [5]
+                IntLiteral(5) [75-76] [5]
+            Alias [79-83] [AS x]
+              Identifier(x) [82-83] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 43
+==================
+# Qualified references to column from input table within pivot clause
+SELECT * FROM t PIVOT(t.a FOR t.b IN (c)) AS t2;
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT * FROM...(c)) AS t2]
+  Query [0-47] [SELECT * FROM...(c)) AS t2]
+    Select [0-47] [SELECT * FROM...(c)) AS t2]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-47] [FROM t PIVOT...(c)) AS t2]
+        TablePathExpression [14-47] [t PIVOT(t....(c)) AS t2]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          PivotClause [16-47] [PIVOT(t.a...(c)) AS t2]
+            PivotExpressionList [22-25] [t.a]
+              PivotExpression [22-25] [t.a]
+                PathExpression [22-25] [t.a]
+                  Identifier(t) [22-23] [t]
+                  Identifier(a) [24-25] [a]
+            PathExpression [30-33] [t.b]
+              Identifier(t) [30-31] [t]
+              Identifier(b) [32-33] [b]
+            PivotValueList [38-39] [c]
+              PivotValue [38-39] [c]
+                PathExpression [38-39] [c]
+                  Identifier(c) [38-39] [c]
+            Alias [42-47] [AS t2]
+              Identifier(t2) [45-47] [t2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 44
 ==================
 # FOR expr with its own IN clause (with parentheses)
 SELECT * FROM t
@@ -1221,7 +1634,7 @@ QueryStatement [0-64] [SELECT * FROM...TRUE, FALSE))]
 (source_file (ERROR))
 
 ==================
-Test Case 37
+Test Case 45
 ==================
 # Subqueries nested inside pivot input are not marked as pivot input.
 SELECT * FROM (SELECT * FROM (SELECT * FROM t)) PIVOT (SUM(x) FOR y IN (1, 2));
@@ -1271,7 +1684,7 @@ QueryStatement [0-78] [SELECT * FROM...IN (1, 2))]
 (source_file (ERROR))
 
 ==================
-Test Case 38
+Test Case 46
 ==================
 # When a pivot input query uses a WITH clause, the main query is still marked as
 # pivot input (but the with entry subqueries are not)
@@ -1330,7 +1743,7 @@ QueryStatement [0-99] [SELECT * FROM...IN (1, 2))]
 (source_file (ERROR))
 
 ==================
-Test Case 39
+Test Case 47
 ==================
 # Inputs to a set operation used as pivot input are not marked as pivot input
 SELECT * FROM (
@@ -1398,7 +1811,7 @@ QueryStatement [0-104] [SELECT * FROM...IN (1, 2))]
 (source_file (ERROR))
 
 ==================
-Test Case 40
+Test Case 48
 ==================
 # Inputs to a join operation used as pivot input are not marked as pivot input
 SELECT * FROM (

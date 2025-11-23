@@ -166,10 +166,18 @@ Test Case 9
 ==================
 # The following tests are for different supported statements/locations.
 #
-ALTER {{TABLE|VIEW}} foo SET OPTIONS (a=1);
+ALTER TABLE foo SET OPTIONS (a=1);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: TABLE
+AlterTableStatement [0-33] [ALTER TABLE...OPTIONS (a=1)]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+  AlterActionList [16-33] [SET OPTIONS (a=1)]
+    SetOptionsAction [16-33] [SET OPTIONS (a=1)]
+      OptionsList [28-33] [(a=1)]
+        OptionsEntry [29-32] [a=1]
+          Identifier(a) [29-30] [a]
+          IntLiteral(1) [31-32] [1]
 */
 ---
 (source_file (ERROR))
@@ -177,10 +185,20 @@ ALTERNATION GROUP: TABLE
 ==================
 Test Case 10
 ==================
-CREATE {{SCHEMA|TABLE}} foo OPTIONS (a {{+=|-=}} 1);
+# The following tests are for different supported statements/locations.
+#
+ALTER VIEW foo SET OPTIONS (a=1);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: SCHEMA,+=
+AlterViewStatement [0-32] [ALTER VIEW...OPTIONS (a=1)]
+  PathExpression [11-14] [foo]
+    Identifier(foo) [11-14] [foo]
+  AlterActionList [15-32] [SET OPTIONS (a=1)]
+    SetOptionsAction [15-32] [SET OPTIONS (a=1)]
+      OptionsList [27-32] [(a=1)]
+        OptionsEntry [28-31] [a=1]
+          Identifier(a) [28-29] [a]
+          IntLiteral(1) [30-31] [1]
 */
 ---
 (source_file (ERROR))
@@ -188,10 +206,16 @@ ALTERNATION GROUP: SCHEMA,+=
 ==================
 Test Case 11
 ==================
-ALTER {{SCHEMA|TABLE}} foo SET OPTIONS (a {{+=|-=}} 1);
+CREATE SCHEMA foo OPTIONS (a += 1);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: SCHEMA,+=
+CreateSchemaStatement [0-34] [CREATE SCHEMA...TIONS (a += 1)]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  OptionsList [26-34] [(a += 1)]
+    OptionsEntry [27-33] [a += 1]
+      Identifier(a) [27-28] [a]
+      IntLiteral(1) [32-33] [1]
 */
 ---
 (source_file (ERROR))
@@ -199,10 +223,16 @@ ALTERNATION GROUP: SCHEMA,+=
 ==================
 Test Case 12
 ==================
-ALTER TABLE foo ALTER COLUMN bar SET OPTIONS (a {{+=|-=}} 1);
+CREATE SCHEMA foo OPTIONS (a -= 1);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: +=
+CreateSchemaStatement [0-34] [CREATE SCHEMA...TIONS (a -= 1)]
+  PathExpression [14-17] [foo]
+    Identifier(foo) [14-17] [foo]
+  OptionsList [26-34] [(a -= 1)]
+    OptionsEntry [27-33] [a -= 1]
+      Identifier(a) [27-28] [a]
+      IntLiteral(1) [32-33] [1]
 */
 ---
 (source_file (ERROR))
@@ -210,18 +240,197 @@ ALTERNATION GROUP: +=
 ==================
 Test Case 13
 ==================
-[language_features=NONE,+ENABLE_ALTER_ARRAY_OPTIONS]
-
-ALTER TABLE foo ALTER COLUMN bar SET OPTIONS (a {{+=|-=}} 1);
+CREATE TABLE foo OPTIONS (a += 1);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: +=
+CreateTableStatement [0-33] [CREATE TABLE...PTIONS (a += 1)]
+  PathExpression [13-16] [foo]
+    Identifier(foo) [13-16] [foo]
+  OptionsList [25-33] [(a += 1)]
+    OptionsEntry [26-32] [a += 1]
+      Identifier(a) [26-27] [a]
+      IntLiteral(1) [31-32] [1]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 14
+==================
+CREATE TABLE foo OPTIONS (a -= 1);
+
+/* Expected ZetaSQL AST:
+CreateTableStatement [0-33] [CREATE TABLE...PTIONS (a -= 1)]
+  PathExpression [13-16] [foo]
+    Identifier(foo) [13-16] [foo]
+  OptionsList [25-33] [(a -= 1)]
+    OptionsEntry [26-32] [a -= 1]
+      Identifier(a) [26-27] [a]
+      IntLiteral(1) [31-32] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+ALTER SCHEMA foo SET OPTIONS (a += 1);
+
+/* Expected ZetaSQL AST:
+AlterSchemaStatement [0-37] [ALTER SCHEMA...PTIONS (a += 1)]
+  PathExpression [13-16] [foo]
+    Identifier(foo) [13-16] [foo]
+  AlterActionList [17-37] [SET OPTIONS (a += 1)]
+    SetOptionsAction [17-37] [SET OPTIONS (a += 1)]
+      OptionsList [29-37] [(a += 1)]
+        OptionsEntry [30-36] [a += 1]
+          Identifier(a) [30-31] [a]
+          IntLiteral(1) [35-36] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+ALTER SCHEMA foo SET OPTIONS (a -= 1);
+
+/* Expected ZetaSQL AST:
+AlterSchemaStatement [0-37] [ALTER SCHEMA...PTIONS (a -= 1)]
+  PathExpression [13-16] [foo]
+    Identifier(foo) [13-16] [foo]
+  AlterActionList [17-37] [SET OPTIONS (a -= 1)]
+    SetOptionsAction [17-37] [SET OPTIONS (a -= 1)]
+      OptionsList [29-37] [(a -= 1)]
+        OptionsEntry [30-36] [a -= 1]
+          Identifier(a) [30-31] [a]
+          IntLiteral(1) [35-36] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+ALTER TABLE foo SET OPTIONS (a += 1);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-36] [ALTER TABLE...OPTIONS (a += 1)]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+  AlterActionList [16-36] [SET OPTIONS (a += 1)]
+    SetOptionsAction [16-36] [SET OPTIONS (a += 1)]
+      OptionsList [28-36] [(a += 1)]
+        OptionsEntry [29-35] [a += 1]
+          Identifier(a) [29-30] [a]
+          IntLiteral(1) [34-35] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+ALTER TABLE foo SET OPTIONS (a -= 1);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-36] [ALTER TABLE...OPTIONS (a -= 1)]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+  AlterActionList [16-36] [SET OPTIONS (a -= 1)]
+    SetOptionsAction [16-36] [SET OPTIONS (a -= 1)]
+      OptionsList [28-36] [(a -= 1)]
+        OptionsEntry [29-35] [a -= 1]
+          Identifier(a) [29-30] [a]
+          IntLiteral(1) [34-35] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+ALTER TABLE foo ALTER COLUMN bar SET OPTIONS (a += 1);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-53] [ALTER TABLE...OPTIONS (a += 1)]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+  AlterActionList [16-53] [ALTER COLUMN...PTIONS (a += 1)]
+    AlterColumnOptionsAction [16-53] [ALTER COLUMN...PTIONS (a += 1)]
+      Identifier(bar) [29-32] [bar]
+      OptionsList [45-53] [(a += 1)]
+        OptionsEntry [46-52] [a += 1]
+          Identifier(a) [46-47] [a]
+          IntLiteral(1) [51-52] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+ALTER TABLE foo ALTER COLUMN bar SET OPTIONS (a -= 1);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-53] [ALTER TABLE...OPTIONS (a -= 1)]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+  AlterActionList [16-53] [ALTER COLUMN...PTIONS (a -= 1)]
+    AlterColumnOptionsAction [16-53] [ALTER COLUMN...PTIONS (a -= 1)]
+      Identifier(bar) [29-32] [bar]
+      OptionsList [45-53] [(a -= 1)]
+        OptionsEntry [46-52] [a -= 1]
+          Identifier(a) [46-47] [a]
+          IntLiteral(1) [51-52] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+
+ALTER TABLE foo ALTER COLUMN bar SET OPTIONS (a += 1);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-53] [ALTER TABLE...OPTIONS (a += 1)]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+  AlterActionList [16-53] [ALTER COLUMN...PTIONS (a += 1)]
+    AlterColumnOptionsAction [16-53] [ALTER COLUMN...PTIONS (a += 1)]
+      Identifier(bar) [29-32] [bar]
+      OptionsList [45-53] [(a += 1)]
+        OptionsEntry [46-52] [a += 1]
+          Identifier(a) [46-47] [a]
+          IntLiteral(1) [51-52] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+
+ALTER TABLE foo ALTER COLUMN bar SET OPTIONS (a -= 1);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-53] [ALTER TABLE...OPTIONS (a -= 1)]
+  PathExpression [12-15] [foo]
+    Identifier(foo) [12-15] [foo]
+  AlterActionList [16-53] [ALTER COLUMN...PTIONS (a -= 1)]
+    AlterColumnOptionsAction [16-53] [ALTER COLUMN...PTIONS (a -= 1)]
+      Identifier(bar) [29-32] [bar]
+      OptionsList [45-53] [(a -= 1)]
+        OptionsEntry [46-52] [a -= 1]
+          Identifier(a) [46-47] [a]
+          IntLiteral(1) [51-52] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
 ==================
 CREATE FUNCTION foo() OPTIONS (a=1);
 
@@ -240,7 +449,7 @@ CreateFunctionStatement [0-35] [CREATE FUNCTION...PTIONS (a=1)]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 24
 ==================
 CREATE TABLE foo OPTIONS (a=1) as SELECT 1 a;
 
@@ -264,7 +473,7 @@ CreateTableStatement [0-44] [CREATE TABLE...SELECT 1 a]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 25
 ==================
 CREATE MODEL foo OPTIONS (a=1) as SELECT 1 a;
 
@@ -288,7 +497,7 @@ CreateModelStatement [0-44] [CREATE MODEL...SELECT 1 a]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 26
 ==================
 CREATE VIEW foo OPTIONS (a=1) as SELECT 1 a;
 
@@ -312,7 +521,7 @@ CreateViewStatement [0-43] [CREATE VIEW...SELECT 1 a]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 27
 ==================
 EXPORT DATA OPTIONS (a=1) AS SELECT 1 a;
 
@@ -334,7 +543,7 @@ ExportDataStatement [0-39] [EXPORT DATA...SELECT 1 a]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 28
 ==================
 IMPORT MODULE foo OPTIONS (a=1);
 
@@ -351,7 +560,7 @@ ImportStatement [0-31] [IMPORT MODULE...OPTIONS (a=1)]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 29
 ==================
 MODULE foo OPTIONS (a=1);
 
@@ -368,7 +577,7 @@ ModuleStatement [0-24] [MODULE foo OPTIONS (a=1)]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 30
 ==================
 DEFINE TABLE foo (a=1);
 

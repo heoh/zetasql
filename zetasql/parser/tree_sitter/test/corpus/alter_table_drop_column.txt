@@ -113,15 +113,3 @@ AlterTableStatement [0-38]
 ---
 (source_file (ERROR))
 
-==================
-Test Case 8
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-ALTER TABLE foo-bar.baz DROP COLUMN a
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-

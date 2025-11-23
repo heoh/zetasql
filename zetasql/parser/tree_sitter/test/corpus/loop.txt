@@ -1,9 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default mode=script]
-[default language_features=NONE,+REPEAT,+FOR_IN]
-[default node_kind=WhileStatement]
 LOOP
 END LOOP
 
@@ -316,7 +313,6 @@ Script [0-67] [LOOP   WHILE...END LOOP;]
 ==================
 Test Case 14
 ==================
-[node_kind=RepeatStatement]
 REPEAT
 UNTIL TRUE
 END REPEAT
@@ -335,7 +331,6 @@ Script [0-28] [REPEAT UNTIL TRUE END REPEAT]
 ==================
 Test Case 15
 ==================
-[node_kind=RepeatStatement]
 REPEAT
   SELECT 3;
   SELECT 5;
@@ -368,7 +363,6 @@ Script [0-52] [REPEAT   SELECT...END REPEAT]
 ==================
 Test Case 16
 ==================
-[node_kind=RepeatStatement]
 REPEAT
   REPEAT
     SELECT x;
@@ -441,7 +435,6 @@ Script [0-79] [LOOP   REPEAT...END LOOP;]
 ==================
 Test Case 18
 ==================
-[node_kind=RepeatStatement]
 REPEAT
   LOOP
     WHILE x <= 3 DO
@@ -480,7 +473,6 @@ Script [0-100] [REPEAT   LOOP...END REPEAT;]
 ==================
 Test Case 19
 ==================
-[node_kind=QueryStatement]
 SELECT Key AS REPEAT FROM KeyValue AS UNTIL;
 
 /* Expected ZetaSQL AST:
@@ -503,12 +495,27 @@ Script [0-44] [SELECT Key...AS UNTIL;]
                 Identifier(UNTIL) [38-43] [UNTIL]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (statement [0, 0] - [0, 44]
+    (select_statement [0, 0] - [0, 44]
+      (select_clause [0, 0] - [0, 20]
+        (select_list [0, 7] - [0, 20]
+          (select_expression [0, 7] - [0, 20]
+            (expression [0, 7] - [0, 10]
+              (path_expression [0, 7] - [0, 10]
+                (identifier [0, 7] - [0, 10])))
+            (identifier [0, 14] - [0, 20]))))
+      (from_clause [0, 21] - [0, 43]
+        (from_item [0, 26] - [0, 43]
+          (table_expression [0, 26] - [0, 34]
+            (path_expression [0, 26] - [0, 34]
+              (identifier [0, 26] - [0, 34])))
+          (identifier [0, 38] - [0, 43])))))
+  (comment [2, 0] - [20, 2]))
 
 ==================
 Test Case 20
 ==================
-[node_kind=RepeatStatement]
 repeat select x; select y; until false end repeat;
 
 /* Expected ZetaSQL AST:
@@ -540,7 +547,6 @@ Script [0-50] [repeat select...end repeat;]
 Test Case 21
 ==================
 # FOR...IN with empty body
-[node_kind=ForInStatement]
 FOR x IN (SELECT 1)
 DO
 END FOR;
@@ -564,7 +570,6 @@ Script [0-31] [FOR x IN (...DO END FOR;]
 Test Case 22
 ==================
 # FOR...IN with single line in body
-[node_kind=ForInStatement]
 FOR x IN (SELECT 1)
 DO
   SELECT x;
@@ -596,7 +601,6 @@ Script [0-43] [FOR x IN (...; END FOR;]
 Test Case 23
 ==================
 # FOR...IN with multiple lines in body
-[node_kind=ForInStatement]
 FOR x IN (SELECT 1, 2, 3)
 DO
   SELECT x;
@@ -647,7 +651,6 @@ Script [0-73] [FOR x IN (...; END FOR;]
 Test Case 24
 ==================
 # FOR...IN with FROM in query
-[node_kind=ForInStatement]
 FOR x IN (SELECT col1, col2 FROM tables.table1)
 DO
   SELECT x;
@@ -688,7 +691,6 @@ Script [0-71] [FOR x IN (...; END FOR;]
 Test Case 25
 ==================
 # FOR...IN with WITH in query
-[node_kind=ForInStatement]
 FOR x IN (WITH dogs AS (SELECT * FROM animals.dogs) SELECT name, breed FROM dogs)
 DO
   SELECT x.name;
@@ -751,7 +753,6 @@ Script [0-128] [FOR x IN (...; END FOR;]
 Test Case 26
 ==================
 # FOR...IN with PIVOT in query
-[node_kind=ForInStatement]
 FOR x IN (SELECT * FROM t PIVOT(SUM(a), SUM(b) FOR b IN (0, 1)))
 DO
   SELECT x;
@@ -808,7 +809,6 @@ Script [0-88] [FOR x IN (...; END FOR;]
 Test Case 27
 ==================
 # FOR...IN with TABLESAMPLE in query
-[node_kind=ForInStatement]
 FOR x IN (SELECT uId FROM Users TABLESAMPLE RESERVOIR (100 ROWS) REPEATABLE(10))
 DO
   SELECT x;
@@ -852,7 +852,6 @@ Script [0-104] [FOR x IN (...; END FOR;]
 Test Case 28
 ==================
 # Nested FOR...IN
-[node_kind=ForInStatement]
 FOR x IN (SELECT 1, 2, 3)
 DO
   FOR y IN (SELECT 4, 5)
@@ -992,7 +991,6 @@ Script [0-127] [WHILE TRUE...END WHILE;]
 Test Case 31
 ==================
 # FOR...IN in lowercase
-[node_kind=ForInStatement]
 for x in (select 1) do select x; select 2; end for;
 
 /* Expected ZetaSQL AST:

@@ -3,10 +3,18 @@ Test Case 1
 ==================
 # The TEMP, PUBLIC, and PRIVATE modifiers are allowed in the same location
 # for CREATE statements.
-CREATE {{|temp|public|private}} function foo() returns int64 language testlang;
+CREATE temp function foo() returns int64 language testlang;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateFunctionStatement(is_temp) [0-58] [CREATE temp...anguage testlang]
+  FunctionDeclaration [21-26] [foo()]
+    PathExpression [21-24] [foo]
+      Identifier(foo) [21-24] [foo]
+    FunctionParameters [24-26] [()]
+  SimpleType [35-40] [int64]
+    PathExpression [35-40] [int64]
+      Identifier(int64) [35-40] [int64]
+  Identifier(testlang) [50-58] [testlang]
 */
 ---
 (source_file (ERROR))
@@ -14,12 +22,83 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 2
 ==================
+# The TEMP, PUBLIC, and PRIVATE modifiers are allowed in the same location
+# for CREATE statements.
+CREATE public function foo() returns int64 language testlang;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_public) [0-60] [CREATE public...guage testlang]
+  FunctionDeclaration [23-28] [foo()]
+    PathExpression [23-26] [foo]
+      Identifier(foo) [23-26] [foo]
+    FunctionParameters [26-28] [()]
+  SimpleType [37-42] [int64]
+    PathExpression [37-42] [int64]
+      Identifier(int64) [37-42] [int64]
+  Identifier(testlang) [52-60] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# The TEMP, PUBLIC, and PRIVATE modifiers are allowed in the same location
+# for CREATE statements.
+CREATE private function foo() returns int64 language testlang;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_private) [0-61] [CREATE private...uage testlang]
+  FunctionDeclaration [24-29] [foo()]
+    PathExpression [24-27] [foo]
+      Identifier(foo) [24-27] [foo]
+    FunctionParameters [27-29] [()]
+  SimpleType [38-43] [int64]
+    PathExpression [38-43] [int64]
+      Identifier(int64) [38-43] [int64]
+  Identifier(testlang) [53-61] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
 # PUBLIC and PRIVATE are compatible with IF NOT EXISTS and OR REPLACE
-CREATE OR REPLACE {{PUBLIC|PRIVATE}} function IF NOT EXISTS foo()
+CREATE OR REPLACE PUBLIC function IF NOT EXISTS foo()
 returns int64 language testlang;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: PUBLIC
+CreateFunctionStatement(is_public, is_or_replace, is_if_not_exists) [0-85] [CREATE OR...language testlang]
+  FunctionDeclaration [48-53] [foo()]
+    PathExpression [48-51] [foo]
+      Identifier(foo) [48-51] [foo]
+    FunctionParameters [51-53] [()]
+  SimpleType [62-67] [int64]
+    PathExpression [62-67] [int64]
+      Identifier(int64) [62-67] [int64]
+  Identifier(testlang) [77-85] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# PUBLIC and PRIVATE are compatible with IF NOT EXISTS and OR REPLACE
+CREATE OR REPLACE PRIVATE function IF NOT EXISTS foo()
+returns int64 language testlang;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_private, is_or_replace, is_if_not_exists) [0-86] [CREATE OR...language testlang]
+  FunctionDeclaration [49-54] [foo()]
+    PathExpression [49-52] [foo]
+      Identifier(foo) [49-52] [foo]
+    FunctionParameters [52-54] [()]
+  SimpleType [63-68] [int64]
+    PathExpression [63-68] [int64]
+      Identifier(int64) [63-68] [int64]
+  Identifier(testlang) [78-86] [testlang]
 */
 ---
 (source_file (ERROR))

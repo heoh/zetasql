@@ -1,8 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 # Top level graph query statement
 GRAPH my.graph.name
@@ -257,7 +255,6 @@ Test Case 4
 ==================
 # multiple graph query statements, seperated by semicolon
 
-[default parse_multiple]
 
 GRAPH graph1
 MATCH (n:Person) -[e]-> (m:Person)
@@ -401,8 +398,6 @@ Test Case 6
 ==================
 # script mode with graph query statement
 
-[default no_parse_multiple]
-[default mode=script]
 GRAPH my.graph.name
 MATCH (n:Person)
 LET score = n.val

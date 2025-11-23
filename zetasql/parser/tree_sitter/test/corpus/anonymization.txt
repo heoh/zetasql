@@ -4,7 +4,6 @@ Test Case 1
 # Simple anonymization query.
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default no_show_parse_location_text]
 select with anonymization sum() from table;
 
 /* Expected ZetaSQL AST:
@@ -341,7 +340,25 @@ QueryStatement [0-26]
             IntLiteral(1) [24-25]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (comment [0, 0] - [0, 44])
+  (statement [1, 0] - [1, 27]
+    (select_statement [1, 0] - [1, 27]
+      (select_clause [1, 0] - [1, 26]
+        (select_list [1, 7] - [1, 26]
+          (select_expression [1, 7] - [1, 26]
+            (expression [1, 7] - [1, 26]
+              (function_call [1, 7] - [1, 26]
+                (path_expression [1, 7] - [1, 17]
+                  (identifier [1, 7] - [1, 17]))
+                (function_arguments [1, 21] - [1, 25]
+                  (function_argument [1, 21] - [1, 22]
+                    (expression [1, 21] - [1, 22]
+                      (number [1, 21] - [1, 22])))
+                  (function_argument [1, 24] - [1, 25]
+                    (expression [1, 24] - [1, 25]
+                      (number [1, 24] - [1, 25])))))))))))
+  (comment [3, 0] - [15, 2]))
 
 ==================
 Test Case 13

@@ -2,7 +2,6 @@
 Test Case 1
 ==================
 # Empty block, empty exception handler
-[default mode=script]
 begin
 EXCEPTION WHEN ERROR THEN
 end

@@ -165,16 +165,165 @@ Test Case 3
 ==================
 # Variations of LEFT/RIGHT/FULL [OUTER] JOIN.
 select 1 x
-|> {{left|right|full}} {{|outer}} join tr
+|> left  join tr
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: left,
+QueryStatement [0-27] [select 1 x |> left  join tr]
+  Query [0-27] [select 1 x |> left  join tr]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeJoin [11-27] [|> left  join tr]
+      Join(LEFT) [13-27] [left  join tr]
+        PipeJoinLhsPlaceholder [14-27] [left  join tr]
+        Location [14-24] [left  join]
+        TablePathExpression [25-27] [tr]
+          PathExpression [25-27] [tr]
+            Identifier(tr) [25-27] [tr]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 4
+==================
+# Variations of LEFT/RIGHT/FULL [OUTER] JOIN.
+select 1 x
+|> left outer join tr
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-32] [select 1 x...outer join tr]
+  Query [0-32] [select 1 x...outer join tr]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeJoin [11-32] [|> left outer join tr]
+      Join(LEFT) [13-32] [left outer join tr]
+        PipeJoinLhsPlaceholder [14-32] [left outer join tr]
+        Location [14-29] [left outer join]
+        TablePathExpression [30-32] [tr]
+          PathExpression [30-32] [tr]
+            Identifier(tr) [30-32] [tr]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# Variations of LEFT/RIGHT/FULL [OUTER] JOIN.
+select 1 x
+|> right  join tr
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28] [select 1 x |> right  join tr]
+  Query [0-28] [select 1 x |> right  join tr]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeJoin [11-28] [|> right  join tr]
+      Join(RIGHT) [13-28] [right  join tr]
+        PipeJoinLhsPlaceholder [14-28] [right  join tr]
+        Location [14-25] [right  join]
+        TablePathExpression [26-28] [tr]
+          PathExpression [26-28] [tr]
+            Identifier(tr) [26-28] [tr]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# Variations of LEFT/RIGHT/FULL [OUTER] JOIN.
+select 1 x
+|> right outer join tr
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-33] [select 1 x...outer join tr]
+  Query [0-33] [select 1 x...outer join tr]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeJoin [11-33] [|> right outer join tr]
+      Join(RIGHT) [13-33] [right outer join tr]
+        PipeJoinLhsPlaceholder [14-33] [right outer join tr]
+        Location [14-30] [right outer join]
+        TablePathExpression [31-33] [tr]
+          PathExpression [31-33] [tr]
+            Identifier(tr) [31-33] [tr]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Variations of LEFT/RIGHT/FULL [OUTER] JOIN.
+select 1 x
+|> full  join tr
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-27] [select 1 x |> full  join tr]
+  Query [0-27] [select 1 x |> full  join tr]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeJoin [11-27] [|> full  join tr]
+      Join(FULL) [13-27] [full  join tr]
+        PipeJoinLhsPlaceholder [14-27] [full  join tr]
+        Location [14-24] [full  join]
+        TablePathExpression [25-27] [tr]
+          PathExpression [25-27] [tr]
+            Identifier(tr) [25-27] [tr]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Variations of LEFT/RIGHT/FULL [OUTER] JOIN.
+select 1 x
+|> full outer join tr
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-32] [select 1 x...outer join tr]
+  Query [0-32] [select 1 x...outer join tr]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeJoin [11-32] [|> full outer join tr]
+      Join(FULL) [13-32] [full outer join tr]
+        PipeJoinLhsPlaceholder [14-32] [full outer join tr]
+        Location [14-29] [full outer join]
+        TablePathExpression [30-32] [tr]
+          PathExpression [30-32] [tr]
+            Identifier(tr) [30-32] [tr]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
 ==================
 # Parenthesized joins on the rhs, with arbitrary nesting.
 select 1 x
@@ -229,7 +378,7 @@ QueryStatement [0-72] [select 1 x...join t4))]
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 10
 ==================
 # Parenthesizing also allows sequences of joins.
 select 1 x
@@ -269,7 +418,7 @@ QueryStatement [0-49] [select 1 x...using (x)]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 11
 ==================
 # Lateral joins in pipes. LATERAL is only ever on the RHS.
 SELECT * FROM t1

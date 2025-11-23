@@ -5,7 +5,6 @@ Test Case 1
 # After the tests with pipe syntax, it has tests for GROUP BY with aliases in
 # regular syntax, with FEATURE_PIPES turned on and off.
 
-[default language_features=NONE,+PIPES]
 # GROUP BY supports aliases with AS.
 select 1
 |> AGGREGATE count(*) as x, count(*) z
@@ -114,11 +113,14 @@ QueryStatement [0-71] [select 1 |...y, x+y xy]
 Test Case 3
 ==================
 # GROUPING_SETS, etc, don't support aliases.
-select 1
-|> AGGREGATE count(*) GROUP BY {{ROLLUP|CUBE|GROUPING SETS}}(x,y) AS z
+select COUNT(*)
+from t
+GROUP BY ROLLUP(x,y) AS z
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ROLLUP
+ALTERNATION GROUPS:
+    +PIPES,ROLLUP
+    ROLLUP
 */
 ---
 (source_file (ERROR))
@@ -127,10 +129,25 @@ ALTERNATION GROUP: ROLLUP
 Test Case 4
 ==================
 # GROUPING_SETS, etc, don't support aliases.
-[language_features=NONE,{{+PIPES|}}]
 select COUNT(*)
 from t
-GROUP BY {{ROLLUP|CUBE|GROUPING SETS}}(x,y) AS z
+GROUP BY CUBE(x,y) AS z
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    +PIPES,ROLLUP
+    ROLLUP
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# GROUPING_SETS, etc, don't support aliases.
+select COUNT(*)
+from t
+GROUP BY GROUPING SETS(x,y) AS z
 
 /* Expected ZetaSQL AST:
 ALTERNATION GROUPS:

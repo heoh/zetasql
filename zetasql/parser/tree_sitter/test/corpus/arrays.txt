@@ -3,7 +3,6 @@ Test Case 1
 ==================
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default no_show_parse_location_text]
 select 1, [1], ARRAY[1], ARRAY<int32>[1]
 
 /* Expected ZetaSQL AST:
@@ -216,7 +215,28 @@ QueryStatement [0-28]
             IntLiteral(3) [26-27]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (comment [0, 0] - [0, 32])
+  (statement [1, 0] - [1, 28]
+    (select_statement [1, 0] - [1, 28]
+      (select_clause [1, 0] - [1, 28]
+        (select_list [1, 7] - [1, 28]
+          (select_expression [1, 7] - [1, 28]
+            (expression [1, 7] - [1, 28]
+              (function_call [1, 7] - [1, 28]
+                (path_expression [1, 7] - [1, 19]
+                  (identifier [1, 7] - [1, 19]))
+                (function_arguments [1, 20] - [1, 27]
+                  (function_argument [1, 20] - [1, 21]
+                    (expression [1, 20] - [1, 21]
+                      (number [1, 20] - [1, 21])))
+                  (function_argument [1, 23] - [1, 24]
+                    (expression [1, 23] - [1, 24]
+                      (number [1, 23] - [1, 24])))
+                  (function_argument [1, 26] - [1, 27]
+                    (expression [1, 26] - [1, 27]
+                      (number [1, 26] - [1, 27])))))))))))
+  (comment [3, 0] - [15, 2]))
 
 ==================
 Test Case 9

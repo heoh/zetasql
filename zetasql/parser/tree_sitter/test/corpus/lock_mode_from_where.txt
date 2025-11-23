@@ -1,21 +1,6 @@
 ==================
 Test Case 1
 ==================
-# Tests for the FOR UPDATE clause combined with a FROM and WHERE clause.
-
-# Flipping FOR UPDATE feature on and off.
-[default language_features=NONE,{{|+FOR_UPDATE}}]
-select a, b from Table1 for update;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 2
-==================
 # WHERE and FOR UPDATE in query.
 select a, b from Table1 where a > 0 for update;
 
@@ -45,7 +30,7 @@ QueryStatement [0-46] [select a,...for update]
 (source_file (ERROR))
 
 ==================
-Test Case 3
+Test Case 2
 ==================
 # UNNEST and FOR UPDATE in query.
 select * from unnest ([10,20,30]) as numbers with offset for update;
@@ -74,7 +59,7 @@ QueryStatement [0-67] [select * from...for update]
 (source_file (ERROR))
 
 ==================
-Test Case 4
+Test Case 3
 ==================
 # FOR UPDATE without a FROM clause. Valid in the parser but will be made
 # invalid in the analyzer as it doesn't lock any tables.

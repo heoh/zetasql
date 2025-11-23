@@ -1,41 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_match_recognize]
-# With and without aliases before and after
-select * from t {{| inner_alias | AS inner_alias }} match_recognize(
-  ORDER BY a
-  MEASURES max(A.b) AS m1
-  PATTERN ( A )
-  DEFINE A AS true
-) {{| outer_alias | AS outer_alias }}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 2
-==================
-# Does not combine with other table operators
-select * from t match_recognize(
-  ORDER BY c DESC, f(d)
-  MEASURES max(A.x) AS m1, min(B.y) AS m2
-  PATTERN ( (A B | C D) E `quoted $`)
-  DEFINE A AS true
-) as outer_alias {{ MATCH_RECOGNIZE | TABLESAMPLE | PIVOT | UNPIVOT | FOR SYSTEM TIME | WITH OFFSET }}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP:  MATCH_RECOGNIZE
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 3
-==================
 # joins
 select * from t1 inner join t2 match_recognize(
   ORDER BY c DESC, f(d)
@@ -116,7 +81,7 @@ QueryStatement [0-171] [select * from...AS true )]
 (source_file (ERROR))
 
 ==================
-Test Case 4
+Test Case 2
 ==================
 # TVF
 SELECT * FROM
@@ -165,7 +130,7 @@ QueryStatement [0-125] [SELECT * FROM...A AS true)]
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 3
 ==================
 # MATCH_RECOGNIZE() on a parenthesized join
 SELECT * FROM (t1 INNER JOIN t2 ON t1.a = t2.b)
@@ -248,7 +213,7 @@ QueryStatement [0-180] [SELECT * FROM...AS x.y   )]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 4
 ==================
 # MATCH_RECOGNIZE() on a table subquery
 SELECT * FROM ( SELECT * FROM t) AS u
@@ -326,7 +291,7 @@ QueryStatement [0-170] [SELECT * FROM...AS x.y   )]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 5
 ==================
 select * from t match_recognize(
   PARTITION BY a, f.g(b)
@@ -434,7 +399,7 @@ QueryStatement [0-215] [select * from...g(z.p)) )]
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 6
 ==================
 # partition by is optional
 select * from t match_recognize(
@@ -533,19 +498,64 @@ QueryStatement [0-190] [select * from...g(z.p)) )]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 7
 ==================
-# MEASURES require an alias with AS
+# Measures requires all its expressions to have AS alias, and no trailing comma
 select * from t match_recognize(
-  PARTITION BY a
-  ORDER BY c DESC
-  MEASURES min(x){{| m}}
-  PATTERN ( A )
-  DEFINE A AS x.y
+  PARTITION BY a, f.g(b)
+  ORDER BY c DESC, f(d)
+  MEASURES 
+  PATTERN ( (A B | C D) E `quoted $`)
+  DEFINE A AS x.y,
+         B AS y IN(f(z), g(z.p))
 )
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+ALTERNATION GROUPS:
+    <empty>
+     a AS m1,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Measures requires all its expressions to have AS alias, and no trailing comma
+select * from t match_recognize(
+  PARTITION BY a, f.g(b)
+  ORDER BY c DESC, f(d)
+  MEASURES  , 
+  PATTERN ( (A B | C D) E `quoted $`)
+  DEFINE A AS x.y,
+         B AS y IN(f(z), g(z.p))
+)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    <empty>
+     a AS m1,
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# Measures requires all its expressions to have AS alias, and no trailing comma
+select * from t match_recognize(
+  PARTITION BY a, f.g(b)
+  ORDER BY c DESC, f(d)
+  MEASURES  a 
+  PATTERN ( (A B | C D) E `quoted $`)
+  DEFINE A AS x.y,
+         B AS y IN(f(z), g(z.p))
+)
+
+/* Expected ZetaSQL AST:
+ALTERNATION GROUPS:
+    <empty>
+     a AS m1,
 */
 ---
 (source_file (ERROR))
@@ -557,7 +567,7 @@ Test Case 10
 select * from t match_recognize(
   PARTITION BY a, f.g(b)
   ORDER BY c DESC, f(d)
-  MEASURES {{| , | a | a m1 | a AS m1, }}
+  MEASURES  a m1 
   PATTERN ( (A B | C D) E `quoted $`)
   DEFINE A AS x.y,
          B AS y IN(f(z), g(z.p))
@@ -574,16 +584,20 @@ ALTERNATION GROUPS:
 ==================
 Test Case 11
 ==================
-# DEFINE requires AS and does not allow trailing comma
+# Measures requires all its expressions to have AS alias, and no trailing comma
 select * from t match_recognize(
   PARTITION BY a, f.g(b)
   ORDER BY c DESC, f(d)
-  MEASURES max(A.x) AS m1, min(B.y) AS m2
+  MEASURES  a AS m1, 
   PATTERN ( (A B | C D) E `quoted $`)
-  DEFINE {{ A | A true | A AS x.y, }})
+  DEFINE A AS x.y,
+         B AS y IN(f(z), g(z.p))
+)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP:  A
+ALTERNATION GROUPS:
+    <empty>
+     a AS m1,
 */
 ---
 (source_file (ERROR))
@@ -718,8 +732,6 @@ QueryStatement [0-493] [select * from...AS true )]
 Test Case 13
 ==================
 # MATCH_RECOGNIZE() on a PGQ graph query
-[language_features=NONE,+SQL_GRAPH]
-[reserve_graph_table]
 select * 
   from graph_table(g1
     match (x) -[e]- (y)
@@ -812,8 +824,6 @@ QueryStatement [0-217] [select *...AS x.y   )]
 Test Case 14
 ==================
 # MATCH_RECOGNIZE() on a GQL graph query
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
-[reserve_graph_table]
 select * 
   from graph_table(g1
     match (x) -[e]- (y)
@@ -1272,57 +1282,6 @@ QueryStatement [0-111] [SELECT * FROM...AS true )]
 ==================
 Test Case 22
 ==================
-# Cannot use a quantifier on an unparenthesized empty pattern at the top-level
-SELECT * FROM t MATCH_RECOGNIZE(
-  ORDER BY k
-  MEASURES max(x) AS m1
-  PATTERN ( {{?|+|*|{1,2}?}} )
-  DEFINE a AS true
-)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ?
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 23
-==================
-# Cannot use a quantifier on an unparenthesized empty pattern all within parens
-SELECT * FROM t MATCH_RECOGNIZE(
-  ORDER BY k
-  MEASURES max(x) AS m1
-  PATTERN ( ( {{?|+|*|{1,2}?}} ) )
-  DEFINE a AS true
-)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ?
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 24
-==================
-# Cannot use a quantifier on an unparenthesized empty pattern inside alternations
-SELECT * FROM t MATCH_RECOGNIZE(
-  ORDER BY k
-  MEASURES max(x) AS m1
-  PATTERN ( (A|{{?|+|*|{1,2}?}}) )
-  DEFINE a AS true
-)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ?
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 25
-==================
 # Valid pattern quantification with symbol quantifiers, which shows the parse
 # tree and locations.
 SELECT * FROM t MATCH_RECOGNIZE(
@@ -1398,7 +1357,7 @@ QueryStatement [0-139] [SELECT * FROM...AS true )]
 (source_file (ERROR))
 
 ==================
-Test Case 26
+Test Case 23
 ==================
 # Valid pattern quantification with greedy bounded quantifiers, which shows the 
 # parse tree and locations.
@@ -1508,7 +1467,7 @@ QueryStatement [0-172] [SELECT * FROM...AS true )]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 24
 ==================
 # Valid pattern quantification with reluctant bounded quantifiers, which shows
 # the parse tree and locations.
@@ -1607,58 +1566,7 @@ QueryStatement [0-163] [SELECT * FROM...AS true )]
 (source_file (ERROR))
 
 ==================
-Test Case 28
-==================
-# Bounds must be literals or params
-SELECT * FROM t MATCH_RECOGNIZE(
-  ORDER BY k
-  MEASURES max(value) AS m
-  PATTERN ( a{ {{|1+1|a|f(x)}}  } )
-  DEFINE A AS true
-)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 29
-==================
-# Some invalid quantifiers
-SELECT * FROM t MATCH_RECOGNIZE(
-  ORDER BY k
-  MEASURES max(value) AS m
-  PATTERN ( (A B){{???|++|+??|**|*??|*+|+*|{3}?|{@p}?}} )
-  DEFINE A AS true
-)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ???
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 30
-==================
-# Invalid bounded quantifiers
-SELECT * FROM t MATCH_RECOGNIZE(
-  ORDER BY k
-  MEASURES max(value) AS m
-  PATTERN ( (A B){{3|{1,2,3}|{,2,}|{}|{3}+|{3}*|{@p}+|{@p}*}} )
-  DEFINE A AS true
-)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: 3
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 31
+Test Case 25
 ==================
 SELECT * FROM t MATCH_RECOGNIZE(
   ORDER BY k
@@ -1707,25 +1615,166 @@ QueryStatement [0-112] [SELECT * FROM...AS true )]
 (source_file (ERROR))
 
 ==================
-Test Case 32
+Test Case 26
 ==================
 # Test that a double-quantified pattern is not mis-parsed as reluctant,
 # e.g. (a?)? is not misparsed as a??
 SELECT * FROM t MATCH_RECOGNIZE(
   ORDER BY k
   MEASURES max(value) AS m
-  PATTERN ( ( {{a|(a)|(a b)}}? )? )
+  PATTERN ( ( a? )? )
   DEFINE a AS true
 )
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: a
+QueryStatement [0-115] [SELECT * FROM...AS true )]
+  Query [0-115] [SELECT * FROM...AS true )]
+    Select [0-115] [SELECT * FROM...AS true )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-115] [FROM t MATCH_RECO...AS true )]
+        TablePathExpression [14-115] [t MATCH_RECOGNIZE...AS true )]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          MatchRecognizeClause [16-115] [MATCH_RECOGNIZE...AS true )]
+            OrderBy [35-45] [ORDER BY k]
+              OrderingExpression(ASC) [44-45] [k]
+                PathExpression [44-45] [k]
+                  Identifier(k) [44-45] [k]
+            SelectList [57-72] [max(value) AS m]
+              SelectColumn [57-72] [max(value) AS m]
+                FunctionCall [57-67] [max(value)]
+                  PathExpression [57-60] [max]
+                    Identifier(max) [57-60] [max]
+                  PathExpression [61-66] [value]
+                    Identifier(value) [61-66] [value]
+                Alias [68-72] [AS m]
+                  Identifier(m) [71-72] [m]
+            RowPatternQuantification [85-92] [( a? )?]
+              RowPatternQuantification [87-89] [a?]
+                RowPatternVariable [87-88] [a]
+                  Identifier(a) [87-88] [a]
+                SymbolQuantifier [88-89] [?]
+              SymbolQuantifier [91-92] [?]
+            SelectList [104-113] [a AS true]
+              SelectColumn [104-113] [a AS true]
+                BooleanLiteral(true) [109-113] [true]
+                Alias [104-108] [a AS]
+                  Identifier(a) [104-105] [a]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 33
+Test Case 27
+==================
+# Test that a double-quantified pattern is not mis-parsed as reluctant,
+# e.g. (a?)? is not misparsed as a??
+SELECT * FROM t MATCH_RECOGNIZE(
+  ORDER BY k
+  MEASURES max(value) AS m
+  PATTERN ( ( (a)? )? )
+  DEFINE a AS true
+)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-117] [SELECT * FROM...AS true )]
+  Query [0-117] [SELECT * FROM...AS true )]
+    Select [0-117] [SELECT * FROM...AS true )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-117] [FROM t MATCH_RECO...AS true )]
+        TablePathExpression [14-117] [t MATCH_RECOGNIZE...AS true )]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          MatchRecognizeClause [16-117] [MATCH_RECOGNIZE...AS true )]
+            OrderBy [35-45] [ORDER BY k]
+              OrderingExpression(ASC) [44-45] [k]
+                PathExpression [44-45] [k]
+                  Identifier(k) [44-45] [k]
+            SelectList [57-72] [max(value) AS m]
+              SelectColumn [57-72] [max(value) AS m]
+                FunctionCall [57-67] [max(value)]
+                  PathExpression [57-60] [max]
+                    Identifier(max) [57-60] [max]
+                  PathExpression [61-66] [value]
+                    Identifier(value) [61-66] [value]
+                Alias [68-72] [AS m]
+                  Identifier(m) [71-72] [m]
+            RowPatternQuantification [85-94] [( (a)? )?]
+              RowPatternQuantification [87-91] [(a)?]
+                RowPatternVariable [88-89] [a]
+                  Identifier(a) [88-89] [a]
+                SymbolQuantifier [90-91] [?]
+              SymbolQuantifier [93-94] [?]
+            SelectList [106-115] [a AS true]
+              SelectColumn [106-115] [a AS true]
+                BooleanLiteral(true) [111-115] [true]
+                Alias [106-110] [a AS]
+                  Identifier(a) [106-107] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+# Test that a double-quantified pattern is not mis-parsed as reluctant,
+# e.g. (a?)? is not misparsed as a??
+SELECT * FROM t MATCH_RECOGNIZE(
+  ORDER BY k
+  MEASURES max(value) AS m
+  PATTERN ( ( (a b)? )? )
+  DEFINE a AS true
+)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-119] [SELECT * FROM...AS true )]
+  Query [0-119] [SELECT * FROM...AS true )]
+    Select [0-119] [SELECT * FROM...AS true )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-119] [FROM t MATCH_RECO...AS true )]
+        TablePathExpression [14-119] [t MATCH_RECOGNIZE...AS true )]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          MatchRecognizeClause [16-119] [MATCH_RECOGNIZE...AS true )]
+            OrderBy [35-45] [ORDER BY k]
+              OrderingExpression(ASC) [44-45] [k]
+                PathExpression [44-45] [k]
+                  Identifier(k) [44-45] [k]
+            SelectList [57-72] [max(value) AS m]
+              SelectColumn [57-72] [max(value) AS m]
+                FunctionCall [57-67] [max(value)]
+                  PathExpression [57-60] [max]
+                    Identifier(max) [57-60] [max]
+                  PathExpression [61-66] [value]
+                    Identifier(value) [61-66] [value]
+                Alias [68-72] [AS m]
+                  Identifier(m) [71-72] [m]
+            RowPatternQuantification [85-96] [( (a b)? )?]
+              RowPatternQuantification [87-93] [(a b)?]
+                RowPatternOperation [88-91] [a b]
+                  RowPatternVariable [88-89] [a]
+                    Identifier(a) [88-89] [a]
+                  RowPatternVariable [90-91] [b]
+                    Identifier(b) [90-91] [b]
+                SymbolQuantifier [92-93] [?]
+              SymbolQuantifier [95-96] [?]
+            SelectList [108-117] [a AS true]
+              SelectColumn [108-117] [a AS true]
+                BooleanLiteral(true) [113-117] [true]
+                Alias [108-112] [a AS]
+                  Identifier(a) [108-109] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
 ==================
 # Test that a double-quantified empty pattern is not mis-parsed as reluctant
 SELECT
@@ -1778,43 +1827,105 @@ QueryStatement [0-130] [SELECT   *...a AS true)]
 (source_file (ERROR))
 
 ==================
-Test Case 34
+Test Case 30
 ==================
 # Variations for the AFTER MATCH SKIP clause
 SELECT * FROM t MATCH_RECOGNIZE(
   ORDER BY k
   MEASURES max(value) AS m
-  AFTER MATCH SKIP {{PAST LAST ROW|TO NEXT ROW}}
+  AFTER MATCH SKIP PAST LAST ROW
   PATTERN ( a )
   DEFINE a AS true
 )
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: PAST LAST ROW
+QueryStatement [0-142] [SELECT * FROM...AS true )]
+  Query [0-142] [SELECT * FROM...AS true )]
+    Select [0-142] [SELECT * FROM...AS true )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-142] [FROM t MATCH_RECO...AS true )]
+        TablePathExpression [14-142] [t MATCH_RECOGNIZE...AS true )]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          MatchRecognizeClause [16-142] [MATCH_RECOGNIZE...AS true )]
+            OrderBy [35-45] [ORDER BY k]
+              OrderingExpression(ASC) [44-45] [k]
+                PathExpression [44-45] [k]
+                  Identifier(k) [44-45] [k]
+            SelectList [57-72] [max(value) AS m]
+              SelectColumn [57-72] [max(value) AS m]
+                FunctionCall [57-67] [max(value)]
+                  PathExpression [57-60] [max]
+                    Identifier(max) [57-60] [max]
+                  PathExpression [61-66] [value]
+                    Identifier(value) [61-66] [value]
+                Alias [68-72] [AS m]
+                  Identifier(m) [71-72] [m]
+            AfterMatchSkipClause [92-105] [PAST LAST ROW]
+            RowPatternVariable [118-119] [a]
+              Identifier(a) [118-119] [a]
+            SelectList [131-140] [a AS true]
+              SelectColumn [131-140] [a AS true]
+                BooleanLiteral(true) [136-140] [true]
+                Alias [131-135] [a AS]
+                  Identifier(a) [131-132] [a]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 35
+Test Case 31
 ==================
-# Error on invalid AFTER MATCH SKIP clause
+# Variations for the AFTER MATCH SKIP clause
 SELECT * FROM t MATCH_RECOGNIZE(
   ORDER BY k
   MEASURES max(value) AS m
-  AFTER MATCH SKIP{{| TO END | ALL}}
+  AFTER MATCH SKIP TO NEXT ROW
   PATTERN ( a )
   DEFINE a AS true
 )
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-140] [SELECT * FROM...AS true )]
+  Query [0-140] [SELECT * FROM...AS true )]
+    Select [0-140] [SELECT * FROM...AS true )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-140] [FROM t MATCH_RECO...AS true )]
+        TablePathExpression [14-140] [t MATCH_RECOGNIZE...AS true )]
+          PathExpression [14-15] [t]
+            Identifier(t) [14-15] [t]
+          MatchRecognizeClause [16-140] [MATCH_RECOGNIZE...AS true )]
+            OrderBy [35-45] [ORDER BY k]
+              OrderingExpression(ASC) [44-45] [k]
+                PathExpression [44-45] [k]
+                  Identifier(k) [44-45] [k]
+            SelectList [57-72] [max(value) AS m]
+              SelectColumn [57-72] [max(value) AS m]
+                FunctionCall [57-67] [max(value)]
+                  PathExpression [57-60] [max]
+                    Identifier(max) [57-60] [max]
+                  PathExpression [61-66] [value]
+                    Identifier(value) [61-66] [value]
+                Alias [68-72] [AS m]
+                  Identifier(m) [71-72] [m]
+            AfterMatchSkipClause [92-103] [TO NEXT ROW]
+            RowPatternVariable [116-117] [a]
+              Identifier(a) [116-117] [a]
+            SelectList [129-138] [a AS true]
+              SelectColumn [129-138] [a AS true]
+                BooleanLiteral(true) [134-138] [true]
+                Alias [129-133] [a AS]
+                  Identifier(a) [129-130] [a]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 36
+Test Case 32
 ==================
 # With OPTIONS list. Option content is validated in the resolver.
 SELECT * FROM t MATCH_RECOGNIZE (
@@ -1867,7 +1978,7 @@ QueryStatement [0-129] [SELECT * FROM...blah=@q) )]
 (source_file (ERROR))
 
 ==================
-Test Case 37
+Test Case 33
 ==================
 # Anchors, also makes sure they're not confused with quoted idenfifiers.
 SELECT * FROM KeyValue MATCH_RECOGNIZE (
@@ -1951,25 +2062,7 @@ QueryStatement [0-202] [SELECT * FROM...value) > 10 )]
 (source_file (ERROR))
 
 ==================
-Test Case 38
-==================
-# Anchors cannot be quantified directly (i.e., unparenthesized)
-SELECT * FROM KeyValue MATCH_RECOGNIZE (
-  ORDER BY key
-  MEASURES max(length(value)) AS m
-  PATTERN ( {{^|$}}{{?|+|*?}} a )
-  DEFINE
-    a AS length(value) < 10
-)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ^,?
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 39
+Test Case 34
 ==================
 # Anchors can repeat
 SELECT * FROM KeyValue MATCH_RECOGNIZE (

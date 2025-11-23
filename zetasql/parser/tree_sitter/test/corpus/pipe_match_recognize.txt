@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 # Minimal case
 FROM t
 |> MATCH_RECOGNIZE(
@@ -171,10 +170,68 @@ FROM t
   PATTERN ( a | bc)
   DEFINE
     a AS f(x)
-) {{|AS m_r}}
+) AS m_r
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-153] [FROM t |>...) ) AS m_r]
+  Query [0-153] [FROM t |>...) ) AS m_r]
+    FromQuery [0-6] [FROM t]
+      FromClause [0-6] [FROM t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeMatchRecognize [7-153] [|> MATCH_RECOGNIZ...) ) AS m_r]
+      MatchRecognizeClause [10-153] [MATCH_RECOGNIZE...) ) AS m_r]
+        PartitionBy [29-47] [PARTITION BY x + y]
+          BinaryExpression(+) [42-47] [x + y]
+            PathExpression [42-43] [x]
+              Identifier(x) [42-43] [x]
+            PathExpression [46-47] [y]
+              Identifier(y) [46-47] [y]
+        OrderBy [50-72] [ORDER BY w + z, f(x).y]
+          OrderingExpression(ASC) [59-64] [w + z]
+            BinaryExpression(+) [59-64] [w + z]
+              PathExpression [59-60] [w]
+                Identifier(w) [59-60] [w]
+              PathExpression [63-64] [z]
+                Identifier(z) [63-64] [z]
+          OrderingExpression(ASC) [66-72] [f(x).y]
+            DotIdentifier [66-72] [f(x).y]
+              FunctionCall [66-70] [f(x)]
+                PathExpression [66-67] [f]
+                  Identifier(f) [66-67] [f]
+                PathExpression [68-69] [x]
+                  Identifier(x) [68-69] [x]
+              Identifier(y) [71-72] [y]
+        SelectList [84-101] [a + sum(b.x) AS m]
+          SelectColumn [84-101] [a + sum(b.x) AS m]
+            BinaryExpression(+) [84-96] [a + sum(b.x)]
+              PathExpression [84-85] [a]
+                Identifier(a) [84-85] [a]
+              FunctionCall [88-96] [sum(b.x)]
+                PathExpression [88-91] [sum]
+                  Identifier(sum) [88-91] [sum]
+                PathExpression [92-95] [b.x]
+                  Identifier(b) [92-93] [b]
+                  Identifier(x) [94-95] [x]
+            Alias [97-101] [AS m]
+              Identifier(m) [100-101] [m]
+        RowPatternOperation [114-120] [a | bc]
+          RowPatternVariable [114-115] [a]
+            Identifier(a) [114-115] [a]
+          RowPatternVariable [118-120] [bc]
+            Identifier(bc) [118-120] [bc]
+        SelectList [135-144] [a AS f(x)]
+          SelectColumn [135-144] [a AS f(x)]
+            FunctionCall [140-144] [f(x)]
+              PathExpression [140-141] [f]
+                Identifier(f) [140-141] [f]
+              PathExpression [142-143] [x]
+                Identifier(x) [142-143] [x]
+            Alias [135-139] [a AS]
+              Identifier(a) [135-136] [a]
+        Alias [147-153] [AS m_r]
+          Identifier(m_r) [150-153] [m_r]
 */
 ---
 (source_file (ERROR))

@@ -6,9 +6,6 @@ Test Case 1
 ###
 
 # Standalone ORDER BY statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -59,9 +56,6 @@ QueryStatement [0-80] [select gt....RETURN * ) gt]
 Test Case 2
 ==================
 # Standalone ORDER BY statement: multiple ordering expressions.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -120,9 +114,6 @@ QueryStatement [0-98] [select gt....RETURN * ) gt]
 Test Case 3
 ==================
 # Standalone ORDER BY statement: accepts GQL keywords ASCENDING / DESCENDING.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -181,9 +172,6 @@ QueryStatement [0-114] [select gt....RETURN * ) gt]
 Test Case 4
 ==================
 # Standalone ORDER BY statement: accepts COLLATE and NULLS order clauses.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -248,9 +236,6 @@ Test Case 5
 ==================
 # Standalone ORDER BY statement with LIMIT and OFFSET clauses.
 # Note: This is parsed as a single standalone statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -307,9 +292,6 @@ Test Case 6
 ==================
 # Standalone ORDER BY statement with LIMIT and SKIP clauses.
 # Note: This is parsed as a single standalone statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -368,9 +350,6 @@ Test Case 7
 # Note: This is parsed as two standalone statements. We consider such statements
 # as errors after parsing in order to prevent confusion, since in non-graph SQL 
 # queries, "ORDER BY/LIMIT/OFFSET" statements would have different semantics.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -428,9 +407,6 @@ QueryStatement [0-92] [select gt....RETURN * ) gt]
 Test Case 8
 ==================
 # Consecutive standalone ORDER BY statements. The first is redundant.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -490,9 +466,6 @@ QueryStatement [0-90] [select gt....RETURN * ) gt]
 Test Case 9
 ==================
 # Consecutive standalone ORDER BY statements. The first is not redundant.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -556,9 +529,6 @@ QueryStatement [0-99] [select gt....RETURN * ) gt]
 Test Case 10
 ==================
 # Standalone OFFSET/LIMIT statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -609,9 +579,6 @@ QueryStatement [0-81] [select gt....RETURN * ) gt]
 Test Case 11
 ==================
 # Standalone OFFSET statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -660,9 +627,6 @@ QueryStatement [0-72] [select gt....RETURN * ) gt]
 Test Case 12
 ==================
 # Standalone LIMIT statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -713,9 +677,6 @@ Test Case 13
 # Two consecutive standalone LIMIT and OFFSET statements.
 # Note: They are parsed as two different statements. We do not consider these
 # an error.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -774,9 +735,6 @@ Test Case 14
 
 
 # ORDER BY statement after RETURN statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -827,9 +785,6 @@ QueryStatement [0-80] [select gt....degree ) gt]
 Test Case 15
 ==================
 # ORDER BY statement after RETURN statement: multiple ordering expressions.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -889,9 +844,6 @@ Test Case 16
 ==================
 # ORDER BY statement after RETURN statement:
 #   accepts GQL keywords ASCENDING / DESCENDING.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -951,9 +903,6 @@ Test Case 17
 ==================
 # ORDER BY statement after RETURN statement:
 #   accepts COLLATE and NULLS order clauses.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -1017,9 +966,6 @@ QueryStatement [0-137] [select gt....last ) gt]
 Test Case 18
 ==================
 # ORDER BY statement after RETURN statement with LIMIT and OFFSET clauses.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -1074,9 +1020,6 @@ QueryStatement [0-92] [select gt....limit 20 ) gt]
 Test Case 19
 ==================
 # ORDER BY statement after RETURN statement with LIMIT and SKIP clauses.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -1131,9 +1074,6 @@ QueryStatement [0-90] [select gt....limit 20 ) gt]
 Test Case 20
 ==================
 # Consecutive ORDER BY statements after RETURN statement separated by NEXT.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -1204,9 +1144,6 @@ QueryStatement [0-117] [select gt....RETURN * ) gt]
 Test Case 21
 ==================
 # OFFSET/LIMIT statement after RETURN statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -1257,9 +1194,6 @@ QueryStatement [0-81] [select gt....LIMIT 20 ) gt]
 Test Case 22
 ==================
 # OFFSET statement after RETURN statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml
@@ -1308,9 +1242,6 @@ QueryStatement [0-72] [select gt....OFFSET 10 ) gt]
 Test Case 23
 ==================
 # LIMIT statement after RETURN statement.
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 select gt.* from
 graph_table(aml

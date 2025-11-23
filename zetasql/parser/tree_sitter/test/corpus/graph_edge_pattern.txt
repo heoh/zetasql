@@ -1,8 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
 
 # Filler of edge patterns are already tested inside graph_node_pattern.test.
 # This test file focus on edge orientation.

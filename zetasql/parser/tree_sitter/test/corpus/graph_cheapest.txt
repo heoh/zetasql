@@ -1,8 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY,+SQL_GRAPH_BOUNDED_PATH_QUANTIFICATION]
 
 # PGQ Edge pattern with cost
 select * from graph_table(
@@ -65,18 +63,191 @@ Test Case 2
 # PGQ Edge pattern with CHEAPEST
 select * from graph_table(
   my.graph.name
-  MATCH {{ANY CHEAPEST|CHEAPEST 2|CHEAPEST @param|ALL CHEAPEST}} -[a]->
+  MATCH ANY CHEAPEST -[a]->
   COLUMNS((a.array[0]-3) AS val)
 )
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ANY CHEAPEST
+QueryStatement [0-105] [select * from...AS val) )]
+  Query [0-105] [select * from...AS val) )]
+    Select [0-105] [select * from...AS val) )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-105] [from graph_table...AS val) )]
+        GraphTableQuery [14-105] [graph_table...AS val) )]
+          PathExpression [29-42] [my.graph.name]
+            Identifier(my) [29-31] [my]
+            Identifier(graph) [32-37] [graph]
+            Identifier(name) [38-42] [name]
+          GqlMatch [45-70] [MATCH ANY CHEAPEST -[a]->]
+            GraphPattern [51-70] [ANY CHEAPEST -[a]->]
+              GraphPathPattern [51-70] [ANY CHEAPEST -[a]->]
+                GraphPathSearchPrefix [51-63] [ANY CHEAPEST]
+                GraphEdgePattern [64-70] [-[a]->]
+                  GraphElementPatternFiller [66-67] [a]
+                    Identifier(a) [66-67] [a]
+          SelectList [81-102] [(a.array[0]-3) AS val]
+            SelectColumn [81-102] [(a.array[0]-3) AS val]
+              BinaryExpression(-) [82-94] [a.array[0]-3]
+                ArrayElement [82-92] [a.array[0]]
+                  PathExpression [82-89] [a.array]
+                    Identifier(a) [82-83] [a]
+                    Identifier(`array`) [84-89] [array]
+                  Location [89-90] [[]
+                  IntLiteral(0) [90-91] [0]
+                IntLiteral(3) [93-94] [3]
+              Alias [96-102] [AS val]
+                Identifier(val) [99-102] [val]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 3
+==================
+# PGQ Edge pattern with CHEAPEST
+select * from graph_table(
+  my.graph.name
+  MATCH CHEAPEST 2 -[a]->
+  COLUMNS((a.array[0]-3) AS val)
+)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-103] [select * from...AS val) )]
+  Query [0-103] [select * from...AS val) )]
+    Select [0-103] [select * from...AS val) )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-103] [from graph_table...AS val) )]
+        GraphTableQuery [14-103] [graph_table...AS val) )]
+          PathExpression [29-42] [my.graph.name]
+            Identifier(my) [29-31] [my]
+            Identifier(graph) [32-37] [graph]
+            Identifier(name) [38-42] [name]
+          GqlMatch [45-68] [MATCH CHEAPEST 2 -[a]->]
+            GraphPattern [51-68] [CHEAPEST 2 -[a]->]
+              GraphPathPattern [51-68] [CHEAPEST 2 -[a]->]
+                GraphPathSearchPrefix [51-61] [CHEAPEST 2]
+                  GraphPathSearchPrefixCount [51-61] [CHEAPEST 2]
+                    IntLiteral(2) [60-61] [2]
+                GraphEdgePattern [62-68] [-[a]->]
+                  GraphElementPatternFiller [64-65] [a]
+                    Identifier(a) [64-65] [a]
+          SelectList [79-100] [(a.array[0]-3) AS val]
+            SelectColumn [79-100] [(a.array[0]-3) AS val]
+              BinaryExpression(-) [80-92] [a.array[0]-3]
+                ArrayElement [80-90] [a.array[0]]
+                  PathExpression [80-87] [a.array]
+                    Identifier(a) [80-81] [a]
+                    Identifier(`array`) [82-87] [array]
+                  Location [87-88] [[]
+                  IntLiteral(0) [88-89] [0]
+                IntLiteral(3) [91-92] [3]
+              Alias [94-100] [AS val]
+                Identifier(val) [97-100] [val]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# PGQ Edge pattern with CHEAPEST
+select * from graph_table(
+  my.graph.name
+  MATCH CHEAPEST @param -[a]->
+  COLUMNS((a.array[0]-3) AS val)
+)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-108] [select * from...AS val) )]
+  Query [0-108] [select * from...AS val) )]
+    Select [0-108] [select * from...AS val) )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-108] [from graph_table...AS val) )]
+        GraphTableQuery [14-108] [graph_table...AS val) )]
+          PathExpression [29-42] [my.graph.name]
+            Identifier(my) [29-31] [my]
+            Identifier(graph) [32-37] [graph]
+            Identifier(name) [38-42] [name]
+          GqlMatch [45-73] [MATCH CHEAPEST @param -[a]->]
+            GraphPattern [51-73] [CHEAPEST @param -[a]->]
+              GraphPathPattern [51-73] [CHEAPEST @param -[a]->]
+                GraphPathSearchPrefix [51-66] [CHEAPEST @param]
+                  GraphPathSearchPrefixCount [51-66] [CHEAPEST @param]
+                    ParameterExpr [60-66] [@param]
+                      Identifier(param) [61-66] [param]
+                GraphEdgePattern [67-73] [-[a]->]
+                  GraphElementPatternFiller [69-70] [a]
+                    Identifier(a) [69-70] [a]
+          SelectList [84-105] [(a.array[0]-3) AS val]
+            SelectColumn [84-105] [(a.array[0]-3) AS val]
+              BinaryExpression(-) [85-97] [a.array[0]-3]
+                ArrayElement [85-95] [a.array[0]]
+                  PathExpression [85-92] [a.array]
+                    Identifier(a) [85-86] [a]
+                    Identifier(`array`) [87-92] [array]
+                  Location [92-93] [[]
+                  IntLiteral(0) [93-94] [0]
+                IntLiteral(3) [96-97] [3]
+              Alias [99-105] [AS val]
+                Identifier(val) [102-105] [val]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# PGQ Edge pattern with CHEAPEST
+select * from graph_table(
+  my.graph.name
+  MATCH ALL CHEAPEST -[a]->
+  COLUMNS((a.array[0]-3) AS val)
+)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-105] [select * from...AS val) )]
+  Query [0-105] [select * from...AS val) )]
+    Select [0-105] [select * from...AS val) )]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-105] [from graph_table...AS val) )]
+        GraphTableQuery [14-105] [graph_table...AS val) )]
+          PathExpression [29-42] [my.graph.name]
+            Identifier(my) [29-31] [my]
+            Identifier(graph) [32-37] [graph]
+            Identifier(name) [38-42] [name]
+          GqlMatch [45-70] [MATCH ALL CHEAPEST -[a]->]
+            GraphPattern [51-70] [ALL CHEAPEST -[a]->]
+              GraphPathPattern [51-70] [ALL CHEAPEST -[a]->]
+                GraphPathSearchPrefix [51-63] [ALL CHEAPEST]
+                GraphEdgePattern [64-70] [-[a]->]
+                  GraphElementPatternFiller [66-67] [a]
+                    Identifier(a) [66-67] [a]
+          SelectList [81-102] [(a.array[0]-3) AS val]
+            SelectColumn [81-102] [(a.array[0]-3) AS val]
+              BinaryExpression(-) [82-94] [a.array[0]-3]
+                ArrayElement [82-92] [a.array[0]]
+                  PathExpression [82-89] [a.array]
+                    Identifier(a) [82-83] [a]
+                    Identifier(`array`) [84-89] [array]
+                  Location [89-90] [[]
+                  IntLiteral(0) [90-91] [0]
+                IntLiteral(3) [93-94] [3]
+              Alias [96-102] [AS val]
+                Identifier(val) [99-102] [val]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
 ==================
 # GQL Edge pattern with cost
 GRAPH my.graph.name
@@ -125,21 +296,160 @@ QueryStatement [0-84] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 4
+Test Case 7
 ==================
 # GQL Edge pattern with CHEAPEST
 GRAPH my.graph.name
-MATCH {{ANY CHEAPEST|CHEAPEST 2|CHEAPEST @param|ALL CHEAPEST}} -[a]->
+MATCH ANY CHEAPEST -[a]->
 RETURN 1 as col
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ANY CHEAPEST
+QueryStatement [0-61] [GRAPH my.graph...TURN 1 as col]
+  Query [0-61] [GRAPH my.graph...TURN 1 as col]
+    GqlQuery [0-61] [GRAPH my.graph...TURN 1 as col]
+      GraphTableQuery [0-61] [GRAPH my.graph...TURN 1 as col]
+        PathExpression [6-19] [my.graph.name]
+          Identifier(my) [6-8] [my]
+          Identifier(graph) [9-14] [graph]
+          Identifier(name) [15-19] [name]
+        GqlOperatorList [20-61] [MATCH ANY...RETURN 1 as col]
+          GqlOperatorList [20-61] [MATCH ANY...RETURN 1 as col]
+            GqlMatch [20-45] [MATCH ANY CHEAPEST -[a]->]
+              GraphPattern [26-45] [ANY CHEAPEST -[a]->]
+                GraphPathPattern [26-45] [ANY CHEAPEST -[a]->]
+                  GraphPathSearchPrefix [26-38] [ANY CHEAPEST]
+                  GraphEdgePattern [39-45] [-[a]->]
+                    GraphElementPatternFiller [41-42] [a]
+                      Identifier(a) [41-42] [a]
+            GqlReturn [46-61] [RETURN 1 as col]
+              Select [53-61] [1 as col]
+                SelectList [53-61] [1 as col]
+                  SelectColumn [53-61] [1 as col]
+                    IntLiteral(1) [53-54] [1]
+                    Alias [55-61] [as col]
+                      Identifier(col) [58-61] [col]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 8
+==================
+# GQL Edge pattern with CHEAPEST
+GRAPH my.graph.name
+MATCH CHEAPEST 2 -[a]->
+RETURN 1 as col
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [GRAPH my.graph...TURN 1 as col]
+  Query [0-59] [GRAPH my.graph...TURN 1 as col]
+    GqlQuery [0-59] [GRAPH my.graph...TURN 1 as col]
+      GraphTableQuery [0-59] [GRAPH my.graph...TURN 1 as col]
+        PathExpression [6-19] [my.graph.name]
+          Identifier(my) [6-8] [my]
+          Identifier(graph) [9-14] [graph]
+          Identifier(name) [15-19] [name]
+        GqlOperatorList [20-59] [MATCH CHEAPEST...TURN 1 as col]
+          GqlOperatorList [20-59] [MATCH CHEAPEST...TURN 1 as col]
+            GqlMatch [20-43] [MATCH CHEAPEST 2 -[a]->]
+              GraphPattern [26-43] [CHEAPEST 2 -[a]->]
+                GraphPathPattern [26-43] [CHEAPEST 2 -[a]->]
+                  GraphPathSearchPrefix [26-36] [CHEAPEST 2]
+                    GraphPathSearchPrefixCount [26-36] [CHEAPEST 2]
+                      IntLiteral(2) [35-36] [2]
+                  GraphEdgePattern [37-43] [-[a]->]
+                    GraphElementPatternFiller [39-40] [a]
+                      Identifier(a) [39-40] [a]
+            GqlReturn [44-59] [RETURN 1 as col]
+              Select [51-59] [1 as col]
+                SelectList [51-59] [1 as col]
+                  SelectColumn [51-59] [1 as col]
+                    IntLiteral(1) [51-52] [1]
+                    Alias [53-59] [as col]
+                      Identifier(col) [56-59] [col]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# GQL Edge pattern with CHEAPEST
+GRAPH my.graph.name
+MATCH CHEAPEST @param -[a]->
+RETURN 1 as col
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-64] [GRAPH my.graph...TURN 1 as col]
+  Query [0-64] [GRAPH my.graph...TURN 1 as col]
+    GqlQuery [0-64] [GRAPH my.graph...TURN 1 as col]
+      GraphTableQuery [0-64] [GRAPH my.graph...TURN 1 as col]
+        PathExpression [6-19] [my.graph.name]
+          Identifier(my) [6-8] [my]
+          Identifier(graph) [9-14] [graph]
+          Identifier(name) [15-19] [name]
+        GqlOperatorList [20-64] [MATCH CHEAPEST...TURN 1 as col]
+          GqlOperatorList [20-64] [MATCH CHEAPEST...TURN 1 as col]
+            GqlMatch [20-48] [MATCH CHEAPEST @param -[a]->]
+              GraphPattern [26-48] [CHEAPEST @param -[a]->]
+                GraphPathPattern [26-48] [CHEAPEST @param -[a]->]
+                  GraphPathSearchPrefix [26-41] [CHEAPEST @param]
+                    GraphPathSearchPrefixCount [26-41] [CHEAPEST @param]
+                      ParameterExpr [35-41] [@param]
+                        Identifier(param) [36-41] [param]
+                  GraphEdgePattern [42-48] [-[a]->]
+                    GraphElementPatternFiller [44-45] [a]
+                      Identifier(a) [44-45] [a]
+            GqlReturn [49-64] [RETURN 1 as col]
+              Select [56-64] [1 as col]
+                SelectList [56-64] [1 as col]
+                  SelectColumn [56-64] [1 as col]
+                    IntLiteral(1) [56-57] [1]
+                    Alias [58-64] [as col]
+                      Identifier(col) [61-64] [col]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# GQL Edge pattern with CHEAPEST
+GRAPH my.graph.name
+MATCH ALL CHEAPEST -[a]->
+RETURN 1 as col
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-61] [GRAPH my.graph...TURN 1 as col]
+  Query [0-61] [GRAPH my.graph...TURN 1 as col]
+    GqlQuery [0-61] [GRAPH my.graph...TURN 1 as col]
+      GraphTableQuery [0-61] [GRAPH my.graph...TURN 1 as col]
+        PathExpression [6-19] [my.graph.name]
+          Identifier(my) [6-8] [my]
+          Identifier(graph) [9-14] [graph]
+          Identifier(name) [15-19] [name]
+        GqlOperatorList [20-61] [MATCH ALL...RETURN 1 as col]
+          GqlOperatorList [20-61] [MATCH ALL...RETURN 1 as col]
+            GqlMatch [20-45] [MATCH ALL CHEAPEST -[a]->]
+              GraphPattern [26-45] [ALL CHEAPEST -[a]->]
+                GraphPathPattern [26-45] [ALL CHEAPEST -[a]->]
+                  GraphPathSearchPrefix [26-38] [ALL CHEAPEST]
+                  GraphEdgePattern [39-45] [-[a]->]
+                    GraphElementPatternFiller [41-42] [a]
+                      Identifier(a) [41-42] [a]
+            GqlReturn [46-61] [RETURN 1 as col]
+              Select [53-61] [1 as col]
+                SelectList [53-61] [1 as col]
+                  SelectColumn [53-61] [1 as col]
+                    IntLiteral(1) [53-54] [1]
+                    Alias [55-61] [as col]
+                      Identifier(col) [58-61] [col]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
 ==================
 # Mixed path pattern selectors
 GRAPH my.graph.name
@@ -197,7 +507,7 @@ QueryStatement [0-130] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 12
 ==================
 # CHEAPEST with cost and path variable assignment
 
@@ -273,7 +583,7 @@ QueryStatement [0-169] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 13
 ==================
 # CHEAPEST on a quantified edge
 GRAPH my.graph.name
@@ -331,7 +641,7 @@ QueryStatement [0-108] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 14
 ==================
 # CHEAPEST on a quantified path with cost
 GRAPH my.graph.name
@@ -395,7 +705,7 @@ QueryStatement [0-116] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 15
 ==================
 # CHEAPEST on nested subpath, this should be rejected by the resolver.
 GRAPH my.graph.name
@@ -458,7 +768,7 @@ QueryStatement [0-113] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 16
 ==================
 # This example is truely ambiguous. "cost {a:b}" could be the element name
 # followed by a property spec or it could be the COST keyword followed by a
@@ -501,9 +811,8 @@ QueryStatement [0-57] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 17
 ==================
-[language_features=NONE,+BRACED_PROTO_CONSTRUCTORS]
 GRAPH my.graph.name
 MATCH -[cost cost {a:b}]->
 RETURN 1 as col
@@ -545,9 +854,8 @@ QueryStatement [0-62] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 18
 ==================
-[language_features=NONE,+BRACED_PROTO_CONSTRUCTORS]
 GRAPH my.graph.name
 MATCH -[cost {a:b} COST {a:b}]->
 RETURN 1 as col
@@ -594,7 +902,7 @@ QueryStatement [0-68] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 19
 ==================
 GRAPH my.graph.name
 MATCH -[cost cost 12]->
@@ -630,7 +938,7 @@ QueryStatement [0-59] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 20
 ==================
 GRAPH my.graph.name
 MATCH (n)
@@ -678,7 +986,7 @@ QueryStatement [0-80] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 21
 ==================
 # cost by itself should always bind to the rule for graph identifier
 GRAPH my.graph.name
@@ -721,7 +1029,7 @@ QueryStatement [0-72] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 22
 ==================
 # Complex test case with multiple top level paths, path assignment
 # and subpaths containing selectors
@@ -826,7 +1134,7 @@ QueryStatement [0-237] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 23
 ==================
 # cost by itself should always bind to the rule for graph identifier
 GRAPH my.graph.name
@@ -873,7 +1181,7 @@ QueryStatement [0-70] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 24
 ==================
 # COST is NULL literal
 GRAPH my.graph.name
@@ -915,7 +1223,7 @@ QueryStatement [0-63] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 25
 ==================
 # COST is string literal
 GRAPH my.graph.name
@@ -958,7 +1266,7 @@ QueryStatement [0-64] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 26
 ==================
 # COST is path expression
 GRAPH my.graph.name
@@ -1002,7 +1310,7 @@ QueryStatement [0-66] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 27
 ==================
 # COST is parameter
 GRAPH my.graph.name
@@ -1045,7 +1353,7 @@ QueryStatement [0-70] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 28
 ==================
 # COST is positional parameter (?)
 GRAPH my.graph.name
@@ -1087,7 +1395,7 @@ QueryStatement [0-60] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 29
 ==================
 # COST is system var
 GRAPH my.graph.name
@@ -1131,7 +1439,7 @@ QueryStatement [0-71] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 24
+Test Case 30
 ==================
 # COST is function call
 GRAPH my.graph.name
@@ -1179,7 +1487,7 @@ QueryStatement [0-68] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 25
+Test Case 31
 ==================
 # COST is complex expression including subquery expr
 GRAPH my.graph.name
@@ -1238,7 +1546,7 @@ QueryStatement [0-94] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 26
+Test Case 32
 ==================
 # COST is (1)
 GRAPH my.graph.name
@@ -1280,7 +1588,7 @@ QueryStatement [0-62] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 33
 ==================
 # COST is no-op cast
 GRAPH my.graph.name
@@ -1326,7 +1634,7 @@ QueryStatement [0-75] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 28
+Test Case 34
 ==================
 # COST is node pattern; this will be rejected by the resolver
 GRAPH my.graph.name
@@ -1365,7 +1673,7 @@ QueryStatement [0-62] [GRAPH my.graph...TURN 1 as col]
 (source_file (ERROR))
 
 ==================
-Test Case 29
+Test Case 35
 ==================
 # COST is a GQL value subquery
 GRAPH my.graph.name

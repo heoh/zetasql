@@ -1,11 +1,17 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+IS_DISTINCT]
-SELECT 1 IS {{NOT|}} DISTINCT FROM 2;
+SELECT 1 IS NOT DISTINCT FROM 2;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: NOT
+QueryStatement [0-31] [SELECT 1 IS...DISTINCT FROM 2]
+  Query [0-31] [SELECT 1 IS...DISTINCT FROM 2]
+    Select [0-31] [SELECT 1 IS...DISTINCT FROM 2]
+      SelectList [7-31] [1 IS NOT DISTINCT FROM 2]
+        SelectColumn [7-31] [1 IS NOT DISTINCT FROM 2]
+          BinaryExpression(IS NOT DISTINCT FROM) [7-31] [1 IS NOT DISTINCT FROM 2]
+            IntLiteral(1) [7-8] [1]
+            IntLiteral(2) [30-31] [2]
 */
 ---
 (source_file (ERROR))
@@ -14,10 +20,19 @@ ALTERNATION GROUP: NOT
 Test Case 2
 ==================
 # + vs. DISTINCT
-select 1 + 2 is {{NOT|}} distinct from NULL;
+select 1 + 2 is NOT distinct from NULL;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: NOT
+QueryStatement [0-38] [select 1 +...from NULL]
+  Query [0-38] [select 1 +...from NULL]
+    Select [0-38] [select 1 +...from NULL]
+      SelectList [7-38] [1 + 2 is NOT...from NULL]
+        SelectColumn [7-38] [1 + 2 is NOT...from NULL]
+          BinaryExpression(IS NOT DISTINCT FROM) [7-38] [1 + 2 is NOT...from NULL]
+            BinaryExpression(+) [7-12] [1 + 2]
+              IntLiteral(1) [7-8] [1]
+              IntLiteral(2) [11-12] [2]
+            NullLiteral(NULL) [34-38] [NULL]
 */
 ---
 (source_file (ERROR))
@@ -25,41 +40,36 @@ ALTERNATION GROUP: NOT
 ==================
 Test Case 3
 ==================
-# < vs. DISTINCT
-select 1 < 2 is {{NOT|}} distinct from NULL;
+# Complex lhs/rhs expressions
+SELECT 1 + 2 * 3 IS NOT DISTINCT FROM (4 * 5 + 6 BETWEEN 7 AND 8);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: NOT
+QueryStatement [0-65] [SELECT 1 +...BETWEEN 7 AND 8)]
+  Query [0-65] [SELECT 1 +...BETWEEN 7 AND 8)]
+    Select [0-65] [SELECT 1 +...BETWEEN 7 AND 8)]
+      SelectList [7-65] [1 + 2 * 3...BETWEEN 7 AND 8)]
+        SelectColumn [7-65] [1 + 2 * 3...BETWEEN 7 AND 8)]
+          BinaryExpression(IS NOT DISTINCT FROM) [7-65] [1 + 2 * 3...BETWEEN 7 AND 8)]
+            BinaryExpression(+) [7-16] [1 + 2 * 3]
+              IntLiteral(1) [7-8] [1]
+              BinaryExpression(*) [11-16] [2 * 3]
+                IntLiteral(2) [11-12] [2]
+                IntLiteral(3) [15-16] [3]
+            BetweenExpression(BETWEEN) [39-64] [4 * 5 + 6 BETWEEN 7 AND 8]
+              BinaryExpression(+) [39-48] [4 * 5 + 6]
+                BinaryExpression(*) [39-44] [4 * 5]
+                  IntLiteral(4) [39-40] [4]
+                  IntLiteral(5) [43-44] [5]
+                IntLiteral(6) [47-48] [6]
+              Location [49-56] [BETWEEN]
+              IntLiteral(7) [57-58] [7]
+              IntLiteral(8) [63-64] [8]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 4
-==================
-# BETWEEN vs. DISTINCT
-select 1 BETWEEN 2 AND 3 is {{NOT|}} distinct from NULL;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: NOT
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 5
-==================
-# Complex lhs/rhs expressions
-SELECT 1 + 2 * 3 IS {{NOT|}} DISTINCT FROM (4 * 5 + 6 BETWEEN 7 AND 8);
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: NOT
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 6
 ==================
 # IS DISTINCT FROM as lhs of IS
 SELECT (1 IS DISTINCT FROM 2) IS TRUE;
@@ -80,7 +90,7 @@ QueryStatement [0-37] [SELECT (1...2) IS TRUE]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 5
 ==================
 # IS DISTINCT FROM as lhs and rhs of IS DISTINCT FROM
 SELECT (1 IS DISTINCT FROM 2) IS DISTINCT FROM (3 IS DISTINCT FROM 4);
@@ -98,19 +108,6 @@ QueryStatement [0-69] [SELECT (1...DISTINCT FROM 4)]
             BinaryExpression(IS DISTINCT FROM) [48-68] [3 IS DISTINCT FROM 4]
               IntLiteral(3) [48-49] [3]
               IntLiteral(4) [67-68] [4]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 8
-==================
-# IS DISTRICT FROM - feature disabled
-[language_features=NONE]
-SELECT 1 IS {{NOT|}} DISTINCT FROM 2;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: NOT
 */
 ---
 (source_file (ERROR))

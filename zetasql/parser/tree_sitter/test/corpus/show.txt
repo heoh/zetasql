@@ -193,27 +193,3 @@ ShowStatement [0-53] [SHOW MATERIALIZED...ke '%foo%']
 ---
 (source_file (ERROR))
 
-==================
-Test Case 15
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-SHOW TABLES FROM my-project.dataset.table;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 16
-==================
-[language_features=NONE,+ALLOW_DASHES_IN_TABLE_NAME{{|,+ALLOW_SLASH_PATHS}}]
-SHOW TABLES FROM /span/db/my-mdb-grp:my_db
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-

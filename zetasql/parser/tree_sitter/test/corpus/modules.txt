@@ -101,16 +101,79 @@ Test Case 7
 ==================
 # Alternations with all the clauses, to ensure that we capture every
 # combination of clauses.
-import module {{|a.}}foo {{|as foo}} {{|OPTIONS (a=1)}};
+import module a.foo  ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+ImportStatement [0-19] [import module a.foo]
+  PathExpression [14-19] [a.foo]
+    Identifier(a) [14-15] [a]
+    Identifier(foo) [16-19] [foo]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 8
+==================
+# Alternations with all the clauses, to ensure that we capture every
+# combination of clauses.
+import module a.foo  OPTIONS (a=1);
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-34] [import module...OPTIONS (a=1)]
+  PathExpression [14-19] [a.foo]
+    Identifier(a) [14-15] [a]
+    Identifier(foo) [16-19] [foo]
+  OptionsList [29-34] [(a=1)]
+    OptionsEntry [30-33] [a=1]
+      Identifier(a) [30-31] [a]
+      IntLiteral(1) [32-33] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# Alternations with all the clauses, to ensure that we capture every
+# combination of clauses.
+import module a.foo as foo ;
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-26] [import module a.foo as foo]
+  PathExpression [14-19] [a.foo]
+    Identifier(a) [14-15] [a]
+    Identifier(foo) [16-19] [foo]
+  Alias [20-26] [as foo]
+    Identifier(foo) [23-26] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# Alternations with all the clauses, to ensure that we capture every
+# combination of clauses.
+import module a.foo as foo OPTIONS (a=1);
+
+/* Expected ZetaSQL AST:
+ImportStatement [0-40] [import module...OPTIONS (a=1)]
+  PathExpression [14-19] [a.foo]
+    Identifier(a) [14-15] [a]
+    Identifier(foo) [16-19] [foo]
+  Alias [20-26] [as foo]
+    Identifier(foo) [23-26] [foo]
+  OptionsList [35-40] [(a=1)]
+    OptionsEntry [36-39] [a=1]
+      Identifier(a) [36-37] [a]
+      IntLiteral(1) [38-39] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
 ==================
 # The module name is an unreserved keyword.
 import module module;
@@ -124,7 +187,7 @@ ImportStatement [0-20] [import module module]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 12
 ==================
 import module module.all;
 
@@ -138,7 +201,7 @@ ImportStatement [0-24] [import module module.all]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 13
 ==================
 # Unreserved keywords as aliases parse ok.
 import module foo as TABLE;
@@ -154,7 +217,7 @@ ImportStatement [0-26] [import module foo as TABLE]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 14
 ==================
 # Type names are just identifiers, so they parse ok.
 import module foo as string
@@ -170,7 +233,7 @@ ImportStatement [0-27] [import module foo as string]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 15
 ==================
 import module foo as INT64
 
@@ -185,7 +248,7 @@ ImportStatement [0-26] [import module foo as INT64]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 16
 ==================
 module foo;
 
@@ -198,7 +261,7 @@ ModuleStatement [0-10] [module foo]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 17
 ==================
 module foo.bar.baz;
 
@@ -213,7 +276,7 @@ ModuleStatement [0-18] [module foo.bar.baz]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 18
 ==================
 module foo.bar OPTIONS (a=1);
 
@@ -231,7 +294,7 @@ ModuleStatement [0-28] [module foo.bar OPTIONS (a=1)]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 19
 ==================
 module foo.bar OPTIONS (a=1, b='b', c=3.0);
 
@@ -256,7 +319,7 @@ ModuleStatement [0-42] [module foo...b', c=3.0)]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 20
 ==================
 # Unreserved keywords as modules names is ok.
 module import
@@ -270,7 +333,7 @@ ModuleStatement [0-13] [module import]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 21
 ==================
 module module
 
@@ -283,7 +346,7 @@ ModuleStatement [0-13] [module module]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 22
 ==================
 module options
 
@@ -296,7 +359,7 @@ ModuleStatement [0-14] [module options]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 23
 ==================
 module import.module.options options(a=1);
 
@@ -315,7 +378,7 @@ ModuleStatement [0-41] [module import...options(a=1)]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 24
 ==================
 module module.all;
 
@@ -329,7 +392,7 @@ ModuleStatement [0-17] [module module.all]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 25
 ==================
 module `all`;
 
@@ -342,7 +405,7 @@ ModuleStatement [0-12] [module `all`]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 26
 ==================
 module module.`all`;
 
@@ -356,7 +419,7 @@ ModuleStatement [0-19] [module module.`all`]
 (source_file (ERROR))
 
 ==================
-Test Case 24
+Test Case 27
 ==================
 # Invalid statement due to expecting path expression but successfully parsed
 import module "file.proto";
@@ -370,7 +433,7 @@ ImportStatement [0-26] [import module "file.proto"]
 (source_file (ERROR))
 
 ==================
-Test Case 25
+Test Case 28
 ==================
 # The parser supports IMPORT MODULE with INTO, but the statements fail
 # in the analyzer.
@@ -388,7 +451,7 @@ ImportStatement [0-30] [IMPORT MODULE name.path INTO a]
 (source_file (ERROR))
 
 ==================
-Test Case 26
+Test Case 29
 ==================
 IMPORT MODULE 'name/path' INTO a;
 

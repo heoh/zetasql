@@ -4,10 +4,21 @@ Test Case 1
 # NOTE: CREATE VIEW syntax and tests are identical to those for
 # CREATE TABLE AS SELECT tests, except for the keyword.
 
-create {{|materialized|approx}} view t1 as select * from t2;
+create materialized view t1 as select * from t2;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateMaterializedViewStatement [0-47] [create materializ...* from t2]
+  PathExpression [25-27] [t1]
+    Identifier(t1) [25-27] [t1]
+  Query [31-47] [select * from t2]
+    Select [31-47] [select * from t2]
+      SelectList [38-39] [*]
+        SelectColumn [38-39] [*]
+          Star(*) [38-39] [*]
+      FromClause [40-47] [from t2]
+        TablePathExpression [45-47] [t2]
+          PathExpression [45-47] [t2]
+            Identifier(t2) [45-47] [t2]
 */
 ---
 (source_file (ERROR))
@@ -15,17 +26,99 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 2
 ==================
-create {{temp|public|private}} view pkg1.`pkg2`.`t 2` as
-select 1 as a;
+# NOTE: CREATE VIEW syntax and tests are identical to those for
+# CREATE TABLE AS SELECT tests, except for the keyword.
+
+create approx view t1 as select * from t2;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp
+CreateApproxViewStatement [0-41] [create approx...* from t2]
+  PathExpression [19-21] [t1]
+    Identifier(t1) [19-21] [t1]
+  Query [25-41] [select * from t2]
+    Select [25-41] [select * from t2]
+      SelectList [32-33] [*]
+        SelectColumn [32-33] [*]
+          Star(*) [32-33] [*]
+      FromClause [34-41] [from t2]
+        TablePathExpression [39-41] [t2]
+          PathExpression [39-41] [t2]
+            Identifier(t2) [39-41] [t2]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 3
+==================
+create temp view pkg1.`pkg2`.`t 2` as
+select 1 as a;
+
+/* Expected ZetaSQL AST:
+CreateViewStatement(is_temp) [0-51] [create temp...select 1 as a]
+  PathExpression [17-34] [pkg1.`pkg2`.`t 2`]
+    Identifier(pkg1) [17-21] [pkg1]
+    Identifier(pkg2) [22-28] [`pkg2`]
+    Identifier(`t 2`) [29-34] [`t 2`]
+  Query [38-51] [select 1 as a]
+    Select [38-51] [select 1 as a]
+      SelectList [45-51] [1 as a]
+        SelectColumn [45-51] [1 as a]
+          IntLiteral(1) [45-46] [1]
+          Alias [47-51] [as a]
+            Identifier(a) [50-51] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+create public view pkg1.`pkg2`.`t 2` as
+select 1 as a;
+
+/* Expected ZetaSQL AST:
+CreateViewStatement(is_public) [0-53] [create public...select 1 as a]
+  PathExpression [19-36] [pkg1.`pkg2`.`t 2`]
+    Identifier(pkg1) [19-23] [pkg1]
+    Identifier(pkg2) [24-30] [`pkg2`]
+    Identifier(`t 2`) [31-36] [`t 2`]
+  Query [40-53] [select 1 as a]
+    Select [40-53] [select 1 as a]
+      SelectList [47-53] [1 as a]
+        SelectColumn [47-53] [1 as a]
+          IntLiteral(1) [47-48] [1]
+          Alias [49-53] [as a]
+            Identifier(a) [52-53] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+create private view pkg1.`pkg2`.`t 2` as
+select 1 as a;
+
+/* Expected ZetaSQL AST:
+CreateViewStatement(is_private) [0-54] [create private...select 1 as a]
+  PathExpression [20-37] [pkg1.`pkg2`.`t 2`]
+    Identifier(pkg1) [20-24] [pkg1]
+    Identifier(pkg2) [25-31] [`pkg2`]
+    Identifier(`t 2`) [32-37] [`t 2`]
+  Query [41-54] [select 1 as a]
+    Select [41-54] [select 1 as a]
+      SelectList [48-54] [1 as a]
+        SelectColumn [48-54] [1 as a]
+          IntLiteral(1) [48-49] [1]
+          Alias [50-54] [as a]
+            Identifier(a) [53-54] [a]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
 ==================
 create temp view pkg1.`pkg2`.`t 2` as
 select 1 from t2 union all select 2 from t3 cross join t4
@@ -68,7 +161,7 @@ CreateViewStatement(is_temp) [0-95] [create temp...cross join t4]
 (source_file (ERROR))
 
 ==================
-Test Case 4
+Test Case 7
 ==================
 # WITH goes inside create view.
 create view t3 as
@@ -105,7 +198,7 @@ CreateViewStatement [0-70] [create view...* from tt]
 (source_file (ERROR))
 
 ==================
-Test Case 5
+Test Case 8
 ==================
 create view t4 options(x=y) as
 with t1 as (select 1), t2 as (select 2)
@@ -145,7 +238,7 @@ CreateViewStatement [0-79] [create view...) select 3]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 9
 ==================
 create view tt
 options (x = 1)
@@ -169,20 +262,7 @@ CreateViewStatement [0-42] [create view...as select 1]
 (source_file (ERROR))
 
 ==================
-Test Case 7
-==================
-create temporary {{|materialized|approx}} view tt
-options (x = 5, y = 'abc', z = @param, zz = ident, zzz = @@sysvar)
-as select 2;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 8
+Test Case 10
 ==================
 create view tt
 options ()
@@ -203,7 +283,7 @@ CreateViewStatement [0-37] [create view...as select 2]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 11
 ==================
 create view tt
 options (x=5.5, y=a, z=b.c)
@@ -236,7 +316,7 @@ CreateViewStatement [0-54] [create view...as select 2]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 12
 ==================
 create view tt
 options (y='b.c', z=`b.c`)
@@ -265,7 +345,7 @@ CreateViewStatement [0-53] [create view...as select 2]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 13
 ==================
 # Options is a non-reserved keyword so can be used as an identifier.
 create view options as select 1 x;
@@ -286,7 +366,7 @@ CreateViewStatement [0-33] [create view...select 1 x]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 14
 ==================
 create view options OPTIONS (x=y) AS select 1 x;
 
@@ -311,7 +391,7 @@ CreateViewStatement [0-47] [create view...select 1 x]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 15
 ==================
 # This is parsed as a view named options with an options clause.
 create view options options(x=y) as select 1 x;
@@ -337,18 +417,43 @@ CreateViewStatement [0-46] [create view...select 1 x]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 16
 ==================
-create or replace {{|materialized|approx}} view xyz as (select 1)
+create or replace materialized view xyz as (select 1)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateMaterializedViewStatement(is_or_replace) [0-53] [create or...(select 1)]
+  PathExpression [36-39] [xyz]
+    Identifier(xyz) [36-39] [xyz]
+  Query [44-52] [select 1]
+    Select [44-52] [select 1]
+      SelectList [51-52] [1]
+        SelectColumn [51-52] [1]
+          IntLiteral(1) [51-52] [1]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 17
+==================
+create or replace approx view xyz as (select 1)
+
+/* Expected ZetaSQL AST:
+CreateApproxViewStatement(is_or_replace) [0-47] [create or...(select 1)]
+  PathExpression [30-33] [xyz]
+    Identifier(xyz) [30-33] [xyz]
+  Query [38-46] [select 1]
+    Select [38-46] [select 1]
+      SelectList [45-46] [1]
+        SelectColumn [45-46] [1]
+          IntLiteral(1) [45-46] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
 ==================
 create view if not exists xyz as (select 1)
 
@@ -366,7 +471,7 @@ CreateViewStatement(is_if_not_exists) [0-43] [create view...(select 1)]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 19
 ==================
 # One with everything.  This is not legal, but parses successfully.
 create or replace temporary view if not exists a.b.c options(d=e) as select 1
@@ -392,7 +497,7 @@ CreateViewStatement(is_temp, is_or_replace, is_if_not_exists) [0-77] [create or.
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 20
 ==================
 create view t as
 with q as (select 1), q2 as (select * from q)
@@ -435,48 +540,26 @@ CreateViewStatement [0-79] [create view...* from q2]
 (source_file (ERROR))
 
 ==================
-Test Case 18
-==================
-create view vw sql security {{INVOKER|DEFINER|CREATOR|TURNIP|}} options ( a=b ) as (SELECT 1 AS a) ;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: INVOKER
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 19
-==================
-# Create view with explicit column list with types fails
-create {{|materialized|approx}} view v (a int64, b int64) as select 1 a, 2 b;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 20
-==================
-# Create view with explicit column name list
-create {{|materialized|approx}} view v (a1, b2) as select 1 a, 2 b;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
 Test Case 21
 ==================
-# Create view with explicit column name list with column options
-create {{|materialized|approx}} view v (a1 OPTIONS(description="test view"), b2) as select 1 a, 2 b;
+create view vw sql security INVOKER options ( a=b ) as (SELECT 1 AS a) ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateViewStatement(SQL SECURITY INVOKER) [0-70] [create view...SELECT 1 AS a)]
+  PathExpression [12-14] [vw]
+    Identifier(vw) [12-14] [vw]
+  OptionsList [44-51] [( a=b )]
+    OptionsEntry [46-49] [a=b]
+      Identifier(a) [46-47] [a]
+      PathExpression [48-49] [b]
+        Identifier(b) [48-49] [b]
+  Query [56-69] [SELECT 1 AS a]
+    Select [56-69] [SELECT 1 AS a]
+      SelectList [63-69] [1 AS a]
+        SelectColumn [63-69] [1 AS a]
+          IntLiteral(1) [63-64] [1]
+          Alias [65-69] [AS a]
+            Identifier(a) [68-69] [a]
 */
 ---
 (source_file (ERROR))
@@ -484,12 +567,24 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 22
 ==================
-# Create view with explicit column name list with all columns having column
-# options
-create {{|materialized|approx}} view v (a1 OPTIONS(description="test view"), b2 OPTIONS()) as select 1 a, 2 b;
+create view vw sql security DEFINER options ( a=b ) as (SELECT 1 AS a) ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateViewStatement(SQL SECURITY DEFINER) [0-70] [create view...SELECT 1 AS a)]
+  PathExpression [12-14] [vw]
+    Identifier(vw) [12-14] [vw]
+  OptionsList [44-51] [( a=b )]
+    OptionsEntry [46-49] [a=b]
+      Identifier(a) [46-47] [a]
+      PathExpression [48-49] [b]
+        Identifier(b) [48-49] [b]
+  Query [56-69] [SELECT 1 AS a]
+    Select [56-69] [SELECT 1 AS a]
+      SelectList [63-69] [1 AS a]
+        SelectColumn [63-69] [1 AS a]
+          IntLiteral(1) [63-64] [1]
+          Alias [65-69] [AS a]
+            Identifier(a) [68-69] [a]
 */
 ---
 (source_file (ERROR))
@@ -497,10 +592,29 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 23
 ==================
-create {{|materialized|approx}} RECURSIVE view t1 as select * from t1;
+# Create view with explicit column name list
+create materialized view v (a1, b2) as select 1 a, 2 b;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateMaterializedViewStatement [0-54] [create materializ...t 1 a, 2 b]
+  PathExpression [25-26] [v]
+    Identifier(v) [25-26] [v]
+  ColumnWithOptionsList [27-35] [(a1, b2)]
+    ColumnWithOptions [28-30] [a1]
+      Identifier(a1) [28-30] [a1]
+    ColumnWithOptions [32-34] [b2]
+      Identifier(b2) [32-34] [b2]
+  Query [39-54] [select 1 a, 2 b]
+    Select [39-54] [select 1 a, 2 b]
+      SelectList [46-54] [1 a, 2 b]
+        SelectColumn [46-49] [1 a]
+          IntLiteral(1) [46-47] [1]
+          Alias [48-49] [a]
+            Identifier(a) [48-49] [a]
+        SelectColumn [51-54] [2 b]
+          IntLiteral(2) [51-52] [2]
+          Alias [53-54] [b]
+            Identifier(b) [53-54] [b]
 */
 ---
 (source_file (ERROR))
@@ -508,16 +622,223 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 24
 ==================
-create TEMP {{|materialized|approx}} RECURSIVE view t1 as select * from t1;
+# Create view with explicit column name list
+create approx view v (a1, b2) as select 1 a, 2 b;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateApproxViewStatement [0-48] [create approx...elect 1 a, 2 b]
+  PathExpression [19-20] [v]
+    Identifier(v) [19-20] [v]
+  ColumnWithOptionsList [21-29] [(a1, b2)]
+    ColumnWithOptions [22-24] [a1]
+      Identifier(a1) [22-24] [a1]
+    ColumnWithOptions [26-28] [b2]
+      Identifier(b2) [26-28] [b2]
+  Query [33-48] [select 1 a, 2 b]
+    Select [33-48] [select 1 a, 2 b]
+      SelectList [40-48] [1 a, 2 b]
+        SelectColumn [40-43] [1 a]
+          IntLiteral(1) [40-41] [1]
+          Alias [42-43] [a]
+            Identifier(a) [42-43] [a]
+        SelectColumn [45-48] [2 b]
+          IntLiteral(2) [45-46] [2]
+          Alias [47-48] [b]
+            Identifier(b) [47-48] [b]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 25
+==================
+# Create view with explicit column name list with column options
+create materialized view v (a1 OPTIONS(description="test view"), b2) as select 1 a, 2 b;
+
+/* Expected ZetaSQL AST:
+CreateMaterializedViewStatement [0-87] [create materializ...t 1 a, 2 b]
+  PathExpression [25-26] [v]
+    Identifier(v) [25-26] [v]
+  ColumnWithOptionsList [27-68] [(a1 OPTIONS...view"), b2)]
+    ColumnWithOptions [28-63] [a1 OPTIONS...test view")]
+      Identifier(a1) [28-30] [a1]
+      OptionsList [38-63] [(description="test view")]
+        OptionsEntry [39-62] [description="test view"]
+          Identifier(description) [39-50] [description]
+          StringLiteral [51-62] ["test view"]
+            StringLiteralComponent("test view") [51-62] ["test view"]
+    ColumnWithOptions [65-67] [b2]
+      Identifier(b2) [65-67] [b2]
+  Query [72-87] [select 1 a, 2 b]
+    Select [72-87] [select 1 a, 2 b]
+      SelectList [79-87] [1 a, 2 b]
+        SelectColumn [79-82] [1 a]
+          IntLiteral(1) [79-80] [1]
+          Alias [81-82] [a]
+            Identifier(a) [81-82] [a]
+        SelectColumn [84-87] [2 b]
+          IntLiteral(2) [84-85] [2]
+          Alias [86-87] [b]
+            Identifier(b) [86-87] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+# Create view with explicit column name list with column options
+create approx view v (a1 OPTIONS(description="test view"), b2) as select 1 a, 2 b;
+
+/* Expected ZetaSQL AST:
+CreateApproxViewStatement [0-81] [create approx...elect 1 a, 2 b]
+  PathExpression [19-20] [v]
+    Identifier(v) [19-20] [v]
+  ColumnWithOptionsList [21-62] [(a1 OPTIONS...view"), b2)]
+    ColumnWithOptions [22-57] [a1 OPTIONS...test view")]
+      Identifier(a1) [22-24] [a1]
+      OptionsList [32-57] [(description="test view")]
+        OptionsEntry [33-56] [description="test view"]
+          Identifier(description) [33-44] [description]
+          StringLiteral [45-56] ["test view"]
+            StringLiteralComponent("test view") [45-56] ["test view"]
+    ColumnWithOptions [59-61] [b2]
+      Identifier(b2) [59-61] [b2]
+  Query [66-81] [select 1 a, 2 b]
+    Select [66-81] [select 1 a, 2 b]
+      SelectList [73-81] [1 a, 2 b]
+        SelectColumn [73-76] [1 a]
+          IntLiteral(1) [73-74] [1]
+          Alias [75-76] [a]
+            Identifier(a) [75-76] [a]
+        SelectColumn [78-81] [2 b]
+          IntLiteral(2) [78-79] [2]
+          Alias [80-81] [b]
+            Identifier(b) [80-81] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+# Create view with explicit column name list with all columns having column
+# options
+create materialized view v (a1 OPTIONS(description="test view"), b2 OPTIONS()) as select 1 a, 2 b;
+
+/* Expected ZetaSQL AST:
+CreateMaterializedViewStatement [0-97] [create materializ...t 1 a, 2 b]
+  PathExpression [25-26] [v]
+    Identifier(v) [25-26] [v]
+  ColumnWithOptionsList [27-78] [(a1 OPTIONS...OPTIONS())]
+    ColumnWithOptions [28-63] [a1 OPTIONS...test view")]
+      Identifier(a1) [28-30] [a1]
+      OptionsList [38-63] [(description="test view")]
+        OptionsEntry [39-62] [description="test view"]
+          Identifier(description) [39-50] [description]
+          StringLiteral [51-62] ["test view"]
+            StringLiteralComponent("test view") [51-62] ["test view"]
+    ColumnWithOptions [65-77] [b2 OPTIONS()]
+      Identifier(b2) [65-67] [b2]
+      OptionsList [75-77] [()]
+  Query [82-97] [select 1 a, 2 b]
+    Select [82-97] [select 1 a, 2 b]
+      SelectList [89-97] [1 a, 2 b]
+        SelectColumn [89-92] [1 a]
+          IntLiteral(1) [89-90] [1]
+          Alias [91-92] [a]
+            Identifier(a) [91-92] [a]
+        SelectColumn [94-97] [2 b]
+          IntLiteral(2) [94-95] [2]
+          Alias [96-97] [b]
+            Identifier(b) [96-97] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+# Create view with explicit column name list with all columns having column
+# options
+create approx view v (a1 OPTIONS(description="test view"), b2 OPTIONS()) as select 1 a, 2 b;
+
+/* Expected ZetaSQL AST:
+CreateApproxViewStatement [0-91] [create approx...elect 1 a, 2 b]
+  PathExpression [19-20] [v]
+    Identifier(v) [19-20] [v]
+  ColumnWithOptionsList [21-72] [(a1 OPTIONS...OPTIONS())]
+    ColumnWithOptions [22-57] [a1 OPTIONS...test view")]
+      Identifier(a1) [22-24] [a1]
+      OptionsList [32-57] [(description="test view")]
+        OptionsEntry [33-56] [description="test view"]
+          Identifier(description) [33-44] [description]
+          StringLiteral [45-56] ["test view"]
+            StringLiteralComponent("test view") [45-56] ["test view"]
+    ColumnWithOptions [59-71] [b2 OPTIONS()]
+      Identifier(b2) [59-61] [b2]
+      OptionsList [69-71] [()]
+  Query [76-91] [select 1 a, 2 b]
+    Select [76-91] [select 1 a, 2 b]
+      SelectList [83-91] [1 a, 2 b]
+        SelectColumn [83-86] [1 a]
+          IntLiteral(1) [83-84] [1]
+          Alias [85-86] [a]
+            Identifier(a) [85-86] [a]
+        SelectColumn [88-91] [2 b]
+          IntLiteral(2) [88-89] [2]
+          Alias [90-91] [b]
+            Identifier(b) [90-91] [b]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
+==================
+create materialized RECURSIVE view t1 as select * from t1;
+
+/* Expected ZetaSQL AST:
+CreateMaterializedViewStatement(recursive) [0-57] [create materializ...* from t1]
+  PathExpression [35-37] [t1]
+    Identifier(t1) [35-37] [t1]
+  Query [41-57] [select * from t1]
+    Select [41-57] [select * from t1]
+      SelectList [48-49] [*]
+        SelectColumn [48-49] [*]
+          Star(*) [48-49] [*]
+      FromClause [50-57] [from t1]
+        TablePathExpression [55-57] [t1]
+          PathExpression [55-57] [t1]
+            Identifier(t1) [55-57] [t1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 30
+==================
+create approx RECURSIVE view t1 as select * from t1;
+
+/* Expected ZetaSQL AST:
+CreateApproxViewStatement(recursive) [0-51] [create approx...* from t1]
+  PathExpression [29-31] [t1]
+    Identifier(t1) [29-31] [t1]
+  Query [35-51] [select * from t1]
+    Select [35-51] [select * from t1]
+      SelectList [42-43] [*]
+        SelectColumn [42-43] [*]
+          Star(*) [42-43] [*]
+      FromClause [44-51] [from t1]
+        TablePathExpression [49-51] [t1]
+          PathExpression [49-51] [t1]
+            Identifier(t1) [49-51] [t1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 31
 ==================
 CREATE PRIVATE RECURSIVE VIEW t1 AS
 SELECT
@@ -543,42 +864,7 @@ CreateViewStatement(is_private, recursive) [0-56] [CREATE PRIVATE...FROM   t1]
 (source_file (ERROR))
 
 ==================
-Test Case 26
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-create view p-g-123.d456.v1 as select * from t2;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 27
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-create materialized view p-b-c.d_123.mv1 as select sum(m1) from t2 group by d1, d2;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 28
-==================
-create {{|materialized|approx}} view t1 with connection `myproject.us-west-2.myconnection` as select * from t2;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 29
+Test Case 32
 ==================
 CREATE TEMP VIEW v AS
 GRAPH aml

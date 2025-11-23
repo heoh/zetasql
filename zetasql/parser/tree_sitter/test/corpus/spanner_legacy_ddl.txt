@@ -6,11 +6,26 @@ Test Case 1
 #######################################################
 # CREATE TABLE... PRIMARY KEY... INTERLEAVE IN PARENT #
 #######################################################
-[language_features=NONE,+SPANNER_LEGACY_DDL]
-create table t1 (a int64) primary key (a) {{|, interleave in parent p}};
+create table t1 (a int64) primary key (a) , interleave in parent p;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateTableStatement [0-66] [create table...in parent p]
+  PathExpression [13-15] [t1]
+    Identifier(t1) [13-15] [t1]
+  TableElementList [16-25] [(a int64)]
+    ColumnDefinition [17-24] [a int64]
+      Identifier(a) [17-18] [a]
+      SimpleColumnSchema [19-24] [int64]
+        PathExpression [19-24] [int64]
+          Identifier(int64) [19-24] [int64]
+  SpannerTableOptions [26-66] [primary key...in parent p]
+    PrimaryKey(ENFORCED) [26-41] [primary key (a)]
+      PrimaryKeyElementList [38-41] [(a)]
+        PrimaryKeyElement(ASC) [39-40] [a]
+          Identifier(a) [39-40] [a]
+    SpannerInterleaveClause [42-66] [, interleave in parent p]
+      PathExpression [65-66] [p]
+        Identifier(p) [65-66] [p]
 */
 ---
 (source_file (ERROR))
@@ -18,12 +33,27 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 2
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL]
 create table t1 (a int64) primary key (a),
-interleave in parent p on delete {{cascade|no action}};
+interleave in parent p on delete cascade;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: cascade
+CreateTableStatement [0-83] [create table...delete cascade]
+  PathExpression [13-15] [t1]
+    Identifier(t1) [13-15] [t1]
+  TableElementList [16-25] [(a int64)]
+    ColumnDefinition [17-24] [a int64]
+      Identifier(a) [17-18] [a]
+      SimpleColumnSchema [19-24] [int64]
+        PathExpression [19-24] [int64]
+          Identifier(int64) [19-24] [int64]
+  SpannerTableOptions [26-83] [primary key...delete cascade]
+    PrimaryKey(ENFORCED) [26-41] [primary key (a)]
+      PrimaryKeyElementList [38-41] [(a)]
+        PrimaryKeyElement(ASC) [39-40] [a]
+          Identifier(a) [39-40] [a]
+    SpannerInterleaveClause [41-83] [, interleave...delete cascade]
+      PathExpression [64-65] [p]
+        Identifier(p) [64-65] [p]
 */
 ---
 (source_file (ERROR))
@@ -31,9 +61,36 @@ ALTERNATION GROUP: cascade
 ==================
 Test Case 3
 ==================
+create table t1 (a int64) primary key (a),
+interleave in parent p on delete no action;
+
+/* Expected ZetaSQL AST:
+CreateTableStatement [0-85] [create table...no action]
+  PathExpression [13-15] [t1]
+    Identifier(t1) [13-15] [t1]
+  TableElementList [16-25] [(a int64)]
+    ColumnDefinition [17-24] [a int64]
+      Identifier(a) [17-18] [a]
+      SimpleColumnSchema [19-24] [int64]
+        PathExpression [19-24] [int64]
+          Identifier(int64) [19-24] [int64]
+  SpannerTableOptions [26-85] [primary key...no action]
+    PrimaryKey(ENFORCED) [26-41] [primary key (a)]
+      PrimaryKeyElementList [38-41] [(a)]
+        PrimaryKeyElement(ASC) [39-40] [a]
+          Identifier(a) [39-40] [a]
+    SpannerInterleaveClause [41-85] [, interleave...no action]
+      PathExpression [64-65] [p]
+        Identifier(p) [64-65] [p]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
 # Unparser output is in ZetaSQL format and is not a valid Spanner DDL due to
 # explicit foreign key match/actions.
-[language_features=NONE,+SPANNER_LEGACY_DDL,+COLUMN_DEFAULT_VALUE]
 create table t1 (
   a int64,
   b string(123),
@@ -127,25 +184,12 @@ CreateTableStatement [0-316] [create table...delete cascade]
 (source_file (ERROR))
 
 ==================
-Test Case 4
-==================
-# Spanner DDL parsing is disabled
-create table t1 (a int64) primary key (a) {{|, interleave in parent p}};
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
 Test Case 5
 ==================
 ###############################################
 # CREATE NULL_FILTERED INDEX... INTERLEAVE IN #
 ###############################################
 
-[language_features=NONE,+SPANNER_LEGACY_DDL]
 create unique null_filtered index idx on t(c1, c2 asc, c3 desc)
 storing (c4, c5), interleave in p
 
@@ -180,11 +224,18 @@ CreateIndexStatement(UNIQUE) [0-97] [create unique...nterleave in p]
 ==================
 Test Case 6
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL]
-create {{|unique}} {{|null_filtered}} index idx on t(c1)
+create unique  index idx on t(c1)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateIndexStatement(UNIQUE) [0-33] [create unique...idx on t(c1)]
+  PathExpression [21-24] [idx]
+    Identifier(idx) [21-24] [idx]
+  PathExpression [28-29] [t]
+    Identifier(t) [28-29] [t]
+  IndexItemList [29-33] [(c1)]
+    OrderingExpression(ASC) [30-32] [c1]
+      PathExpression [30-32] [c1]
+        Identifier(c1) [30-32] [c1]
 */
 ---
 (source_file (ERROR))
@@ -192,11 +243,18 @@ ALTERNATION GROUP: <empty>
 ==================
 Test Case 7
 ==================
-# Spanner DDL parsing is disabled
-create {{|unique}} null_filtered index idx on t(c1)
+create unique null_filtered index idx on t(c1)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateIndexStatement(UNIQUE) [0-46] [create unique...idx on t(c1)]
+  PathExpression [34-37] [idx]
+    Identifier(idx) [34-37] [idx]
+  PathExpression [41-42] [t]
+    Identifier(t) [41-42] [t]
+  IndexItemList [42-46] [(c1)]
+    OrderingExpression(ASC) [43-45] [c1]
+      PathExpression [43-45] [c1]
+        Identifier(c1) [43-45] [c1]
 */
 ---
 (source_file (ERROR))
@@ -208,7 +266,6 @@ Test Case 8
 # CREATE TABLE with no elements #
 #################################
 
-[language_features=NONE,+SPANNER_LEGACY_DDL]
 create table t() primary key()
 
 /* Expected ZetaSQL AST:
@@ -229,7 +286,6 @@ Test Case 9
 # ALTER TABLE #
 ###############
 
-[language_features=NONE,+SPANNER_LEGACY_DDL]
 alter table tbl add column col int64;
 
 /* Expected ZetaSQL AST:
@@ -250,11 +306,23 @@ AlterTableStatement [0-36] [alter table...col int64]
 ==================
 Test Case 10
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL,+COLUMN_DEFAULT_VALUE]
-alter table tbl {{alter|add}} column col int64 default (x+2);
+alter table tbl alter column col int64 default (x+2);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: alter
+AlterTableStatement [0-52] [alter table...default (x+2)]
+  PathExpression [12-15] [tbl]
+    Identifier(tbl) [12-15] [tbl]
+  AlterActionList [16-52] [alter column...default (x+2)]
+    SpannerAlterColumnAction [16-52] [alter column...default (x+2)]
+      ColumnDefinition [29-52] [col int64 default (x+2)]
+        Identifier(col) [29-32] [col]
+        SimpleColumnSchema [33-52] [int64 default (x+2)]
+          PathExpression [33-38] [int64]
+            Identifier(int64) [33-38] [int64]
+          BinaryExpression(+) [48-51] [x+2]
+            PathExpression [48-49] [x]
+              Identifier(x) [48-49] [x]
+            IntLiteral(2) [50-51] [2]
 */
 ---
 (source_file (ERROR))
@@ -262,7 +330,30 @@ ALTERNATION GROUP: alter
 ==================
 Test Case 11
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL]
+alter table tbl add column col int64 default (x+2);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-50] [alter table...default (x+2)]
+  PathExpression [12-15] [tbl]
+    Identifier(tbl) [12-15] [tbl]
+  AlterActionList [16-50] [add column...default (x+2)]
+    AddColumnAction [16-50] [add column...default (x+2)]
+      ColumnDefinition [27-50] [col int64 default (x+2)]
+        Identifier(col) [27-30] [col]
+        SimpleColumnSchema [31-50] [int64 default (x+2)]
+          PathExpression [31-36] [int64]
+            Identifier(int64) [31-36] [int64]
+          BinaryExpression(+) [46-49] [x+2]
+            PathExpression [46-47] [x]
+              Identifier(x) [46-47] [x]
+            IntLiteral(2) [48-49] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
 alter table tbl drop column col;
 
 /* Expected ZetaSQL AST:
@@ -277,21 +368,38 @@ AlterTableStatement [0-31] [alter table...column col]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 13
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL]
-alter table t set on delete {{cascade|no action}};
+alter table t set on delete cascade;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: cascade
+AlterTableStatement [0-35] [alter table...delete cascade]
+  PathExpression [12-13] [t]
+    Identifier(t) [12-13] [t]
+  AlterActionList [14-35] [set on delete cascade]
+    SpannerSetOnDeleteAction [14-35] [set on delete cascade]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 14
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL]
+alter table t set on delete no action;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-37] [alter table...no action]
+  PathExpression [12-13] [t]
+    Identifier(t) [12-13] [t]
+  AlterActionList [14-37] [set on delete no action]
+    SpannerSetOnDeleteAction [14-37] [set on delete no action]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
 alter table t alter column col int64;
 
 /* Expected ZetaSQL AST:
@@ -310,36 +418,123 @@ AlterTableStatement [0-36] [alter table...col int64]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 16
 ==================
 # Spanner expects default expression parenthesized, so this DDL is invalid.
 # This will be checked in translator.
-[language_features=NONE,+SPANNER_LEGACY_DDL,+COLUMN_DEFAULT_VALUE]
-alter table t {{add|alter}} column col int64 default x+2;
+alter table t add column col int64 default x+2;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: add
+AlterTableStatement [0-46] [alter table...default x+2]
+  PathExpression [12-13] [t]
+    Identifier(t) [12-13] [t]
+  AlterActionList [14-46] [add column...default x+2]
+    AddColumnAction [14-46] [add column...default x+2]
+      ColumnDefinition [25-46] [col int64 default x+2]
+        Identifier(col) [25-28] [col]
+        SimpleColumnSchema [29-46] [int64 default x+2]
+          PathExpression [29-34] [int64]
+            Identifier(int64) [29-34] [int64]
+          BinaryExpression(+) [43-46] [x+2]
+            PathExpression [43-44] [x]
+              Identifier(x) [43-44] [x]
+            IntLiteral(2) [45-46] [2]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 17
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL]
+# Spanner expects default expression parenthesized, so this DDL is invalid.
+# This will be checked in translator.
+alter table t alter column col int64 default x+2;
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-48] [alter table...default x+2]
+  PathExpression [12-13] [t]
+    Identifier(t) [12-13] [t]
+  AlterActionList [14-48] [alter column...default x+2]
+    SpannerAlterColumnAction [14-48] [alter column...default x+2]
+      ColumnDefinition [27-48] [col int64 default x+2]
+        Identifier(col) [27-30] [col]
+        SimpleColumnSchema [31-48] [int64 default x+2]
+          PathExpression [31-36] [int64]
+            Identifier(int64) [31-36] [int64]
+          BinaryExpression(+) [45-48] [x+2]
+            PathExpression [45-46] [x]
+              Identifier(x) [45-46] [x]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
 alter table t alter column col
-set options (allow_commit_timestamp={{null|true|false}});
+set options (allow_commit_timestamp=null);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: null
+AlterTableStatement [0-72] [alter table..._timestamp=null)]
+  PathExpression [12-13] [t]
+    Identifier(t) [12-13] [t]
+  AlterActionList [14-72] [alter column...timestamp=null)]
+    AlterColumnOptionsAction [14-72] [alter column...timestamp=null)]
+      Identifier(col) [27-30] [col]
+      OptionsList [43-72] [(allow_commit_timestamp=null)]
+        OptionsEntry [44-71] [allow_commit_timestamp=null]
+          Identifier(allow_commit_timestamp) [44-66] [allow_commit_timestamp]
+          NullLiteral(null) [67-71] [null]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 19
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL]
+alter table t alter column col
+set options (allow_commit_timestamp=true);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-72] [alter table..._timestamp=true)]
+  PathExpression [12-13] [t]
+    Identifier(t) [12-13] [t]
+  AlterActionList [14-72] [alter column...timestamp=true)]
+    AlterColumnOptionsAction [14-72] [alter column...timestamp=true)]
+      Identifier(col) [27-30] [col]
+      OptionsList [43-72] [(allow_commit_timestamp=true)]
+        OptionsEntry [44-71] [allow_commit_timestamp=true]
+          Identifier(allow_commit_timestamp) [44-66] [allow_commit_timestamp]
+          BooleanLiteral(true) [67-71] [true]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+alter table t alter column col
+set options (allow_commit_timestamp=false);
+
+/* Expected ZetaSQL AST:
+AlterTableStatement [0-73] [alter table...timestamp=false)]
+  PathExpression [12-13] [t]
+    Identifier(t) [12-13] [t]
+  AlterActionList [14-73] [alter column...imestamp=false)]
+    AlterColumnOptionsAction [14-73] [alter column...imestamp=false)]
+      Identifier(col) [27-30] [col]
+      OptionsList [43-73] [(allow_commit_timestamp=false)]
+        OptionsEntry [44-72] [allow_commit_timestamp=false]
+          Identifier(allow_commit_timestamp) [44-66] [allow_commit_timestamp]
+          BooleanLiteral(false) [67-72] [false]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
 alter table t alter column col set default (x+2);
 
 /* Expected ZetaSQL AST:
@@ -358,9 +553,8 @@ AlterTableStatement [0-48] [alter table...default (x+2)]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 22
 ==================
-[language_features=NONE,+SPANNER_LEGACY_DDL]
 alter table t alter column col drop default;
 
 /* Expected ZetaSQL AST:
@@ -370,21 +564,6 @@ AlterTableStatement [0-43] [alter table...drop default]
   AlterActionList [14-43] [alter column col drop default]
     AlterColumnDropDefaultAction [14-43] [alter column col drop default]
       Identifier(col) [27-30] [col]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 18
-==================
-# Spanner DDL parsing is disabled
-# Added variability to make sure parser errors out in correct location.
-[language_features=NONE,+COLUMN_DEFAULT_VALUE]
-alter table t
-alter column col int64 {{|not null}} {{|default (x+2)|as (x+2) stored}};
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
 */
 ---
 (source_file (ERROR))

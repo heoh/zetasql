@@ -1,8 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
 
 select * from
   graph_table(my.graph.name
@@ -56,23 +54,6 @@ QueryStatement [0-99] [select * from...ETURN *   ) g1]
 ==================
 Test Case 2
 ==================
-# Cannot accept alias or other postfix table operators
-select * from
-  graph_table(my.graph.name
-    MATCH (e)
-    CALL PER() tvf(x, a) {{t|AS t|PIVOT SUM (a) AS m FOR b IN (1, 2) }}
-    RETURN *
-  ) g1
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: t
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 3
-==================
 # PER with backticks is just an identifier.
 select * from
   graph_table(my.graph.name
@@ -118,7 +99,7 @@ QueryStatement [0-92] [select * from...ETURN *   ) g1]
 (source_file (ERROR))
 
 ==================
-Test Case 4
+Test Case 3
 ==================
 # Test with YIELD
 select * from

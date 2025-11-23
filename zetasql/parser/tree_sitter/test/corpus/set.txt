@@ -137,10 +137,13 @@ Test Case 8
 # Query Parameters
 
 # Base case - set a parameter to an integer literal.
-SET {{@|@@}}value = 1
+SET @value = 1
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+ParameterAssignment [0-14] [SET @value = 1]
+  ParameterExpr [4-10] [@value]
+    Identifier(value) [5-10] [value]
+  IntLiteral(1) [13-14] [1]
 */
 ---
 (source_file (ERROR))
@@ -148,11 +151,17 @@ ALTERNATION GROUP: @
 ==================
 Test Case 9
 ==================
-# Base case 2 - set a parameter to a string literal.
-SET {{@|@@}}value="something"
+# Query Parameters
+
+# Base case - set a parameter to an integer literal.
+SET @@value = 1
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+SystemVariableAssignment [0-15] [SET @@value = 1]
+  SystemVariableExpr [4-11] [@@value]
+    PathExpression [6-11] [value]
+      Identifier(value) [6-11] [value]
+  IntLiteral(1) [14-15] [1]
 */
 ---
 (source_file (ERROR))
@@ -160,11 +169,15 @@ ALTERNATION GROUP: @
 ==================
 Test Case 10
 ==================
-# Use a parameter name that is a reserved keyword.
-SET {{@|@@}}AND="something"
+# Base case 2 - set a parameter to a string literal.
+SET @value="something"
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+ParameterAssignment [0-22] [SET @value="something"]
+  ParameterExpr [4-10] [@value]
+    Identifier(value) [5-10] [value]
+  StringLiteral [11-22] ["something"]
+    StringLiteralComponent("something") [11-22] ["something"]
 */
 ---
 (source_file (ERROR))
@@ -172,11 +185,16 @@ ALTERNATION GROUP: @
 ==================
 Test Case 11
 ==================
-# Use a parameter name that is an non-reserved keyword.
-SET {{@|@@}}ABORT="something"
+# Base case 2 - set a parameter to a string literal.
+SET @@value="something"
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+SystemVariableAssignment [0-23] [SET @@value="something"]
+  SystemVariableExpr [4-11] [@@value]
+    PathExpression [6-11] [value]
+      Identifier(value) [6-11] [value]
+  StringLiteral [12-23] ["something"]
+    StringLiteralComponent("something") [12-23] ["something"]
 */
 ---
 (source_file (ERROR))
@@ -184,11 +202,15 @@ ALTERNATION GROUP: @
 ==================
 Test Case 12
 ==================
-# Set a parameter to a simple expression
-SET {{@|@@}}VAL=1 + 1
+# Use a parameter name that is a reserved keyword.
+SET @AND="something"
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+ParameterAssignment [0-20] [SET @AND="something"]
+  ParameterExpr [4-8] [@AND]
+    Identifier(`AND`) [5-8] [AND]
+  StringLiteral [9-20] ["something"]
+    StringLiteralComponent("something") [9-20] ["something"]
 */
 ---
 (source_file (ERROR))
@@ -196,11 +218,16 @@ ALTERNATION GROUP: @
 ==================
 Test Case 13
 ==================
-# Set a parameter to an expression containing a function
-SET {{@|@@}}VAL = CURRENT_TIMESTAMP() + 100
+# Use a parameter name that is a reserved keyword.
+SET @@AND="something"
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+SystemVariableAssignment [0-21] [SET @@AND="something"]
+  SystemVariableExpr [4-9] [@@AND]
+    PathExpression [6-9] [AND]
+      Identifier(`AND`) [6-9] [AND]
+  StringLiteral [10-21] ["something"]
+    StringLiteralComponent("something") [10-21] ["something"]
 */
 ---
 (source_file (ERROR))
@@ -208,11 +235,15 @@ ALTERNATION GROUP: @
 ==================
 Test Case 14
 ==================
-# Set a parameter to an expression with a SELECT statment
-SET {{@|@@}}VAL = (SELECT * FROM t)
+# Use a parameter name that is an non-reserved keyword.
+SET @ABORT="something"
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+ParameterAssignment [0-22] [SET @ABORT="something"]
+  ParameterExpr [4-10] [@ABORT]
+    Identifier(ABORT) [5-10] [ABORT]
+  StringLiteral [11-22] ["something"]
+    StringLiteralComponent("something") [11-22] ["something"]
 */
 ---
 (source_file (ERROR))
@@ -220,13 +251,16 @@ ALTERNATION GROUP: @
 ==================
 Test Case 15
 ==================
-# Error cases
-
-# Does not work for setting a parameter to an invalid expression.
-SET {{@|@@}}VAL = SELECT * FROM t
+# Use a parameter name that is an non-reserved keyword.
+SET @@ABORT="something"
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+SystemVariableAssignment [0-23] [SET @@ABORT="something"]
+  SystemVariableExpr [4-11] [@@ABORT]
+    PathExpression [6-11] [ABORT]
+      Identifier(ABORT) [6-11] [ABORT]
+  StringLiteral [12-23] ["something"]
+    StringLiteralComponent("something") [12-23] ["something"]
 */
 ---
 (source_file (ERROR))
@@ -234,10 +268,16 @@ ALTERNATION GROUP: @
 ==================
 Test Case 16
 ==================
-set {{@|@@}};
+# Set a parameter to a simple expression
+SET @VAL=1 + 1
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+ParameterAssignment [0-14] [SET @VAL=1 + 1]
+  ParameterExpr [4-8] [@VAL]
+    Identifier(VAL) [5-8] [VAL]
+  BinaryExpression(+) [9-14] [1 + 1]
+    IntLiteral(1) [9-10] [1]
+    IntLiteral(1) [13-14] [1]
 */
 ---
 (source_file (ERROR))
@@ -245,10 +285,17 @@ ALTERNATION GROUP: @
 ==================
 Test Case 17
 ==================
-set {{@|@@}}x;
+# Set a parameter to a simple expression
+SET @@VAL=1 + 1
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+SystemVariableAssignment [0-15] [SET @@VAL=1 + 1]
+  SystemVariableExpr [4-9] [@@VAL]
+    PathExpression [6-9] [VAL]
+      Identifier(VAL) [6-9] [VAL]
+  BinaryExpression(+) [10-15] [1 + 1]
+    IntLiteral(1) [10-11] [1]
+    IntLiteral(1) [14-15] [1]
 */
 ---
 (source_file (ERROR))
@@ -256,10 +303,87 @@ ALTERNATION GROUP: @
 ==================
 Test Case 18
 ==================
-set {{@|@@}}x =;
+# Set a parameter to an expression containing a function
+SET @VAL = CURRENT_TIMESTAMP() + 100
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: @
+ParameterAssignment [0-36] [SET @VAL =...TIMESTAMP() + 100]
+  ParameterExpr [4-8] [@VAL]
+    Identifier(VAL) [5-8] [VAL]
+  BinaryExpression(+) [11-36] [CURRENT_TIMESTAMP() + 100]
+    FunctionCall [11-30] [CURRENT_TIMESTAMP()]
+      PathExpression [11-28] [CURRENT_TIMESTAMP]
+        Identifier(`CURRENT_TIMESTAMP`) [11-28] [CURRENT_TIMESTAMP]
+    IntLiteral(100) [33-36] [100]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+# Set a parameter to an expression containing a function
+SET @@VAL = CURRENT_TIMESTAMP() + 100
+
+/* Expected ZetaSQL AST:
+SystemVariableAssignment [0-37] [SET @@VAL..._TIMESTAMP() + 100]
+  SystemVariableExpr [4-9] [@@VAL]
+    PathExpression [6-9] [VAL]
+      Identifier(VAL) [6-9] [VAL]
+  BinaryExpression(+) [12-37] [CURRENT_TIMESTAMP() + 100]
+    FunctionCall [12-31] [CURRENT_TIMESTAMP()]
+      PathExpression [12-29] [CURRENT_TIMESTAMP]
+        Identifier(`CURRENT_TIMESTAMP`) [12-29] [CURRENT_TIMESTAMP]
+    IntLiteral(100) [34-37] [100]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+# Set a parameter to an expression with a SELECT statment
+SET @VAL = (SELECT * FROM t)
+
+/* Expected ZetaSQL AST:
+ParameterAssignment [0-28] [SET @VAL = (SELECT * FROM t)]
+  ParameterExpr [4-8] [@VAL]
+    Identifier(VAL) [5-8] [VAL]
+  ExpressionSubquery [11-28] [(SELECT * FROM t)]
+    Query [12-27] [SELECT * FROM t]
+      Select [12-27] [SELECT * FROM t]
+        SelectList [19-20] [*]
+          SelectColumn [19-20] [*]
+            Star(*) [19-20] [*]
+        FromClause [21-27] [FROM t]
+          TablePathExpression [26-27] [t]
+            PathExpression [26-27] [t]
+              Identifier(t) [26-27] [t]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# Set a parameter to an expression with a SELECT statment
+SET @@VAL = (SELECT * FROM t)
+
+/* Expected ZetaSQL AST:
+SystemVariableAssignment [0-29] [SET @@VAL = (SELECT * FROM t)]
+  SystemVariableExpr [4-9] [@@VAL]
+    PathExpression [6-9] [VAL]
+      Identifier(VAL) [6-9] [VAL]
+  ExpressionSubquery [12-29] [(SELECT * FROM t)]
+    Query [13-28] [SELECT * FROM t]
+      Select [13-28] [SELECT * FROM t]
+        SelectList [20-21] [*]
+          SelectColumn [20-21] [*]
+            Star(*) [20-21] [*]
+        FromClause [22-28] [FROM t]
+          TablePathExpression [27-28] [t]
+            PathExpression [27-28] [t]
+              Identifier(t) [27-28] [t]
 */
 ---
 (source_file (ERROR))

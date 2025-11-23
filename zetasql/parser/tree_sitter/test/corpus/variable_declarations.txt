@@ -2,12 +2,17 @@
 Test Case 1
 ==================
 # Single declaration
-[default mode=script]
-[default node_kind=VariableDeclaration]
-DECLARE x STRING{{;|}}
+DECLARE x STRING;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ;
+Script [0-17] [DECLARE x STRING;]
+  StatementList [0-17] [DECLARE x STRING;]
+    VariableDeclaration [0-16] [DECLARE x STRING]
+      IdentifierList [8-9] [x]
+        Identifier(x) [8-9] [x]
+      SimpleType [10-16] [STRING]
+        PathExpression [10-16] [STRING]
+          Identifier(STRING) [10-16] [STRING]
 */
 ---
 (source_file (ERROR))
@@ -17,10 +22,23 @@ Test Case 2
 ==================
 # Multiple declarations
 DECLARE x STRING;
-DECLARE y INT32{{;|}}
+DECLARE y INT32;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ;
+Script [0-34] [DECLARE x...DECLARE y INT32;]
+  StatementList [0-34] [DECLARE x...DECLARE y INT32;]
+    VariableDeclaration [0-16] [DECLARE x STRING]
+      IdentifierList [8-9] [x]
+        Identifier(x) [8-9] [x]
+      SimpleType [10-16] [STRING]
+        PathExpression [10-16] [STRING]
+          Identifier(STRING) [10-16] [STRING]
+    VariableDeclaration [18-33] [DECLARE y INT32]
+      IdentifierList [26-27] [y]
+        Identifier(y) [26-27] [y]
+      SimpleType [28-33] [INT32]
+        PathExpression [28-33] [INT32]
+          Identifier(INT32) [28-33] [INT32]
 */
 ---
 (source_file (ERROR))
@@ -127,7 +145,6 @@ Script [0-26] [DECLARE x INT32; SELECT x;]
 Test Case 7
 ==================
 # Declaration inside a begin/end block
-[node_kind=BeginStatement]
 BEGIN
   DECLARE x INT32;
   SELECT x;
@@ -159,7 +176,6 @@ Script [0-40] [BEGIN   DECLARE...ELECT x; END]
 Test Case 8
 ==================
 # 'declare' used as an identifier
-[node_kind=QueryStatement]
 SELECT * from declare
 
 /* Expected ZetaSQL AST:
@@ -177,7 +193,19 @@ Script [0-21] [SELECT * from declare]
                 Identifier(declare) [14-21] [declare]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [16, 2]
+  (comment [0, 0] - [0, 33])
+  (statement [1, 0] - [1, 21]
+    (select_statement [1, 0] - [1, 21]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 21]
+        (from_item [1, 14] - [1, 21]
+          (table_expression [1, 14] - [1, 21]
+            (path_expression [1, 14] - [1, 21]
+              (identifier [1, 14] - [1, 21])))))))
+  (comment [3, 0] - [16, 2]))
 
 ==================
 Test Case 9
@@ -281,7 +309,6 @@ Script [0-47] [DECLARE x...) FROM t);]
 Test Case 13
 ==================
 # Declaration in unsupported context (error)
-[node_kind=IfStatement]
 IF true THEN
   DECLARE x INT32;
 END IF;
@@ -305,7 +332,6 @@ Script [0-39] [IF true THEN...INT32; END IF;]
 ==================
 Test Case 14
 ==================
-[node_kind=IfStatement]
 IF declare then
   DECLARE x INT64;
 END IF;
@@ -331,7 +357,6 @@ Script [0-42] [IF declare...INT64; END IF;]
 Test Case 15
 ==================
 # Declaration followed by a non-declaration (error)
-[node_kind=QueryStatement]
 SELECT 5;
 DECLARE x INT32;
 
@@ -358,7 +383,6 @@ Script [0-26] [SELECT 5; DECLARE x INT32;]
 Test Case 16
 ==================
 # Declaration followed by a non-declaration, inside of a block (error)
-[node_kind=BeginStatement]
 BEGIN
   SELECT 5;
   DECLARE x INT32;
@@ -643,7 +667,6 @@ Script [0-46] [DECLARE x...INT64; END;]
 Test Case 26
 ==================
 # Declaring variables of the same name in different, but non-overlapping scopes.
-[node_kind=BeginStatement]
 BEGIN
   DECLARE x INT32;
 END;
@@ -679,7 +702,6 @@ Test Case 27
 ==================
 # Attempting to re-declare a variable after the completion of a begin/end block.
 # (Error, since declaration is not at the start of its block).
-[node_kind=BeginStatement]
 BEGIN
   DECLARE x INT32;
 END;

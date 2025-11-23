@@ -271,10 +271,31 @@ Test Case 10
 # This case requires the special lookahead in operand() to determine
 # that the outer ( is a subquery, not expression grouping.
 # With the ARRAY modifier, we know it must be a subquery.
-select {{|ARRAY}} ((select 1) union all (select 2))
+select ARRAY ((select 1) union all (select 2))
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-46] [select ARRAY...select 2))]
+  Query [0-46] [select ARRAY...select 2))]
+    Select [0-46] [select ARRAY...select 2))]
+      SelectList [7-46] [ARRAY ((select...select 2))]
+        SelectColumn [7-46] [ARRAY ((select...select 2))]
+          ExpressionSubquery(modifier=ARRAY) [7-46] [ARRAY ((select...select 2))]
+            Query [14-45] [(select 1)...(select 2)]
+              SetOperation(UNION ALL) [14-45] [(select 1)...(select 2)]
+                SetOperationMetadataList [25-34] [union all]
+                  SetOperationMetadata [25-34] [union all]
+                    SetOperationType [25-30] [union]
+                    SetOperationAllOrDistinct [31-34] [all]
+                Query [15-23] [select 1]
+                  Select [15-23] [select 1]
+                    SelectList [22-23] [1]
+                      SelectColumn [22-23] [1]
+                        IntLiteral(1) [22-23] [1]
+                Query [36-44] [select 2]
+                  Select [36-44] [select 2]
+                    SelectList [43-44] [2]
+                      SelectColumn [43-44] [2]
+                        IntLiteral(2) [43-44] [2]
 */
 ---
 (source_file (ERROR))
@@ -287,35 +308,37 @@ Test Case 11
 # For some reason the JavaCC parser produces an extra level of Query objects
 # for the parenthesized ((select)). This is not needed, and the Bison parser
 # doesn't produce it.
-select {{|ARRAY}} (((select 1)) union all (select 2))
+select ARRAY (((select 1)) union all (select 2))
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-48] [select ARRAY...select 2))]
+  Query [0-48] [select ARRAY...select 2))]
+    Select [0-48] [select ARRAY...select 2))]
+      SelectList [7-48] [ARRAY (((select...select 2))]
+        SelectColumn [7-48] [ARRAY (((select...select 2))]
+          ExpressionSubquery(modifier=ARRAY) [7-48] [ARRAY (((select...select 2))]
+            Query [14-47] [((select 1...(select 2)]
+              SetOperation(UNION ALL) [14-47] [((select 1...(select 2)]
+                SetOperationMetadataList [27-36] [union all]
+                  SetOperationMetadata [27-36] [union all]
+                    SetOperationType [27-32] [union]
+                    SetOperationAllOrDistinct [33-36] [all]
+                Query [16-24] [select 1]
+                  Select [16-24] [select 1]
+                    SelectList [23-24] [1]
+                      SelectColumn [23-24] [1]
+                        IntLiteral(1) [23-24] [1]
+                Query [38-46] [select 2]
+                  Select [38-46] [select 2]
+                    SelectList [45-46] [2]
+                      SelectColumn [45-46] [2]
+                        IntLiteral(2) [45-46] [2]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 12
-==================
-# This is an inconsistent case. (1+1) can only be a parenthesized expression,
-# but then it is UNION ALLed. The JavaCC parser tries all possible scenarios and
-# only sees that the entire thing is inconsistent. The Bison parser sees the
-# inconsistency at the point where it happens, because at that point it tries to
-# force the left hand side of the UNION ALL into being a query. However, we
-# don't give the error there because what follows may not at all look like a
-# relational operator.
-# TODO: Make this error message or location better.
-select {{|ARRAY}} (((1+1)) union all (select 2))
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 13
 ==================
 # This case has the same prefix, but it is consistent after the double
 # parentheses.
@@ -336,10 +359,36 @@ QueryStatement [0-26] [select (((1+1)) + (1 + 1))]
               IntLiteral(1) [23-24] [1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [17, 2]
+  (comment [0, 0] - [0, 70])
+  (comment [1, 0] - [1, 14])
+  (statement [2, 0] - [2, 26]
+    (select_statement [2, 0] - [2, 26]
+      (select_clause [2, 0] - [2, 26]
+        (select_list [2, 7] - [2, 26]
+          (select_expression [2, 7] - [2, 26]
+            (expression [2, 7] - [2, 26]
+              (expression [2, 8] - [2, 25]
+                (binary_expression [2, 8] - [2, 25]
+                  (expression [2, 8] - [2, 15]
+                    (expression [2, 9] - [2, 14]
+                      (expression [2, 10] - [2, 13]
+                        (binary_expression [2, 10] - [2, 13]
+                          (expression [2, 10] - [2, 11]
+                            (number [2, 10] - [2, 11]))
+                          (expression [2, 12] - [2, 13]
+                            (number [2, 12] - [2, 13]))))))
+                  (expression [2, 18] - [2, 25]
+                    (expression [2, 19] - [2, 24]
+                      (binary_expression [2, 19] - [2, 24]
+                        (expression [2, 19] - [2, 20]
+                          (number [2, 19] - [2, 20]))
+                        (expression [2, 23] - [2, 24]
+                          (number [2, 23] - [2, 24])))))))))))))
+  (comment [4, 0] - [17, 2]))
 
 ==================
-Test Case 14
+Test Case 13
 ==================
 # This is the reverse of the previous inconsistency. The first parenthesized
 # thing must be an expression subquery, but it is then followed by a +. This is
@@ -366,7 +415,7 @@ QueryStatement [0-23] [select ((SELECT 1) + 1)]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 14
 ==================
 # The same, but with two levels of parentheses.
 select (((SELECT 1)) + 1)
@@ -390,23 +439,7 @@ QueryStatement [0-25] [select (((SELECT 1)) + 1)]
 (source_file (ERROR))
 
 ==================
-Test Case 16
-==================
-# This one has an error inside a double-parenthesized subuqery.
-# In JavaCC, because it fails the unbounded lookahead for all cases, we get
-# the error pointing at the (.
-# With the ARRAY modifier, we know it must be a subquery.
-# Bison recognizes the error inside the subquery with or without ARRAY.
-select {{|ARRAY}}((select 1) union all select x y z)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 17
+Test Case 15
 ==================
 # This was failing because of bug 15826703.
 SELECT ((SELECT count(distinct x)));
@@ -432,7 +465,7 @@ QueryStatement [0-35] [SELECT ((SELECT...istinct x)))]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 16
 ==================
 # This was failing because of bug 15826703.
 SELECT 1+((count(*)))
@@ -451,10 +484,27 @@ QueryStatement [0-21] [SELECT 1+((count(*)))]
               Star(*) [17-18] [*]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (comment [0, 0] - [0, 43])
+  (statement [1, 0] - [1, 21]
+    (select_statement [1, 0] - [1, 21]
+      (select_clause [1, 0] - [1, 21]
+        (select_list [1, 7] - [1, 21]
+          (select_expression [1, 7] - [1, 21]
+            (expression [1, 7] - [1, 21]
+              (binary_expression [1, 7] - [1, 21]
+                (expression [1, 7] - [1, 8]
+                  (number [1, 7] - [1, 8]))
+                (expression [1, 9] - [1, 21]
+                  (expression [1, 10] - [1, 20]
+                    (expression [1, 11] - [1, 19]
+                      (function_call [1, 11] - [1, 19]
+                        (path_expression [1, 11] - [1, 16]
+                          (identifier [1, 11] - [1, 16])))))))))))))
+  (comment [3, 0] - [15, 2]))
 
 ==================
-Test Case 19
+Test Case 17
 ==================
 # This was crashing (bug 15885244) because we weren't setting hasError
 # after calling handleOtherError manually after the parse error
@@ -478,10 +528,33 @@ QueryStatement [0-24] [SELECT a, 1+((count(*)))]
               Star(*) [20-21] [*]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (comment [0, 0] - [0, 70])
+  (comment [1, 0] - [1, 63])
+  (comment [2, 0] - [2, 25])
+  (statement [3, 0] - [3, 24]
+    (select_statement [3, 0] - [3, 24]
+      (select_clause [3, 0] - [3, 24]
+        (select_list [3, 7] - [3, 24]
+          (select_expression [3, 7] - [3, 8]
+            (expression [3, 7] - [3, 8]
+              (path_expression [3, 7] - [3, 8]
+                (identifier [3, 7] - [3, 8]))))
+          (select_expression [3, 10] - [3, 24]
+            (expression [3, 10] - [3, 24]
+              (binary_expression [3, 10] - [3, 24]
+                (expression [3, 10] - [3, 11]
+                  (number [3, 10] - [3, 11]))
+                (expression [3, 12] - [3, 24]
+                  (expression [3, 13] - [3, 23]
+                    (expression [3, 14] - [3, 22]
+                      (function_call [3, 14] - [3, 22]
+                        (path_expression [3, 14] - [3, 19]
+                          (identifier [3, 14] - [3, 19])))))))))))))
+  (comment [5, 0] - [20, 2]))
 
 ==================
-Test Case 20
+Test Case 18
 ==================
 # Another query that failed and crashed because of bugs 15885244 and 15826703.
 SELECT a, count(*) AS foo, count(*) / ((count(*) * 1) * 1)
@@ -530,10 +603,62 @@ QueryStatement [0-90] [SELECT a,...GROUP BY 1]
           IntLiteral(1) [89-90] [1]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [45, 2]
+  (comment [0, 0] - [0, 78])
+  (statement [1, 0] - [2, 32]
+    (select_statement [1, 0] - [2, 32]
+      (select_clause [1, 0] - [1, 58]
+        (select_list [1, 7] - [1, 58]
+          (select_expression [1, 7] - [1, 8]
+            (expression [1, 7] - [1, 8]
+              (path_expression [1, 7] - [1, 8]
+                (identifier [1, 7] - [1, 8]))))
+          (select_expression [1, 10] - [1, 25]
+            (expression [1, 10] - [1, 18]
+              (function_call [1, 10] - [1, 18]
+                (path_expression [1, 10] - [1, 15]
+                  (identifier [1, 10] - [1, 15]))))
+            (identifier [1, 22] - [1, 25]))
+          (select_expression [1, 27] - [1, 58]
+            (expression [1, 27] - [1, 58]
+              (binary_expression [1, 27] - [1, 58]
+                (expression [1, 27] - [1, 35]
+                  (function_call [1, 27] - [1, 35]
+                    (path_expression [1, 27] - [1, 32]
+                      (identifier [1, 27] - [1, 32]))))
+                (expression [1, 38] - [1, 58]
+                  (expression [1, 39] - [1, 57]
+                    (binary_expression [1, 39] - [1, 57]
+                      (expression [1, 39] - [1, 53]
+                        (expression [1, 40] - [1, 52]
+                          (binary_expression [1, 40] - [1, 52]
+                            (expression [1, 40] - [1, 48]
+                              (function_call [1, 40] - [1, 48]
+                                (path_expression [1, 40] - [1, 45]
+                                  (identifier [1, 40] - [1, 45]))))
+                            (expression [1, 51] - [1, 52]
+                              (number [1, 51] - [1, 52])))))
+                      (expression [1, 56] - [1, 57]
+                        (number [1, 56] - [1, 57]))))))))))
+      (from_clause [2, 0] - [2, 20]
+        (from_item [2, 5] - [2, 20]
+          (table_expression [2, 5] - [2, 20]
+            (select_statement [2, 6] - [2, 19]
+              (select_clause [2, 6] - [2, 19]
+                (select_list [2, 13] - [2, 19]
+                  (select_expression [2, 13] - [2, 19]
+                    (expression [2, 13] - [2, 14]
+                      (number [2, 13] - [2, 14]))
+                    (identifier [2, 18] - [2, 19]))))))))
+      (group_by_clause [2, 21] - [2, 31]
+        (grouping_item_list [2, 30] - [2, 31]
+          (grouping_item [2, 30] - [2, 31]
+            (expression [2, 30] - [2, 31]
+              (number [2, 30] - [2, 31])))))))
+  (comment [4, 0] - [45, 2]))
 
 ==================
-Test Case 21
+Test Case 19
 ==================
 select (((select 1) + 2))
 
@@ -556,7 +681,7 @@ QueryStatement [0-25] [select (((select 1) + 2))]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 20
 ==================
 select ARRAY(((select 1)))
 
@@ -577,7 +702,7 @@ QueryStatement [0-26] [select ARRAY(((select 1)))]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 21
 ==================
 select *
 from (((select 1)))
@@ -601,7 +726,7 @@ QueryStatement [0-28] [select * from (((select 1)))]
 (source_file (ERROR))
 
 ==================
-Test Case 24
+Test Case 22
 ==================
 select *
 from (((select 1)) union all (select 2))
@@ -636,7 +761,7 @@ QueryStatement [0-49] [select * from...select 2))]
 (source_file (ERROR))
 
 ==================
-Test Case 25
+Test Case 23
 ==================
 select *
 from (((select 1) limit 3) order by 1)
@@ -668,7 +793,7 @@ QueryStatement [0-47] [select * from...order by 1)]
 (source_file (ERROR))
 
 ==================
-Test Case 26
+Test Case 24
 ==================
 # Mixing subquery parentheses with parenenthesized joins.
 select *

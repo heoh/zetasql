@@ -1,11 +1,24 @@
 ==================
 Test Case 1
 ==================
-[language_features=NONE{{,+PIPES|}}]
-(SELECT 1) {{AS q1|q1|}}
+(FROM t1) AS q1
+|> WHERE true
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES,AS q1
+QueryStatement [0-29] [(FROM t1) AS q1 |> WHERE true]
+  Query [0-29] [(FROM t1) AS q1 |> WHERE true]
+    AliasedQueryExpression [0-15] [(FROM t1) AS q1]
+      Query [1-8] [FROM t1]
+        FromQuery [1-8] [FROM t1]
+          FromClause [1-8] [FROM t1]
+            TablePathExpression [6-8] [t1]
+              PathExpression [6-8] [t1]
+                Identifier(t1) [6-8] [t1]
+      Alias [10-15] [AS q1]
+        Identifier(q1) [13-15] [q1]
+    PipeWhere [16-29] [|> WHERE true]
+      WhereClause [19-29] [WHERE true]
+        BooleanLiteral(true) [25-29] [true]
 */
 ---
 (source_file (ERROR))
@@ -13,75 +26,9 @@ ALTERNATION GROUP: ,+PIPES,AS q1
 ==================
 Test Case 2
 ==================
-[language_features=NONE{{,+PIPES|}}]
-(FROM t1) {{AS q1|q1|}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES,AS q1
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 3
-==================
-[language_features=NONE,+PIPES]
-(FROM t1) {{AS|}} q1
-|> WHERE true
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: AS
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 4
-==================
-[language_features=NONE{{,+PIPES|}}]
 (SELECT * FROM t1) AS q1
-UNION ALL
-(SELECT * FROM t2) AS q2
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 5
-==================
-[language_features=NONE{{,+PIPES|}}]
-(SELECT * FROM t1) AS q1
-ORDER BY x
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 6
-==================
-[language_features=NONE{{,+PIPES|}}]
-(SELECT * FROM t1) AS q1
-LIMIT 10
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 7
-==================
-[language_features=NONE{{,+PIPES|}}]
-(SELECT * FROM t1) {{AS q1|q1}}
 JOIN 
-(SELECT * FROM t2) {{AS q2|q2}}
+(SELECT * FROM t2) AS q2
 
 /* Expected ZetaSQL AST:
 ALTERNATION GROUPS:
@@ -92,65 +39,46 @@ ALTERNATION GROUPS:
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 3
 ==================
-[language_features=NONE{{,+PIPES|}}]
-# This compares aliased query output inside and outside FROM.
-{{FROM|}} (SELECT 1) AS q
+(SELECT * FROM t1) AS q1
+JOIN 
+(SELECT * FROM t2) q2
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES,FROM
+ALTERNATION GROUPS:
+    ,+PIPES,AS q1,AS q2
+    ,+PIPES,AS q1,q2
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 4
 ==================
-[language_features=NONE{{,+PIPES|}}]
-(((SELECT 1))) AS q1
+(SELECT * FROM t1) q1
+JOIN 
+(SELECT * FROM t2) AS q2
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES
+ALTERNATION GROUPS:
+    ,+PIPES,AS q1,AS q2
+    ,+PIPES,AS q1,q2
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 5
 ==================
-[language_features=NONE{{,+PIPES|}}]
-(((SELECT 1) AS q1))
+(SELECT * FROM t1) q1
+JOIN 
+(SELECT * FROM t2) q2
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 11
-==================
-[language_features=NONE{{,+PIPES|}}]
-(((SELECT 1) AS q1) AS q2) AS q3
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 12
-==================
-[language_features=NONE{{,+PIPES|}}]
-# Test another kind of QueryExpression with an alias.
-(select 1
- union all
- select 2) AS q
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ,+PIPES
+ALTERNATION GROUPS:
+    ,+PIPES,AS q1,AS q2
+    ,+PIPES,AS q1,q2
 */
 ---
 (source_file (ERROR))

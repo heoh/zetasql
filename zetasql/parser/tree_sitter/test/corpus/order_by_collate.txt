@@ -2,16 +2,80 @@
 Test Case 1
 ==================
 select * from T
-order by col COLLATE {{"en_US"|@en_US}} ASC
+order by col COLLATE "en_US" ASC
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: "en_US"
+QueryStatement [0-48] [select * from...en_US" ASC]
+  Query [0-48] [select * from...en_US" ASC]
+    Select [0-15] [select * from T]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-48] [order by col...en_US" ASC]
+      OrderingExpression(ASC EXPLICITLY) [25-48] [col COLLATE "en_US" ASC]
+        PathExpression [25-28] [col]
+          Identifier(col) [25-28] [col]
+        Collate [29-44] [COLLATE "en_US"]
+          StringLiteral [37-44] ["en_US"]
+            StringLiteralComponent("en_US") [37-44] ["en_US"]
+*/
+---
+(source_file [0, 0] - [21, 2]
+  (statement [0, 0] - [1, 32]
+    (select_statement [0, 0] - [1, 32]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [1, 0] - [1, 32]
+        (order_expression_list [1, 9] - [1, 32]
+          (order_expression [1, 9] - [1, 32]
+            (expression [1, 9] - [1, 28]
+              (collate_expression [1, 9] - [1, 28]
+                (expression [1, 9] - [1, 12]
+                  (path_expression [1, 9] - [1, 12]
+                    (identifier [1, 9] - [1, 12])))
+                (string [1, 21] - [1, 28]))))))))
+  (comment [3, 0] - [21, 2]))
+
+==================
+Test Case 2
+==================
+select * from T
+order by col COLLATE @en_US ASC
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [select * from...@en_US ASC]
+  Query [0-47] [select * from...@en_US ASC]
+    Select [0-15] [select * from T]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-47] [order by col...@en_US ASC]
+      OrderingExpression(ASC EXPLICITLY) [25-47] [col COLLATE @en_US ASC]
+        PathExpression [25-28] [col]
+          Identifier(col) [25-28] [col]
+        Collate [29-43] [COLLATE @en_US]
+          ParameterExpr [37-43] [@en_US]
+            Identifier(en_US) [38-43] [en_US]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 2
+Test Case 3
 ==================
 select * from T
 order by col1 ASC,
@@ -52,7 +116,7 @@ QueryStatement [0-111] [select * from...OLLATE @c4 ASC]
 (source_file (ERROR))
 
 ==================
-Test Case 3
+Test Case 4
 ==================
 select f() over (ORDER BY a COLLATE "en") from T
 
@@ -80,10 +144,35 @@ QueryStatement [0-48] [select f()...en") from T]
             Identifier(T) [47-48] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [24, 2]
+  (statement [0, 0] - [0, 48]
+    (select_statement [0, 0] - [0, 48]
+      (select_clause [0, 0] - [0, 41]
+        (select_list [0, 7] - [0, 41]
+          (select_expression [0, 7] - [0, 41]
+            (expression [0, 7] - [0, 41]
+              (function_call [0, 7] - [0, 41]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (over_clause [0, 11] - [0, 41]
+                  (order_by_clause [0, 17] - [0, 40]
+                    (order_expression_list [0, 26] - [0, 40]
+                      (order_expression [0, 26] - [0, 40]
+                        (expression [0, 26] - [0, 40]
+                          (collate_expression [0, 26] - [0, 40]
+                            (expression [0, 26] - [0, 27]
+                              (path_expression [0, 26] - [0, 27]
+                                (identifier [0, 26] - [0, 27])))
+                            (string [0, 36] - [0, 40]))))))))))))
+      (from_clause [0, 42] - [0, 48]
+        (from_item [0, 47] - [0, 48]
+          (table_expression [0, 47] - [0, 48]
+            (path_expression [0, 47] - [0, 48]
+              (identifier [0, 47] - [0, 48])))))))
+  (comment [2, 0] - [24, 2]))
 
 ==================
-Test Case 4
+Test Case 5
 ==================
 select f() over(partition by a order by a COLLATE "en") from T
 
@@ -114,10 +203,40 @@ QueryStatement [0-62] [select f()...en") from T]
             Identifier(T) [61-62] [T]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [27, 2]
+  (statement [0, 0] - [0, 62]
+    (select_statement [0, 0] - [0, 62]
+      (select_clause [0, 0] - [0, 55]
+        (select_list [0, 7] - [0, 55]
+          (select_expression [0, 7] - [0, 55]
+            (expression [0, 7] - [0, 55]
+              (function_call [0, 7] - [0, 55]
+                (path_expression [0, 7] - [0, 8]
+                  (identifier [0, 7] - [0, 8]))
+                (over_clause [0, 11] - [0, 55]
+                  (partition_by_clause [0, 16] - [0, 30]
+                    (expression_list [0, 29] - [0, 30]
+                      (expression [0, 29] - [0, 30]
+                        (path_expression [0, 29] - [0, 30]
+                          (identifier [0, 29] - [0, 30])))))
+                  (order_by_clause [0, 31] - [0, 54]
+                    (order_expression_list [0, 40] - [0, 54]
+                      (order_expression [0, 40] - [0, 54]
+                        (expression [0, 40] - [0, 54]
+                          (collate_expression [0, 40] - [0, 54]
+                            (expression [0, 40] - [0, 41]
+                              (path_expression [0, 40] - [0, 41]
+                                (identifier [0, 40] - [0, 41])))
+                            (string [0, 50] - [0, 54]))))))))))))
+      (from_clause [0, 56] - [0, 62]
+        (from_item [0, 61] - [0, 62]
+          (table_expression [0, 61] - [0, 62]
+            (path_expression [0, 61] - [0, 62]
+              (identifier [0, 61] - [0, 62])))))))
+  (comment [2, 0] - [27, 2]))
 
 ==================
-Test Case 5
+Test Case 6
 ==================
 select f() over (order by a COLLATE "ca" ASC,
                           b COLLATE "cb" DESC,
@@ -163,30 +282,99 @@ QueryStatement [0-183] [select f()...@c4 DESC)]
 (source_file (ERROR))
 
 ==================
-Test Case 6
-==================
-select * from T
-order by 1 COLLATE {{""|NULL|"NULL"}}
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: ""
-*/
----
-(source_file (ERROR))
-
-==================
 Test Case 7
 ==================
-#
+select * from T
+order by 1 COLLATE ""
 
 /* Expected ZetaSQL AST:
-
+QueryStatement [0-37] [select * from...COLLATE ""]
+  Query [0-37] [select * from...COLLATE ""]
+    Select [0-15] [select * from T]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-37] [order by 1 COLLATE ""]
+      OrderingExpression(ASC) [25-37] [1 COLLATE ""]
+        IntLiteral(1) [25-26] [1]
+        Collate [27-37] [COLLATE ""]
+          StringLiteral [35-37] [""]
+            StringLiteralComponent("") [35-37] [""]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [20, 2]
+  (statement [0, 0] - [1, 21]
+    (select_statement [0, 0] - [1, 21]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [1, 0] - [1, 21]
+        (order_expression_list [1, 9] - [1, 21]
+          (order_expression [1, 9] - [1, 21]
+            (expression [1, 9] - [1, 21]
+              (collate_expression [1, 9] - [1, 21]
+                (expression [1, 9] - [1, 10]
+                  (number [1, 9] - [1, 10]))
+                (string [1, 19] - [1, 21]))))))))
+  (comment [3, 0] - [20, 2]))
 
 ==================
 Test Case 8
+==================
+select * from T
+order by 1 COLLATE "NULL"
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [select * from...COLLATE "NULL"]
+  Query [0-41] [select * from...COLLATE "NULL"]
+    Select [0-15] [select * from T]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-15] [from T]
+        TablePathExpression [14-15] [T]
+          PathExpression [14-15] [T]
+            Identifier(T) [14-15] [T]
+    OrderBy [16-41] [order by 1 COLLATE "NULL"]
+      OrderingExpression(ASC) [25-41] [1 COLLATE "NULL"]
+        IntLiteral(1) [25-26] [1]
+        Collate [27-41] [COLLATE "NULL"]
+          StringLiteral [35-41] ["NULL"]
+            StringLiteralComponent("NULL") [35-41] ["NULL"]
+*/
+---
+(source_file [0, 0] - [20, 2]
+  (statement [0, 0] - [1, 25]
+    (select_statement [0, 0] - [1, 25]
+      (select_clause [0, 0] - [0, 8]
+        (select_list [0, 7] - [0, 8]
+          (select_expression [0, 7] - [0, 8])))
+      (from_clause [0, 9] - [0, 15]
+        (from_item [0, 14] - [0, 15]
+          (table_expression [0, 14] - [0, 15]
+            (path_expression [0, 14] - [0, 15]
+              (identifier [0, 14] - [0, 15])))))
+      (order_by_clause [1, 0] - [1, 25]
+        (order_expression_list [1, 9] - [1, 25]
+          (order_expression [1, 9] - [1, 25]
+            (expression [1, 9] - [1, 25]
+              (collate_expression [1, 9] - [1, 25]
+                (expression [1, 9] - [1, 10]
+                  (number [1, 9] - [1, 10]))
+                (string [1, 19] - [1, 25]))))))))
+  (comment [3, 0] - [20, 2]))
+
+==================
+Test Case 9
 ==================
 # This query will fail in analyzer.
 select * from T
@@ -217,10 +405,43 @@ QueryStatement [0-53] [select * from..."en_US")=0]
           IntLiteral(0) [52-53] [0]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [27, 2]
+  (comment [0, 0] - [0, 35])
+  (statement [1, 0] - [2, 37]
+    (select_statement [1, 0] - [2, 37]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 15]
+        (from_item [1, 14] - [1, 15]
+          (table_expression [1, 14] - [1, 15]
+            (path_expression [1, 14] - [1, 15]
+              (identifier [1, 14] - [1, 15])))))
+      (where_clause [2, 0] - [2, 37]
+        (expression [2, 6] - [2, 37]
+          (binary_expression [2, 6] - [2, 37]
+            (expression [2, 6] - [2, 35]
+              (function_call [2, 6] - [2, 35]
+                (path_expression [2, 6] - [2, 12]
+                  (identifier [2, 6] - [2, 12]))
+                (function_arguments [2, 13] - [2, 34]
+                  (function_argument [2, 13] - [2, 18]
+                    (expression [2, 13] - [2, 18]
+                      (path_expression [2, 13] - [2, 18]
+                        (identifier [2, 13] - [2, 18]))))
+                  (function_argument [2, 20] - [2, 25]
+                    (expression [2, 20] - [2, 25]
+                      (path_expression [2, 20] - [2, 25]
+                        (identifier [2, 20] - [2, 25]))))
+                  (function_argument [2, 27] - [2, 34]
+                    (expression [2, 27] - [2, 34]
+                      (string [2, 27] - [2, 34]))))))
+            (expression [2, 36] - [2, 37]
+              (number [2, 36] - [2, 37])))))))
+  (comment [4, 0] - [27, 2]))
 
 ==================
-Test Case 9
+Test Case 10
 ==================
 # This query will fail in analyzer.
 select * from T

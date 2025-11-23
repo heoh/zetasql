@@ -2,10 +2,110 @@
 Test Case 1
 ==================
 # CREATE SEQUENCE
-CREATE {{|OR REPLACE}} SEQUENCE {{|IF NOT EXISTS}} foo.bar.baz {{|OPTIONS ()|OPTIONS(start_with=0,increment_by=5)}}
+CREATE OR REPLACE SEQUENCE  foo.bar.baz 
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+CreateSequenceStatement(is_or_replace) [0-39] [CREATE OR...foo.bar.baz]
+  PathExpression [28-39] [foo.bar.baz]
+    Identifier(foo) [28-31] [foo]
+    Identifier(bar) [32-35] [bar]
+    Identifier(baz) [36-39] [baz]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# CREATE SEQUENCE
+CREATE OR REPLACE SEQUENCE  foo.bar.baz OPTIONS ()
+
+/* Expected ZetaSQL AST:
+CreateSequenceStatement(is_or_replace) [0-50] [CREATE OR...OPTIONS ()]
+  PathExpression [28-39] [foo.bar.baz]
+    Identifier(foo) [28-31] [foo]
+    Identifier(bar) [32-35] [bar]
+    Identifier(baz) [36-39] [baz]
+  OptionsList [48-50] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# CREATE SEQUENCE
+CREATE OR REPLACE SEQUENCE  foo.bar.baz OPTIONS(start_with=0,increment_by=5)
+
+/* Expected ZetaSQL AST:
+CreateSequenceStatement(is_or_replace) [0-76] [CREATE OR...increment_by=5)]
+  PathExpression [28-39] [foo.bar.baz]
+    Identifier(foo) [28-31] [foo]
+    Identifier(bar) [32-35] [bar]
+    Identifier(baz) [36-39] [baz]
+  OptionsList [47-76] [(start_with=0,increment_by=5)]
+    OptionsEntry [48-60] [start_with=0]
+      Identifier(start_with) [48-58] [start_with]
+      IntLiteral(0) [59-60] [0]
+    OptionsEntry [61-75] [increment_by=5]
+      Identifier(increment_by) [61-73] [increment_by]
+      IntLiteral(5) [74-75] [5]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# CREATE SEQUENCE
+CREATE OR REPLACE SEQUENCE IF NOT EXISTS foo.bar.baz 
+
+/* Expected ZetaSQL AST:
+CreateSequenceStatement(is_or_replace, is_if_not_exists) [0-52] [CREATE OR...foo.bar.baz]
+  PathExpression [41-52] [foo.bar.baz]
+    Identifier(foo) [41-44] [foo]
+    Identifier(bar) [45-48] [bar]
+    Identifier(baz) [49-52] [baz]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# CREATE SEQUENCE
+CREATE OR REPLACE SEQUENCE IF NOT EXISTS foo.bar.baz OPTIONS ()
+
+/* Expected ZetaSQL AST:
+CreateSequenceStatement(is_or_replace, is_if_not_exists) [0-63] [CREATE OR...OPTIONS ()]
+  PathExpression [41-52] [foo.bar.baz]
+    Identifier(foo) [41-44] [foo]
+    Identifier(bar) [45-48] [bar]
+    Identifier(baz) [49-52] [baz]
+  OptionsList [61-63] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# CREATE SEQUENCE
+CREATE OR REPLACE SEQUENCE IF NOT EXISTS foo.bar.baz OPTIONS(start_with=0,increment_by=5)
+
+/* Expected ZetaSQL AST:
+CreateSequenceStatement(is_or_replace, is_if_not_exists) [0-89] [CREATE OR...increment_by=5)]
+  PathExpression [41-52] [foo.bar.baz]
+    Identifier(foo) [41-44] [foo]
+    Identifier(bar) [45-48] [bar]
+    Identifier(baz) [49-52] [baz]
+  OptionsList [60-89] [(start_with=0,increment_by=5)]
+    OptionsEntry [61-73] [start_with=0]
+      Identifier(start_with) [61-71] [start_with]
+      IntLiteral(0) [72-73] [0]
+    OptionsEntry [74-88] [increment_by=5]
+      Identifier(increment_by) [74-86] [increment_by]
+      IntLiteral(5) [87-88] [5]
 */
 ---
 (source_file (ERROR))

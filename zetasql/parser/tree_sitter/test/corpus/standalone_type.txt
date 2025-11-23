@@ -2,7 +2,6 @@
 Test Case 1
 ==================
 # This file includes tests for standalone types, outside of queries.
-[default mode=type]
 int32
 
 /* Expected ZetaSQL AST:
@@ -615,10 +614,14 @@ StructType [0-69] [struct<a string...lation_name>]
 ==================
 Test Case 34
 ==================
-FUNCTION<()->{{INT64|STRUCT<INT64>}}>
+FUNCTION<()->INT64>
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INT64
+FunctionType [0-19] [FUNCTION<()->INT64>]
+  FunctionTypeArgList [9-11] [()]
+  SimpleType [13-18] [INT64]
+    PathExpression [13-18] [INT64]
+      Identifier(INT64) [13-18] [INT64]
 */
 ---
 (source_file (ERROR))
@@ -626,10 +629,16 @@ ALTERNATION GROUP: INT64
 ==================
 Test Case 35
 ==================
-FUNCTION<{{INT64|STRUCT<INT64>}}->INT64>
+FUNCTION<()->STRUCT<INT64>>
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INT64
+FunctionType [0-27] [FUNCTION<()->STRUCT<INT64>>]
+  FunctionTypeArgList [9-11] [()]
+  StructType [13-26] [STRUCT<INT64>]
+    StructField [20-25] [INT64]
+      SimpleType [20-25] [INT64]
+        PathExpression [20-25] [INT64]
+          Identifier(INT64) [20-25] [INT64]
 */
 ---
 (source_file (ERROR))
@@ -637,10 +646,17 @@ ALTERNATION GROUP: INT64
 ==================
 Test Case 36
 ==================
-FUNCTION<({{INT64|STRUCT<INT64>}})->INT64>
+FUNCTION<INT64->INT64>
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INT64
+FunctionType [0-22] [FUNCTION<INT64->INT64>]
+  FunctionTypeArgList [9-14] [INT64]
+    SimpleType [9-14] [INT64]
+      PathExpression [9-14] [INT64]
+        Identifier(INT64) [9-14] [INT64]
+  SimpleType [16-21] [INT64]
+    PathExpression [16-21] [INT64]
+      Identifier(INT64) [16-21] [INT64]
 */
 ---
 (source_file (ERROR))
@@ -648,16 +664,155 @@ ALTERNATION GROUP: INT64
 ==================
 Test Case 37
 ==================
-FUNCTION<({{INT64|STRUCT<INT64>}}, {{INT64|STRUCT<INT64>}})->INT64>
+FUNCTION<STRUCT<INT64>->INT64>
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INT64,INT64
+FunctionType [0-30] [FUNCTION<STRUCT<INT64>->INT64>]
+  FunctionTypeArgList [9-22] [STRUCT<INT64>]
+    StructType [9-22] [STRUCT<INT64>]
+      StructField [16-21] [INT64]
+        SimpleType [16-21] [INT64]
+          PathExpression [16-21] [INT64]
+            Identifier(INT64) [16-21] [INT64]
+  SimpleType [24-29] [INT64]
+    PathExpression [24-29] [INT64]
+      Identifier(INT64) [24-29] [INT64]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 38
+==================
+FUNCTION<(INT64)->INT64>
+
+/* Expected ZetaSQL AST:
+FunctionType [0-24] [FUNCTION<(INT64)->INT64>]
+  FunctionTypeArgList [0-15] [FUNCTION<(INT64]
+    SimpleType [10-15] [INT64]
+      PathExpression [10-15] [INT64]
+        Identifier(INT64) [10-15] [INT64]
+  SimpleType [18-23] [INT64]
+    PathExpression [18-23] [INT64]
+      Identifier(INT64) [18-23] [INT64]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 39
+==================
+FUNCTION<(STRUCT<INT64>)->INT64>
+
+/* Expected ZetaSQL AST:
+FunctionType [0-32] [FUNCTION<(...>)->INT64>]
+  FunctionTypeArgList [0-23] [FUNCTION<(STRUCT<INT64>]
+    StructType [10-23] [STRUCT<INT64>]
+      StructField [17-22] [INT64]
+        SimpleType [17-22] [INT64]
+          PathExpression [17-22] [INT64]
+            Identifier(INT64) [17-22] [INT64]
+  SimpleType [26-31] [INT64]
+    PathExpression [26-31] [INT64]
+      Identifier(INT64) [26-31] [INT64]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 40
+==================
+FUNCTION<(INT64, INT64)->INT64>
+
+/* Expected ZetaSQL AST:
+FunctionType [0-31] [FUNCTION<(...INT64)->INT64>]
+  FunctionTypeArgList [0-22] [FUNCTION<(INT64, INT64]
+    SimpleType [10-15] [INT64]
+      PathExpression [10-15] [INT64]
+        Identifier(INT64) [10-15] [INT64]
+    SimpleType [17-22] [INT64]
+      PathExpression [17-22] [INT64]
+        Identifier(INT64) [17-22] [INT64]
+  SimpleType [25-30] [INT64]
+    PathExpression [25-30] [INT64]
+      Identifier(INT64) [25-30] [INT64]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 41
+==================
+FUNCTION<(INT64, STRUCT<INT64>)->INT64>
+
+/* Expected ZetaSQL AST:
+FunctionType [0-39] [FUNCTION<(...>)->INT64>]
+  FunctionTypeArgList [0-30] [FUNCTION<(INT64, STRUCT<INT64>]
+    SimpleType [10-15] [INT64]
+      PathExpression [10-15] [INT64]
+        Identifier(INT64) [10-15] [INT64]
+    StructType [17-30] [STRUCT<INT64>]
+      StructField [24-29] [INT64]
+        SimpleType [24-29] [INT64]
+          PathExpression [24-29] [INT64]
+            Identifier(INT64) [24-29] [INT64]
+  SimpleType [33-38] [INT64]
+    PathExpression [33-38] [INT64]
+      Identifier(INT64) [33-38] [INT64]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 42
+==================
+FUNCTION<(STRUCT<INT64>, INT64)->INT64>
+
+/* Expected ZetaSQL AST:
+FunctionType [0-39] [FUNCTION<(...INT64)->INT64>]
+  FunctionTypeArgList [0-30] [FUNCTION<(STRUCT<INT64>, INT64]
+    StructType [10-23] [STRUCT<INT64>]
+      StructField [17-22] [INT64]
+        SimpleType [17-22] [INT64]
+          PathExpression [17-22] [INT64]
+            Identifier(INT64) [17-22] [INT64]
+    SimpleType [25-30] [INT64]
+      PathExpression [25-30] [INT64]
+        Identifier(INT64) [25-30] [INT64]
+  SimpleType [33-38] [INT64]
+    PathExpression [33-38] [INT64]
+      Identifier(INT64) [33-38] [INT64]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 43
+==================
+FUNCTION<(STRUCT<INT64>, STRUCT<INT64>)->INT64>
+
+/* Expected ZetaSQL AST:
+FunctionType [0-47] [FUNCTION<(...>)->INT64>]
+  FunctionTypeArgList [0-38] [FUNCTION<(...STRUCT<INT64>]
+    StructType [10-23] [STRUCT<INT64>]
+      StructField [17-22] [INT64]
+        SimpleType [17-22] [INT64]
+          PathExpression [17-22] [INT64]
+            Identifier(INT64) [17-22] [INT64]
+    StructType [25-38] [STRUCT<INT64>]
+      StructField [32-37] [INT64]
+        SimpleType [32-37] [INT64]
+          PathExpression [32-37] [INT64]
+            Identifier(INT64) [32-37] [INT64]
+  SimpleType [41-46] [INT64]
+    PathExpression [41-46] [INT64]
+      Identifier(INT64) [41-46] [INT64]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 44
 ==================
 # Parser allows this, analyzer will prevent.
 FUNCTION<STRING collate 'abc'->STRING>
@@ -679,7 +834,7 @@ FunctionType [0-38] [FUNCTION<STRING...'->STRING>]
 (source_file (ERROR))
 
 ==================
-Test Case 39
+Test Case 45
 ==================
 # Parser allows this, analyzer will prevent.
 FUNCTION<STRING(8) collate 'abc'->STRING(8) collate 'abc'>
@@ -708,7 +863,7 @@ FunctionType [0-58] [FUNCTION<STRING...llate 'abc'>]
 (source_file (ERROR))
 
 ==================
-Test Case 40
+Test Case 46
 ==================
 # Parser allows this, analyzer will prevent.
 FUNCTION<(STRING(8) collate 'abc')->STRING(8) collate 'abc'>
@@ -737,7 +892,7 @@ FunctionType [0-60] [FUNCTION<(...collate 'abc'>]
 (source_file (ERROR))
 
 ==================
-Test Case 41
+Test Case 47
 ==================
 FUNCTION<STRING collate 'abc'->STRING>
 
@@ -758,7 +913,7 @@ FunctionType [0-38] [FUNCTION<STRING...'->STRING>]
 (source_file (ERROR))
 
 ==================
-Test Case 42
+Test Case 48
 ==================
 FUNCTION<(STRING collate 'abc')->STRING>
 
@@ -779,19 +934,46 @@ FunctionType [0-40] [FUNCTION<(...)->STRING>]
 (source_file (ERROR))
 
 ==================
-Test Case 43
+Test Case 49
 ==================
 # Parser allows these, but the analyzer will toss an error.
-FUNCTION<()->INT64>{{(0)| collate 'c'|(0) collate 'c'}}
+FUNCTION<()->INT64>(0)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: (0)
+FunctionType [0-22] [FUNCTION<()->INT64>(0)]
+  FunctionTypeArgList [9-11] [()]
+  SimpleType [13-18] [INT64]
+    PathExpression [13-18] [INT64]
+      Identifier(INT64) [13-18] [INT64]
+  TypeParameterList [19-21] [(0]
+    IntLiteral(0) [20-21] [0]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 44
+Test Case 50
+==================
+# Parser allows these, but the analyzer will toss an error.
+FUNCTION<()->INT64>(0) collate 'c'
+
+/* Expected ZetaSQL AST:
+FunctionType [0-34] [FUNCTION<(...collate 'c']
+  FunctionTypeArgList [9-11] [()]
+  SimpleType [13-18] [INT64]
+    PathExpression [13-18] [INT64]
+      Identifier(INT64) [13-18] [INT64]
+  TypeParameterList [19-21] [(0]
+    IntLiteral(0) [20-21] [0]
+  Collate [23-34] [collate 'c']
+    StringLiteral [31-34] ['c']
+      StringLiteralComponent('c') [31-34] ['c']
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 51
 ==================
 BOOL
 
@@ -804,40 +986,18 @@ SimpleType [0-4] [BOOL]
 (source_file (ERROR))
 
 ==================
-Test Case 45
+Test Case 52
 ==================
-STRUCT<{{| }}>
+STRUCT<>
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+StructType [0-9] [STRUCT< >]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 46
-==================
-ARRAY<{{| }}>
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 47
-==================
-RANGE<{{| }}>
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 48
+Test Case 53
 ==================
 STRUCT<BOOL>
 
@@ -852,7 +1012,7 @@ StructType [0-12] [STRUCT<BOOL>]
 (source_file (ERROR))
 
 ==================
-Test Case 49
+Test Case 54
 ==================
 STRUCT<a BOOL>
 
@@ -868,7 +1028,7 @@ StructType [0-14] [STRUCT<a BOOL>]
 (source_file (ERROR))
 
 ==================
-Test Case 50
+Test Case 55
 ==================
 STRUCT<BOOL, STRING>
 
@@ -887,7 +1047,7 @@ StructType [0-20] [STRUCT<BOOL, STRING>]
 (source_file (ERROR))
 
 ==================
-Test Case 51
+Test Case 56
 ==================
 STRUCT<a BOOL, b STRING>
 
@@ -908,29 +1068,29 @@ StructType [0-24] [STRUCT<a BOOL, b STRING>]
 (source_file (ERROR))
 
 ==================
-Test Case 52
+Test Case 57
 ==================
-ARRAY<STRUCT<a BOOL, b STRING>{{| }}>
+ARRAY<STRUCT<a BOOL, b STRING>>
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+ArrayType [0-32] [ARRAY<STRUCT...STRING> >]
+  StructType [6-30] [STRUCT<a BOOL, b STRING>]
+    StructField [13-19] [a BOOL]
+      Identifier(a) [13-14] [a]
+      SimpleType [15-19] [BOOL]
+        PathExpression [15-19] [BOOL]
+          Identifier(BOOL) [15-19] [BOOL]
+    StructField [21-29] [b STRING]
+      Identifier(b) [21-22] [b]
+      SimpleType [23-29] [STRING]
+        PathExpression [23-29] [STRING]
+          Identifier(STRING) [23-29] [STRING]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 53
-==================
-ARRAY<STRUCT<a BOOL, b ARRAY<>{{| }}>{{| }}>
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 54
+Test Case 58
 ==================
 MAP<STRING, MAP<STRING, MAP<STRING, MAP<STRING, BOOL>>>>
 

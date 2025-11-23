@@ -5,9 +5,6 @@ Test Case 1
 ### Path search prefix tests, with interactions with quantified path and path mode.
 ###
 
-[default reserve_graph_table]
-[default language_features=NONE,+SQL_GRAPH]
-[language_features=NONE,+SQL_GRAPH,+SQL_GRAPH_ADVANCED_QUERY]
 
 SELECT one FROM GRAPH_TABLE(
   aml

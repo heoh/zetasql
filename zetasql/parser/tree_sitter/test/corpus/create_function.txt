@@ -61,11 +61,19 @@ CreateFunctionStatement [0-72] [create function...age testlang]
 Test Case 4
 ==================
 # CREATE scope modifiers
-create {{temp|temporary|public|private}} function myfunc (  )
+create temp function myfunc (  )
   returns string language testlang ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: temp
+CreateFunctionStatement(is_temp) [0-67] [create temp...anguage testlang]
+  FunctionDeclaration [21-32] [myfunc (  )]
+    PathExpression [21-27] [myfunc]
+      Identifier(myfunc) [21-27] [myfunc]
+    FunctionParameters [28-32] [(  )]
+  SimpleType [43-49] [string]
+    PathExpression [43-49] [string]
+      Identifier(string) [43-49] [string]
+  Identifier(testlang) [59-67] [testlang]
 */
 ---
 (source_file (ERROR))
@@ -73,18 +81,173 @@ ALTERNATION GROUP: temp
 ==================
 Test Case 5
 ==================
-# Determinism modifiers
-create function myfunc (  )
-  returns string {{deterministic|not deterministic|immutable|stable|volatile}}  language testlang ;
+# CREATE scope modifiers
+create temporary function myfunc (  )
+  returns string language testlang ;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: deterministic
+CreateFunctionStatement(is_temp) [0-72] [create temporary...ge testlang]
+  FunctionDeclaration [26-37] [myfunc (  )]
+    PathExpression [26-32] [myfunc]
+      Identifier(myfunc) [26-32] [myfunc]
+    FunctionParameters [33-37] [(  )]
+  SimpleType [48-54] [string]
+    PathExpression [48-54] [string]
+      Identifier(string) [48-54] [string]
+  Identifier(testlang) [64-72] [testlang]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 6
+==================
+# CREATE scope modifiers
+create public function myfunc (  )
+  returns string language testlang ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_public) [0-69] [create public...guage testlang]
+  FunctionDeclaration [23-34] [myfunc (  )]
+    PathExpression [23-29] [myfunc]
+      Identifier(myfunc) [23-29] [myfunc]
+    FunctionParameters [30-34] [(  )]
+  SimpleType [45-51] [string]
+    PathExpression [45-51] [string]
+      Identifier(string) [45-51] [string]
+  Identifier(testlang) [61-69] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# CREATE scope modifiers
+create private function myfunc (  )
+  returns string language testlang ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_private) [0-70] [create private...uage testlang]
+  FunctionDeclaration [24-35] [myfunc (  )]
+    PathExpression [24-30] [myfunc]
+      Identifier(myfunc) [24-30] [myfunc]
+    FunctionParameters [31-35] [(  )]
+  SimpleType [46-52] [string]
+    PathExpression [46-52] [string]
+      Identifier(string) [46-52] [string]
+  Identifier(testlang) [62-70] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# Determinism modifiers
+create function myfunc (  )
+  returns string deterministic  language testlang ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(DETERMINISTIC) [0-77] [create function...age testlang]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+  Identifier(testlang) [69-77] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# Determinism modifiers
+create function myfunc (  )
+  returns string not deterministic  language testlang ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(NOT DETERMINISTIC) [0-81] [create function...age testlang]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+  Identifier(testlang) [73-81] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# Determinism modifiers
+create function myfunc (  )
+  returns string immutable  language testlang ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(IMMUTABLE) [0-73] [create function...age testlang]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+  Identifier(testlang) [65-73] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Determinism modifiers
+create function myfunc (  )
+  returns string stable  language testlang ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(STABLE) [0-70] [create function...age testlang]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+  Identifier(testlang) [62-70] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# Determinism modifiers
+create function myfunc (  )
+  returns string volatile  language testlang ;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(VOLATILE) [0-72] [create function...age testlang]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+  Identifier(testlang) [64-72] [testlang]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
 ==================
 # Deterministic keyword used in alternative position.
 create function deterministic ( )
@@ -105,7 +268,7 @@ CreateFunctionStatement(STABLE) [0-78] [create function...age volatile]
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 14
 ==================
 # "if not exists"
 create function if not exists myfunc (  )
@@ -126,7 +289,7 @@ CreateFunctionStatement(is_if_not_exists) [0-76] [create function...age testlang
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 15
 ==================
 # "or replace"
 create or replace function myfunc (  )
@@ -147,7 +310,7 @@ CreateFunctionStatement(is_or_replace) [0-73] [create or...language testlang]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 16
 ==================
 # "temporary" and "if not exists".
 create temporary function if not exists myfunc (  )
@@ -168,7 +331,7 @@ CreateFunctionStatement(is_temp, is_if_not_exists) [0-86] [create temporary...ge
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 17
 ==================
 # "temp" and "if not exists".
 create temp function if not exists myfunc (  )
@@ -189,7 +352,7 @@ CreateFunctionStatement(is_temp, is_if_not_exists) [0-81] [create temp...anguage
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 18
 ==================
 # Struct return type.
 create function mypackage.myfunc( param_a int32 )
@@ -224,7 +387,7 @@ CreateFunctionStatement [0-105] [create function...age testlang]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 19
 ==================
 # Standalone return type.
 create function mypackage.myfunc( param_a int32 )
@@ -253,7 +416,7 @@ CreateFunctionStatement [0-83] [create function...age testlang]
 (source_file (ERROR))
 
 ==================
-Test Case 13
+Test Case 20
 ==================
 # Multi argument function.
 create function
@@ -300,7 +463,7 @@ CreateFunctionStatement [0-127] [create function...age testlang]
 (source_file (ERROR))
 
 ==================
-Test Case 14
+Test Case 21
 ==================
 # Multi-line quoted string for function body.
 create function fn( s string )
@@ -333,7 +496,7 @@ CreateFunctionStatement [0-105] [create function...'\n'; """]
 (source_file (ERROR))
 
 ==================
-Test Case 15
+Test Case 22
 ==================
 # Function attributes in preferred order, compatible with CREATE TABLE FUNCTION.
 create function fn( s string )
@@ -372,7 +535,7 @@ CreateFunctionStatement [0-107] [create function...return 'a';"]
 (source_file (ERROR))
 
 ==================
-Test Case 16
+Test Case 23
 ==================
 # Function attributes in deprecated order.
 create function fn( s string )
@@ -410,7 +573,7 @@ CreateFunctionStatement [0-107] [create function...bruce=lee )]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 24
 ==================
 # Function with no optional attributes or body.
 create function fn( s string )
@@ -435,7 +598,7 @@ CreateFunctionStatement [0-45] [create function...turns string]
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 25
 ==================
 # Invalid but parseable node : argument name not given.  Missing argument
 # names are only valid in the context of DROP FUNCTION statements.
@@ -463,7 +626,7 @@ CreateFunctionStatement [0-78] [create function...return 'a';"]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 26
 ==================
 # Invalid but parseable node : some argument names not given.  Missing argument
 # names are only valid in the context of DROP FUNCTION statements.
@@ -505,7 +668,7 @@ CreateFunctionStatement [0-103] [create function...return 'a'"]
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 27
 ==================
 # Create a function with an argument alias.  Such aliases are only
 # valid for templated arguments, but they parse ok.
@@ -534,7 +697,7 @@ CreateFunctionStatement [0-83] [create function...age testlang]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 28
 ==================
 # Same test as previous, but without the AS.  Ideally this should fail.
 # However, the function parameter parses as <arg_name>=int32, arg_type=alias
@@ -564,7 +727,7 @@ CreateFunctionStatement [0-80] [create function...age testlang]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 29
 ==================
 # Create a function with both a parameter name and argument type alias.
 create function mypackage.myfunc(x int32 as alias)
@@ -593,7 +756,7 @@ CreateFunctionStatement [0-85] [create function...age testlang]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 30
 ==================
 # The AS alias applies to the type, and must come before NOT AGGREGATE.
 create function mypackage.myfunc(x int32 as alias NOT AGGREGATE)
@@ -622,7 +785,7 @@ CreateFunctionStatement [0-99] [create function...age testlang]
 (source_file (ERROR))
 
 ==================
-Test Case 24
+Test Case 31
 ==================
 # The type_alias can be subsequently used in the function declaration and
 # body.  This is just a parser test so we don't actually do analysis
@@ -673,18 +836,47 @@ CreateFunctionStatement [0-121] [create function...+ x - y))]
 (source_file (ERROR))
 
 ==================
-Test Case 25
+Test Case 32
 ==================
-create {{AGGREGATE|}} function fn() returns bool sql security {{INVOKER|DEFINER|CREATOR|TURNIP|}} as (1);
+create AGGREGATE function fn() returns bool sql security INVOKER as (1);
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: AGGREGATE,INVOKER
+CreateFunctionStatement(is_aggregate=true)(SQL SECURITY INVOKER) [0-71] [create AGGREGATE...OKER as (1)]
+  FunctionDeclaration [26-30] [fn()]
+    PathExpression [26-28] [fn]
+      Identifier(fn) [26-28] [fn]
+    FunctionParameters [28-30] [()]
+  SimpleType [39-43] [bool]
+    PathExpression [39-43] [bool]
+      Identifier(bool) [39-43] [bool]
+  SqlFunctionBody [68-71] [(1)]
+    IntLiteral(1) [69-70] [1]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 26
+Test Case 33
+==================
+create AGGREGATE function fn() returns bool sql security DEFINER as (1);
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(is_aggregate=true)(SQL SECURITY DEFINER) [0-71] [create AGGREGATE...INER as (1)]
+  FunctionDeclaration [26-30] [fn()]
+    PathExpression [26-28] [fn]
+      Identifier(fn) [26-28] [fn]
+    FunctionParameters [28-30] [()]
+  SimpleType [39-43] [bool]
+    PathExpression [39-43] [bool]
+      Identifier(bool) [39-43] [bool]
+  SqlFunctionBody [68-71] [(1)]
+    IntLiteral(1) [69-70] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
 ==================
 create function myfunc()  returns interval
 
@@ -702,7 +894,7 @@ CreateFunctionStatement [0-42] [create function...rns interval]
 (source_file (ERROR))
 
 ==================
-Test Case 27
+Test Case 35
 ==================
 # Create a scalar function with a default argument.
 create function myfunc(a int64, b string default "abc") returns double
@@ -733,7 +925,7 @@ CreateFunctionStatement [0-70] [create function...turns double]
 (source_file (ERROR))
 
 ==================
-Test Case 28
+Test Case 36
 ==================
 # Create a scalar function with multiple default arguments.
 CREATE FUNCTION myfunc(a int64 DEFAULT -314,
@@ -775,7 +967,7 @@ CreateFunctionStatement [0-152] [CREATE FUNCTION...turns double]
 (source_file (ERROR))
 
 ==================
-Test Case 29
+Test Case 37
 ==================
 # Create a scalar function with templated default arguments.
 Create Function myfunc(a int64,
@@ -811,7 +1003,7 @@ CreateFunctionStatement [0-143] [Create Function...turns double]
 (source_file (ERROR))
 
 ==================
-Test Case 30
+Test Case 38
 ==================
 # Remote function without connection.
 create function myfunc ( ) returns string remote;
@@ -830,7 +1022,7 @@ CreateFunctionStatement [0-48] [create function...tring remote]
 (source_file (ERROR))
 
 ==================
-Test Case 31
+Test Case 39
 ==================
 # Remote function with custom connection.
 create function myfunc ( ) returns string remote with connection myconn;
@@ -853,7 +1045,7 @@ CreateFunctionStatement [0-71] [create function...ction myconn]
 (source_file (ERROR))
 
 ==================
-Test Case 32
+Test Case 40
 ==================
 # Remote function with default connection.
 create function myfunc ( ) returns string remote with connection default;
@@ -875,7 +1067,7 @@ CreateFunctionStatement [0-72] [create function...tion default]
 (source_file (ERROR))
 
 ==================
-Test Case 33
+Test Case 41
 ==================
 # Remote function with connection name with -.
 create function myfunc ( ) returns string remote with connection `myconn-abc`;
@@ -898,35 +1090,7 @@ CreateFunctionStatement [0-77] [create function...myconn-abc`]
 (source_file (ERROR))
 
 ==================
-Test Case 34
-==================
-# Non-remote function with connection after language clause.
-# It's accepted by the parser when the feature is enabled but will be excluded
-# by the analyzer.
-[language_features=NONE,{{|+REMOTE_FUNCTION|+CREATE_FUNCTION_LANGUAGE_WITH_CONNECTION|+REMOTE_FUNCTION,+CREATE_FUNCTION_LANGUAGE_WITH_CONNECTION}}]
-create function myfunc ( ) returns string language js with connection c;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 35
-==================
-# Non-remote function without language clause with connection.
-[language_features=NONE,{{|+REMOTE_FUNCTION|+CREATE_FUNCTION_LANGUAGE_WITH_CONNECTION}}]
-create function myfunc ( ) returns string with connection c;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 36
+Test Case 42
 ==================
 # Remote function with connection and options.
 create function myfunc ( )
@@ -959,20 +1123,107 @@ CreateFunctionStatement [0-102] [create function...bruce = lee)]
 (source_file (ERROR))
 
 ==================
-Test Case 37
+Test Case 43
 ==================
 # Determinism modifiers for remote function
 create function myfunc (  )
-  returns string {{deterministic|not deterministic|immutable|stable|volatile}} remote;
+  returns string deterministic remote;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: deterministic
+CreateFunctionStatement(DETERMINISTIC) [0-65] [create function...istic remote]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 38
+Test Case 44
+==================
+# Determinism modifiers for remote function
+create function myfunc (  )
+  returns string not deterministic remote;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(NOT DETERMINISTIC) [0-69] [create function...istic remote]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 45
+==================
+# Determinism modifiers for remote function
+create function myfunc (  )
+  returns string immutable remote;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(IMMUTABLE) [0-61] [create function...table remote]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 46
+==================
+# Determinism modifiers for remote function
+create function myfunc (  )
+  returns string stable remote;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(STABLE) [0-58] [create function...table remote]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 47
+==================
+# Determinism modifiers for remote function
+create function myfunc (  )
+  returns string volatile remote;
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement(VOLATILE) [0-60] [create function...atile remote]
+  FunctionDeclaration [16-27] [myfunc (  )]
+    PathExpression [16-22] [myfunc]
+      Identifier(myfunc) [16-22] [myfunc]
+    FunctionParameters [23-27] [(  )]
+  SimpleType [38-44] [string]
+    PathExpression [38-44] [string]
+      Identifier(string) [38-44] [string]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 48
 ==================
 # Language clause is allowed to appear after remote keyword in parser.
 # This combination will be excluded in analyzer.
@@ -993,7 +1244,7 @@ CreateFunctionStatement [0-57] [create function...language js]
 (source_file (ERROR))
 
 ==================
-Test Case 39
+Test Case 49
 ==================
 # Language clause is allowed to appear before remote keyword in parser.
 # This combination will be excluded in analyzer.
@@ -1018,21 +1269,7 @@ CreateFunctionStatement [0-75] [create function...connection c]
 (source_file (ERROR))
 
 ==================
-Test Case 40
-==================
-# Remote keyword with language clause, when the remote function option
-# is turned on or off
-[language_features=NONE,{{|+REMOTE_FUNCTION}}]
-create function myfunc ( ) returns int language js remote;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 41
+Test Case 50
 ==================
 # AS clause is allowed for remote function in parser.
 # This combination will be excluded in analyzer.
@@ -1054,7 +1291,7 @@ CreateFunctionStatement [0-52] [create function...emote AS (5)]
 (source_file (ERROR))
 
 ==================
-Test Case 42
+Test Case 51
 ==================
 # Remote keyword used in alternative position.
 create function remote (int remote )
@@ -1083,7 +1320,7 @@ CreateFunctionStatement [0-80] [create function...ction remote]
 (source_file (ERROR))
 
 ==================
-Test Case 43
+Test Case 52
 ==================
 # Remote used in a non-remote function as a return type .
 create function returns_remote() returns remote AS (NULL);
@@ -1104,7 +1341,7 @@ CreateFunctionStatement [0-57] [create function...AS (NULL)]
 (source_file (ERROR))
 
 ==================
-Test Case 44
+Test Case 53
 ==================
 # Remote used in a remote function as a return type.
 create function returns_remote() returns remote remote;
@@ -1123,7 +1360,7 @@ CreateFunctionStatement [0-54] [create function...emote remote]
 (source_file (ERROR))
 
 ==================
-Test Case 45
+Test Case 54
 ==================
 # Testing a dot generalized identifier operating in a case statement. This case
 # was regressed during authoring a prototype change and we had no covering test.
@@ -1198,59 +1435,349 @@ CreateFunctionStatement(is_public) [0-296] [CREATE PUBLIC...END )]
 (source_file (ERROR))
 
 ==================
-Test Case 46
+Test Case 55
 ==================
 # Function type arguments - empty input type
-create function my_func (x FUNCTION<()->{{INT64|STRUCT<INT64>}}>) as
+create function my_func (x FUNCTION<()->INT64>) as
   (x());
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INT64
+CreateFunctionStatement [0-58] [create function...as   (x())]
+  FunctionDeclaration [16-47] [my_func (x...)->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-47] [(x FUNCTION<()->INT64>)]
+      FunctionParameter [25-46] [x FUNCTION<()->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-46] [FUNCTION<()->INT64>]
+          FunctionTypeArgList [36-38] [()]
+          SimpleType [40-45] [INT64]
+            PathExpression [40-45] [INT64]
+              Identifier(INT64) [40-45] [INT64]
+  SqlFunctionBody [53-58] [(x())]
+    FunctionCall [54-57] [x()]
+      PathExpression [54-55] [x]
+        Identifier(x) [54-55] [x]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 47
+Test Case 56
+==================
+# Function type arguments - empty input type
+create function my_func (x FUNCTION<()->STRUCT<INT64>>) as
+  (x());
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-66] [create function...as   (x())]
+  FunctionDeclaration [16-55] [my_func (x...STRUCT<INT64>>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-55] [(x FUNCTION...STRUCT<INT64>>)]
+      FunctionParameter [25-54] [x FUNCTION<()->STRUCT<INT64>>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-54] [FUNCTION<()->STRUCT<INT64>>]
+          FunctionTypeArgList [36-38] [()]
+          StructType [40-53] [STRUCT<INT64>]
+            StructField [47-52] [INT64]
+              SimpleType [47-52] [INT64]
+                PathExpression [47-52] [INT64]
+                  Identifier(INT64) [47-52] [INT64]
+  SqlFunctionBody [61-66] [(x())]
+    FunctionCall [62-65] [x()]
+      PathExpression [62-63] [x]
+        Identifier(x) [62-63] [x]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 57
 ==================
 # Function type arguments - single input - no parens
-create function my_func (x FUNCTION<{{INT64|STRUCT<INT64>}}->INT64>) as
+create function my_func (x FUNCTION<INT64->INT64>) as
   (x(1));
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INT64
+CreateFunctionStatement [0-62] [create function...as   (x(1))]
+  FunctionDeclaration [16-50] [my_func (x...INT64->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-50] [(x FUNCTION<INT64->INT64>)]
+      FunctionParameter [25-49] [x FUNCTION<INT64->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-49] [FUNCTION<INT64->INT64>]
+          FunctionTypeArgList [36-41] [INT64]
+            SimpleType [36-41] [INT64]
+              PathExpression [36-41] [INT64]
+                Identifier(INT64) [36-41] [INT64]
+          SimpleType [43-48] [INT64]
+            PathExpression [43-48] [INT64]
+              Identifier(INT64) [43-48] [INT64]
+  SqlFunctionBody [56-62] [(x(1))]
+    FunctionCall [57-61] [x(1)]
+      PathExpression [57-58] [x]
+        Identifier(x) [57-58] [x]
+      IntLiteral(1) [59-60] [1]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 48
+Test Case 58
+==================
+# Function type arguments - single input - no parens
+create function my_func (x FUNCTION<STRUCT<INT64>->INT64>) as
+  (x(1));
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-70] [create function...as   (x(1))]
+  FunctionDeclaration [16-58] [my_func (x...>->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-58] [(x FUNCTION...>->INT64>)]
+      FunctionParameter [25-57] [x FUNCTION...INT64>->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-57] [FUNCTION<STRUCT<INT64>->INT64>]
+          FunctionTypeArgList [36-49] [STRUCT<INT64>]
+            StructType [36-49] [STRUCT<INT64>]
+              StructField [43-48] [INT64]
+                SimpleType [43-48] [INT64]
+                  PathExpression [43-48] [INT64]
+                    Identifier(INT64) [43-48] [INT64]
+          SimpleType [51-56] [INT64]
+            PathExpression [51-56] [INT64]
+              Identifier(INT64) [51-56] [INT64]
+  SqlFunctionBody [64-70] [(x(1))]
+    FunctionCall [65-69] [x(1)]
+      PathExpression [65-66] [x]
+        Identifier(x) [65-66] [x]
+      IntLiteral(1) [67-68] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 59
 ==================
 # Function type arguments - single input - with parens
-create function my_func (x FUNCTION<({{INT64|STRUCT<INT64>}})->INT64>) as
+create function my_func (x FUNCTION<(INT64)->INT64>) as
   (x(1));
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INT64
+CreateFunctionStatement [0-64] [create function...as   (x(1))]
+  FunctionDeclaration [16-52] [my_func (x...)->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-52] [(x FUNCTION<(INT64)->INT64>)]
+      FunctionParameter [25-51] [x FUNCTION<(INT64)->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-51] [FUNCTION<(INT64)->INT64>]
+          FunctionTypeArgList [27-42] [FUNCTION<(INT64]
+            SimpleType [37-42] [INT64]
+              PathExpression [37-42] [INT64]
+                Identifier(INT64) [37-42] [INT64]
+          SimpleType [45-50] [INT64]
+            PathExpression [45-50] [INT64]
+              Identifier(INT64) [45-50] [INT64]
+  SqlFunctionBody [58-64] [(x(1))]
+    FunctionCall [59-63] [x(1)]
+      PathExpression [59-60] [x]
+        Identifier(x) [59-60] [x]
+      IntLiteral(1) [61-62] [1]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 49
+Test Case 60
+==================
+# Function type arguments - single input - with parens
+create function my_func (x FUNCTION<(STRUCT<INT64>)->INT64>) as
+  (x(1));
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-72] [create function...as   (x(1))]
+  FunctionDeclaration [16-60] [my_func (x...)->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-60] [(x FUNCTION...)->INT64>)]
+      FunctionParameter [25-59] [x FUNCTION...>)->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-59] [FUNCTION<(...>)->INT64>]
+          FunctionTypeArgList [27-50] [FUNCTION<(STRUCT<INT64>]
+            StructType [37-50] [STRUCT<INT64>]
+              StructField [44-49] [INT64]
+                SimpleType [44-49] [INT64]
+                  PathExpression [44-49] [INT64]
+                    Identifier(INT64) [44-49] [INT64]
+          SimpleType [53-58] [INT64]
+            PathExpression [53-58] [INT64]
+              Identifier(INT64) [53-58] [INT64]
+  SqlFunctionBody [66-72] [(x(1))]
+    FunctionCall [67-71] [x(1)]
+      PathExpression [67-68] [x]
+        Identifier(x) [67-68] [x]
+      IntLiteral(1) [69-70] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 61
 ==================
 # Function type arguments - multi-inputs - with parens
-create function my_func (x FUNCTION<({{INT64|STRUCT<INT64>}}, {{INT64|STRUCT<INT64>}})->INT64>) as
+create function my_func (x FUNCTION<(INT64, INT64)->INT64>) as
   (x(1, 2));
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: INT64,INT64
+CreateFunctionStatement [0-74] [create function...(x(1, 2))]
+  FunctionDeclaration [16-59] [my_func (x...)->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-59] [(x FUNCTION...)->INT64>)]
+      FunctionParameter [25-58] [x FUNCTION...INT64)->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-58] [FUNCTION<(...INT64)->INT64>]
+          FunctionTypeArgList [27-49] [FUNCTION<(INT64, INT64]
+            SimpleType [37-42] [INT64]
+              PathExpression [37-42] [INT64]
+                Identifier(INT64) [37-42] [INT64]
+            SimpleType [44-49] [INT64]
+              PathExpression [44-49] [INT64]
+                Identifier(INT64) [44-49] [INT64]
+          SimpleType [52-57] [INT64]
+            PathExpression [52-57] [INT64]
+              Identifier(INT64) [52-57] [INT64]
+  SqlFunctionBody [65-74] [(x(1, 2))]
+    FunctionCall [66-73] [x(1, 2)]
+      PathExpression [66-67] [x]
+        Identifier(x) [66-67] [x]
+      IntLiteral(1) [68-69] [1]
+      IntLiteral(2) [71-72] [2]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 50
+Test Case 62
+==================
+# Function type arguments - multi-inputs - with parens
+create function my_func (x FUNCTION<(INT64, STRUCT<INT64>)->INT64>) as
+  (x(1, 2));
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-82] [create function...(x(1, 2))]
+  FunctionDeclaration [16-67] [my_func (x...)->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-67] [(x FUNCTION...)->INT64>)]
+      FunctionParameter [25-66] [x FUNCTION...>)->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-66] [FUNCTION<(...>)->INT64>]
+          FunctionTypeArgList [27-57] [FUNCTION<(INT64, STRUCT<INT64>]
+            SimpleType [37-42] [INT64]
+              PathExpression [37-42] [INT64]
+                Identifier(INT64) [37-42] [INT64]
+            StructType [44-57] [STRUCT<INT64>]
+              StructField [51-56] [INT64]
+                SimpleType [51-56] [INT64]
+                  PathExpression [51-56] [INT64]
+                    Identifier(INT64) [51-56] [INT64]
+          SimpleType [60-65] [INT64]
+            PathExpression [60-65] [INT64]
+              Identifier(INT64) [60-65] [INT64]
+  SqlFunctionBody [73-82] [(x(1, 2))]
+    FunctionCall [74-81] [x(1, 2)]
+      PathExpression [74-75] [x]
+        Identifier(x) [74-75] [x]
+      IntLiteral(1) [76-77] [1]
+      IntLiteral(2) [79-80] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 63
+==================
+# Function type arguments - multi-inputs - with parens
+create function my_func (x FUNCTION<(STRUCT<INT64>, INT64)->INT64>) as
+  (x(1, 2));
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-82] [create function...(x(1, 2))]
+  FunctionDeclaration [16-67] [my_func (x...)->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-67] [(x FUNCTION...)->INT64>)]
+      FunctionParameter [25-66] [x FUNCTION...INT64)->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-66] [FUNCTION<(...INT64)->INT64>]
+          FunctionTypeArgList [27-57] [FUNCTION<(STRUCT<INT64>, INT64]
+            StructType [37-50] [STRUCT<INT64>]
+              StructField [44-49] [INT64]
+                SimpleType [44-49] [INT64]
+                  PathExpression [44-49] [INT64]
+                    Identifier(INT64) [44-49] [INT64]
+            SimpleType [52-57] [INT64]
+              PathExpression [52-57] [INT64]
+                Identifier(INT64) [52-57] [INT64]
+          SimpleType [60-65] [INT64]
+            PathExpression [60-65] [INT64]
+              Identifier(INT64) [60-65] [INT64]
+  SqlFunctionBody [73-82] [(x(1, 2))]
+    FunctionCall [74-81] [x(1, 2)]
+      PathExpression [74-75] [x]
+        Identifier(x) [74-75] [x]
+      IntLiteral(1) [76-77] [1]
+      IntLiteral(2) [79-80] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 64
+==================
+# Function type arguments - multi-inputs - with parens
+create function my_func (x FUNCTION<(STRUCT<INT64>, STRUCT<INT64>)->INT64>) as
+  (x(1, 2));
+
+/* Expected ZetaSQL AST:
+CreateFunctionStatement [0-90] [create function...(x(1, 2))]
+  FunctionDeclaration [16-75] [my_func (x...)->INT64>)]
+    PathExpression [16-23] [my_func]
+      Identifier(my_func) [16-23] [my_func]
+    FunctionParameters [24-75] [(x FUNCTION...)->INT64>)]
+      FunctionParameter [25-74] [x FUNCTION...>)->INT64>]
+        Identifier(x) [25-26] [x]
+        FunctionType [27-74] [FUNCTION<(...>)->INT64>]
+          FunctionTypeArgList [27-65] [FUNCTION<(...STRUCT<INT64>]
+            StructType [37-50] [STRUCT<INT64>]
+              StructField [44-49] [INT64]
+                SimpleType [44-49] [INT64]
+                  PathExpression [44-49] [INT64]
+                    Identifier(INT64) [44-49] [INT64]
+            StructType [52-65] [STRUCT<INT64>]
+              StructField [59-64] [INT64]
+                SimpleType [59-64] [INT64]
+                  PathExpression [59-64] [INT64]
+                    Identifier(INT64) [59-64] [INT64]
+          SimpleType [68-73] [INT64]
+            PathExpression [68-73] [INT64]
+              Identifier(INT64) [68-73] [INT64]
+  SqlFunctionBody [81-90] [(x(1, 2))]
+    FunctionCall [82-89] [x(1, 2)]
+      PathExpression [82-83] [x]
+        Identifier(x) [82-83] [x]
+      IntLiteral(1) [84-85] [1]
+      IntLiteral(2) [87-88] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 65
 ==================
 # Function as a function name, and an argument name
 create function function (function FUNCTION<()->INT64>) as
@@ -1278,7 +1805,7 @@ CreateFunctionStatement [0-73] [create function...function())]
 (source_file (ERROR))
 
 ==================
-Test Case 51
+Test Case 66
 ==================
 # Type parameter, this is not allowed, will be enforce in resolver
 create function func (x FUNCTION<()->INT64>(0)) as
@@ -1306,7 +1833,7 @@ CreateFunctionStatement [0-56] [create function...) as   (1)]
 (source_file (ERROR))
 
 ==================
-Test Case 52
+Test Case 67
 ==================
 # collation on the function argument, this is not allowed, will be enforce in resolver
 create function func (x FUNCTION<()->INT64> collate 'und:ci') as

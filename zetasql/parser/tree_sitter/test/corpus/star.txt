@@ -17,7 +17,19 @@ QueryStatement [0-15] [select * from t]
             Identifier(t) [14-15] [t]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [14, 2]
+  (comment [0, 0] - [0, 59])
+  (statement [1, 0] - [1, 15]
+    (select_statement [1, 0] - [1, 15]
+      (select_clause [1, 0] - [1, 8]
+        (select_list [1, 7] - [1, 8]
+          (select_expression [1, 7] - [1, 8])))
+      (from_clause [1, 9] - [1, 15]
+        (from_item [1, 14] - [1, 15]
+          (table_expression [1, 14] - [1, 15]
+            (path_expression [1, 14] - [1, 15]
+              (identifier [1, 14] - [1, 15])))))))
+  (comment [3, 0] - [14, 2]))
 
 ==================
 Test Case 2

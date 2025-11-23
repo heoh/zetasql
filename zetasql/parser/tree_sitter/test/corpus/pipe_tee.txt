@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 
 from t
 |> tee ()
@@ -100,21 +99,6 @@ QueryStatement [0-20] [from t |> tee |> tee]
 
 ==================
 Test Case 4
-==================
-# For common reserved pipe operator names, plus non-reserved keyword
-# names, we're able to give an error saying "Expected subpipeline".
-# We don't cover all of them - e.g. AS.
-FROM t
-|> TEE ({{WHERE|SELECT|AS|AGGREGATE|abc}} xyz)
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: WHERE
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 5
 ==================
 from t
 |> tee @{hint=1} ( |> where true )

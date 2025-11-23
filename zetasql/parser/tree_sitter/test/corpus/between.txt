@@ -4,7 +4,6 @@ Test Case 1
 # Tests for BETWEEN
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default no_show_parse_location_text]
 select col BETWEEN value1 AND value2
 
 /* Expected ZetaSQL AST:
@@ -23,7 +22,27 @@ QueryStatement [0-36]
               Identifier(value2) [30-36]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [19, 2]
+  (comment [0, 0] - [0, 19])
+  (comment [1, 0] - [1, 60])
+  (comment [2, 0] - [2, 22])
+  (statement [3, 0] - [3, 36]
+    (select_statement [3, 0] - [3, 36]
+      (select_clause [3, 0] - [3, 36]
+        (select_list [3, 7] - [3, 36]
+          (select_expression [3, 7] - [3, 36]
+            (expression [3, 7] - [3, 36]
+              (between_expression [3, 7] - [3, 36]
+                (expression [3, 7] - [3, 10]
+                  (path_expression [3, 7] - [3, 10]
+                    (identifier [3, 7] - [3, 10])))
+                (expression [3, 19] - [3, 25]
+                  (path_expression [3, 19] - [3, 25]
+                    (identifier [3, 19] - [3, 25])))
+                (expression [3, 30] - [3, 36]
+                  (path_expression [3, 30] - [3, 36]
+                    (identifier [3, 30] - [3, 36]))))))))))
+  (comment [5, 0] - [19, 2]))
 
 ==================
 Test Case 2
@@ -216,7 +235,28 @@ QueryStatement [0-36]
             NullLiteral(NULL) [32-36]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [18, 2]
+  (statement [0, 0] - [0, 36]
+    (select_statement [0, 0] - [0, 36]
+      (select_clause [0, 0] - [0, 36]
+        (select_list [0, 7] - [0, 36]
+          (select_expression [0, 7] - [0, 36]
+            (expression [0, 7] - [0, 36]
+              (is_expression [0, 7] - [0, 36]
+                (expression [0, 7] - [0, 28]
+                  (expression [0, 8] - [0, 27]
+                    (between_expression [0, 8] - [0, 27]
+                      (expression [0, 8] - [0, 11]
+                        (path_expression [0, 8] - [0, 11]
+                          (identifier [0, 8] - [0, 11])))
+                      (expression [0, 20] - [0, 21]
+                        (path_expression [0, 20] - [0, 21]
+                          (identifier [0, 20] - [0, 21])))
+                      (expression [0, 26] - [0, 27]
+                        (path_expression [0, 26] - [0, 27]
+                          (identifier [0, 26] - [0, 27]))))))
+                (null_literal [0, 32] - [0, 36]))))))))
+  (comment [2, 0] - [18, 2]))
 
 ==================
 Test Case 6
@@ -316,16 +356,173 @@ Test Case 8
 # Test which operators can be included in the middle argument of BETWEEN.
 # Operators with equal or lower precedence than BETWEEN are not allowed.
 # That includes all comparison operators, and AND, OR and BETWEEN.
-select x BETWEEN {{a = b|a < b|a > b|a <= b|a >= b|a <> b |a !=b |a << b|a >> b |a & b|a ^ b|a AND b|a OR b|a LIKE b|a IN (b)|a IS FALSE|a BETWEEN b AND b}} AND c
+select x BETWEEN a << b AND c
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: a = b
+QueryStatement [0-29]
+  Query [0-29]
+    Select [0-29]
+      SelectList [7-29]
+        SelectColumn [7-29]
+          BetweenExpression(BETWEEN) [7-29]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            BitwiseShiftExpression(<<) [17-23]
+              PathExpression [17-18]
+                Identifier(a) [17-18]
+              Location [19-21]
+              PathExpression [22-23]
+                Identifier(b) [22-23]
+            PathExpression [28-29]
+              Identifier(c) [28-29]
+*/
+---
+(source_file [0, 0] - [23, 2]
+  (comment [0, 0] - [0, 73])
+  (comment [1, 0] - [1, 72])
+  (comment [2, 0] - [2, 66])
+  (statement [3, 0] - [3, 29]
+    (select_statement [3, 0] - [3, 29]
+      (select_clause [3, 0] - [3, 29]
+        (select_list [3, 7] - [3, 29]
+          (select_expression [3, 7] - [3, 29]
+            (expression [3, 7] - [3, 29]
+              (between_expression [3, 7] - [3, 29]
+                (expression [3, 7] - [3, 8]
+                  (path_expression [3, 7] - [3, 8]
+                    (identifier [3, 7] - [3, 8])))
+                (expression [3, 17] - [3, 23]
+                  (binary_expression [3, 17] - [3, 23]
+                    (expression [3, 17] - [3, 20]
+                      (binary_expression [3, 17] - [3, 20]
+                        (expression [3, 17] - [3, 18]
+                          (path_expression [3, 17] - [3, 18]
+                            (identifier [3, 17] - [3, 18])))
+                        (expression [3, 20] - [3, 20]
+                          (boolean_literal [3, 20] - [3, 20]))))
+                    (expression [3, 22] - [3, 23]
+                      (path_expression [3, 22] - [3, 23]
+                        (identifier [3, 22] - [3, 23])))))
+                (expression [3, 28] - [3, 29]
+                  (path_expression [3, 28] - [3, 29]
+                    (identifier [3, 28] - [3, 29]))))))))))
+  (comment [5, 0] - [23, 2]))
+
+==================
+Test Case 9
+==================
+# Test which operators can be included in the middle argument of BETWEEN.
+# Operators with equal or lower precedence than BETWEEN are not allowed.
+# That includes all comparison operators, and AND, OR and BETWEEN.
+select x BETWEEN a & b AND c
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28]
+  Query [0-28]
+    Select [0-28]
+      SelectList [7-28]
+        SelectColumn [7-28]
+          BetweenExpression(BETWEEN) [7-28]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            BinaryExpression(&) [17-22]
+              PathExpression [17-18]
+                Identifier(a) [17-18]
+              PathExpression [21-22]
+                Identifier(b) [21-22]
+            PathExpression [27-28]
+              Identifier(c) [27-28]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 10
+==================
+# Test which operators can be included in the middle argument of BETWEEN.
+# Operators with equal or lower precedence than BETWEEN are not allowed.
+# That includes all comparison operators, and AND, OR and BETWEEN.
+select x BETWEEN a ^ b AND c
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28]
+  Query [0-28]
+    Select [0-28]
+      SelectList [7-28]
+        SelectColumn [7-28]
+          BetweenExpression(BETWEEN) [7-28]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            BinaryExpression(^) [17-22]
+              PathExpression [17-18]
+                Identifier(a) [17-18]
+              PathExpression [21-22]
+                Identifier(b) [21-22]
+            PathExpression [27-28]
+              Identifier(c) [27-28]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# Test which operators can be included in the middle argument of BETWEEN.
+# Operators with equal or lower precedence than BETWEEN are not allowed.
+# That includes all comparison operators, and AND, OR and BETWEEN.
+select x BETWEEN a AND b AND c
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-30]
+  Query [0-30]
+    Select [0-30]
+      SelectList [7-30]
+        SelectColumn [7-30]
+          AndExpr [7-30]
+            BetweenExpression(BETWEEN) [7-24]
+              PathExpression [7-8]
+                Identifier(x) [7-8]
+              Location [9-16]
+              PathExpression [17-18]
+                Identifier(a) [17-18]
+              PathExpression [23-24]
+                Identifier(b) [23-24]
+            PathExpression [29-30]
+              Identifier(c) [29-30]
+*/
+---
+(source_file [0, 0] - [22, 2]
+  (comment [0, 0] - [0, 73])
+  (comment [1, 0] - [1, 72])
+  (comment [2, 0] - [2, 66])
+  (statement [3, 0] - [3, 30]
+    (select_statement [3, 0] - [3, 30]
+      (select_clause [3, 0] - [3, 30]
+        (select_list [3, 7] - [3, 30]
+          (select_expression [3, 7] - [3, 30]
+            (expression [3, 7] - [3, 30]
+              (binary_expression [3, 7] - [3, 30]
+                (expression [3, 7] - [3, 24]
+                  (between_expression [3, 7] - [3, 24]
+                    (expression [3, 7] - [3, 8]
+                      (path_expression [3, 7] - [3, 8]
+                        (identifier [3, 7] - [3, 8])))
+                    (expression [3, 17] - [3, 18]
+                      (path_expression [3, 17] - [3, 18]
+                        (identifier [3, 17] - [3, 18])))
+                    (expression [3, 23] - [3, 24]
+                      (path_expression [3, 23] - [3, 24]
+                        (identifier [3, 23] - [3, 24])))))
+                (expression [3, 29] - [3, 30]
+                  (path_expression [3, 29] - [3, 30]
+                    (identifier [3, 29] - [3, 30]))))))))))
+  (comment [5, 0] - [22, 2]))
+
+==================
+Test Case 12
 ==================
 # Test that BETWEEN can contain |, which has precedence lower than additive
 # expressions. (Second and third arguments.)
@@ -357,7 +554,7 @@ QueryStatement [0-32]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 13
 ==================
 # (Same test as above, for the third argument.)
 # Test that BETWEEN can contain various types of expressions of precedence
@@ -366,27 +563,311 @@ Test Case 10
 # too because it is in an argument that is adjacent to the edge of the
 # operator.
 # Regression test for b/30131868.
-select x BETWEEN a AND b {{=|<<|>>|&|^}} c
+select x BETWEEN a AND b << c
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: =
+QueryStatement [0-29]
+  Query [0-29]
+    Select [0-29]
+      SelectList [7-29]
+        SelectColumn [7-29]
+          BetweenExpression(BETWEEN) [7-29]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            PathExpression [17-18]
+              Identifier(a) [17-18]
+            BitwiseShiftExpression(<<) [23-29]
+              PathExpression [23-24]
+                Identifier(b) [23-24]
+              Location [25-27]
+              PathExpression [28-29]
+                Identifier(c) [28-29]
+*/
+---
+(source_file [0, 0] - [27, 2]
+  (comment [0, 0] - [0, 47])
+  (comment [1, 0] - [1, 74])
+  (comment [2, 0] - [2, 73])
+  (comment [3, 0] - [3, 74])
+  (comment [4, 0] - [4, 70])
+  (comment [5, 0] - [5, 11])
+  (comment [6, 0] - [6, 33])
+  (statement [7, 0] - [7, 29]
+    (select_statement [7, 0] - [7, 29]
+      (select_clause [7, 0] - [7, 29]
+        (select_list [7, 7] - [7, 29]
+          (select_expression [7, 7] - [7, 29]
+            (expression [7, 7] - [7, 29]
+              (binary_expression [7, 7] - [7, 29]
+                (expression [7, 7] - [7, 26]
+                  (binary_expression [7, 7] - [7, 26]
+                    (expression [7, 7] - [7, 24]
+                      (between_expression [7, 7] - [7, 24]
+                        (expression [7, 7] - [7, 8]
+                          (path_expression [7, 7] - [7, 8]
+                            (identifier [7, 7] - [7, 8])))
+                        (expression [7, 17] - [7, 18]
+                          (path_expression [7, 17] - [7, 18]
+                            (identifier [7, 17] - [7, 18])))
+                        (expression [7, 23] - [7, 24]
+                          (path_expression [7, 23] - [7, 24]
+                            (identifier [7, 23] - [7, 24])))))
+                    (expression [7, 26] - [7, 26]
+                      (boolean_literal [7, 26] - [7, 26]))))
+                (expression [7, 28] - [7, 29]
+                  (path_expression [7, 28] - [7, 29]
+                    (identifier [7, 28] - [7, 29]))))))))))
+  (comment [9, 0] - [27, 2]))
+
+==================
+Test Case 14
+==================
+# (Same test as above, for the third argument.)
+# Test that BETWEEN can contain various types of expressions of precedence
+# lower than additive expressions. Note that = is disallowed here by both
+# Bison and JavaCC. It is ambiguous in Bison's operator precedence parsing
+# too because it is in an argument that is adjacent to the edge of the
+# operator.
+# Regression test for b/30131868.
+select x BETWEEN a AND b >> c
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-29]
+  Query [0-29]
+    Select [0-29]
+      SelectList [7-29]
+        SelectColumn [7-29]
+          BetweenExpression(BETWEEN) [7-29]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            PathExpression [17-18]
+              Identifier(a) [17-18]
+            BitwiseShiftExpression(>>) [23-29]
+              PathExpression [23-24]
+                Identifier(b) [23-24]
+              Location [25-27]
+              PathExpression [28-29]
+                Identifier(c) [28-29]
+*/
+---
+(source_file [0, 0] - [27, 2]
+  (comment [0, 0] - [0, 47])
+  (comment [1, 0] - [1, 74])
+  (comment [2, 0] - [2, 73])
+  (comment [3, 0] - [3, 74])
+  (comment [4, 0] - [4, 70])
+  (comment [5, 0] - [5, 11])
+  (comment [6, 0] - [6, 33])
+  (statement [7, 0] - [7, 29]
+    (select_statement [7, 0] - [7, 29]
+      (select_clause [7, 0] - [7, 29]
+        (select_list [7, 7] - [7, 29]
+          (select_expression [7, 7] - [7, 29]
+            (expression [7, 7] - [7, 29]
+              (binary_expression [7, 7] - [7, 29]
+                (expression [7, 7] - [7, 26]
+                  (binary_expression [7, 7] - [7, 26]
+                    (expression [7, 7] - [7, 24]
+                      (between_expression [7, 7] - [7, 24]
+                        (expression [7, 7] - [7, 8]
+                          (path_expression [7, 7] - [7, 8]
+                            (identifier [7, 7] - [7, 8])))
+                        (expression [7, 17] - [7, 18]
+                          (path_expression [7, 17] - [7, 18]
+                            (identifier [7, 17] - [7, 18])))
+                        (expression [7, 23] - [7, 24]
+                          (path_expression [7, 23] - [7, 24]
+                            (identifier [7, 23] - [7, 24])))))
+                    (expression [7, 26] - [7, 26]
+                      (boolean_literal [7, 26] - [7, 26]))))
+                (expression [7, 28] - [7, 29]
+                  (path_expression [7, 28] - [7, 29]
+                    (identifier [7, 28] - [7, 29]))))))))))
+  (comment [9, 0] - [27, 2]))
+
+==================
+Test Case 15
+==================
+# (Same test as above, for the third argument.)
+# Test that BETWEEN can contain various types of expressions of precedence
+# lower than additive expressions. Note that = is disallowed here by both
+# Bison and JavaCC. It is ambiguous in Bison's operator precedence parsing
+# too because it is in an argument that is adjacent to the edge of the
+# operator.
+# Regression test for b/30131868.
+select x BETWEEN a AND b & c
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28]
+  Query [0-28]
+    Select [0-28]
+      SelectList [7-28]
+        SelectColumn [7-28]
+          BetweenExpression(BETWEEN) [7-28]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            PathExpression [17-18]
+              Identifier(a) [17-18]
+            BinaryExpression(&) [23-28]
+              PathExpression [23-24]
+                Identifier(b) [23-24]
+              PathExpression [27-28]
+                Identifier(c) [27-28]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 16
+==================
+# (Same test as above, for the third argument.)
+# Test that BETWEEN can contain various types of expressions of precedence
+# lower than additive expressions. Note that = is disallowed here by both
+# Bison and JavaCC. It is ambiguous in Bison's operator precedence parsing
+# too because it is in an argument that is adjacent to the edge of the
+# operator.
+# Regression test for b/30131868.
+select x BETWEEN a AND b ^ c
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-28]
+  Query [0-28]
+    Select [0-28]
+      SelectList [7-28]
+        SelectColumn [7-28]
+          BetweenExpression(BETWEEN) [7-28]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            PathExpression [17-18]
+              Identifier(a) [17-18]
+            BinaryExpression(^) [23-28]
+              PathExpression [23-24]
+                Identifier(b) [23-24]
+              PathExpression [27-28]
+                Identifier(c) [27-28]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
 ==================
 # Make sure that operators that include < and > are tokenized correctly inside
 # BETWEEN. These are covered by a tokenizer mode in the Bison parser, so they
 # should work in that mode as well. The operators are nonassociative and at
 # the same precedence level as BETWEEN, so the parser rule then still rejects
 # the result.
-SELECT x BETWEEN y {{<|>|<>|<<|>>}} 3 AND 9
+SELECT x BETWEEN y << 3 AND 9
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <
+QueryStatement [0-29]
+  Query [0-29]
+    Select [0-29]
+      SelectList [7-29]
+        SelectColumn [7-29]
+          BetweenExpression(BETWEEN) [7-29]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            BitwiseShiftExpression(<<) [17-23]
+              PathExpression [17-18]
+                Identifier(y) [17-18]
+              Location [19-21]
+              IntLiteral(3) [22-23]
+            IntLiteral(9) [28-29]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [23, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 77])
+  (comment [2, 0] - [2, 75])
+  (comment [3, 0] - [3, 77])
+  (comment [4, 0] - [4, 13])
+  (statement [5, 0] - [5, 29]
+    (select_statement [5, 0] - [5, 29]
+      (select_clause [5, 0] - [5, 29]
+        (select_list [5, 7] - [5, 29]
+          (select_expression [5, 7] - [5, 29]
+            (expression [5, 7] - [5, 29]
+              (between_expression [5, 7] - [5, 29]
+                (expression [5, 7] - [5, 8]
+                  (path_expression [5, 7] - [5, 8]
+                    (identifier [5, 7] - [5, 8])))
+                (expression [5, 17] - [5, 23]
+                  (binary_expression [5, 17] - [5, 23]
+                    (expression [5, 17] - [5, 20]
+                      (binary_expression [5, 17] - [5, 20]
+                        (expression [5, 17] - [5, 18]
+                          (path_expression [5, 17] - [5, 18]
+                            (identifier [5, 17] - [5, 18])))
+                        (expression [5, 20] - [5, 20]
+                          (boolean_literal [5, 20] - [5, 20]))))
+                    (expression [5, 22] - [5, 23]
+                      (number [5, 22] - [5, 23]))))
+                (expression [5, 28] - [5, 29]
+                  (number [5, 28] - [5, 29])))))))))
+  (comment [7, 0] - [23, 2]))
+
+==================
+Test Case 18
+==================
+# Make sure that operators that include < and > are tokenized correctly inside
+# BETWEEN. These are covered by a tokenizer mode in the Bison parser, so they
+# should work in that mode as well. The operators are nonassociative and at
+# the same precedence level as BETWEEN, so the parser rule then still rejects
+# the result.
+SELECT x BETWEEN y >> 3 AND 9
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-29]
+  Query [0-29]
+    Select [0-29]
+      SelectList [7-29]
+        SelectColumn [7-29]
+          BetweenExpression(BETWEEN) [7-29]
+            PathExpression [7-8]
+              Identifier(x) [7-8]
+            Location [9-16]
+            BitwiseShiftExpression(>>) [17-23]
+              PathExpression [17-18]
+                Identifier(y) [17-18]
+              Location [19-21]
+              IntLiteral(3) [22-23]
+            IntLiteral(9) [28-29]
+*/
+---
+(source_file [0, 0] - [23, 2]
+  (comment [0, 0] - [0, 78])
+  (comment [1, 0] - [1, 77])
+  (comment [2, 0] - [2, 75])
+  (comment [3, 0] - [3, 77])
+  (comment [4, 0] - [4, 13])
+  (statement [5, 0] - [5, 29]
+    (select_statement [5, 0] - [5, 29]
+      (select_clause [5, 0] - [5, 29]
+        (select_list [5, 7] - [5, 29]
+          (select_expression [5, 7] - [5, 29]
+            (expression [5, 7] - [5, 29]
+              (between_expression [5, 7] - [5, 29]
+                (expression [5, 7] - [5, 8]
+                  (path_expression [5, 7] - [5, 8]
+                    (identifier [5, 7] - [5, 8])))
+                (expression [5, 17] - [5, 23]
+                  (binary_expression [5, 17] - [5, 23]
+                    (expression [5, 17] - [5, 20]
+                      (binary_expression [5, 17] - [5, 20]
+                        (expression [5, 17] - [5, 18]
+                          (path_expression [5, 17] - [5, 18]
+                            (identifier [5, 17] - [5, 18])))
+                        (expression [5, 20] - [5, 20]
+                          (boolean_literal [5, 20] - [5, 20]))))
+                    (expression [5, 22] - [5, 23]
+                      (number [5, 22] - [5, 23]))))
+                (expression [5, 28] - [5, 29]
+                  (number [5, 28] - [5, 29])))))))))
+  (comment [7, 0] - [23, 2]))
 

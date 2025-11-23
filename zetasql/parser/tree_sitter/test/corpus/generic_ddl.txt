@@ -1,19 +1,53 @@
 ==================
 Test Case 1
 ==================
-[default supported_generic_entity_types=RESERVATION,EXPLORE,SUPPORTED_ENTITY]
-[default supported_generic_sub_entity_types=REPLICA,CHILD_OF_REPLICA]
 
-CREATE {{RESERVATION|reSERVAtion|SUPPORTED_ENTITY}} myProject.myReservation
+CREATE RESERVATION myProject.myReservation
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: RESERVATION
+CreateEntityStatement [0-42] [CREATE RESERVATIO...eservation]
+  Identifier(RESERVATION) [7-18] [RESERVATION]
+  PathExpression [19-42] [myProject.myReservation]
+    Identifier(myProject) [19-28] [myProject]
+    Identifier(myReservation) [29-42] [myReservation]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 2
+==================
+
+CREATE reSERVAtion myProject.myReservation
+
+/* Expected ZetaSQL AST:
+CreateEntityStatement [0-42] [CREATE reSERVAtio...eservation]
+  Identifier(reSERVAtion) [7-18] [reSERVAtion]
+  PathExpression [19-42] [myProject.myReservation]
+    Identifier(myProject) [19-28] [myProject]
+    Identifier(myReservation) [29-42] [myReservation]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+
+CREATE SUPPORTED_ENTITY myProject.myReservation
+
+/* Expected ZetaSQL AST:
+CreateEntityStatement [0-47] [CREATE SUPPORTED_...eservation]
+  Identifier(SUPPORTED_ENTITY) [7-23] [SUPPORTED_ENTITY]
+  PathExpression [24-47] [myProject.myReservation]
+    Identifier(myProject) [24-33] [myProject]
+    Identifier(myReservation) [34-47] [myReservation]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
 ==================
 # Generic CREATE with all optional clauses
 CREATE OR REPLACE RESERVATION IF NOT EXISTS myProject.myReservation
@@ -43,7 +77,7 @@ CreateEntityStatement(is_or_replace, is_if_not_exists) [0-112] [CREATE OR..."val
 (source_file (ERROR))
 
 ==================
-Test Case 3
+Test Case 5
 ==================
 # Generic CREATE with text literal body, instead of json
 CREATE EXPLORE myProject.myExplore
@@ -80,19 +114,7 @@ explore: test_explore {
 (source_file (ERROR))
 
 ==================
-Test Case 4
-==================
-# Generic CREATE doesn't support multi-parts entity type
-CREATE {{foo|RESERVATION}}.bar myProject.myReservation
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: foo
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 5
+Test Case 6
 ==================
 # Generic ALTER statement
 ALTER RESERVATION myProject.myReservation SET OPTIONS (a=b)
@@ -115,7 +137,7 @@ AlterEntityStatement [0-59] [ALTER RESERVATION...IONS (a=b)]
 (source_file (ERROR))
 
 ==================
-Test Case 6
+Test Case 7
 ==================
 ALTER RESERVATION myProject.myReservation SET AS JSON r'{"k\n1" : "v"}';
 
@@ -135,7 +157,7 @@ AlterEntityStatement [0-71] [ALTER RESERVATION...1" : "v"}']
 (source_file (ERROR))
 
 ==================
-Test Case 7
+Test Case 8
 ==================
 ALTER RESERVATION myProject.myReservation
   SET OPTIONS (a=b),
@@ -163,7 +185,7 @@ AlterEntityStatement [0-95] [ALTER RESERVATION..."value"}']
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 9
 ==================
 ALTER EXPLORE myProject.myExplore SET AS "explore: test_explore { }";
 
@@ -182,7 +204,7 @@ AlterEntityStatement [0-68] [ALTER EXPLORE...t_explore { }"]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 10
 ==================
 DROP RESERVATION myProject.myReservation
 
@@ -197,7 +219,7 @@ DropEntityStatement [0-40] [DROP RESERVATION...Reservation]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 11
 ==================
 DROP RESERVATION IF EXISTS myProject.myReservation
 
@@ -212,28 +234,24 @@ DropEntityStatement(is_if_exists) [0-50] [DROP RESERVATION...Reservation]
 (source_file (ERROR))
 
 ==================
-Test Case 11
-==================
-[supported_generic_entity_types=]
-
-CREATE {{RESERVATION|reSERVAtion|SUPPORTED_ENTITY}} myProject.myReservation
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: RESERVATION
-*/
----
-(source_file (ERROR))
-
-==================
 Test Case 12
 ==================
-# Variant of the above test that features a missing path_expression.
-[supported_generic_entity_types=]
+# If ALLOW_MISSING_PATH_EXPRESSION_IN_ALTER_DDL flag is not set, the parser
+# is still able to parse generic ALTER statements but the analyzer will produce
+# an error.
 
-CREATE {{RESERVATION|reSERVAtion|SUPPORTED_ENTITY}}
+ALTER PROJECT SET OPTIONS (a=b)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: RESERVATION
+AlterEntityStatement [0-31] [ALTER PROJECT...OPTIONS (a=b)]
+  Identifier(PROJECT) [6-13] [PROJECT]
+  AlterActionList [14-31] [SET OPTIONS (a=b)]
+    SetOptionsAction [14-31] [SET OPTIONS (a=b)]
+      OptionsList [26-31] [(a=b)]
+        OptionsEntry [27-30] [a=b]
+          Identifier(a) [27-28] [a]
+          PathExpression [29-30] [b]
+            Identifier(b) [29-30] [b]
 */
 ---
 (source_file (ERROR))
@@ -244,12 +262,19 @@ Test Case 13
 # If ALLOW_MISSING_PATH_EXPRESSION_IN_ALTER_DDL flag is not set, the parser
 # is still able to parse generic ALTER statements but the analyzer will produce
 # an error.
-[supported_generic_entity_types=PROJECT,ORGANIZATION]
 
-ALTER {{PROJECT|ORGANIZATION}} SET OPTIONS (a=b)
+ALTER ORGANIZATION SET OPTIONS (a=b)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: PROJECT
+AlterEntityStatement [0-36] [ALTER ORGANIZATIO...IONS (a=b)]
+  Identifier(ORGANIZATION) [6-18] [ORGANIZATION]
+  AlterActionList [19-36] [SET OPTIONS (a=b)]
+    SetOptionsAction [19-36] [SET OPTIONS (a=b)]
+      OptionsList [31-36] [(a=b)]
+        OptionsEntry [32-35] [a=b]
+          Identifier(a) [32-33] [a]
+          PathExpression [34-35] [b]
+            Identifier(b) [34-35] [b]
 */
 ---
 (source_file (ERROR))
@@ -259,13 +284,19 @@ Test Case 14
 ==================
 # When ALLOW_MISSING_PATH_EXPRESSION_IN_ALTER_DDL flag is set generic ALTER
 # statements should parse even without a path expression.
-[supported_generic_entity_types=PROJECT,ORGANIZATION]
-[language_features=NONE,+ALLOW_MISSING_PATH_EXPRESSION_IN_ALTER_DDL]
 
-ALTER {{PROJECT|ORGANIZATION}} SET OPTIONS (a=b)
+ALTER PROJECT SET OPTIONS (a=b)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: PROJECT
+AlterEntityStatement [0-31] [ALTER PROJECT...OPTIONS (a=b)]
+  Identifier(PROJECT) [6-13] [PROJECT]
+  AlterActionList [14-31] [SET OPTIONS (a=b)]
+    SetOptionsAction [14-31] [SET OPTIONS (a=b)]
+      OptionsList [26-31] [(a=b)]
+        OptionsEntry [27-30] [a=b]
+          Identifier(a) [27-28] [a]
+          PathExpression [29-30] [b]
+            Identifier(b) [29-30] [b]
 */
 ---
 (source_file (ERROR))
@@ -273,14 +304,21 @@ ALTERNATION GROUP: PROJECT
 ==================
 Test Case 15
 ==================
-# We also need to verify that non-reserved word alter_actions parse correctly.
-[supported_generic_entity_types=PROJECT,ORGANIZATION]
-[language_features=NONE,+ALLOW_MISSING_PATH_EXPRESSION_IN_ALTER_DDL]
+# When ALLOW_MISSING_PATH_EXPRESSION_IN_ALTER_DDL flag is set generic ALTER
+# statements should parse even without a path expression.
 
-ALTER {{PROJECT|ORGANIZATION}} DROP CONSTRAINT foo
+ALTER ORGANIZATION SET OPTIONS (a=b)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: PROJECT
+AlterEntityStatement [0-36] [ALTER ORGANIZATIO...IONS (a=b)]
+  Identifier(ORGANIZATION) [6-18] [ORGANIZATION]
+  AlterActionList [19-36] [SET OPTIONS (a=b)]
+    SetOptionsAction [19-36] [SET OPTIONS (a=b)]
+      OptionsList [31-36] [(a=b)]
+        OptionsEntry [32-35] [a=b]
+          Identifier(a) [32-33] [a]
+          PathExpression [34-35] [b]
+            Identifier(b) [34-35] [b]
 */
 ---
 (source_file (ERROR))
@@ -288,9 +326,41 @@ ALTERNATION GROUP: PROJECT
 ==================
 Test Case 16
 ==================
+# We also need to verify that non-reserved word alter_actions parse correctly.
+
+ALTER PROJECT DROP CONSTRAINT foo
+
+/* Expected ZetaSQL AST:
+AlterEntityStatement [0-33] [ALTER PROJECT...CONSTRAINT foo]
+  Identifier(PROJECT) [6-13] [PROJECT]
+  AlterActionList [14-33] [DROP CONSTRAINT foo]
+    DropConstraintAction [14-33] [DROP CONSTRAINT foo]
+      Identifier(foo) [30-33] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+# We also need to verify that non-reserved word alter_actions parse correctly.
+
+ALTER ORGANIZATION DROP CONSTRAINT foo
+
+/* Expected ZetaSQL AST:
+AlterEntityStatement [0-38] [ALTER ORGANIZATIO...TRAINT foo]
+  Identifier(ORGANIZATION) [6-18] [ORGANIZATION]
+  AlterActionList [19-38] [DROP CONSTRAINT foo]
+    DropConstraintAction [19-38] [DROP CONSTRAINT foo]
+      Identifier(foo) [35-38] [foo]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
 # Ambiguity testing; ADD is the name of the project.
-[supported_generic_entity_types=PROJECT]
-[language_features=NONE,+ALLOW_MISSING_PATH_EXPRESSION_IN_ALTER_DDL]
 
 ALTER PROJECT ADD DROP CONSTRAINT foo
 
@@ -307,20 +377,31 @@ AlterEntityStatement [0-37] [ALTER PROJECT...CONSTRAINT foo]
 (source_file (ERROR))
 
 ==================
-Test Case 17
+Test Case 19
 ==================
 ALTER SCHEMA schema_name
-ADD REPLICA {{IF NOT EXISTS|}} replica_name
+ADD REPLICA IF NOT EXISTS replica_name
 OPTIONS (a=b)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: IF NOT EXISTS
+AlterSchemaStatement [0-77] [ALTER SCHEMA...OPTIONS (a=b)]
+  PathExpression [13-24] [schema_name]
+    Identifier(schema_name) [13-24] [schema_name]
+  AlterActionList [25-77] [ADD REPLICA...OPTIONS (a=b)]
+    AddSubEntityAction(is_if_not_exists) [25-77] [ADD REPLICA...OPTIONS (a=b)]
+      Identifier(REPLICA) [29-36] [REPLICA]
+      Identifier(replica_name) [51-63] [replica_name]
+      OptionsList [72-77] [(a=b)]
+        OptionsEntry [73-76] [a=b]
+          Identifier(a) [73-74] [a]
+          PathExpression [75-76] [b]
+            Identifier(b) [75-76] [b]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 18
+Test Case 20
 ==================
 # Multiple nested ADD actions.
 ALTER SCHEMA schema_name
@@ -353,19 +434,25 @@ AlterSchemaStatement [0-105] [ALTER SCHEMA...OPTIONS (c=d)]
 (source_file (ERROR))
 
 ==================
-Test Case 19
+Test Case 21
 ==================
 ALTER SCHEMA schema_name
-DROP REPLICA {{IF EXISTS|}} replica_name
+DROP REPLICA IF EXISTS replica_name
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: IF EXISTS
+AlterSchemaStatement [0-60] [ALTER SCHEMA...replica_name]
+  PathExpression [13-24] [schema_name]
+    Identifier(schema_name) [13-24] [schema_name]
+  AlterActionList [25-60] [DROP REPLICA...replica_name]
+    DropSubEntityAction(is_if_exists) [25-60] [DROP REPLICA...replica_name]
+      Identifier(REPLICA) [30-37] [REPLICA]
+      Identifier(replica_name) [48-60] [replica_name]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 20
+Test Case 22
 ==================
 # Multiple nested DROP actions.
 ALTER SCHEMA schema_name
@@ -388,20 +475,32 @@ AlterSchemaStatement [0-79] [ALTER SCHEMA...replica_name2]
 (source_file (ERROR))
 
 ==================
-Test Case 21
+Test Case 23
 ==================
 ALTER SCHEMA schema_name
-ALTER REPLICA {{IF EXISTS|}} replica_name
+ALTER REPLICA IF EXISTS replica_name
 SET OPTIONS (a=b)
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: IF EXISTS
+AlterSchemaStatement [0-79] [ALTER SCHEMA...OPTIONS (a=b)]
+  PathExpression [13-24] [schema_name]
+    Identifier(schema_name) [13-24] [schema_name]
+  AlterActionList [25-79] [ALTER REPLICA...OPTIONS (a=b)]
+    AlterSubEntityAction(is_if_exists) [25-79] [ALTER REPLICA...OPTIONS (a=b)]
+      Identifier(REPLICA) [31-38] [REPLICA]
+      Identifier(replica_name) [49-61] [replica_name]
+      SetOptionsAction [62-79] [SET OPTIONS (a=b)]
+        OptionsList [74-79] [(a=b)]
+          OptionsEntry [75-78] [a=b]
+            Identifier(a) [75-76] [a]
+            PathExpression [77-78] [b]
+              Identifier(b) [77-78] [b]
 */
 ---
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 24
 ==================
 # Multiple nested ALTER actions.
 ALTER SCHEMA schema_name
@@ -436,7 +535,7 @@ AlterSchemaStatement [0-117] [ALTER SCHEMA...OPTIONS (c=d)]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 25
 ==================
 # Multiple doubly nested ADD actions. Since sub_entity alter statements
 # only support one action (either SET OPTIONS or ADD/ALTER/DROP of a child),

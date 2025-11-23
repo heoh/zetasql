@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 
 select 1,2,3
 |> where true;
@@ -819,16 +818,81 @@ Test Case 20
 ==================
 # LIMIT takes a constant expression.
 select 1 x
-|> limit {{x|1+2|f(1)}}
+|> limit x
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: x
+QueryStatement [0-21] [select 1 x |> limit x]
+  Query [0-21] [select 1 x |> limit x]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeLimitOffset [11-21] [|> limit x]
+      LimitOffset [14-21] [limit x]
+        Limit [14-21] [limit x]
+          PathExpression [20-21] [x]
+            Identifier(x) [20-21] [x]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 21
+==================
+# LIMIT takes a constant expression.
+select 1 x
+|> limit 1+2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-23] [select 1 x |> limit 1+2]
+  Query [0-23] [select 1 x |> limit 1+2]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeLimitOffset [11-23] [|> limit 1+2]
+      LimitOffset [14-23] [limit 1+2]
+        Limit [14-23] [limit 1+2]
+          BinaryExpression(+) [20-23] [1+2]
+            IntLiteral(1) [20-21] [1]
+            IntLiteral(2) [22-23] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+# LIMIT takes a constant expression.
+select 1 x
+|> limit f(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-24] [select 1 x |> limit f(1)]
+  Query [0-24] [select 1 x |> limit f(1)]
+    Select [0-10] [select 1 x]
+      SelectList [7-10] [1 x]
+        SelectColumn [7-10] [1 x]
+          IntLiteral(1) [7-8] [1]
+          Alias [9-10] [x]
+            Identifier(x) [9-10] [x]
+    PipeLimitOffset [11-24] [|> limit f(1)]
+      LimitOffset [14-24] [limit f(1)]
+        Limit [14-24] [limit f(1)]
+          FunctionCall [20-24] [f(1)]
+            PathExpression [20-21] [f]
+              Identifier(f) [20-21] [f]
+            IntLiteral(1) [22-23] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
 ==================
 # LIMIT ALL will parse but later get rejected by analyzer if FEATURE_LIMIT_ALL
 # is not enabled.
@@ -859,7 +923,7 @@ QueryStatement [0-46] [select 1 x...offset 22]
 (source_file (ERROR))
 
 ==================
-Test Case 22
+Test Case 24
 ==================
 from t
 |> static_describe
@@ -884,7 +948,7 @@ QueryStatement [0-58] [from t |>...where true]
 (source_file (ERROR))
 
 ==================
-Test Case 23
+Test Case 25
 ==================
 from t
 |> describe
@@ -906,19 +970,6 @@ QueryStatement [0-44] [from t |>...> describe]
           SelectColumn [29-32] [123]
             IntLiteral(123) [29-32] [123]
     PipeDescribe [33-44] [|> describe]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 24
-==================
-[default language_features=NONE,{{|+PIPES}}]
-WITH q AS (select 1 x)
-|> select * from q
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
 */
 ---
 (source_file (ERROR))

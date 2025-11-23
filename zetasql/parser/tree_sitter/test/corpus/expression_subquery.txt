@@ -218,10 +218,126 @@ WHERE
       CAST(- 90.21638073702843 AS FLOAT64) AS a_3
     FROM (SELECT 1) AS singlerowscan_2
     WHERE false
-  ) IN ({{exists|array|}}(SELECT 1));
+  ) IN (exists(SELECT 1));
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: exists
+QueryStatement [0-201] [select * from...SELECT 1))]
+  Query [0-201] [select * from...SELECT 1))]
+    Select [0-201] [select * from...SELECT 1))]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-43] [from (SELECT...singlerowscan_1]
+        TableSubquery [14-43] [(SELECT 1) AS singlerowscan_1]
+          Query [15-23] [SELECT 1]
+            Select [15-23] [SELECT 1]
+              SelectList [22-23] [1]
+                SelectColumn [22-23] [1]
+                  IntLiteral(1) [22-23] [1]
+          Alias [25-43] [AS singlerowscan_1]
+            Identifier(singlerowscan_1) [28-43] [singlerowscan_1]
+      WhereClause [44-201] [WHERE   EXISTS...SELECT 1))]
+        InExpression(IN) [52-201] [EXISTS(...SELECT 1))]
+          ExpressionSubquery(modifier=EXISTS) [52-179] [EXISTS(...false   )]
+            Query [64-175] [SELECT...WHERE false]
+              Select [64-175] [SELECT...WHERE false]
+                SelectList [77-120] [CAST(- 90....FLOAT64) AS a_3]
+                  SelectColumn [77-120] [CAST(- 90....FLOAT64) AS a_3]
+                    CastExpression [77-113] [CAST(- 90....AS FLOAT64)]
+                      UnaryExpression(-) [82-101] [- 90.21638073702843]
+                        FloatLiteral(90.21638073702843) [84-101] [90.21638073702843]
+                      SimpleType [105-112] [FLOAT64]
+                        PathExpression [105-112] [FLOAT64]
+                          Identifier(FLOAT64) [105-112] [FLOAT64]
+                    Alias [114-120] [AS a_3]
+                      Identifier(a_3) [117-120] [a_3]
+                FromClause [125-159] [FROM (SELECT...singlerowscan_2]
+                  TableSubquery [130-159] [(SELECT 1) AS singlerowscan_2]
+                    Query [131-139] [SELECT 1]
+                      Select [131-139] [SELECT 1]
+                        SelectList [138-139] [1]
+                          SelectColumn [138-139] [1]
+                            IntLiteral(1) [138-139] [1]
+                    Alias [141-159] [AS singlerowscan_2]
+                      Identifier(singlerowscan_2) [144-159] [singlerowscan_2]
+                WhereClause [164-175] [WHERE false]
+                  BooleanLiteral(false) [170-175] [false]
+          Location [180-182] [IN]
+          InList [184-200] [exists(SELECT 1)]
+            ExpressionSubquery(modifier=EXISTS) [184-200] [exists(SELECT 1)]
+              Query [191-199] [SELECT 1]
+                Select [191-199] [SELECT 1]
+                  SelectList [198-199] [1]
+                    SelectColumn [198-199] [1]
+                      IntLiteral(1) [198-199] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# Original test case for b/32403185.
+select *
+from (SELECT 1) AS singlerowscan_1
+WHERE
+  EXISTS(
+    SELECT
+      CAST(- 90.21638073702843 AS FLOAT64) AS a_3
+    FROM (SELECT 1) AS singlerowscan_2
+    WHERE false
+  ) IN (array(SELECT 1));
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-200] [select * from...SELECT 1))]
+  Query [0-200] [select * from...SELECT 1))]
+    Select [0-200] [select * from...SELECT 1))]
+      SelectList [7-8] [*]
+        SelectColumn [7-8] [*]
+          Star(*) [7-8] [*]
+      FromClause [9-43] [from (SELECT...singlerowscan_1]
+        TableSubquery [14-43] [(SELECT 1) AS singlerowscan_1]
+          Query [15-23] [SELECT 1]
+            Select [15-23] [SELECT 1]
+              SelectList [22-23] [1]
+                SelectColumn [22-23] [1]
+                  IntLiteral(1) [22-23] [1]
+          Alias [25-43] [AS singlerowscan_1]
+            Identifier(singlerowscan_1) [28-43] [singlerowscan_1]
+      WhereClause [44-200] [WHERE   EXISTS...SELECT 1))]
+        InExpression(IN) [52-200] [EXISTS(...SELECT 1))]
+          ExpressionSubquery(modifier=EXISTS) [52-179] [EXISTS(...false   )]
+            Query [64-175] [SELECT...WHERE false]
+              Select [64-175] [SELECT...WHERE false]
+                SelectList [77-120] [CAST(- 90....FLOAT64) AS a_3]
+                  SelectColumn [77-120] [CAST(- 90....FLOAT64) AS a_3]
+                    CastExpression [77-113] [CAST(- 90....AS FLOAT64)]
+                      UnaryExpression(-) [82-101] [- 90.21638073702843]
+                        FloatLiteral(90.21638073702843) [84-101] [90.21638073702843]
+                      SimpleType [105-112] [FLOAT64]
+                        PathExpression [105-112] [FLOAT64]
+                          Identifier(FLOAT64) [105-112] [FLOAT64]
+                    Alias [114-120] [AS a_3]
+                      Identifier(a_3) [117-120] [a_3]
+                FromClause [125-159] [FROM (SELECT...singlerowscan_2]
+                  TableSubquery [130-159] [(SELECT 1) AS singlerowscan_2]
+                    Query [131-139] [SELECT 1]
+                      Select [131-139] [SELECT 1]
+                        SelectList [138-139] [1]
+                          SelectColumn [138-139] [1]
+                            IntLiteral(1) [138-139] [1]
+                    Alias [141-159] [AS singlerowscan_2]
+                      Identifier(singlerowscan_2) [144-159] [singlerowscan_2]
+                WhereClause [164-175] [WHERE false]
+                  BooleanLiteral(false) [170-175] [false]
+          Location [180-182] [IN]
+          InList [184-199] [array(SELECT 1)]
+            ExpressionSubquery(modifier=ARRAY) [184-199] [array(SELECT 1)]
+              Query [190-198] [SELECT 1]
+                Select [190-198] [SELECT 1]
+                  SelectList [197-198] [1]
+                    SelectColumn [197-198] [1]
+                      IntLiteral(1) [197-198] [1]
 */
 ---
 (source_file (ERROR))

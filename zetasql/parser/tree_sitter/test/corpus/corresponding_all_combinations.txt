@@ -3,11 +3,4587 @@ Test Case 1
 ==================
 # This file contains tests for different combinations of set operation options.
 SELECT 1
-{{|FULL|FULL OUTER|LEFT|LEFT OUTER|INNER}} {{UNION|INTERSECT|EXCEPT}} {{ALL|DISTINCT}} {{|STRICT}} {{|CORRESPONDING|CORRESPONDING BY (a)|BY NAME|BY NAME ON (a)}}
+FULL UNION ALL  
 SELECT 2
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: UNION,ALL,,
+QueryStatement [0-34] [SELECT 1 FULL...SELECT 2]
+  Query [0-34] [SELECT 1 FULL...SELECT 2]
+    SetOperation(UNION ALL) [0-34] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-23] [FULL UNION ALL]
+        SetOperationMetadata [9-23] [FULL UNION ALL]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [26-34] [SELECT 2]
+        SelectList [33-34] [2]
+          SelectColumn [33-34] [2]
+            IntLiteral(2) [33-34] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 2
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-47] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(UNION ALL) [0-47] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-38] [FULL UNION ALL  CORRESPONDING]
+        SetOperationMetadata [9-38] [FULL UNION ALL  CORRESPONDING]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnMatchMode [25-38] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [39-47] [SELECT 2]
+        SelectList [46-47] [2]
+          SelectColumn [46-47] [2]
+            IntLiteral(2) [46-47] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 3
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 FULL...) SELECT 2]
+  Query [0-54] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(UNION ALL) [0-54] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-45] [FULL UNION...RESPONDING BY (a)]
+        SetOperationMetadata [9-45] [FULL UNION...RESPONDING BY (a)]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnMatchMode [25-41] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [42-45] [(a)]
+            Identifier(a) [43-44] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-41] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(UNION ALL) [0-41] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-32] [FULL UNION ALL  BY NAME]
+        SetOperationMetadata [9-32] [FULL UNION ALL  BY NAME]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnMatchMode [25-32] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [33-41] [SELECT 2]
+        SelectList [40-41] [2]
+          SelectColumn [40-41] [2]
+            IntLiteral(2) [40-41] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 1 FULL...) SELECT 2]
+  Query [0-48] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(UNION ALL) [0-48] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-39] [FULL UNION ALL  BY NAME ON (a)]
+        SetOperationMetadata [9-39] [FULL UNION ALL  BY NAME ON (a)]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnMatchMode [25-35] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [36-39] [(a)]
+            Identifier(a) [37-38] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-39] [SELECT 1 FULL...SELECT 2]
+  Query [0-39] [SELECT 1 FULL...SELECT 2]
+    SetOperation(UNION DISTINCT) [0-39] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-28] [FULL UNION DISTINCT]
+        SetOperationMetadata [9-28] [FULL UNION DISTINCT]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [31-39] [SELECT 2]
+        SelectList [38-39] [2]
+          SelectColumn [38-39] [2]
+            IntLiteral(2) [38-39] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 7
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-52] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(UNION DISTINCT) [0-52] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-43] [FULL UNION...CORRESPONDING]
+        SetOperationMetadata [9-43] [FULL UNION...CORRESPONDING]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnMatchMode [30-43] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [44-52] [SELECT 2]
+        SelectList [51-52] [2]
+          SelectColumn [51-52] [2]
+            IntLiteral(2) [51-52] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [SELECT 1 FULL...) SELECT 2]
+  Query [0-59] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-59] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-50] [FULL UNION...RESPONDING BY (a)]
+        SetOperationMetadata [9-50] [FULL UNION...RESPONDING BY (a)]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnMatchMode [30-46] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [47-50] [(a)]
+            Identifier(a) [48-49] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [51-59] [SELECT 2]
+        SelectList [58-59] [2]
+          SelectColumn [58-59] [2]
+            IntLiteral(2) [58-59] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-46] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-46] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(UNION DISTINCT) [0-46] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-37] [FULL UNION DISTINCT  BY NAME]
+        SetOperationMetadata [9-37] [FULL UNION DISTINCT  BY NAME]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnMatchMode [30-37] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [38-46] [SELECT 2]
+        SelectList [45-46] [2]
+          SelectColumn [45-46] [2]
+            IntLiteral(2) [45-46] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL UNION DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 FULL...) SELECT 2]
+  Query [0-53] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-53] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-44] [FULL UNION...NAME ON (a)]
+        SetOperationMetadata [9-44] [FULL UNION...NAME ON (a)]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnMatchMode [30-40] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [41-44] [(a)]
+            Identifier(a) [42-43] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-38] [SELECT 1 FULL...SELECT 2]
+  Query [0-38] [SELECT 1 FULL...SELECT 2]
+    SetOperation(INTERSECT ALL) [0-38] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-27] [FULL INTERSECT ALL]
+        SetOperationMetadata [9-27] [FULL INTERSECT ALL]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [30-38] [SELECT 2]
+        SelectList [37-38] [2]
+          SelectColumn [37-38] [2]
+            IntLiteral(2) [37-38] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-51] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(INTERSECT ALL) [0-51] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-42] [FULL INTERSECT...CORRESPONDING]
+        SetOperationMetadata [9-42] [FULL INTERSECT...CORRESPONDING]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnMatchMode [29-42] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [43-51] [SELECT 2]
+        SelectList [50-51] [2]
+          SelectColumn [50-51] [2]
+            IntLiteral(2) [50-51] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-58] [SELECT 1 FULL...) SELECT 2]
+  Query [0-58] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-58] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-49] [FULL INTERSECT...ONDING BY (a)]
+        SetOperationMetadata [9-49] [FULL INTERSECT...ONDING BY (a)]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnMatchMode [29-45] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [46-49] [(a)]
+            Identifier(a) [47-48] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [50-58] [SELECT 2]
+        SelectList [57-58] [2]
+          SelectColumn [57-58] [2]
+            IntLiteral(2) [57-58] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 14
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-45] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-45] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(INTERSECT ALL) [0-45] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-36] [FULL INTERSECT ALL  BY NAME]
+        SetOperationMetadata [9-36] [FULL INTERSECT ALL  BY NAME]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnMatchMode [29-36] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [37-45] [SELECT 2]
+        SelectList [44-45] [2]
+          SelectColumn [44-45] [2]
+            IntLiteral(2) [44-45] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 15
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [SELECT 1 FULL...) SELECT 2]
+  Query [0-52] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-52] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-43] [FULL INTERSECT...NAME ON (a)]
+        SetOperationMetadata [9-43] [FULL INTERSECT...NAME ON (a)]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnMatchMode [29-39] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [40-43] [(a)]
+            Identifier(a) [41-42] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [44-52] [SELECT 2]
+        SelectList [51-52] [2]
+          SelectColumn [51-52] [2]
+            IntLiteral(2) [51-52] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 16
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [SELECT 1 FULL...SELECT 2]
+  Query [0-43] [SELECT 1 FULL...SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-43] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-32] [FULL INTERSECT DISTINCT]
+        SetOperationMetadata [9-32] [FULL INTERSECT DISTINCT]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [35-43] [SELECT 2]
+        SelectList [42-43] [2]
+          SelectColumn [42-43] [2]
+            IntLiteral(2) [42-43] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 17
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-56] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-56] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-56] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-47] [FULL INTERSECT...CORRESPONDING]
+        SetOperationMetadata [9-47] [FULL INTERSECT...CORRESPONDING]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnMatchMode [34-47] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [48-56] [SELECT 2]
+        SelectList [55-56] [2]
+          SelectColumn [55-56] [2]
+            IntLiteral(2) [55-56] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 18
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-63] [SELECT 1 FULL...) SELECT 2]
+  Query [0-63] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-63] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-54] [FULL INTERSECT...ONDING BY (a)]
+        SetOperationMetadata [9-54] [FULL INTERSECT...ONDING BY (a)]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnMatchMode [34-50] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [51-54] [(a)]
+            Identifier(a) [52-53] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [55-63] [SELECT 2]
+        SelectList [62-63] [2]
+          SelectColumn [62-63] [2]
+            IntLiteral(2) [62-63] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-50] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-50] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-50] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-41] [FULL INTERSECT...INCT  BY NAME]
+        SetOperationMetadata [9-41] [FULL INTERSECT...INCT  BY NAME]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnMatchMode [34-41] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [42-50] [SELECT 2]
+        SelectList [49-50] [2]
+          SelectColumn [49-50] [2]
+            IntLiteral(2) [49-50] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL INTERSECT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-57] [SELECT 1 FULL...) SELECT 2]
+  Query [0-57] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-57] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-48] [FULL INTERSECT...NAME ON (a)]
+        SetOperationMetadata [9-48] [FULL INTERSECT...NAME ON (a)]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnMatchMode [34-44] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [45-48] [(a)]
+            Identifier(a) [46-47] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [49-57] [SELECT 2]
+        SelectList [56-57] [2]
+          SelectColumn [56-57] [2]
+            IntLiteral(2) [56-57] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-35] [SELECT 1 FULL...SELECT 2]
+  Query [0-35] [SELECT 1 FULL...SELECT 2]
+    SetOperation(EXCEPT ALL) [0-35] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-24] [FULL EXCEPT ALL]
+        SetOperationMetadata [9-24] [FULL EXCEPT ALL]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [27-35] [SELECT 2]
+        SelectList [34-35] [2]
+          SelectColumn [34-35] [2]
+            IntLiteral(2) [34-35] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 22
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-48] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(EXCEPT ALL) [0-48] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-39] [FULL EXCEPT ALL  CORRESPONDING]
+        SetOperationMetadata [9-39] [FULL EXCEPT ALL  CORRESPONDING]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-39] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 23
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-55] [SELECT 1 FULL...) SELECT 2]
+  Query [0-55] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-55] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-46] [FULL EXCEPT...ESPONDING BY (a)]
+        SetOperationMetadata [9-46] [FULL EXCEPT...ESPONDING BY (a)]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-42] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [43-46] [(a)]
+            Identifier(a) [44-45] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [47-55] [SELECT 2]
+        SelectList [54-55] [2]
+          SelectColumn [54-55] [2]
+            IntLiteral(2) [54-55] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 24
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-42] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(EXCEPT ALL) [0-42] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-33] [FULL EXCEPT ALL  BY NAME]
+        SetOperationMetadata [9-33] [FULL EXCEPT ALL  BY NAME]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-33] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [34-42] [SELECT 2]
+        SelectList [41-42] [2]
+          SelectColumn [41-42] [2]
+            IntLiteral(2) [41-42] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 25
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT 1 FULL...) SELECT 2]
+  Query [0-49] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-49] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-40] [FULL EXCEPT...NAME ON (a)]
+        SetOperationMetadata [9-40] [FULL EXCEPT...NAME ON (a)]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-36] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [37-40] [(a)]
+            Identifier(a) [38-39] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [41-49] [SELECT 2]
+        SelectList [48-49] [2]
+          SelectColumn [48-49] [2]
+            IntLiteral(2) [48-49] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 26
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-40] [SELECT 1 FULL...SELECT 2]
+  Query [0-40] [SELECT 1 FULL...SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-40] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-29] [FULL EXCEPT DISTINCT]
+        SetOperationMetadata [9-29] [FULL EXCEPT DISTINCT]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [32-40] [SELECT 2]
+        SelectList [39-40] [2]
+          SelectColumn [39-40] [2]
+            IntLiteral(2) [39-40] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 27
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-53] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-53] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-44] [FULL EXCEPT...CORRESPONDING]
+        SetOperationMetadata [9-44] [FULL EXCEPT...CORRESPONDING]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-44] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 28
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [SELECT 1 FULL...) SELECT 2]
+  Query [0-60] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-60] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-51] [FULL EXCEPT...ESPONDING BY (a)]
+        SetOperationMetadata [9-51] [FULL EXCEPT...ESPONDING BY (a)]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-47] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [48-51] [(a)]
+            Identifier(a) [49-50] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [52-60] [SELECT 2]
+        SelectList [59-60] [2]
+          SelectColumn [59-60] [2]
+            IntLiteral(2) [59-60] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 29
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-47] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-47] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-38] [FULL EXCEPT DISTINCT  BY NAME]
+        SetOperationMetadata [9-38] [FULL EXCEPT DISTINCT  BY NAME]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-38] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [39-47] [SELECT 2]
+        SelectList [46-47] [2]
+          SelectColumn [46-47] [2]
+            IntLiteral(2) [46-47] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 30
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL EXCEPT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 FULL...) SELECT 2]
+  Query [0-54] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-54] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-45] [FULL EXCEPT...NAME ON (a)]
+        SetOperationMetadata [9-45] [FULL EXCEPT...NAME ON (a)]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-41] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [FULL]
+          ColumnList [42-45] [(a)]
+            Identifier(a) [43-44] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 31
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-40] [SELECT 1 FULL...SELECT 2]
+  Query [0-40] [SELECT 1 FULL...SELECT 2]
+    SetOperation(UNION ALL) [0-40] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-29] [FULL OUTER UNION ALL]
+        SetOperationMetadata [9-29] [FULL OUTER UNION ALL]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [32-40] [SELECT 2]
+        SelectList [39-40] [2]
+          SelectColumn [39-40] [2]
+            IntLiteral(2) [39-40] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 32
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-53] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(UNION ALL) [0-53] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-44] [FULL OUTER...CORRESPONDING]
+        SetOperationMetadata [9-44] [FULL OUTER...CORRESPONDING]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnMatchMode [31-44] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 33
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [SELECT 1 FULL...) SELECT 2]
+  Query [0-60] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(UNION ALL) [0-60] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-51] [FULL OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-51] [FULL OUTER...RESPONDING BY (a)]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnMatchMode [31-47] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [48-51] [(a)]
+            Identifier(a) [49-50] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [52-60] [SELECT 2]
+        SelectList [59-60] [2]
+          SelectColumn [59-60] [2]
+            IntLiteral(2) [59-60] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 34
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-47] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(UNION ALL) [0-47] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-38] [FULL OUTER UNION ALL  BY NAME]
+        SetOperationMetadata [9-38] [FULL OUTER UNION ALL  BY NAME]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnMatchMode [31-38] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [39-47] [SELECT 2]
+        SelectList [46-47] [2]
+          SelectColumn [46-47] [2]
+            IntLiteral(2) [46-47] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 35
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 FULL...) SELECT 2]
+  Query [0-54] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(UNION ALL) [0-54] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-45] [FULL OUTER...NAME ON (a)]
+        SetOperationMetadata [9-45] [FULL OUTER...NAME ON (a)]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnMatchMode [31-41] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [42-45] [(a)]
+            Identifier(a) [43-44] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 36
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-45] [SELECT 1 FULL...SELECT 2]
+  Query [0-45] [SELECT 1 FULL...SELECT 2]
+    SetOperation(UNION DISTINCT) [0-45] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-34] [FULL OUTER UNION DISTINCT]
+        SetOperationMetadata [9-34] [FULL OUTER UNION DISTINCT]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [37-45] [SELECT 2]
+        SelectList [44-45] [2]
+          SelectColumn [44-45] [2]
+            IntLiteral(2) [44-45] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 37
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-58] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-58] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(UNION DISTINCT) [0-58] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-49] [FULL OUTER...CORRESPONDING]
+        SetOperationMetadata [9-49] [FULL OUTER...CORRESPONDING]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnMatchMode [36-49] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [50-58] [SELECT 2]
+        SelectList [57-58] [2]
+          SelectColumn [57-58] [2]
+            IntLiteral(2) [57-58] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 38
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-65] [SELECT 1 FULL...) SELECT 2]
+  Query [0-65] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-65] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-56] [FULL OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-56] [FULL OUTER...RESPONDING BY (a)]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnMatchMode [36-52] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [53-56] [(a)]
+            Identifier(a) [54-55] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [57-65] [SELECT 2]
+        SelectList [64-65] [2]
+          SelectColumn [64-65] [2]
+            IntLiteral(2) [64-65] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 39
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-52] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(UNION DISTINCT) [0-52] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-43] [FULL OUTER...DISTINCT  BY NAME]
+        SetOperationMetadata [9-43] [FULL OUTER...DISTINCT  BY NAME]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnMatchMode [36-43] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [44-52] [SELECT 2]
+        SelectList [51-52] [2]
+          SelectColumn [51-52] [2]
+            IntLiteral(2) [51-52] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 40
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER UNION DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [SELECT 1 FULL...) SELECT 2]
+  Query [0-59] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-59] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-50] [FULL OUTER...NAME ON (a)]
+        SetOperationMetadata [9-50] [FULL OUTER...NAME ON (a)]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnMatchMode [36-46] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [47-50] [(a)]
+            Identifier(a) [48-49] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [51-59] [SELECT 2]
+        SelectList [58-59] [2]
+          SelectColumn [58-59] [2]
+            IntLiteral(2) [58-59] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 41
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [SELECT 1 FULL...SELECT 2]
+  Query [0-44] [SELECT 1 FULL...SELECT 2]
+    SetOperation(INTERSECT ALL) [0-44] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-33] [FULL OUTER INTERSECT ALL]
+        SetOperationMetadata [9-33] [FULL OUTER INTERSECT ALL]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [36-44] [SELECT 2]
+        SelectList [43-44] [2]
+          SelectColumn [43-44] [2]
+            IntLiteral(2) [43-44] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 42
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-57] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-57] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(INTERSECT ALL) [0-57] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-48] [FULL OUTER...CORRESPONDING]
+        SetOperationMetadata [9-48] [FULL OUTER...CORRESPONDING]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnMatchMode [35-48] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [49-57] [SELECT 2]
+        SelectList [56-57] [2]
+          SelectColumn [56-57] [2]
+            IntLiteral(2) [56-57] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 43
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-64] [SELECT 1 FULL...) SELECT 2]
+  Query [0-64] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-64] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-55] [FULL OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-55] [FULL OUTER...RESPONDING BY (a)]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnMatchMode [35-51] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [52-55] [(a)]
+            Identifier(a) [53-54] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [56-64] [SELECT 2]
+        SelectList [63-64] [2]
+          SelectColumn [63-64] [2]
+            IntLiteral(2) [63-64] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 44
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-51] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(INTERSECT ALL) [0-51] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-42] [FULL OUTER...ALL  BY NAME]
+        SetOperationMetadata [9-42] [FULL OUTER...ALL  BY NAME]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnMatchMode [35-42] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [43-51] [SELECT 2]
+        SelectList [50-51] [2]
+          SelectColumn [50-51] [2]
+            IntLiteral(2) [50-51] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 45
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-58] [SELECT 1 FULL...) SELECT 2]
+  Query [0-58] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-58] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-49] [FULL OUTER...NAME ON (a)]
+        SetOperationMetadata [9-49] [FULL OUTER...NAME ON (a)]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnMatchMode [35-45] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [46-49] [(a)]
+            Identifier(a) [47-48] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [50-58] [SELECT 2]
+        SelectList [57-58] [2]
+          SelectColumn [57-58] [2]
+            IntLiteral(2) [57-58] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 46
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT 1 FULL...SELECT 2]
+  Query [0-49] [SELECT 1 FULL...SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-49] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-38] [FULL OUTER INTERSECT DISTINCT]
+        SetOperationMetadata [9-38] [FULL OUTER INTERSECT DISTINCT]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [41-49] [SELECT 2]
+        SelectList [48-49] [2]
+          SelectColumn [48-49] [2]
+            IntLiteral(2) [48-49] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 47
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-62] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-62] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-62] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-53] [FULL OUTER...CORRESPONDING]
+        SetOperationMetadata [9-53] [FULL OUTER...CORRESPONDING]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnMatchMode [40-53] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [54-62] [SELECT 2]
+        SelectList [61-62] [2]
+          SelectColumn [61-62] [2]
+            IntLiteral(2) [61-62] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 48
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-69] [SELECT 1 FULL...) SELECT 2]
+  Query [0-69] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-69] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-60] [FULL OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-60] [FULL OUTER...RESPONDING BY (a)]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnMatchMode [40-56] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [57-60] [(a)]
+            Identifier(a) [58-59] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [61-69] [SELECT 2]
+        SelectList [68-69] [2]
+          SelectColumn [68-69] [2]
+            IntLiteral(2) [68-69] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 49
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-56] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-56] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-56] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-47] [FULL OUTER...DISTINCT  BY NAME]
+        SetOperationMetadata [9-47] [FULL OUTER...DISTINCT  BY NAME]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnMatchMode [40-47] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [48-56] [SELECT 2]
+        SelectList [55-56] [2]
+          SelectColumn [55-56] [2]
+            IntLiteral(2) [55-56] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 50
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER INTERSECT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-63] [SELECT 1 FULL...) SELECT 2]
+  Query [0-63] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-63] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-54] [FULL OUTER...NAME ON (a)]
+        SetOperationMetadata [9-54] [FULL OUTER...NAME ON (a)]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnMatchMode [40-50] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [51-54] [(a)]
+            Identifier(a) [52-53] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [55-63] [SELECT 2]
+        SelectList [62-63] [2]
+          SelectColumn [62-63] [2]
+            IntLiteral(2) [62-63] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 51
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [SELECT 1 FULL...SELECT 2]
+  Query [0-41] [SELECT 1 FULL...SELECT 2]
+    SetOperation(EXCEPT ALL) [0-41] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-30] [FULL OUTER EXCEPT ALL]
+        SetOperationMetadata [9-30] [FULL OUTER EXCEPT ALL]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [33-41] [SELECT 2]
+        SelectList [40-41] [2]
+          SelectColumn [40-41] [2]
+            IntLiteral(2) [40-41] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 52
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-54] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(EXCEPT ALL) [0-54] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-45] [FULL OUTER...CORRESPONDING]
+        SetOperationMetadata [9-45] [FULL OUTER...CORRESPONDING]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnMatchMode [32-45] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 53
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-61] [SELECT 1 FULL...) SELECT 2]
+  Query [0-61] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-61] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-52] [FULL OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-52] [FULL OUTER...RESPONDING BY (a)]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnMatchMode [32-48] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [49-52] [(a)]
+            Identifier(a) [50-51] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [53-61] [SELECT 2]
+        SelectList [60-61] [2]
+          SelectColumn [60-61] [2]
+            IntLiteral(2) [60-61] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 54
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-48] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(EXCEPT ALL) [0-48] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-39] [FULL OUTER EXCEPT ALL  BY NAME]
+        SetOperationMetadata [9-39] [FULL OUTER EXCEPT ALL  BY NAME]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnMatchMode [32-39] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 55
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-55] [SELECT 1 FULL...) SELECT 2]
+  Query [0-55] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-55] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-46] [FULL OUTER...NAME ON (a)]
+        SetOperationMetadata [9-46] [FULL OUTER...NAME ON (a)]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnMatchMode [32-42] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [43-46] [(a)]
+            Identifier(a) [44-45] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [47-55] [SELECT 2]
+        SelectList [54-55] [2]
+          SelectColumn [54-55] [2]
+            IntLiteral(2) [54-55] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 56
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-46] [SELECT 1 FULL...SELECT 2]
+  Query [0-46] [SELECT 1 FULL...SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-46] [SELECT 1 FULL...SELECT 2]
+      SetOperationMetadataList [9-35] [FULL OUTER EXCEPT DISTINCT]
+        SetOperationMetadata [9-35] [FULL OUTER EXCEPT DISTINCT]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [38-46] [SELECT 2]
+        SelectList [45-46] [2]
+          SelectColumn [45-46] [2]
+            IntLiteral(2) [45-46] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 57
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [SELECT 1 FULL...NDING SELECT 2]
+  Query [0-59] [SELECT 1 FULL...NDING SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-59] [SELECT 1 FULL...NDING SELECT 2]
+      SetOperationMetadataList [9-50] [FULL OUTER...CORRESPONDING]
+        SetOperationMetadata [9-50] [FULL OUTER...CORRESPONDING]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnMatchMode [37-50] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [51-59] [SELECT 2]
+        SelectList [58-59] [2]
+          SelectColumn [58-59] [2]
+            IntLiteral(2) [58-59] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 58
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-66] [SELECT 1 FULL...) SELECT 2]
+  Query [0-66] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-66] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-57] [FULL OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-57] [FULL OUTER...RESPONDING BY (a)]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnMatchMode [37-53] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [54-57] [(a)]
+            Identifier(a) [55-56] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [58-66] [SELECT 2]
+        SelectList [65-66] [2]
+          SelectColumn [65-66] [2]
+            IntLiteral(2) [65-66] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 59
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 FULL...NAME SELECT 2]
+  Query [0-53] [SELECT 1 FULL...NAME SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-53] [SELECT 1 FULL...NAME SELECT 2]
+      SetOperationMetadataList [9-44] [FULL OUTER...DISTINCT  BY NAME]
+        SetOperationMetadata [9-44] [FULL OUTER...DISTINCT  BY NAME]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnMatchMode [37-44] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 60
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+FULL OUTER EXCEPT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [SELECT 1 FULL...) SELECT 2]
+  Query [0-60] [SELECT 1 FULL...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-60] [SELECT 1 FULL...) SELECT 2]
+      SetOperationMetadataList [9-51] [FULL OUTER...NAME ON (a)]
+        SetOperationMetadata [9-51] [FULL OUTER...NAME ON (a)]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnMatchMode [37-47] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [FULL OUTER]
+          ColumnList [48-51] [(a)]
+            Identifier(a) [49-50] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [52-60] [SELECT 2]
+        SelectList [59-60] [2]
+          SelectColumn [59-60] [2]
+            IntLiteral(2) [59-60] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 61
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-34] [SELECT 1 LEFT...SELECT 2]
+  Query [0-34] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(UNION ALL) [0-34] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-23] [LEFT UNION ALL]
+        SetOperationMetadata [9-23] [LEFT UNION ALL]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [26-34] [SELECT 2]
+        SelectList [33-34] [2]
+          SelectColumn [33-34] [2]
+            IntLiteral(2) [33-34] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 62
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-47] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(UNION ALL) [0-47] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-38] [LEFT UNION ALL  CORRESPONDING]
+        SetOperationMetadata [9-38] [LEFT UNION ALL  CORRESPONDING]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnMatchMode [25-38] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [39-47] [SELECT 2]
+        SelectList [46-47] [2]
+          SelectColumn [46-47] [2]
+            IntLiteral(2) [46-47] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 63
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-54] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(UNION ALL) [0-54] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-45] [LEFT UNION...RESPONDING BY (a)]
+        SetOperationMetadata [9-45] [LEFT UNION...RESPONDING BY (a)]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnMatchMode [25-41] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [42-45] [(a)]
+            Identifier(a) [43-44] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 64
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-41] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(UNION ALL) [0-41] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-32] [LEFT UNION ALL  BY NAME]
+        SetOperationMetadata [9-32] [LEFT UNION ALL  BY NAME]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnMatchMode [25-32] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [33-41] [SELECT 2]
+        SelectList [40-41] [2]
+          SelectColumn [40-41] [2]
+            IntLiteral(2) [40-41] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 65
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-48] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(UNION ALL) [0-48] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-39] [LEFT UNION ALL  BY NAME ON (a)]
+        SetOperationMetadata [9-39] [LEFT UNION ALL  BY NAME ON (a)]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-23] [ALL]
+          SetOperationColumnMatchMode [25-35] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [36-39] [(a)]
+            Identifier(a) [37-38] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 66
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-39] [SELECT 1 LEFT...SELECT 2]
+  Query [0-39] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(UNION DISTINCT) [0-39] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-28] [LEFT UNION DISTINCT]
+        SetOperationMetadata [9-28] [LEFT UNION DISTINCT]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [31-39] [SELECT 2]
+        SelectList [38-39] [2]
+          SelectColumn [38-39] [2]
+            IntLiteral(2) [38-39] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 67
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-52] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(UNION DISTINCT) [0-52] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-43] [LEFT UNION...CORRESPONDING]
+        SetOperationMetadata [9-43] [LEFT UNION...CORRESPONDING]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnMatchMode [30-43] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [44-52] [SELECT 2]
+        SelectList [51-52] [2]
+          SelectColumn [51-52] [2]
+            IntLiteral(2) [51-52] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 68
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-59] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-59] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-50] [LEFT UNION...RESPONDING BY (a)]
+        SetOperationMetadata [9-50] [LEFT UNION...RESPONDING BY (a)]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnMatchMode [30-46] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [47-50] [(a)]
+            Identifier(a) [48-49] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [51-59] [SELECT 2]
+        SelectList [58-59] [2]
+          SelectColumn [58-59] [2]
+            IntLiteral(2) [58-59] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 69
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-46] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-46] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(UNION DISTINCT) [0-46] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-37] [LEFT UNION DISTINCT  BY NAME]
+        SetOperationMetadata [9-37] [LEFT UNION DISTINCT  BY NAME]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnMatchMode [30-37] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [38-46] [SELECT 2]
+        SelectList [45-46] [2]
+          SelectColumn [45-46] [2]
+            IntLiteral(2) [45-46] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 70
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT UNION DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-53] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-53] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-44] [LEFT UNION...NAME ON (a)]
+        SetOperationMetadata [9-44] [LEFT UNION...NAME ON (a)]
+          SetOperationType [14-19] [UNION]
+          SetOperationAllOrDistinct [20-28] [DISTINCT]
+          SetOperationColumnMatchMode [30-40] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [41-44] [(a)]
+            Identifier(a) [42-43] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 71
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-38] [SELECT 1 LEFT...SELECT 2]
+  Query [0-38] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(INTERSECT ALL) [0-38] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-27] [LEFT INTERSECT ALL]
+        SetOperationMetadata [9-27] [LEFT INTERSECT ALL]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [30-38] [SELECT 2]
+        SelectList [37-38] [2]
+          SelectColumn [37-38] [2]
+            IntLiteral(2) [37-38] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 72
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-51] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(INTERSECT ALL) [0-51] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-42] [LEFT INTERSECT...CORRESPONDING]
+        SetOperationMetadata [9-42] [LEFT INTERSECT...CORRESPONDING]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnMatchMode [29-42] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [43-51] [SELECT 2]
+        SelectList [50-51] [2]
+          SelectColumn [50-51] [2]
+            IntLiteral(2) [50-51] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 73
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-58] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-58] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-58] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-49] [LEFT INTERSECT...ONDING BY (a)]
+        SetOperationMetadata [9-49] [LEFT INTERSECT...ONDING BY (a)]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnMatchMode [29-45] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [46-49] [(a)]
+            Identifier(a) [47-48] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [50-58] [SELECT 2]
+        SelectList [57-58] [2]
+          SelectColumn [57-58] [2]
+            IntLiteral(2) [57-58] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 74
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-45] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-45] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(INTERSECT ALL) [0-45] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-36] [LEFT INTERSECT ALL  BY NAME]
+        SetOperationMetadata [9-36] [LEFT INTERSECT ALL  BY NAME]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnMatchMode [29-36] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [37-45] [SELECT 2]
+        SelectList [44-45] [2]
+          SelectColumn [44-45] [2]
+            IntLiteral(2) [44-45] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 75
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-52] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-52] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-43] [LEFT INTERSECT...NAME ON (a)]
+        SetOperationMetadata [9-43] [LEFT INTERSECT...NAME ON (a)]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-27] [ALL]
+          SetOperationColumnMatchMode [29-39] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [40-43] [(a)]
+            Identifier(a) [41-42] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [44-52] [SELECT 2]
+        SelectList [51-52] [2]
+          SelectColumn [51-52] [2]
+            IntLiteral(2) [51-52] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 76
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [SELECT 1 LEFT...SELECT 2]
+  Query [0-43] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-43] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-32] [LEFT INTERSECT DISTINCT]
+        SetOperationMetadata [9-32] [LEFT INTERSECT DISTINCT]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [35-43] [SELECT 2]
+        SelectList [42-43] [2]
+          SelectColumn [42-43] [2]
+            IntLiteral(2) [42-43] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 77
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-56] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-56] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-56] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-47] [LEFT INTERSECT...CORRESPONDING]
+        SetOperationMetadata [9-47] [LEFT INTERSECT...CORRESPONDING]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnMatchMode [34-47] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [48-56] [SELECT 2]
+        SelectList [55-56] [2]
+          SelectColumn [55-56] [2]
+            IntLiteral(2) [55-56] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 78
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-63] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-63] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-63] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-54] [LEFT INTERSECT...ONDING BY (a)]
+        SetOperationMetadata [9-54] [LEFT INTERSECT...ONDING BY (a)]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnMatchMode [34-50] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [51-54] [(a)]
+            Identifier(a) [52-53] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [55-63] [SELECT 2]
+        SelectList [62-63] [2]
+          SelectColumn [62-63] [2]
+            IntLiteral(2) [62-63] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 79
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-50] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-50] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-50] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-41] [LEFT INTERSECT...INCT  BY NAME]
+        SetOperationMetadata [9-41] [LEFT INTERSECT...INCT  BY NAME]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnMatchMode [34-41] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [42-50] [SELECT 2]
+        SelectList [49-50] [2]
+          SelectColumn [49-50] [2]
+            IntLiteral(2) [49-50] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 80
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT INTERSECT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-57] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-57] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-57] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-48] [LEFT INTERSECT...NAME ON (a)]
+        SetOperationMetadata [9-48] [LEFT INTERSECT...NAME ON (a)]
+          SetOperationType [14-23] [INTERSECT]
+          SetOperationAllOrDistinct [24-32] [DISTINCT]
+          SetOperationColumnMatchMode [34-44] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [45-48] [(a)]
+            Identifier(a) [46-47] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [49-57] [SELECT 2]
+        SelectList [56-57] [2]
+          SelectColumn [56-57] [2]
+            IntLiteral(2) [56-57] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 81
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-35] [SELECT 1 LEFT...SELECT 2]
+  Query [0-35] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(EXCEPT ALL) [0-35] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-24] [LEFT EXCEPT ALL]
+        SetOperationMetadata [9-24] [LEFT EXCEPT ALL]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [27-35] [SELECT 2]
+        SelectList [34-35] [2]
+          SelectColumn [34-35] [2]
+            IntLiteral(2) [34-35] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 82
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-48] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(EXCEPT ALL) [0-48] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-39] [LEFT EXCEPT ALL  CORRESPONDING]
+        SetOperationMetadata [9-39] [LEFT EXCEPT ALL  CORRESPONDING]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-39] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 83
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-55] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-55] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-55] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-46] [LEFT EXCEPT...ESPONDING BY (a)]
+        SetOperationMetadata [9-46] [LEFT EXCEPT...ESPONDING BY (a)]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-42] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [43-46] [(a)]
+            Identifier(a) [44-45] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [47-55] [SELECT 2]
+        SelectList [54-55] [2]
+          SelectColumn [54-55] [2]
+            IntLiteral(2) [54-55] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 84
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-42] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(EXCEPT ALL) [0-42] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-33] [LEFT EXCEPT ALL  BY NAME]
+        SetOperationMetadata [9-33] [LEFT EXCEPT ALL  BY NAME]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-33] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [34-42] [SELECT 2]
+        SelectList [41-42] [2]
+          SelectColumn [41-42] [2]
+            IntLiteral(2) [41-42] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 85
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-49] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-49] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-40] [LEFT EXCEPT...NAME ON (a)]
+        SetOperationMetadata [9-40] [LEFT EXCEPT...NAME ON (a)]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-36] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [37-40] [(a)]
+            Identifier(a) [38-39] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [41-49] [SELECT 2]
+        SelectList [48-49] [2]
+          SelectColumn [48-49] [2]
+            IntLiteral(2) [48-49] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 86
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-40] [SELECT 1 LEFT...SELECT 2]
+  Query [0-40] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-40] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-29] [LEFT EXCEPT DISTINCT]
+        SetOperationMetadata [9-29] [LEFT EXCEPT DISTINCT]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [32-40] [SELECT 2]
+        SelectList [39-40] [2]
+          SelectColumn [39-40] [2]
+            IntLiteral(2) [39-40] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 87
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-53] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-53] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-44] [LEFT EXCEPT...CORRESPONDING]
+        SetOperationMetadata [9-44] [LEFT EXCEPT...CORRESPONDING]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-44] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 88
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-60] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-60] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-51] [LEFT EXCEPT...ESPONDING BY (a)]
+        SetOperationMetadata [9-51] [LEFT EXCEPT...ESPONDING BY (a)]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-47] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [48-51] [(a)]
+            Identifier(a) [49-50] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [52-60] [SELECT 2]
+        SelectList [59-60] [2]
+          SelectColumn [59-60] [2]
+            IntLiteral(2) [59-60] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 89
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-47] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-47] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-38] [LEFT EXCEPT DISTINCT  BY NAME]
+        SetOperationMetadata [9-38] [LEFT EXCEPT DISTINCT  BY NAME]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-38] [BY NAME]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [39-47] [SELECT 2]
+        SelectList [46-47] [2]
+          SelectColumn [46-47] [2]
+            IntLiteral(2) [46-47] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 90
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT EXCEPT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-54] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-54] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-45] [LEFT EXCEPT...NAME ON (a)]
+        SetOperationMetadata [9-45] [LEFT EXCEPT...NAME ON (a)]
+          SetOperationType [14-20] [EXCEPT]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-41] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-13] [LEFT]
+          ColumnList [42-45] [(a)]
+            Identifier(a) [43-44] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 91
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-40] [SELECT 1 LEFT...SELECT 2]
+  Query [0-40] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(UNION ALL) [0-40] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-29] [LEFT OUTER UNION ALL]
+        SetOperationMetadata [9-29] [LEFT OUTER UNION ALL]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [32-40] [SELECT 2]
+        SelectList [39-40] [2]
+          SelectColumn [39-40] [2]
+            IntLiteral(2) [39-40] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 92
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-53] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(UNION ALL) [0-53] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-44] [LEFT OUTER...CORRESPONDING]
+        SetOperationMetadata [9-44] [LEFT OUTER...CORRESPONDING]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnMatchMode [31-44] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 93
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-60] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(UNION ALL) [0-60] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-51] [LEFT OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-51] [LEFT OUTER...RESPONDING BY (a)]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnMatchMode [31-47] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [48-51] [(a)]
+            Identifier(a) [49-50] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [52-60] [SELECT 2]
+        SelectList [59-60] [2]
+          SelectColumn [59-60] [2]
+            IntLiteral(2) [59-60] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 94
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-47] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(UNION ALL) [0-47] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-38] [LEFT OUTER UNION ALL  BY NAME]
+        SetOperationMetadata [9-38] [LEFT OUTER UNION ALL  BY NAME]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnMatchMode [31-38] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [39-47] [SELECT 2]
+        SelectList [46-47] [2]
+          SelectColumn [46-47] [2]
+            IntLiteral(2) [46-47] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 95
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-54] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(UNION ALL) [0-54] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-45] [LEFT OUTER...NAME ON (a)]
+        SetOperationMetadata [9-45] [LEFT OUTER...NAME ON (a)]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-29] [ALL]
+          SetOperationColumnMatchMode [31-41] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [42-45] [(a)]
+            Identifier(a) [43-44] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 96
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-45] [SELECT 1 LEFT...SELECT 2]
+  Query [0-45] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(UNION DISTINCT) [0-45] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-34] [LEFT OUTER UNION DISTINCT]
+        SetOperationMetadata [9-34] [LEFT OUTER UNION DISTINCT]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [37-45] [SELECT 2]
+        SelectList [44-45] [2]
+          SelectColumn [44-45] [2]
+            IntLiteral(2) [44-45] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 97
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-58] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-58] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(UNION DISTINCT) [0-58] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-49] [LEFT OUTER...CORRESPONDING]
+        SetOperationMetadata [9-49] [LEFT OUTER...CORRESPONDING]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnMatchMode [36-49] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [50-58] [SELECT 2]
+        SelectList [57-58] [2]
+          SelectColumn [57-58] [2]
+            IntLiteral(2) [57-58] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 98
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-65] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-65] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-65] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-56] [LEFT OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-56] [LEFT OUTER...RESPONDING BY (a)]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnMatchMode [36-52] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [53-56] [(a)]
+            Identifier(a) [54-55] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [57-65] [SELECT 2]
+        SelectList [64-65] [2]
+          SelectColumn [64-65] [2]
+            IntLiteral(2) [64-65] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 99
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-52] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(UNION DISTINCT) [0-52] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-43] [LEFT OUTER...DISTINCT  BY NAME]
+        SetOperationMetadata [9-43] [LEFT OUTER...DISTINCT  BY NAME]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnMatchMode [36-43] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [44-52] [SELECT 2]
+        SelectList [51-52] [2]
+          SelectColumn [51-52] [2]
+            IntLiteral(2) [51-52] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 100
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER UNION DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-59] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-59] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-50] [LEFT OUTER...NAME ON (a)]
+        SetOperationMetadata [9-50] [LEFT OUTER...NAME ON (a)]
+          SetOperationType [20-25] [UNION]
+          SetOperationAllOrDistinct [26-34] [DISTINCT]
+          SetOperationColumnMatchMode [36-46] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [47-50] [(a)]
+            Identifier(a) [48-49] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [51-59] [SELECT 2]
+        SelectList [58-59] [2]
+          SelectColumn [58-59] [2]
+            IntLiteral(2) [58-59] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 101
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [SELECT 1 LEFT...SELECT 2]
+  Query [0-44] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(INTERSECT ALL) [0-44] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-33] [LEFT OUTER INTERSECT ALL]
+        SetOperationMetadata [9-33] [LEFT OUTER INTERSECT ALL]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [36-44] [SELECT 2]
+        SelectList [43-44] [2]
+          SelectColumn [43-44] [2]
+            IntLiteral(2) [43-44] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 102
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-57] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-57] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(INTERSECT ALL) [0-57] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-48] [LEFT OUTER...CORRESPONDING]
+        SetOperationMetadata [9-48] [LEFT OUTER...CORRESPONDING]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnMatchMode [35-48] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [49-57] [SELECT 2]
+        SelectList [56-57] [2]
+          SelectColumn [56-57] [2]
+            IntLiteral(2) [56-57] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 103
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-64] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-64] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-64] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-55] [LEFT OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-55] [LEFT OUTER...RESPONDING BY (a)]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnMatchMode [35-51] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [52-55] [(a)]
+            Identifier(a) [53-54] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [56-64] [SELECT 2]
+        SelectList [63-64] [2]
+          SelectColumn [63-64] [2]
+            IntLiteral(2) [63-64] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 104
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-51] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(INTERSECT ALL) [0-51] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-42] [LEFT OUTER...ALL  BY NAME]
+        SetOperationMetadata [9-42] [LEFT OUTER...ALL  BY NAME]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnMatchMode [35-42] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [43-51] [SELECT 2]
+        SelectList [50-51] [2]
+          SelectColumn [50-51] [2]
+            IntLiteral(2) [50-51] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 105
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-58] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-58] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-58] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-49] [LEFT OUTER...NAME ON (a)]
+        SetOperationMetadata [9-49] [LEFT OUTER...NAME ON (a)]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-33] [ALL]
+          SetOperationColumnMatchMode [35-45] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [46-49] [(a)]
+            Identifier(a) [47-48] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [50-58] [SELECT 2]
+        SelectList [57-58] [2]
+          SelectColumn [57-58] [2]
+            IntLiteral(2) [57-58] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 106
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT 1 LEFT...SELECT 2]
+  Query [0-49] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-49] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-38] [LEFT OUTER INTERSECT DISTINCT]
+        SetOperationMetadata [9-38] [LEFT OUTER INTERSECT DISTINCT]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [41-49] [SELECT 2]
+        SelectList [48-49] [2]
+          SelectColumn [48-49] [2]
+            IntLiteral(2) [48-49] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 107
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-62] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-62] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-62] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-53] [LEFT OUTER...CORRESPONDING]
+        SetOperationMetadata [9-53] [LEFT OUTER...CORRESPONDING]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnMatchMode [40-53] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [54-62] [SELECT 2]
+        SelectList [61-62] [2]
+          SelectColumn [61-62] [2]
+            IntLiteral(2) [61-62] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 108
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-69] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-69] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-69] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-60] [LEFT OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-60] [LEFT OUTER...RESPONDING BY (a)]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnMatchMode [40-56] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [57-60] [(a)]
+            Identifier(a) [58-59] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [61-69] [SELECT 2]
+        SelectList [68-69] [2]
+          SelectColumn [68-69] [2]
+            IntLiteral(2) [68-69] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 109
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-56] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-56] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-56] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-47] [LEFT OUTER...DISTINCT  BY NAME]
+        SetOperationMetadata [9-47] [LEFT OUTER...DISTINCT  BY NAME]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnMatchMode [40-47] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [48-56] [SELECT 2]
+        SelectList [55-56] [2]
+          SelectColumn [55-56] [2]
+            IntLiteral(2) [55-56] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 110
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER INTERSECT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-63] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-63] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-63] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-54] [LEFT OUTER...NAME ON (a)]
+        SetOperationMetadata [9-54] [LEFT OUTER...NAME ON (a)]
+          SetOperationType [20-29] [INTERSECT]
+          SetOperationAllOrDistinct [30-38] [DISTINCT]
+          SetOperationColumnMatchMode [40-50] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [51-54] [(a)]
+            Identifier(a) [52-53] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [55-63] [SELECT 2]
+        SelectList [62-63] [2]
+          SelectColumn [62-63] [2]
+            IntLiteral(2) [62-63] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 111
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [SELECT 1 LEFT...SELECT 2]
+  Query [0-41] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(EXCEPT ALL) [0-41] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-30] [LEFT OUTER EXCEPT ALL]
+        SetOperationMetadata [9-30] [LEFT OUTER EXCEPT ALL]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [33-41] [SELECT 2]
+        SelectList [40-41] [2]
+          SelectColumn [40-41] [2]
+            IntLiteral(2) [40-41] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 112
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-54] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(EXCEPT ALL) [0-54] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-45] [LEFT OUTER...CORRESPONDING]
+        SetOperationMetadata [9-45] [LEFT OUTER...CORRESPONDING]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnMatchMode [32-45] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 113
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-61] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-61] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-61] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-52] [LEFT OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-52] [LEFT OUTER...RESPONDING BY (a)]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnMatchMode [32-48] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [49-52] [(a)]
+            Identifier(a) [50-51] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [53-61] [SELECT 2]
+        SelectList [60-61] [2]
+          SelectColumn [60-61] [2]
+            IntLiteral(2) [60-61] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 114
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-48] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(EXCEPT ALL) [0-48] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-39] [LEFT OUTER EXCEPT ALL  BY NAME]
+        SetOperationMetadata [9-39] [LEFT OUTER EXCEPT ALL  BY NAME]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnMatchMode [32-39] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 115
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-55] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-55] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-55] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-46] [LEFT OUTER...NAME ON (a)]
+        SetOperationMetadata [9-46] [LEFT OUTER...NAME ON (a)]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-30] [ALL]
+          SetOperationColumnMatchMode [32-42] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [43-46] [(a)]
+            Identifier(a) [44-45] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [47-55] [SELECT 2]
+        SelectList [54-55] [2]
+          SelectColumn [54-55] [2]
+            IntLiteral(2) [54-55] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 116
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-46] [SELECT 1 LEFT...SELECT 2]
+  Query [0-46] [SELECT 1 LEFT...SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-46] [SELECT 1 LEFT...SELECT 2]
+      SetOperationMetadataList [9-35] [LEFT OUTER EXCEPT DISTINCT]
+        SetOperationMetadata [9-35] [LEFT OUTER EXCEPT DISTINCT]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [38-46] [SELECT 2]
+        SelectList [45-46] [2]
+          SelectColumn [45-46] [2]
+            IntLiteral(2) [45-46] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 117
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [SELECT 1 LEFT...NDING SELECT 2]
+  Query [0-59] [SELECT 1 LEFT...NDING SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-59] [SELECT 1 LEFT...NDING SELECT 2]
+      SetOperationMetadataList [9-50] [LEFT OUTER...CORRESPONDING]
+        SetOperationMetadata [9-50] [LEFT OUTER...CORRESPONDING]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnMatchMode [37-50] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [51-59] [SELECT 2]
+        SelectList [58-59] [2]
+          SelectColumn [58-59] [2]
+            IntLiteral(2) [58-59] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 118
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-66] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-66] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-66] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-57] [LEFT OUTER...RESPONDING BY (a)]
+        SetOperationMetadata [9-57] [LEFT OUTER...RESPONDING BY (a)]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnMatchMode [37-53] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [54-57] [(a)]
+            Identifier(a) [55-56] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [58-66] [SELECT 2]
+        SelectList [65-66] [2]
+          SelectColumn [65-66] [2]
+            IntLiteral(2) [65-66] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 119
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 LEFT...NAME SELECT 2]
+  Query [0-53] [SELECT 1 LEFT...NAME SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-53] [SELECT 1 LEFT...NAME SELECT 2]
+      SetOperationMetadataList [9-44] [LEFT OUTER...DISTINCT  BY NAME]
+        SetOperationMetadata [9-44] [LEFT OUTER...DISTINCT  BY NAME]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnMatchMode [37-44] [BY NAME]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 120
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+LEFT OUTER EXCEPT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [SELECT 1 LEFT...) SELECT 2]
+  Query [0-60] [SELECT 1 LEFT...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-60] [SELECT 1 LEFT...) SELECT 2]
+      SetOperationMetadataList [9-51] [LEFT OUTER...NAME ON (a)]
+        SetOperationMetadata [9-51] [LEFT OUTER...NAME ON (a)]
+          SetOperationType [20-26] [EXCEPT]
+          SetOperationAllOrDistinct [27-35] [DISTINCT]
+          SetOperationColumnMatchMode [37-47] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-19] [LEFT OUTER]
+          ColumnList [48-51] [(a)]
+            Identifier(a) [49-50] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [52-60] [SELECT 2]
+        SelectList [59-60] [2]
+          SelectColumn [59-60] [2]
+            IntLiteral(2) [59-60] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 121
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-35] [SELECT 1 INNER...SELECT 2]
+  Query [0-35] [SELECT 1 INNER...SELECT 2]
+    SetOperation(UNION ALL) [0-35] [SELECT 1 INNER...SELECT 2]
+      SetOperationMetadataList [9-24] [INNER UNION ALL]
+        SetOperationMetadata [9-24] [INNER UNION ALL]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [27-35] [SELECT 2]
+        SelectList [34-35] [2]
+          SelectColumn [34-35] [2]
+            IntLiteral(2) [34-35] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 122
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 1 INNER...DING SELECT 2]
+  Query [0-48] [SELECT 1 INNER...DING SELECT 2]
+    SetOperation(UNION ALL) [0-48] [SELECT 1 INNER...DING SELECT 2]
+      SetOperationMetadataList [9-39] [INNER UNION ALL  CORRESPONDING]
+        SetOperationMetadata [9-39] [INNER UNION ALL  CORRESPONDING]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-39] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 123
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-55] [SELECT 1 INNER...) SELECT 2]
+  Query [0-55] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(UNION ALL) [0-55] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-46] [INNER UNION...ESPONDING BY (a)]
+        SetOperationMetadata [9-46] [INNER UNION...ESPONDING BY (a)]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-42] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [43-46] [(a)]
+            Identifier(a) [44-45] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [47-55] [SELECT 2]
+        SelectList [54-55] [2]
+          SelectColumn [54-55] [2]
+            IntLiteral(2) [54-55] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 124
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-42] [SELECT 1 INNER...NAME SELECT 2]
+  Query [0-42] [SELECT 1 INNER...NAME SELECT 2]
+    SetOperation(UNION ALL) [0-42] [SELECT 1 INNER...NAME SELECT 2]
+      SetOperationMetadataList [9-33] [INNER UNION ALL  BY NAME]
+        SetOperationMetadata [9-33] [INNER UNION ALL  BY NAME]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-33] [BY NAME]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [34-42] [SELECT 2]
+        SelectList [41-42] [2]
+          SelectColumn [41-42] [2]
+            IntLiteral(2) [41-42] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 125
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT 1 INNER...) SELECT 2]
+  Query [0-49] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(UNION ALL) [0-49] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-40] [INNER UNION...NAME ON (a)]
+        SetOperationMetadata [9-40] [INNER UNION...NAME ON (a)]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-24] [ALL]
+          SetOperationColumnMatchMode [26-36] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [37-40] [(a)]
+            Identifier(a) [38-39] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [41-49] [SELECT 2]
+        SelectList [48-49] [2]
+          SelectColumn [48-49] [2]
+            IntLiteral(2) [48-49] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 126
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-40] [SELECT 1 INNER...SELECT 2]
+  Query [0-40] [SELECT 1 INNER...SELECT 2]
+    SetOperation(UNION DISTINCT) [0-40] [SELECT 1 INNER...SELECT 2]
+      SetOperationMetadataList [9-29] [INNER UNION DISTINCT]
+        SetOperationMetadata [9-29] [INNER UNION DISTINCT]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [32-40] [SELECT 2]
+        SelectList [39-40] [2]
+          SelectColumn [39-40] [2]
+            IntLiteral(2) [39-40] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 127
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 INNER...DING SELECT 2]
+  Query [0-53] [SELECT 1 INNER...DING SELECT 2]
+    SetOperation(UNION DISTINCT) [0-53] [SELECT 1 INNER...DING SELECT 2]
+      SetOperationMetadataList [9-44] [INNER UNION...CORRESPONDING]
+        SetOperationMetadata [9-44] [INNER UNION...CORRESPONDING]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-44] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 128
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-60] [SELECT 1 INNER...) SELECT 2]
+  Query [0-60] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-60] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-51] [INNER UNION...ESPONDING BY (a)]
+        SetOperationMetadata [9-51] [INNER UNION...ESPONDING BY (a)]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-47] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [48-51] [(a)]
+            Identifier(a) [49-50] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [52-60] [SELECT 2]
+        SelectList [59-60] [2]
+          SelectColumn [59-60] [2]
+            IntLiteral(2) [59-60] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 129
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-47] [SELECT 1 INNER...NAME SELECT 2]
+  Query [0-47] [SELECT 1 INNER...NAME SELECT 2]
+    SetOperation(UNION DISTINCT) [0-47] [SELECT 1 INNER...NAME SELECT 2]
+      SetOperationMetadataList [9-38] [INNER UNION DISTINCT  BY NAME]
+        SetOperationMetadata [9-38] [INNER UNION DISTINCT  BY NAME]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-38] [BY NAME]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [39-47] [SELECT 2]
+        SelectList [46-47] [2]
+          SelectColumn [46-47] [2]
+            IntLiteral(2) [46-47] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 130
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER UNION DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 INNER...) SELECT 2]
+  Query [0-54] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(UNION DISTINCT) [0-54] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-45] [INNER UNION...NAME ON (a)]
+        SetOperationMetadata [9-45] [INNER UNION...NAME ON (a)]
+          SetOperationType [15-20] [UNION]
+          SetOperationAllOrDistinct [21-29] [DISTINCT]
+          SetOperationColumnMatchMode [31-41] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [42-45] [(a)]
+            Identifier(a) [43-44] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 131
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-39] [SELECT 1 INNER...SELECT 2]
+  Query [0-39] [SELECT 1 INNER...SELECT 2]
+    SetOperation(INTERSECT ALL) [0-39] [SELECT 1 INNER...SELECT 2]
+      SetOperationMetadataList [9-28] [INNER INTERSECT ALL]
+        SetOperationMetadata [9-28] [INNER INTERSECT ALL]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-28] [ALL]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [31-39] [SELECT 2]
+        SelectList [38-39] [2]
+          SelectColumn [38-39] [2]
+            IntLiteral(2) [38-39] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 132
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [SELECT 1 INNER...DING SELECT 2]
+  Query [0-52] [SELECT 1 INNER...DING SELECT 2]
+    SetOperation(INTERSECT ALL) [0-52] [SELECT 1 INNER...DING SELECT 2]
+      SetOperationMetadataList [9-43] [INNER INTERSECT...ORRESPONDING]
+        SetOperationMetadata [9-43] [INNER INTERSECT...ORRESPONDING]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-28] [ALL]
+          SetOperationColumnMatchMode [30-43] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [44-52] [SELECT 2]
+        SelectList [51-52] [2]
+          SelectColumn [51-52] [2]
+            IntLiteral(2) [51-52] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 133
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-59] [SELECT 1 INNER...) SELECT 2]
+  Query [0-59] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-59] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-50] [INNER INTERSECT...NDING BY (a)]
+        SetOperationMetadata [9-50] [INNER INTERSECT...NDING BY (a)]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-28] [ALL]
+          SetOperationColumnMatchMode [30-46] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [47-50] [(a)]
+            Identifier(a) [48-49] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [51-59] [SELECT 2]
+        SelectList [58-59] [2]
+          SelectColumn [58-59] [2]
+            IntLiteral(2) [58-59] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 134
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-46] [SELECT 1 INNER...NAME SELECT 2]
+  Query [0-46] [SELECT 1 INNER...NAME SELECT 2]
+    SetOperation(INTERSECT ALL) [0-46] [SELECT 1 INNER...NAME SELECT 2]
+      SetOperationMetadataList [9-37] [INNER INTERSECT ALL  BY NAME]
+        SetOperationMetadata [9-37] [INNER INTERSECT ALL  BY NAME]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-28] [ALL]
+          SetOperationColumnMatchMode [30-37] [BY NAME]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [38-46] [SELECT 2]
+        SelectList [45-46] [2]
+          SelectColumn [45-46] [2]
+            IntLiteral(2) [45-46] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 135
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-53] [SELECT 1 INNER...) SELECT 2]
+  Query [0-53] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(INTERSECT ALL) [0-53] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-44] [INNER INTERSECT...NAME ON (a)]
+        SetOperationMetadata [9-44] [INNER INTERSECT...NAME ON (a)]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-28] [ALL]
+          SetOperationColumnMatchMode [30-40] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [41-44] [(a)]
+            Identifier(a) [42-43] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [45-53] [SELECT 2]
+        SelectList [52-53] [2]
+          SelectColumn [52-53] [2]
+            IntLiteral(2) [52-53] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 136
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-44] [SELECT 1 INNER...SELECT 2]
+  Query [0-44] [SELECT 1 INNER...SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-44] [SELECT 1 INNER...SELECT 2]
+      SetOperationMetadataList [9-33] [INNER INTERSECT DISTINCT]
+        SetOperationMetadata [9-33] [INNER INTERSECT DISTINCT]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-33] [DISTINCT]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [36-44] [SELECT 2]
+        SelectList [43-44] [2]
+          SelectColumn [43-44] [2]
+            IntLiteral(2) [43-44] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 137
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-57] [SELECT 1 INNER...DING SELECT 2]
+  Query [0-57] [SELECT 1 INNER...DING SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-57] [SELECT 1 INNER...DING SELECT 2]
+      SetOperationMetadataList [9-48] [INNER INTERSECT...ORRESPONDING]
+        SetOperationMetadata [9-48] [INNER INTERSECT...ORRESPONDING]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-33] [DISTINCT]
+          SetOperationColumnMatchMode [35-48] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [49-57] [SELECT 2]
+        SelectList [56-57] [2]
+          SelectColumn [56-57] [2]
+            IntLiteral(2) [56-57] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 138
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-64] [SELECT 1 INNER...) SELECT 2]
+  Query [0-64] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-64] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-55] [INNER INTERSECT...NDING BY (a)]
+        SetOperationMetadata [9-55] [INNER INTERSECT...NDING BY (a)]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-33] [DISTINCT]
+          SetOperationColumnMatchMode [35-51] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [52-55] [(a)]
+            Identifier(a) [53-54] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [56-64] [SELECT 2]
+        SelectList [63-64] [2]
+          SelectColumn [63-64] [2]
+            IntLiteral(2) [63-64] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 139
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-51] [SELECT 1 INNER...NAME SELECT 2]
+  Query [0-51] [SELECT 1 INNER...NAME SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-51] [SELECT 1 INNER...NAME SELECT 2]
+      SetOperationMetadataList [9-42] [INNER INTERSECT...NCT  BY NAME]
+        SetOperationMetadata [9-42] [INNER INTERSECT...NCT  BY NAME]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-33] [DISTINCT]
+          SetOperationColumnMatchMode [35-42] [BY NAME]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [43-51] [SELECT 2]
+        SelectList [50-51] [2]
+          SelectColumn [50-51] [2]
+            IntLiteral(2) [50-51] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 140
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER INTERSECT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-58] [SELECT 1 INNER...) SELECT 2]
+  Query [0-58] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(INTERSECT DISTINCT) [0-58] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-49] [INNER INTERSECT...NAME ON (a)]
+        SetOperationMetadata [9-49] [INNER INTERSECT...NAME ON (a)]
+          SetOperationType [15-24] [INTERSECT]
+          SetOperationAllOrDistinct [25-33] [DISTINCT]
+          SetOperationColumnMatchMode [35-45] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [46-49] [(a)]
+            Identifier(a) [47-48] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [50-58] [SELECT 2]
+        SelectList [57-58] [2]
+          SelectColumn [57-58] [2]
+            IntLiteral(2) [57-58] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 141
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT ALL  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-36] [SELECT 1 INNER...SELECT 2]
+  Query [0-36] [SELECT 1 INNER...SELECT 2]
+    SetOperation(EXCEPT ALL) [0-36] [SELECT 1 INNER...SELECT 2]
+      SetOperationMetadataList [9-25] [INNER EXCEPT ALL]
+        SetOperationMetadata [9-25] [INNER EXCEPT ALL]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-25] [ALL]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [28-36] [SELECT 2]
+        SelectList [35-36] [2]
+          SelectColumn [35-36] [2]
+            IntLiteral(2) [35-36] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 142
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT ALL  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-49] [SELECT 1 INNER...DING SELECT 2]
+  Query [0-49] [SELECT 1 INNER...DING SELECT 2]
+    SetOperation(EXCEPT ALL) [0-49] [SELECT 1 INNER...DING SELECT 2]
+      SetOperationMetadataList [9-40] [INNER EXCEPT...CORRESPONDING]
+        SetOperationMetadata [9-40] [INNER EXCEPT...CORRESPONDING]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-25] [ALL]
+          SetOperationColumnMatchMode [27-40] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [41-49] [SELECT 2]
+        SelectList [48-49] [2]
+          SelectColumn [48-49] [2]
+            IntLiteral(2) [48-49] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 143
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT ALL  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-56] [SELECT 1 INNER...) SELECT 2]
+  Query [0-56] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-56] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-47] [INNER EXCEPT...SPONDING BY (a)]
+        SetOperationMetadata [9-47] [INNER EXCEPT...SPONDING BY (a)]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-25] [ALL]
+          SetOperationColumnMatchMode [27-43] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [44-47] [(a)]
+            Identifier(a) [45-46] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [48-56] [SELECT 2]
+        SelectList [55-56] [2]
+          SelectColumn [55-56] [2]
+            IntLiteral(2) [55-56] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 144
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT ALL  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-43] [SELECT 1 INNER...NAME SELECT 2]
+  Query [0-43] [SELECT 1 INNER...NAME SELECT 2]
+    SetOperation(EXCEPT ALL) [0-43] [SELECT 1 INNER...NAME SELECT 2]
+      SetOperationMetadataList [9-34] [INNER EXCEPT ALL  BY NAME]
+        SetOperationMetadata [9-34] [INNER EXCEPT ALL  BY NAME]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-25] [ALL]
+          SetOperationColumnMatchMode [27-34] [BY NAME]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [35-43] [SELECT 2]
+        SelectList [42-43] [2]
+          SelectColumn [42-43] [2]
+            IntLiteral(2) [42-43] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 145
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT ALL  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-50] [SELECT 1 INNER...) SELECT 2]
+  Query [0-50] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(EXCEPT ALL) [0-50] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-41] [INNER EXCEPT...NAME ON (a)]
+        SetOperationMetadata [9-41] [INNER EXCEPT...NAME ON (a)]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-25] [ALL]
+          SetOperationColumnMatchMode [27-37] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [38-41] [(a)]
+            Identifier(a) [39-40] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [42-50] [SELECT 2]
+        SelectList [49-50] [2]
+          SelectColumn [49-50] [2]
+            IntLiteral(2) [49-50] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 146
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT DISTINCT  
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-41] [SELECT 1 INNER...SELECT 2]
+  Query [0-41] [SELECT 1 INNER...SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-41] [SELECT 1 INNER...SELECT 2]
+      SetOperationMetadataList [9-30] [INNER EXCEPT DISTINCT]
+        SetOperationMetadata [9-30] [INNER EXCEPT DISTINCT]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-30] [DISTINCT]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [33-41] [SELECT 2]
+        SelectList [40-41] [2]
+          SelectColumn [40-41] [2]
+            IntLiteral(2) [40-41] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 147
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT DISTINCT  CORRESPONDING
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-54] [SELECT 1 INNER...DING SELECT 2]
+  Query [0-54] [SELECT 1 INNER...DING SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-54] [SELECT 1 INNER...DING SELECT 2]
+      SetOperationMetadataList [9-45] [INNER EXCEPT...CORRESPONDING]
+        SetOperationMetadata [9-45] [INNER EXCEPT...CORRESPONDING]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-30] [DISTINCT]
+          SetOperationColumnMatchMode [32-45] [CORRESPONDING]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [46-54] [SELECT 2]
+        SelectList [53-54] [2]
+          SelectColumn [53-54] [2]
+            IntLiteral(2) [53-54] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 148
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT DISTINCT  CORRESPONDING BY (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-61] [SELECT 1 INNER...) SELECT 2]
+  Query [0-61] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-61] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-52] [INNER EXCEPT...SPONDING BY (a)]
+        SetOperationMetadata [9-52] [INNER EXCEPT...SPONDING BY (a)]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-30] [DISTINCT]
+          SetOperationColumnMatchMode [32-48] [CORRESPONDING BY]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [49-52] [(a)]
+            Identifier(a) [50-51] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [53-61] [SELECT 2]
+        SelectList [60-61] [2]
+          SelectColumn [60-61] [2]
+            IntLiteral(2) [60-61] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 149
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT DISTINCT  BY NAME
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-48] [SELECT 1 INNER...NAME SELECT 2]
+  Query [0-48] [SELECT 1 INNER...NAME SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-48] [SELECT 1 INNER...NAME SELECT 2]
+      SetOperationMetadataList [9-39] [INNER EXCEPT DISTINCT  BY NAME]
+        SetOperationMetadata [9-39] [INNER EXCEPT DISTINCT  BY NAME]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-30] [DISTINCT]
+          SetOperationColumnMatchMode [32-39] [BY NAME]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [40-48] [SELECT 2]
+        SelectList [47-48] [2]
+          SelectColumn [47-48] [2]
+            IntLiteral(2) [47-48] [2]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 150
+==================
+# This file contains tests for different combinations of set operation options.
+SELECT 1
+INNER EXCEPT DISTINCT  BY NAME ON (a)
+SELECT 2
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-55] [SELECT 1 INNER...) SELECT 2]
+  Query [0-55] [SELECT 1 INNER...) SELECT 2]
+    SetOperation(EXCEPT DISTINCT) [0-55] [SELECT 1 INNER...) SELECT 2]
+      SetOperationMetadataList [9-46] [INNER EXCEPT...NAME ON (a)]
+        SetOperationMetadata [9-46] [INNER EXCEPT...NAME ON (a)]
+          SetOperationType [15-21] [EXCEPT]
+          SetOperationAllOrDistinct [22-30] [DISTINCT]
+          SetOperationColumnMatchMode [32-42] [BY NAME ON]
+          SetOperationColumnPropagationMode [9-14] [INNER]
+          ColumnList [43-46] [(a)]
+            Identifier(a) [44-45] [a]
+      Select [0-8] [SELECT 1]
+        SelectList [7-8] [1]
+          SelectColumn [7-8] [1]
+            IntLiteral(1) [7-8] [1]
+      Select [47-55] [SELECT 2]
+        SelectList [54-55] [2]
+          SelectColumn [54-55] [2]
+            IntLiteral(2) [54-55] [2]
 */
 ---
 (source_file (ERROR))

@@ -59,7 +59,60 @@ QueryStatement [0-366] [select   #...from x.all]
             Identifier(`all`) [363-366] [all]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [56, 2]
+  (comment [0, 0] - [0, 75])
+  (comment [1, 0] - [1, 43])
+  (statement [2, 0] - [17, 11]
+    (select_statement [2, 0] - [17, 11]
+      (select_clause [2, 0] - [16, 28]
+        (comment [3, 2] - [3, 39])
+        (comment [5, 4] - [5, 20])
+        (select_list [6, 4] - [16, 28]
+          (select_expression [6, 4] - [6, 5]
+            (expression [6, 4] - [6, 5]
+              (path_expression [6, 4] - [6, 5]
+                (identifier [6, 4] - [6, 5]))))
+          (comment [7, 4] - [7, 37])
+          (select_expression [8, 4] - [8, 9]
+            (expression [8, 4] - [8, 9]
+              (path_expression [8, 4] - [8, 9]
+                (identifier [8, 4] - [8, 5])
+                (identifier [8, 6] - [8, 9]))))
+          (comment [9, 4] - [9, 44])
+          (select_expression [10, 4] - [10, 14]
+            (expression [10, 4] - [10, 14]
+              (path_expression [10, 4] - [10, 14]
+                (identifier [10, 4] - [10, 5])
+                (identifier [10, 6] - [10, 9])
+                (identifier [10, 10] - [10, 14]))))
+          (comment [11, 4] - [11, 29])
+          (select_expression [12, 4] - [12, 9]
+            (expression [12, 4] - [12, 9]
+              (path_expression [12, 4] - [12, 9]
+                (identifier [12, 4] - [12, 9]))))
+          (comment [13, 4] - [13, 36])
+          (select_expression [14, 4] - [14, 13]
+            (expression [14, 4] - [14, 13]
+              (path_expression [14, 4] - [14, 13]
+                (identifier [14, 4] - [14, 9])
+                (identifier [14, 10] - [14, 13]))))
+          (comment [15, 4] - [15, 42])
+          (select_expression [16, 4] - [16, 28]
+            (expression [16, 4] - [16, 28]
+              (path_expression [16, 4] - [16, 28]
+                (identifier [16, 4] - [16, 5])
+                (identifier [16, 6] - [16, 9])
+                (identifier [16, 10] - [16, 13])
+                (identifier [16, 14] - [16, 15])
+                (identifier [16, 16] - [16, 24])
+                (identifier [16, 25] - [16, 28]))))))
+      (from_clause [17, 0] - [17, 10]
+        (from_item [17, 5] - [17, 10]
+          (table_expression [17, 5] - [17, 10]
+            (path_expression [17, 5] - [17, 10]
+              (identifier [17, 5] - [17, 6])
+              (identifier [17, 7] - [17, 10])))))))
+  (comment [19, 0] - [56, 2]))
 
 ==================
 Test Case 2
@@ -409,7 +462,32 @@ QueryStatement [0-41] [select all...,b from t)]
                     Identifier(t) [39-40] [t]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [24, 2]
+  (statement [0, 0] - [0, 41]
+    (select_statement [0, 0] - [0, 41]
+      (select_clause [0, 0] - [0, 12]
+        (select_list [0, 11] - [0, 12]
+          (select_expression [0, 11] - [0, 12])))
+      (from_clause [0, 13] - [0, 41]
+        (from_item [0, 18] - [0, 41]
+          (table_expression [0, 18] - [0, 41]
+            (select_statement [0, 19] - [0, 40]
+              (select_clause [0, 19] - [0, 33]
+                (select_list [0, 30] - [0, 33]
+                  (select_expression [0, 30] - [0, 31]
+                    (expression [0, 30] - [0, 31]
+                      (path_expression [0, 30] - [0, 31]
+                        (identifier [0, 30] - [0, 31]))))
+                  (select_expression [0, 32] - [0, 33]
+                    (expression [0, 32] - [0, 33]
+                      (path_expression [0, 32] - [0, 33]
+                        (identifier [0, 32] - [0, 33]))))))
+              (from_clause [0, 34] - [0, 40]
+                (from_item [0, 39] - [0, 40]
+                  (table_expression [0, 39] - [0, 40]
+                    (path_expression [0, 39] - [0, 40]
+                      (identifier [0, 39] - [0, 40])))))))))))
+  (comment [2, 0] - [24, 2]))
 
 ==================
 Test Case 14

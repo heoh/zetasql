@@ -2,7 +2,6 @@
 Test Case 1
 ==================
 # This file includes tests for standalone expressions, outside of queries.
-[default mode=expression]
 1
 
 /* Expected ZetaSQL AST:

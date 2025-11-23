@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 from t
 |> TABLESAMPLE RESERVOIR (100 ROWS) REPEATABLE(10)
 |> TABLESAMPLE RESERVOIR (cast(100 as int32) ROWS) REPEATABLE(cast(10 as int32))
@@ -118,10 +117,113 @@ Test Case 3
 ==================
 FROM Users
 |> TABLESAMPLE RESERVOIR (1 ROWS)
-   WITH WEIGHT {{|weight|AS weight}} {{|REPEATABLE(1)}}
+   WITH WEIGHT weight 
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
+QueryStatement [0-66] [FROM Users...WEIGHT weight]
+  Query [0-66] [FROM Users...WEIGHT weight]
+    FromQuery [0-10] [FROM Users]
+      FromClause [0-10] [FROM Users]
+        TablePathExpression [5-10] [Users]
+          PathExpression [5-10] [Users]
+            Identifier(Users) [5-10] [Users]
+    PipeTablesample [11-66] [|> TABLESAMPLE...WEIGHT weight]
+      SampleClause [14-66] [TABLESAMPLE...WEIGHT weight]
+        Identifier(RESERVOIR) [26-35] [RESERVOIR]
+        SampleSize [37-43] [1 ROWS]
+          IntLiteral(1) [37-38] [1]
+        SampleSuffix [48-66] [WITH WEIGHT weight]
+          WithWeight [48-66] [WITH WEIGHT weight]
+            Alias [60-66] [weight]
+              Identifier(weight) [60-66] [weight]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+FROM Users
+|> TABLESAMPLE RESERVOIR (1 ROWS)
+   WITH WEIGHT weight REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-80] [FROM Users...REPEATABLE(1)]
+  Query [0-80] [FROM Users...REPEATABLE(1)]
+    FromQuery [0-10] [FROM Users]
+      FromClause [0-10] [FROM Users]
+        TablePathExpression [5-10] [Users]
+          PathExpression [5-10] [Users]
+            Identifier(Users) [5-10] [Users]
+    PipeTablesample [11-80] [|> TABLESAMPLE...REPEATABLE(1)]
+      SampleClause [14-80] [TABLESAMPLE...REPEATABLE(1)]
+        Identifier(RESERVOIR) [26-35] [RESERVOIR]
+        SampleSize [37-43] [1 ROWS]
+          IntLiteral(1) [37-38] [1]
+        SampleSuffix [48-80] [WITH WEIGHT...REPEATABLE(1)]
+          WithWeight [48-80] [WITH WEIGHT...REPEATABLE(1)]
+            Alias [60-66] [weight]
+              Identifier(weight) [60-66] [weight]
+          RepeatableClause [67-80] [REPEATABLE(1)]
+            IntLiteral(1) [78-79] [1]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 5
+==================
+FROM Users
+|> TABLESAMPLE RESERVOIR (1 ROWS)
+   WITH WEIGHT AS weight 
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-69] [FROM Users...AS weight]
+  Query [0-69] [FROM Users...AS weight]
+    FromQuery [0-10] [FROM Users]
+      FromClause [0-10] [FROM Users]
+        TablePathExpression [5-10] [Users]
+          PathExpression [5-10] [Users]
+            Identifier(Users) [5-10] [Users]
+    PipeTablesample [11-69] [|> TABLESAMPLE...AS weight]
+      SampleClause [14-69] [TABLESAMPLE...AS weight]
+        Identifier(RESERVOIR) [26-35] [RESERVOIR]
+        SampleSize [37-43] [1 ROWS]
+          IntLiteral(1) [37-38] [1]
+        SampleSuffix [48-69] [WITH WEIGHT AS weight]
+          WithWeight [48-69] [WITH WEIGHT AS weight]
+            Alias [60-69] [AS weight]
+              Identifier(weight) [63-69] [weight]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 6
+==================
+FROM Users
+|> TABLESAMPLE RESERVOIR (1 ROWS)
+   WITH WEIGHT AS weight REPEATABLE(1)
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-83] [FROM Users...REPEATABLE(1)]
+  Query [0-83] [FROM Users...REPEATABLE(1)]
+    FromQuery [0-10] [FROM Users]
+      FromClause [0-10] [FROM Users]
+        TablePathExpression [5-10] [Users]
+          PathExpression [5-10] [Users]
+            Identifier(Users) [5-10] [Users]
+    PipeTablesample [11-83] [|> TABLESAMPLE...REPEATABLE(1)]
+      SampleClause [14-83] [TABLESAMPLE...REPEATABLE(1)]
+        Identifier(RESERVOIR) [26-35] [RESERVOIR]
+        SampleSize [37-43] [1 ROWS]
+          IntLiteral(1) [37-38] [1]
+        SampleSuffix [48-83] [WITH WEIGHT...REPEATABLE(1)]
+          WithWeight [48-83] [WITH WEIGHT...REPEATABLE(1)]
+            Alias [60-69] [AS weight]
+              Identifier(weight) [63-69] [weight]
+          RepeatableClause [70-83] [REPEATABLE(1)]
+            IntLiteral(1) [81-82] [1]
 */
 ---
 (source_file (ERROR))

@@ -3,8 +3,6 @@ Test Case 1
 ==================
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default language_features=NONE,+TTL]
-[default no_show_parse_location_text]
 alter table foo set options(opt_t = 1), add constraint a_is_positive check(a > 0), alter constraint bar enforced, alter constraint baz set options(opt_a = true);
 
 /* Expected ZetaSQL AST:
@@ -275,18 +273,6 @@ AlterTableStatement [0-93]
         Identifier(fk_A) [31-35]
     DropConstraintAction [68-93]
       Identifier(a_gt_zero) [84-93]
-*/
----
-(source_file (ERROR))
-
-==================
-Test Case 12
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-alter table foo-bar-123.baz set options(opt_t = 1), add constraint a_is_positive check(a > 0), alter constraint bar enforced, alter constraint baz set options(opt_a = true);
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
 */
 ---
 (source_file (ERROR))

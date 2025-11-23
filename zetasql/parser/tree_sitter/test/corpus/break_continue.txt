@@ -3,12 +3,12 @@ Test Case 1
 ==================
 # TODO: Remove this after parse locations have been manually
 # verified as correct.
-[default no_show_parse_location_text]
-[default mode=script]
-{{BREAK|LEAVE}};
+BREAK;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: BREAK
+Script [0-6]
+  StatementList [0-6]
+    BreakStatement [0-5]
 */
 ---
 (source_file (ERROR))
@@ -16,10 +16,14 @@ ALTERNATION GROUP: BREAK
 ==================
 Test Case 2
 ==================
-{{CONTINUE|ITERATE}};
+# TODO: Remove this after parse locations have been manually
+# verified as correct.
+LEAVE;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: CONTINUE
+Script [0-6]
+  StatementList [0-6]
+    BreakStatement [0-5]
 */
 ---
 (source_file (ERROR))
@@ -27,12 +31,12 @@ ALTERNATION GROUP: CONTINUE
 ==================
 Test Case 3
 ==================
-LOOP
-  {{BREAK|LEAVE}};
-END LOOP;
+CONTINUE;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: BREAK
+Script [0-9]
+  StatementList [0-9]
+    ContinueStatement [0-8]
 */
 ---
 (source_file (ERROR))
@@ -40,12 +44,12 @@ ALTERNATION GROUP: BREAK
 ==================
 Test Case 4
 ==================
-LOOP
-  {{CONTINUE|ITERATE}};
-END LOOP;
+ITERATE;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: CONTINUE
+Script [0-8]
+  StatementList [0-8]
+    ContinueStatement [0-7]
 */
 ---
 (source_file (ERROR))
@@ -53,12 +57,16 @@ ALTERNATION GROUP: CONTINUE
 ==================
 Test Case 5
 ==================
-WHILE TRUE DO
-  {{BREAK|LEAVE}};
-END WHILE;
+LOOP
+  BREAK;
+END LOOP;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: BREAK
+Script [0-23]
+  StatementList [0-23]
+    WhileStatement [0-22]
+      StatementList [7-13]
+        BreakStatement [7-12]
 */
 ---
 (source_file (ERROR))
@@ -66,18 +74,128 @@ ALTERNATION GROUP: BREAK
 ==================
 Test Case 6
 ==================
-WHILE TRUE DO
-  {{CONTINUE|ITERATE}};
-END WHILE;
+LOOP
+  LEAVE;
+END LOOP;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: CONTINUE
+Script [0-23]
+  StatementList [0-23]
+    WhileStatement [0-22]
+      StatementList [7-13]
+        BreakStatement [7-12]
 */
 ---
 (source_file (ERROR))
 
 ==================
 Test Case 7
+==================
+LOOP
+  CONTINUE;
+END LOOP;
+
+/* Expected ZetaSQL AST:
+Script [0-26]
+  StatementList [0-26]
+    WhileStatement [0-25]
+      StatementList [7-16]
+        ContinueStatement [7-15]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 8
+==================
+LOOP
+  ITERATE;
+END LOOP;
+
+/* Expected ZetaSQL AST:
+Script [0-25]
+  StatementList [0-25]
+    WhileStatement [0-24]
+      StatementList [7-15]
+        ContinueStatement [7-14]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 9
+==================
+WHILE TRUE DO
+  BREAK;
+END WHILE;
+
+/* Expected ZetaSQL AST:
+Script [0-33]
+  StatementList [0-33]
+    WhileStatement [0-32]
+      BooleanLiteral(TRUE) [6-10]
+      StatementList [16-22]
+        BreakStatement [16-21]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 10
+==================
+WHILE TRUE DO
+  LEAVE;
+END WHILE;
+
+/* Expected ZetaSQL AST:
+Script [0-33]
+  StatementList [0-33]
+    WhileStatement [0-32]
+      BooleanLiteral(TRUE) [6-10]
+      StatementList [16-22]
+        BreakStatement [16-21]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 11
+==================
+WHILE TRUE DO
+  CONTINUE;
+END WHILE;
+
+/* Expected ZetaSQL AST:
+Script [0-36]
+  StatementList [0-36]
+    WhileStatement [0-35]
+      BooleanLiteral(TRUE) [6-10]
+      StatementList [16-25]
+        ContinueStatement [16-24]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 12
+==================
+WHILE TRUE DO
+  ITERATE;
+END WHILE;
+
+/* Expected ZetaSQL AST:
+Script [0-35]
+  StatementList [0-35]
+    WhileStatement [0-34]
+      BooleanLiteral(TRUE) [6-10]
+      StatementList [16-24]
+        ContinueStatement [16-23]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 13
 ==================
 LOOP
   SELECT 5;
@@ -101,7 +219,7 @@ Script [0-35]
 (source_file (ERROR))
 
 ==================
-Test Case 8
+Test Case 14
 ==================
 LOOP
   IF x THEN
@@ -128,7 +246,7 @@ Script [0-68]
 (source_file (ERROR))
 
 ==================
-Test Case 9
+Test Case 15
 ==================
 LOOP
   IF x THEN
@@ -161,7 +279,7 @@ Script [0-96]
 (source_file (ERROR))
 
 ==================
-Test Case 10
+Test Case 16
 ==================
 LOOP
   WHILE x DO
@@ -192,7 +310,7 @@ Script [0-93]
 (source_file (ERROR))
 
 ==================
-Test Case 11
+Test Case 17
 ==================
 IF y THEN
   BREAK;
@@ -211,14 +329,77 @@ Script [0-26]
 (source_file (ERROR))
 
 ==================
-Test Case 12
+Test Case 18
 ==================
-WHILE {{BREAK|LEAVE|CONTINUE|ITERATE}} DO
+WHILE BREAK DO
   CONTINUE;
 END WHILE;
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: BREAK
+Script [0-37]
+  StatementList [0-37]
+    WhileStatement [0-36]
+      PathExpression [6-11]
+        Identifier(BREAK) [6-11]
+      StatementList [17-26]
+        ContinueStatement [17-25]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 19
+==================
+WHILE LEAVE DO
+  CONTINUE;
+END WHILE;
+
+/* Expected ZetaSQL AST:
+Script [0-37]
+  StatementList [0-37]
+    WhileStatement [0-36]
+      PathExpression [6-11]
+        Identifier(LEAVE) [6-11]
+      StatementList [17-26]
+        ContinueStatement [17-25]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 20
+==================
+WHILE CONTINUE DO
+  CONTINUE;
+END WHILE;
+
+/* Expected ZetaSQL AST:
+Script [0-40]
+  StatementList [0-40]
+    WhileStatement [0-39]
+      PathExpression [6-14]
+        Identifier(CONTINUE) [6-14]
+      StatementList [20-29]
+        ContinueStatement [20-28]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 21
+==================
+WHILE ITERATE DO
+  CONTINUE;
+END WHILE;
+
+/* Expected ZetaSQL AST:
+Script [0-39]
+  StatementList [0-39]
+    WhileStatement [0-38]
+      PathExpression [6-13]
+        Identifier(ITERATE) [6-13]
+      StatementList [19-28]
+        ContinueStatement [19-27]
 */
 ---
 (source_file (ERROR))

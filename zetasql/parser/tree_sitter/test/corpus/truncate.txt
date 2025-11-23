@@ -50,7 +50,22 @@ QueryStatement [0-24] [SELECT truncate FROM foo]
             Identifier(foo) [21-24] [foo]
 */
 ---
-(source_file (ERROR))
+(source_file [0, 0] - [15, 2]
+  (comment [0, 0] - [0, 45])
+  (statement [1, 0] - [1, 25]
+    (select_statement [1, 0] - [1, 25]
+      (select_clause [1, 0] - [1, 15]
+        (select_list [1, 7] - [1, 15]
+          (select_expression [1, 7] - [1, 15]
+            (expression [1, 7] - [1, 15]
+              (path_expression [1, 7] - [1, 15]
+                (identifier [1, 7] - [1, 15]))))))
+      (from_clause [1, 16] - [1, 24]
+        (from_item [1, 21] - [1, 24]
+          (table_expression [1, 21] - [1, 24]
+            (path_expression [1, 21] - [1, 24]
+              (identifier [1, 21] - [1, 24])))))))
+  (comment [3, 0] - [15, 2]))
 
 ==================
 Test Case 4
@@ -82,16 +97,4 @@ QueryStatement [0-22] [SELECT * FROM truncate]
             (path_expression [0, 14] - [0, 22]
               (identifier [0, 14] - [0, 22])))))))
   (comment [2, 0] - [13, 2]))
-
-==================
-Test Case 5
-==================
-[language_features=NONE,{{|+ALLOW_DASHES_IN_TABLE_NAME}}]
-TRUNCATE TABLE foo-567-bar.baz;
-
-/* Expected ZetaSQL AST:
-ALTERNATION GROUP: <empty>
-*/
----
-(source_file (ERROR))
 

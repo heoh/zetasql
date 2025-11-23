@@ -1,7 +1,6 @@
 ==================
 Test Case 1
 ==================
-[default language_features=NONE,+PIPES]
 from t
 |> select sum(x) over(w), count(*) over (w2)
    window w AS (),
@@ -114,11 +113,69 @@ Test Case 3
 ==================
 # Trailing comma on the window list, and the select-list before WINDOW.
 from t
-|> {{select|extend}} sum(x) over (w),
+|> select sum(x) over (w),
    window w AS (),
 
 /* Expected ZetaSQL AST:
-ALTERNATION GROUP: select
+QueryStatement [0-52] [from t |>...window w AS (),]
+  Query [0-52] [from t |>...window w AS (),]
+    FromQuery [0-6] [from t]
+      FromClause [0-6] [from t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeSelect [7-52] [|> select...window w AS (),]
+      Select [10-52] [select sum...window w AS (),]
+        SelectList [17-33] [sum(x) over (w),]
+          SelectColumn [17-32] [sum(x) over (w)]
+            AnalyticFunctionCall [17-32] [sum(x) over (w)]
+              FunctionCall [17-23] [sum(x)]
+                PathExpression [17-20] [sum]
+                  Identifier(sum) [17-20] [sum]
+                PathExpression [21-22] [x]
+                  Identifier(x) [21-22] [x]
+              WindowSpecification [29-32] [(w)]
+                Identifier(w) [30-31] [w]
+        WindowClause [37-52] [window w AS (),]
+          WindowDefinition [44-51] [w AS ()]
+            Identifier(w) [44-45] [w]
+            WindowSpecification [49-51] [()]
+*/
+---
+(source_file (ERROR))
+
+==================
+Test Case 4
+==================
+# Trailing comma on the window list, and the select-list before WINDOW.
+from t
+|> extend sum(x) over (w),
+   window w AS (),
+
+/* Expected ZetaSQL AST:
+QueryStatement [0-52] [from t |>...window w AS (),]
+  Query [0-52] [from t |>...window w AS (),]
+    FromQuery [0-6] [from t]
+      FromClause [0-6] [from t]
+        TablePathExpression [5-6] [t]
+          PathExpression [5-6] [t]
+            Identifier(t) [5-6] [t]
+    PipeExtend [7-52] [|> extend...window w AS (),]
+      Select [10-52] [extend sum...window w AS (),]
+        SelectList [17-33] [sum(x) over (w),]
+          SelectColumn [17-32] [sum(x) over (w)]
+            AnalyticFunctionCall [17-32] [sum(x) over (w)]
+              FunctionCall [17-23] [sum(x)]
+                PathExpression [17-20] [sum]
+                  Identifier(sum) [17-20] [sum]
+                PathExpression [21-22] [x]
+                  Identifier(x) [21-22] [x]
+              WindowSpecification [29-32] [(w)]
+                Identifier(w) [30-31] [w]
+        WindowClause [37-52] [window w AS (),]
+          WindowDefinition [44-51] [w AS ()]
+            Identifier(w) [44-45] [w]
+            WindowSpecification [49-51] [()]
 */
 ---
 (source_file (ERROR))
