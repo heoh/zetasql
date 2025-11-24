@@ -77,7 +77,7 @@ var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIR
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpq5586183.js
+// include: /tmp/tmpa3ivxh4i.js
 
   if (!Module['expectedDataFileDownloads']) Module['expectedDataFileDownloads'] = 0;
   Module['expectedDataFileDownloads']++;
@@ -213,21 +213,21 @@ Module['FS_createPath']("/usr/share/zoneinfo", "America", true, true);
 
   })();
 
-// end include: /tmp/tmpq5586183.js
-// include: /tmp/tmpxndloeqv.js
+// end include: /tmp/tmpa3ivxh4i.js
+// include: /tmp/tmpmaj8_4gc.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if ((typeof ENVIRONMENT_IS_WASM_WORKER != 'undefined' && ENVIRONMENT_IS_WASM_WORKER) || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD) || (typeof ENVIRONMENT_IS_AUDIO_WORKLET != 'undefined' && ENVIRONMENT_IS_AUDIO_WORKLET)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmpxndloeqv.js
-// include: /tmp/tmpwvy6iwiv.js
+  // end include: /tmp/tmpmaj8_4gc.js
+// include: /tmp/tmph6phym_f.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmpwvy6iwiv.js
+  // end include: /tmp/tmph6phym_f.js
 
 
 var arguments_ = [];
@@ -1156,6 +1156,8 @@ async function createWasm() {
   var ___cxa_find_matching_catch_2 = () => findMatchingCatch([]);
 
   var ___cxa_find_matching_catch_3 = (arg0) => findMatchingCatch([arg0]);
+
+  var ___cxa_find_matching_catch_4 = (arg0,arg1) => findMatchingCatch([arg0,arg1]);
 
   
   
@@ -6686,6 +6688,8 @@ async function createWasm() {
   }
   }
 
+  var _llvm_eh_typeid_for = (type) => type;
+
 
   function _random_get(buffer, size) {
   try {
@@ -7795,6 +7799,8 @@ var wasmImports = {
   /** @export */
   __cxa_find_matching_catch_3: ___cxa_find_matching_catch_3,
   /** @export */
+  __cxa_find_matching_catch_4: ___cxa_find_matching_catch_4,
+  /** @export */
   __cxa_rethrow: ___cxa_rethrow,
   /** @export */
   __cxa_throw: ___cxa_throw,
@@ -7965,6 +7971,8 @@ var wasmImports = {
   /** @export */
   invoke_viijj,
   /** @export */
+  llvm_eh_typeid_for: _llvm_eh_typeid_for,
+  /** @export */
   proc_exit: _proc_exit,
   /** @export */
   random_get: _random_get,
@@ -8027,10 +8035,10 @@ function invoke_viiii(index,a1,a2,a3,a4) {
   }
 }
 
-function invoke_vi(index,a1) {
+function invoke_v(index) {
   var sp = stackSave();
   try {
-    getWasmTableEntry(index)(a1);
+    getWasmTableEntry(index)();
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -8038,10 +8046,10 @@ function invoke_vi(index,a1) {
   }
 }
 
-function invoke_iiii(index,a1,a2,a3) {
+function invoke_vi(index,a1) {
   var sp = stackSave();
   try {
-    return getWasmTableEntry(index)(a1,a2,a3);
+    getWasmTableEntry(index)(a1);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -8060,10 +8068,10 @@ function invoke_iiiii(index,a1,a2,a3,a4) {
   }
 }
 
-function invoke_iiiiiii(index,a1,a2,a3,a4,a5,a6) {
+function invoke_iiii(index,a1,a2,a3) {
   var sp = stackSave();
   try {
-    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6);
+    return getWasmTableEntry(index)(a1,a2,a3);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -8071,10 +8079,10 @@ function invoke_iiiiiii(index,a1,a2,a3,a4,a5,a6) {
   }
 }
 
-function invoke_v(index) {
+function invoke_iiiiiii(index,a1,a2,a3,a4,a5,a6) {
   var sp = stackSave();
   try {
-    getWasmTableEntry(index)();
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
