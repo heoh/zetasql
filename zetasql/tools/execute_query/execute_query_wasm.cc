@@ -1,4 +1,5 @@
 #include <emscripten/bind.h>
+#include <emscripten/val.h>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -12,7 +13,18 @@
 using namespace emscripten;
 
 // Wrapper to simulate main function
-int execute(std::vector<std::string> args) {
+int execute(emscripten::val js_args) {
+    std::vector<std::string> args;
+    if (js_args.isArray()) {
+        unsigned length = js_args["length"].as<unsigned>();
+        for (unsigned i = 0; i < length; ++i) {
+            args.push_back(js_args[i].as<std::string>());
+        }
+    } else {
+        std::cerr << "Error: Expected an array of strings." << std::endl;
+        return 1;
+    }
+
     // Prepare argc, argv
     // We use a vector of vectors to ensure we have mutable buffers for argv strings,
     // as absl::ParseCommandLine might modify them (though it usually just reorders pointers).
@@ -98,6 +110,5 @@ int execute(std::vector<std::string> args) {
 }
 
 EMSCRIPTEN_BINDINGS(zetasql_execute_query) {
-    register_vector<std::string>("StringList");
     function("execute", &execute);
 }

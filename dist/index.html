@@ -70,20 +70,12 @@
             // Add the query as the last argument
             args.push(query);
             
-            // Convert to C++ vector
-            const vec = new Module.StringList();
-            for (let i = 0; i < args.length; i++) {
-                vec.push_back(args[i]);
-            }
-            
             try {
-                const ret = Module.execute(vec);
+                const ret = Module.execute(args);
                 console.log("Return code:", ret);
             } catch (e) {
                 document.getElementById('stderr').innerText += "JS Error: " + e;
                 console.error(e);
-            } finally {
-                vec.delete();
             }
         });
     </script>

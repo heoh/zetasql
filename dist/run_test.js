@@ -1,16 +1,21 @@
-const factory = require('./execute_query_wasm.js');
+const Module = require('./execute_query_wasm.js');
 
-factory().then(module => {
-    console.log("Module loaded");
+Module().then(instance => {
+    console.log("WASM Module loaded.");
     
-    const args = new module.StringList();
-    args.push_back("SELECT 1");
+    // Define the arguments as a standard JS array
+    const args = [
+        "SELECT 1 + 2 AS result;",
+    ];
+
+    console.log("Executing query with args:", args);
     
-    console.log("Executing query: SELECT 1");
-    const result = module.execute(args);
-    console.log("Result code:", result);
-    
-    args.delete();
-}).catch(err => {
-    console.error("Error loading module:", err);
+    try {
+        // Call the execute function with the JS array
+        // The C++ side expects emscripten::val which maps to the JS array
+        const result = instance.execute(args);
+        console.log("Execution result:", result);
+    } catch (e) {
+        console.error("Execution failed:", e);
+    }
 });

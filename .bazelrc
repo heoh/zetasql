@@ -64,3 +64,7 @@ build:darwin --cxxopt="-mmacosx-version-min=11.0"
 build --cxxopt=-std=c++20 --host_cxxopt=-std=c++20 --config=clang --java_runtime_version=remotejdk_11
 run --cxxopt=-std=c++20 --host_cxxopt=-std=c++20 --config=clang --java_runtime_version=remotejdk_11
 test --cxxopt=-std=c++20 --host_cxxopt=-std=c++20 --config=clang --java_runtime_version=remotejdk_11
+
+# WASM build configuration
+build:wasm --platforms=@emsdk//:platform_wasm
+build:wasm --cpu=wasm32
