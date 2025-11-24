@@ -612,7 +612,7 @@ bool RegExp::Replace(absl::string_view str, absl::string_view newsub,
         } else {
           len = 1;
         }
-        out->append(p, len);
+        out->append(&*p, len);
         p += len;
       } else {
         break;
@@ -628,14 +628,15 @@ bool RegExp::Rewrite(absl::string_view rewrite,
                      absl::Span<const absl::string_view> groups,
                      int32_t max_out_size, std::string* out,
                      absl::Status* error) const {
-  for (const char* s = rewrite.data(); s < rewrite.end(); ++s) {
+  const char* rewrite_end = rewrite.data() + rewrite.size();
+  for (const char* s = rewrite.data(); s < rewrite_end; ++s) {
     const char* start = s;
-    while (s < rewrite.end() && *s != '\\') s++;
-    out->append(start, s);
+    while (s < rewrite_end && *s != '\\') s++;
+    out->append(start, s - start);
 
-    if (s < rewrite.end()) {
+    if (s < rewrite_end) {
       s++;
-      int c = (s < rewrite.end()) ? *s : -1;
+      int c = (s < rewrite_end) ? *s : -1;
       if (isdigit(c)) {
         int n = (c - '0');
         out->append(groups[n].data(), groups[n].size());

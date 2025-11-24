@@ -349,10 +349,10 @@ absl::string_view PublicSuffixRules::GetPublicSuffixOrTopPrivateDomain(
   }
 
   MatchVector matches;
-  matches.emplace_back(true, name.end());  // Implicit root always matches.
+  matches.emplace_back(true, name.data() + name.size());  // Implicit root always matches.
   GetMatchingRules(name, &matches);
 
-  const char* label = name.end();
+  const char* label = name.data() + name.size();
   find_match(matches, &label);
   return absl::string_view(label, name.size() - (label - name.data()));
 }

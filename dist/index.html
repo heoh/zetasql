@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ZetaSQL Execute Query WASM</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        textarea { width: 100%; height: 150px; font-family: monospace; }
+        pre { background: #f0f0f0; padding: 10px; white-space: pre-wrap; overflow-x: auto; }
+        .output-container { display: flex; gap: 20px; }
+        .output-box { flex: 1; }
+        input[type="text"] { font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>ZetaSQL Execute Query WASM</h1>
+    <p>Enter a SQL query (standard SQL) to execute against the ZetaSQL engine.</p>
+    
+    <label for="argsInput">CLI Arguments (space separated):</label>
+    <input type="text" id="argsInput" value="--output_mode=box" style="width: 100%;">
+    <br><br>
+    
+    <textarea id="queryInput">SELECT 1 + 1;</textarea>
+    <br><br>
+    <button id="executeBtn" disabled>Loading WASM...</button>
+    
+    <div class="output-container">
+        <div class="output-box">
+            <h3>Stdout:</h3>
+            <pre id="stdout"></pre>
+        </div>
+        <div class="output-box">
+            <h3>Stderr:</h3>
+            <pre id="stderr"></pre>
+        </div>
+    </div>
+
+    <script src="execute_query_wasm.js"></script>
+    <script>
+        var Module = {
+            print: function(text) {
+                const el = document.getElementById('stdout');
+                el.innerText += text + "\n";
+                console.log('stdout: ' + text);
+            },
+            printErr: function(text) {
+                const el = document.getElementById('stderr');
+                el.innerText += text + "\n";
+                console.error('stderr: ' + text);
+            }
+        };
+
+        ZetaSQLExecuteQueryModule(Module).then(function(instance) {
+            Module = instance;
+            document.getElementById('executeBtn').disabled = false;
+            document.getElementById('executeBtn').innerText = "Execute";
+        });
+    </script>
+    <script>
+        document.getElementById('executeBtn').addEventListener('click', function() {
+            const query = document.getElementById('queryInput').value;
+            const argsStr = document.getElementById('argsInput').value;
+            
+            document.getElementById('stdout').innerText = "";
+            document.getElementById('stderr').innerText = "";
+            
+            // Parse args string to array (simple split by space)
+            // Note: This doesn't handle quoted args with spaces correctly.
+            const args = argsStr.split(' ').filter(s => s.length > 0);
+            
+            // Add the query as the last argument
+            args.push(query);
+            
+            // Convert to C++ vector
+            const vec = new Module.StringList();
+            for (let i = 0; i < args.length; i++) {
+                vec.push_back(args[i]);
+            }
+            
+            try {
+                const ret = Module.execute(vec);
+                console.log("Return code:", ret);
+            } catch (e) {
+                document.getElementById('stderr').innerText += "JS Error: " + e;
+                console.error(e);
+            } finally {
+                vec.delete();
+            }
+        });
+    </script>
+</body>
+</html>
