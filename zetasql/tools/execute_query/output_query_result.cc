@@ -36,9 +36,45 @@ namespace zetasql {
 
 namespace {
 
+#ifdef __EMSCRIPTEN__
 size_t EstimateGlyphWidth(absl::string_view input) {
   return input.length();
 }
+#else
+size_t EstimateGlyphWidth(absl::string_view input) {
+  // input will be a unicode string. What we really want here is the
+  // sum width of the glyphs used to represent the given string.
+  // Unfortunately, this is system/font dependent, and we don't have
+  // that information available. However, if we just use 'byte length'
+  // as a proxy, we will consistently _overcount_ the width of glyphs.
+  // Instead, normalize in a few different ways, and take the miminum size
+  // since this is likely to match how it is usually rendered.
+  std::string nfkc_str;
+  std::string nfc_str;
+  std::vector<absl::string_view> strs;
+  absl::Status error;
+  if (zetasql::functions::Normalize(input, functions::NormalizeMode::NFC,
+                                      /*is_casefold=*/false, &nfc_str,
+                                      &error)) {
+    strs.push_back(nfc_str);
+  }
+  error = {};
+  if (zetasql::functions::Normalize(input, functions::NormalizeMode::NFKC,
+                                      /*is_casefold=*/false, &nfkc_str,
+                                      &error)) {
+    strs.push_back(nfkc_str);
+  }
+  size_t estimate = input.length();
+  for (absl::string_view str : strs) {
+    error = {};
+    int64_t len = 0;
+    if (zetasql::functions::LengthUtf8(str, &len, &error)) {
+      estimate = std::min(estimate, static_cast<size_t>(len));
+    }
+  }
+  return estimate;
+}
+#endif
 
 absl::StatusOr<const Table*> GetTableForDMLStatement(
     const ResolvedStatement* resolved_stmt) {
