@@ -5593,7 +5593,7 @@ absl::StatusOr<std::string> AddPicosecondsInFormatString(
             // The subnanosecond is 0. In this, there is no need to replace this
             // format element. Copy it as-is to the output.
             format_string_with_picos.append(absl::string_view(
-                format_string.begin() + idx_percent_e, i + 2 - idx_percent_e));
+                format_string.data() + idx_percent_e, i + 2 - idx_percent_e));
           } else {
             absl::StrAppend(&format_string_with_picos, "%E9",
                             std::string(1, format_string[i + 1]),
@@ -5609,7 +5609,7 @@ absl::StatusOr<std::string> AddPicosecondsInFormatString(
           i++;
         } else {
           format_string_with_picos.append(absl::string_view(
-              format_string.begin() + idx_percent_e, i - idx_percent_e));
+              format_string.data() + idx_percent_e, i - idx_percent_e));
           state = kDefault;
           idx_percent_e = std::string::npos;
 
@@ -5628,7 +5628,7 @@ absl::StatusOr<std::string> AddPicosecondsInFormatString(
           // "%E<number>S" (or "%E<number>f") is found.
           int num_digits;
           if (!absl::SimpleAtoi(
-                  absl::string_view(format_string.begin() + idx_percent_e + 2,
+                  absl::string_view(format_string.data() + idx_percent_e + 2,
                                     i - idx_percent_e - 2),
                   &num_digits)) {
             num_digits = 1025;
@@ -5658,14 +5658,14 @@ absl::StatusOr<std::string> AddPicosecondsInFormatString(
             // > 1024. In this, there is no need to replace this format
             // element. Copy it as-is to the output.
             format_string_with_picos.append(absl::string_view(
-                format_string.begin() + idx_percent_e, i - idx_percent_e + 1));
+                format_string.data() + idx_percent_e, i - idx_percent_e + 1));
           }
           state = kDefault;
           idx_percent_e = std::string::npos;
           i++;
         } else {
           format_string_with_picos.append(absl::string_view(
-              format_string.begin() + idx_percent_e, i - idx_percent_e));
+              format_string.data() + idx_percent_e, i - idx_percent_e));
           idx_percent_e = std::string::npos;
           state = kDefault;
 
@@ -5685,7 +5685,7 @@ absl::StatusOr<std::string> AddPicosecondsInFormatString(
     // point. Because "%E12" has not been copied to the output yet, we need to
     // copy it here.
     format_string_with_picos.append(
-        absl::string_view(format_string.begin() + idx_percent_e,
+        absl::string_view(format_string.data() + idx_percent_e,
                           format_string.length() - idx_percent_e));
   }
 

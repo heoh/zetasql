@@ -294,7 +294,7 @@ absl::string_view BytesTrimmer::TrimLeft(absl::string_view str) {
   for (absl::string_view::iterator it = str.begin(); it != str.end(); ++it) {
     uint8_t byte = static_cast<uint8_t>(*it);
     if (!bytes_to_trim_[byte]) {
-      return absl::string_view(it, str.end() - it);
+      return str.substr(it - str.begin());
     }
   }
   // Everything got trimmed. Return an empty string.

@@ -36,6 +36,11 @@ namespace zetasql {
 
 namespace {
 
+#ifdef __EMSCRIPTEN__
+size_t EstimateGlyphWidth(absl::string_view input) {
+  return input.length();
+}
+#else
 size_t EstimateGlyphWidth(absl::string_view input) {
   // input will be a unicode string. What we really want here is the
   // sum width of the glyphs used to represent the given string.
@@ -69,6 +74,7 @@ size_t EstimateGlyphWidth(absl::string_view input) {
   }
   return estimate;
 }
+#endif
 
 absl::StatusOr<const Table*> GetTableForDMLStatement(
     const ResolvedStatement* resolved_stmt) {

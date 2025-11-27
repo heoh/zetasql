@@ -73,12 +73,12 @@ static bool CheckForClosingString(absl::string_view source,
   if (closing_str.empty()) return true;
 
   const char* p = source.data();
-  const char* end = source.end();
+  const char* end = source.data() + source.size();
 
   bool is_closed = false;
   while (p + closing_str.length() <= end) {
     if (*p != '\\') {
-      const int cur_pos = p - source.begin();
+      const int cur_pos = p - source.data();
       const bool is_closing =
           absl::StartsWith(absl::ClippedSubstr(source, cur_pos), closing_str);
       if (is_closing && p + closing_str.length() < end) {
@@ -187,7 +187,7 @@ static bool CUnescapeInternal(absl::string_view source,
 
   char* d = dest;
   const char* p = source.data();
-  const char* end = source.end();
+  const char* end = source.data() + source.size();
   const char* last_byte = end - 1;
 
   while (p < end) {
@@ -511,7 +511,7 @@ static std::string CEscapeInternal(absl::string_view src, bool utf8_safe,
   std::string dest;
   bool last_hex_escape = false;  // true if last output char was \xNN.
 
-  for (const char* p = src.begin(); p < src.end(); ++p) {
+  for (const char* p = src.data(); p < src.data() + src.size(); ++p) {
     unsigned char c = *p;
     bool is_hex_escape = false;
     switch (c) {
@@ -587,7 +587,7 @@ std::string EscapeString(absl::string_view str) {
 std::string EscapeBytes(absl::string_view str, bool escape_all_bytes,
                         char escape_quote_char) {
   std::string escaped_bytes;
-  for (const char* p = str.begin(); p < str.end(); ++p) {
+  for (const char* p = str.data(); p < str.data() + str.size(); ++p) {
     unsigned char c = *p;
     if (escape_all_bytes || !absl::ascii_isprint(c)) {
       escaped_bytes += "\\x";
@@ -901,12 +901,12 @@ std::string IdentifierPathToString(absl::Span<const IdString> path,
 // found, this will return false and leave `p` unmodified. Both `p` and `end`
 // are expected to be pointers to the same underlying buffer, with `p` preceding
 // `end`.
-static bool AdvanceToNextBackquote(absl::string_view::const_iterator end,
-                                   absl::string_view::const_iterator* pos) {
-  absl::string_view::const_iterator p = *pos;
+static bool AdvanceToNextBackquote(const char* end,
+                                   const char** pos) {
+  const char* p = *pos;
   while (p < end && *p != '`') {
     // Skip escaped backquotes.
-    absl::string_view::const_iterator next_byte = p + 1;
+    const char* next_byte = p + 1;
     if (*p == '\\' && next_byte < end &&
         // Ensure escaped backslashes are also skipped.
         (*next_byte == '`' || *next_byte == '\\')) {
@@ -987,9 +987,9 @@ absl::Status ParseIdentifierPath(absl::string_view str,
     return MakeSqlError() << "Path strings cannot end with `.`";
   }
 
-  absl::string_view::const_iterator p = str.begin();
-  absl::string_view::const_iterator segment_start = p;
-  absl::string_view::const_iterator end = str.end();
+  const char* p = str.data();
+  const char* segment_start = p;
+  const char* end = str.data() + str.size();
   std::vector<std::string> temp_out;
   // If the paths starts with '/' and FEATURE_ALLOW_SLASH_PATHS is
   // enabled, then the first segment of the path can contain slash, dash, and
@@ -1012,7 +1012,7 @@ absl::Status ParseIdentifierPath(absl::string_view str,
 
     // Find the next '.'. The main logic applied here is to skip dots within
     // backquoted sections - validation is handled when parsing the value.
-    absl::string_view::const_iterator previous = str.end();
+    const char* previous = end;
     while (p < end && *p != '.') {
       if (allow_slash_path_segment && IsSlashPathSpecialCharacter(*p)) {
         // Do not allow these characters to appear next to each other.

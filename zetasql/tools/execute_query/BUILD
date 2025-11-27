@@ -623,3 +623,63 @@ bzl_library(
     name = "build_rules_bzl",
     srcs = ["build_rules.bzl"],
 )
+
+cc_binary(
+    name = "execute_query_wasm",
+    srcs = ["execute_query_wasm.cc"],
+    linkopts = [
+        "-sWASM=1",
+        "-sMODULARIZE=1",
+        "-sEXPORT_NAME='ZetaSQLExecuteQueryModule'",
+        "-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap']",
+        "-sALLOW_MEMORY_GROWTH=1",
+        "-sUSE_PTHREADS=0",
+        "-sDISABLE_EXCEPTION_CATCHING=0",
+        "--bind",
+        "--preload-file /usr/share/zoneinfo/America/Los_Angeles@/usr/share/zoneinfo/America/Los_Angeles",
+    ],
+    copts = [
+        "-fexceptions",
+    ],
+    deps = [
+        ":execute_query_tool",
+        ":execute_query_writer",
+        "//zetasql/base:status",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/log:initialize",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_binary(
+    name = "execute_query_wasi",
+    srcs = ["execute_query_wasi_main.cc"],
+    linkopts = [
+        "-sWASM=1",
+        "-sSTANDALONE_WASM=1",
+        "-sALLOW_MEMORY_GROWTH=1",
+        "-sUSE_PTHREADS=0",
+        "-sDISABLE_EXCEPTION_CATCHING=0",
+        "--preload-file /usr/share/zoneinfo/America/Los_Angeles@/usr/share/zoneinfo/America/Los_Angeles",
+    ],
+    copts = [
+        "-fexceptions",
+    ],
+    deps = [
+        ":execute_query_tool",
+        ":execute_query_writer",
+        ":homedir",
+        "//zetasql/base",
+        "//zetasql/base:status",
+        "@com_google_absl//absl/flags:config",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/flags:usage",
+        "@com_google_absl//absl/functional:bind_front",
+        "@com_google_absl//absl/log:initialize",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/strings:str_format",
+    ],
+)
