@@ -172,6 +172,7 @@ cc_library(
     deps = [
         ":execute_query_cc_proto",
         ":execute_query_tool",
+        "//zetasql/base:gtest_prod_compat",
         "//zetasql/base:status",
         "//zetasql/common:status_payload_utils",
         "//zetasql/public:language_options",
@@ -182,7 +183,6 @@ cc_library(
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/strings:cord",
         "@com_google_absl//absl/strings:str_format",
-        "@com_google_googletest//:gtest",
     ],
 )
 

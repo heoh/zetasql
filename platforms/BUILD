@@ -21,3 +21,11 @@ platform(
         "@platforms//os:wasi",
     ],
 )
+
+# Config setting for WASI platform detection in select() statements
+config_setting(
+    name = "is_wasi",
+    constraint_values = [
+        "@platforms//os:wasi",
+    ],
+)

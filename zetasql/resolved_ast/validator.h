@@ -39,7 +39,7 @@
 #include "zetasql/resolved_ast/resolved_column.h"
 #include "zetasql/resolved_ast/resolved_node.h"
 #include "zetasql/base/case.h"
-#include "gtest/gtest_prod.h"
+#include "zetasql/base/gtest_prod_compat.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 #include "zetasql/base/check.h"

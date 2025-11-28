@@ -53,7 +53,7 @@
 #include "zetasql/public/value.h"
 #include "zetasql/resolved_ast/resolved_ast.h"
 #include "zetasql/base/case.h"
-#include "gtest/gtest_prod.h"
+#include "zetasql/base/gtest_prod_compat.h"
 #include "absl/base/thread_annotations.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/status/status.h"

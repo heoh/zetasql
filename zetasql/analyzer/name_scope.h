@@ -34,7 +34,7 @@
 #include "zetasql/public/parse_location.h"
 #include "zetasql/public/type.h"
 #include "zetasql/resolved_ast/resolved_column.h"
-#include "gtest/gtest_prod.h"
+#include "zetasql/base/gtest_prod_compat.h"
 #include "absl/base/macros.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/status/status.h"
