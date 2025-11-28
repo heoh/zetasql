@@ -74,6 +74,7 @@ def _wasi_cc_toolchain_config_impl(ctx):
                             "-pthread",
                             "-D_WASI_EMULATED_SIGNAL",
                             "-D_WASI_EMULATED_MMAN",
+                            "-DOPENSSL_NO_SOCK",
                         ],
                     ),
                 ],
