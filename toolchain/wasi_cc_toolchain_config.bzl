@@ -128,6 +128,12 @@ def _wasi_cc_toolchain_config_impl(ctx):
                             "-pthread",
                             "-lwasi-emulated-signal",
                             "-lwasi-emulated-mman",
+                            # Set memory limits for shared memory (threads)
+                            # 1GB initial/max memory (16384 pages * 64KB)
+                            "-Wl,--initial-memory=1073741824",
+                            "-Wl,--max-memory=1073741824",
+                            "-Wl,--stack-first",
+                            "-Wl,-z,stack-size=8388608",
                         ],
                     ),
                 ],
