@@ -900,11 +900,20 @@ absl::partial_ordering JsonCompareNumber(double x, Int y) {
 // TODO: Remove this method and directly use <=> once on C++20.
 template <typename Type>
 absl::partial_ordering spaceship_operator(const Type& x, const Type& y) {
-// nlohmann::json has ambiguous <=> operator, use traditional comparison
+// nlohmann::json has ambiguous <=> operator on some platforms, use fallback
 #if defined(__cpp_impl_three_way_comparison) && \
-    __cpp_impl_three_way_comparison >= 201907L && \
-    !std::is_same_v<Type, nlohmann::json>
-  return x <=> y;
+    __cpp_impl_three_way_comparison >= 201907L
+  if constexpr (!std::is_same_v<Type, nlohmann::json>) {
+    return x <=> y;
+  } else {
+    if (x < y) {
+      return absl::partial_ordering::less;
+    } else if (x > y) {
+      return absl::partial_ordering::greater;
+    } else {
+      return absl::partial_ordering::equivalent;
+    }
+  }
 #else
   if (x < y) {
     return absl::partial_ordering::less;
