@@ -163,9 +163,14 @@ absl::Status EvaluationContext::VerifyNotAborted() const {
 }
 
 void EvaluationContext::InitializeDefaultTimeZone() {
+#ifdef __wasi__
+  // On WASI, ICU timezone database is not available, so use UTC.
+  default_timezone_ = absl::UTCTimeZone();
+#else
   absl::TimeZone timezone;
   ABSL_CHECK(absl::LoadTimeZone("America/Los_Angeles", &timezone));
   default_timezone_ = timezone;
+#endif
 }
 
 void EvaluationContext::InitializeCurrentTimestamp() {

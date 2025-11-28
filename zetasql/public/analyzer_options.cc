@@ -325,9 +325,14 @@ AnalyzerOptions::AnalyzerOptions(LanguageOptions&& language_options)
                .validate_resolved_ast =
                    absl::GetFlag(FLAGS_zetasql_validate_resolved_ast),
                .error_message_stability = GetDefaultErrorMessageStability()})) {
+#ifdef __wasi__
+  // On WASI, ICU timezone database is not available, so use UTC as default.
+  data_->default_timezone = absl::UTCTimeZone();
+#else
   ZETASQL_CHECK_OK(FindTimeZoneByName("America/Los_Angeles",  // Crash OK
                               &data_->default_timezone))
       << "Did you need to install the tzdata package?";
+#endif
 }
 
 AnalyzerOptions::AnalyzerOptions(const LanguageOptions& language_options)
