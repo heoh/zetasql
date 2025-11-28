@@ -75,6 +75,11 @@ def _wasi_cc_toolchain_config_impl(ctx):
                             "-D_WASI_EMULATED_SIGNAL",
                             "-D_WASI_EMULATED_MMAN",
                             "-DOPENSSL_NO_SOCK",
+                            # ICU timezone workarounds for WASI
+                            "-DU_HAVE_TZSET=0",
+                            "-DU_HAVE_TZNAME=0",
+                            "-DU_HAVE_TIMEZONE=0",
+                            "-DU_HAVE_TM_GMTOFF=0",
                         ],
                     ),
                 ],
