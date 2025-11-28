@@ -72,3 +72,5 @@ build:wasi --features=no_legacy_features
 build:wasi --noincompatible_validate_top_level_header_inclusions
 # Disable AES hardware acceleration for WASM (not supported)
 build:wasi --copt=-DABSL_RANDOM_INTERNAL_AES_DISPATCH=0
+# Force disable RANDEN hardware AES support (abseil adds -maes flag which WASM doesn't support)
+build:wasi --per_file_copt=external/abseil-cpp.*/absl/random/internal/randen_hwaes.*@-DABSL_HAVE_ACCELERATED_AES=0,-UABSL_HAVE_ACCELERATED_AES
