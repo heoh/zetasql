@@ -82,6 +82,9 @@ def _wasi_cc_toolchain_config_impl(ctx):
                             "-DU_HAVE_TM_GMTOFF=0",
                             # Tell abseil we have mmap (via asmjs check)
                             "-D__asmjs__=1",
+                            # Disable debug mode to avoid deadlock detection 
+                            # which calls LowLevelAlloc during mutex operations
+                            "-DNDEBUG",
                         ],
                     ),
                 ],
