@@ -39,7 +39,7 @@ class ResourceMeasurement {
 #ifdef CLOCK_THREAD_CPUTIME_ID
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
 #else
-#warn Thread CPU time measurement not supported
+#warning "Thread CPU time measurement not supported"
     ts = {};
 #endif
     return ts.tv_sec * 1000000000 + ts.tv_nsec;
