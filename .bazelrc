@@ -64,3 +64,11 @@ build:darwin --cxxopt="-mmacosx-version-min=11.0"
 build --cxxopt=-std=c++20 --host_cxxopt=-std=c++20 --config=clang --java_runtime_version=remotejdk_11
 run --cxxopt=-std=c++20 --host_cxxopt=-std=c++20 --config=clang --java_runtime_version=remotejdk_11
 test --cxxopt=-std=c++20 --host_cxxopt=-std=c++20 --config=clang --java_runtime_version=remotejdk_11
+
+# WASI (WebAssembly System Interface) build configuration
+build:wasi --platforms=//platforms:wasm32-wasi
+build:wasi --features=-layering_check
+build:wasi --features=no_legacy_features
+build:wasi --noincompatible_validate_top_level_header_inclusions
+# Disable AES hardware acceleration for WASM (not supported)
+build:wasi --copt=-DABSL_RANDOM_INTERNAL_AES_DISPATCH=0

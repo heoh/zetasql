@@ -139,6 +139,32 @@ cc_binary(
     ],
 )
 
+# WASI (WebAssembly) build of execute_query
+# Build with: bazel build --config=wasi //zetasql/tools/execute_query:execute_query_wasi
+cc_binary(
+    name = "execute_query_wasi",
+    srcs = [
+        "execute_query_wasi.cc",
+    ],
+    linkopts = ["-mexec-model=reactor"],
+    target_compatible_with = [
+        "@platforms//os:wasi",
+        "@platforms//cpu:wasm32",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":execute_query_tool",
+        ":execute_query_writer",
+        "//zetasql/base:status",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/flags:usage",
+        "@com_google_absl//absl/log:initialize",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
 cc_library(
     name = "execute_query_prompt",
     srcs = ["execute_query_prompt.cc"],
