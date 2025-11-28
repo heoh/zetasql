@@ -1136,11 +1136,11 @@ class Value::Metadata::Content {
       static_assert(false,
                     "Platform is not supported: neither big nor little endian");
 #endif
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(__wasi__)
       static_assert(
           sizeof(void*) == 8,
           "Platform is not supported: size of pointer is not 8 bytes");
-#endif  // __EMSCRIPTEN__
+#endif  // __EMSCRIPTEN__ || __wasi__
     };
   };
 
