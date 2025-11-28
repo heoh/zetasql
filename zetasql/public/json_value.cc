@@ -787,7 +787,7 @@ absl::partial_ordering JsonCompareNumber(Int x, double y) {
   static_assert(std::numeric_limits<double>::is_iec559);
   static_assert(std::numeric_limits<double>::digits == 53);
   static_assert(std::numeric_limits<double>::radix == 2);
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__wasi__)
   static_assert(std::numeric_limits<int64_t>::max() == (1ULL << 63) - 1);
 #else
   static_assert(std::numeric_limits<int64_t>::max() == (1UL << 63) - 1);
