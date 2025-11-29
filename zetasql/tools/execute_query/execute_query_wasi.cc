@@ -91,17 +91,16 @@ void wasm_free(void* ptr) {
 WASM_EXPORT(execute_query_main)
 int execute_query_main(int argc, char** argv) {
   static bool initialized = false;
-  
+
   if (!initialized) {
+    const char kUsage[] = "Usage: execute_query \"<sql>\"\n";
+    absl::SetProgramUsageMessage(kUsage);
     absl::InitializeLog();
     initialized = true;
   }
 
-  const char kUsage[] = "Usage: execute_query \"<sql>\"\n";
-  
   std::vector<std::string> args;
-  
-  absl::SetProgramUsageMessage(kUsage);
+
   {
     std::vector<char*> remaining_args = absl::ParseCommandLine(argc, argv);
     args.assign(remaining_args.cbegin() + 1, remaining_args.cend());
