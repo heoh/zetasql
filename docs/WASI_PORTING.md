@@ -387,21 +387,65 @@ python3 test_wasi.py "SELECT CURRENT_TIMESTAMP()"
 
 ## 알려진 제한사항
 
-### 1. 타임존
+### 1. 함수 호환성
+
+WASI 환경에서는 일부 SQL 함수가 정상적으로 작동하지 않습니다.
+
+#### ❌ 작동하지 않는 함수
+
+| 함수 | 오류 | 원인 |
+|------|------|------|
+| `GENERATE_UUID()` | 크래시 - "Failed generating seed-material for URBG" | WASI에 엔트로피 소스 없음 |
+| `RAND()` | 크래시 - 동일 | abseil 난수 생성기 초기화 실패 |
+| `TIMESTAMP("...", "America/Los_Angeles")` | "Invalid time zone" | ICU 타임존 데이터베이스 비활성화 |
+| `FORMAT_TIMESTAMP(..., "Asia/Seoul")` | "Invalid time zone" | 동일 |
+
+**난수 생성 실패 원인:**
+- WASI 환경에는 `/dev/urandom` 같은 엔트로피 소스가 없음
+- Abseil의 URBG(Uniform Random Bit Generator)가 시드를 생성하지 못함
+- 이로 인해 `RAND()`, `GENERATE_UUID()` 등 난수 기반 함수가 크래시
+
+**타임존 제한 우회:**
+- 명명된 타임존 대신 **UTC 오프셋** 사용: `"+09:00"` ✅
+
+```sql
+-- ❌ 실패
+SELECT TIMESTAMP("2025-01-01 12:00:00", "Asia/Seoul")
+
+-- ✅ 성공 (UTC 오프셋 사용)
+SELECT TIMESTAMP("2025-01-01 12:00:00", "+09:00")
+```
+
+#### ✅ 정상 작동하는 함수
+
+| 카테고리 | 테스트된 함수 |
+|----------|--------------|
+| **날짜/시간** | `CURRENT_DATE()`, `CURRENT_TIMESTAMP()`, `DATE_ADD()`, `EXTRACT()`, `PARSE_DATE()`, `PARSE_TIMESTAMP()` |
+| **타임존** | UTC 오프셋 형식만 지원 (`"+09:00"`, `"-05:00"` 등) |
+| **문자열** | `NORMALIZE()`, `REGEXP_EXTRACT()`, `CONCAT()`, `UPPER()`, `LOWER()` 등 |
+| **해시** | `MD5()`, `SHA256()`, `SHA512()` 등 |
+| **수학** | `FLOOR()`, `CEIL()`, `ROUND()`, `ABS()`, `SQRT()`, `POW()`, `MOD()` 등 |
+| **JSON** | `JSON_VALUE()`, `JSON_QUERY()`, `JSON_EXTRACT()` 등 |
+| **배열** | `ARRAY_LENGTH()`, `ARRAY_AGG()`, `UNNEST()` 등 |
+| **네트워크 파싱** | `NET.IP_FROM_STRING()`, `NET.HOST()`, `NET.PUBLIC_SUFFIX()` 등 |
+| **기타** | `ERROR()`, `COALESCE()`, `IF()`, `CASE` 등 |
+
+### 2. 타임존
 - 모든 타임존 연산은 **UTC** 기준
 - `America/Los_Angeles` 등 명명된 타임존 미지원
 - ICU 타임존 데이터베이스 로드 불가
+- **대안**: UTC 오프셋 사용 (`"+09:00"` 형식)
 
-### 2. 네트워크
+### 3. 네트워크
 - 소켓 API 미지원
 - DNS 해석 불가
 - 원격 카탈로그 연결 불가
 
-### 3. 파일 시스템
+### 4. 파일 시스템
 - WASI capability-based 파일 접근
 - 런타임에서 디렉토리 pre-open 필요
 
-### 4. 바이너리 크기
+### 5. 바이너리 크기
 - ~373MB (최적화 전)
 - ~24MB (wasm-opt 후처리 후)
 
@@ -431,9 +475,13 @@ wasm-opt -Os --strip-debug -o execute_query_wasi_opt.wasm \
 "-fno-rtti"           # ICU가 RTTI 필요
 ```
 
-### 5. 런타임 요구사항
+### 6. 런타임 요구사항
 - 스레드 지원 필수 (`--wasm threads=y --wasi threads=y`)
 - 최소 1GB 메모리
+
+### 7. Geography 함수
+- `ST_GEOGPOINT()`, `ST_DISTANCE()` 등 Geography 함수 미지원
+- 이는 WASI 제한이 아닌 `execute_query` 도구 자체의 제한
 
 ---
 
