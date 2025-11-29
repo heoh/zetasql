@@ -12,6 +12,8 @@
 6. [향후 버전 포팅 시 주의사항](#향후-버전-포팅-시-주의사항)
 7. [테스트](#테스트)
 8. [알려진 제한사항](#알려진-제한사항)
+9. [바이너리 최적화 (wasm-opt)](#바이너리-최적화-wasm-opt)
+10. [런타임 테스트](#런타임-테스트)
 
 ---
 
@@ -447,23 +449,9 @@ SELECT TIMESTAMP("2025-01-01 12:00:00", "+09:00")
 
 ### 5. 바이너리 크기
 - ~373MB (최적화 전)
-- ~24MB (wasm-opt 후처리 후)
+- ~25MB (wasm-opt -O3 후처리 후)
 
-#### 바이너리 크기 최적화
-
-**권장 방법: wasm-opt 후처리**
-
-```bash
-# Binaryen 설치 (Ubuntu)
-apt install binaryen
-
-# 또는 npm으로 설치
-npm install -g binaryen
-
-# 최적화 실행 (권장)
-wasm-opt -Os --strip-debug -o execute_query_wasi_opt.wasm \
-    bazel-bin/zetasql/tools/execute_query/execute_query_wasi
-```
+**자세한 최적화 방법은 [바이너리 최적화 (wasm-opt)](#바이너리-최적화-wasm-opt) 섹션 참조**
 
 **주의: 빌드 시 최적화 플래그 사용 금지**
 
@@ -494,11 +482,118 @@ wasm-opt -Os --strip-debug -o execute_query_wasi_opt.wasm \
 
 ---
 
+## 바이너리 최적화 (wasm-opt)
+
+### 문제
+
+빌드 직후의 WASM 바이너리는 **373MB**로 매우 크며, 이로 인해 다음 문제가 발생합니다:
+
+| 문제 | 영향 |
+|------|------|
+| **Node.js 종료 지연** | V8 GC가 거대한 메모리 정리에 ~50초 이상 소요 |
+| **느린 컴파일** | JIT 컴파일 시간 증가 |
+| **메모리 사용량** | 불필요한 dead code로 인한 메모리 낭비 |
+
+### 원인
+
+- 빌드 시 `-Wl,--gc-sections` 플래그를 사용하면 ICU 데이터가 손상되어 사용 불가
+- 따라서 빌드 시점에는 dead code elimination이 적용되지 않음
+- 결과적으로 사용되지 않는 코드가 바이너리에 포함됨
+
+### 해결 방법
+
+**wasm-opt**를 사용하여 빌드 후 최적화를 적용합니다:
+
+```bash
+# Binaryen 설치 (Ubuntu)
+sudo apt install binaryen
+
+# 최적화 실행 (-O3 권장)
+wasm-opt -O3 \
+  --enable-threads \
+  --enable-bulk-memory \
+  --enable-mutable-globals \
+  bazel-bin/zetasql/tools/execute_query/execute_query_wasi \
+  -o bazel-bin/zetasql/tools/execute_query/execute_query_wasi.opt
+
+# 최적화된 파일로 교체
+cp bazel-bin/zetasql/tools/execute_query/execute_query_wasi.opt \
+   bazel-bin/zetasql/tools/execute_query/execute_query_wasi
+```
+
+### 최적화 결과
+
+| 항목 | 최적화 전 | 최적화 후 | 개선 |
+|------|----------|----------|------|
+| **파일 크기** | 373MB | 25MB | **93% 감소** |
+| **Node.js 실행 시간** | ~63초 | ~0.4초 | **170배 빠름** |
+| **Python (wasmtime) 실행** | ~6초 | ~0.5초 | **12배 빠름** |
+
+### 최적화 옵션 설명
+
+| 옵션 | 설명 |
+|------|------|
+| `-O3` | 최대 성능 최적화 (dead code elimination 포함) |
+| `-Os` | 크기 최적화 (약간 더 작지만 성능은 -O3보다 낮음) |
+| `-Oz` | 최대 크기 최적화 |
+| `--enable-threads` | threads proposal 사용 (필수) |
+| `--enable-bulk-memory` | bulk memory 연산 사용 |
+| `--enable-mutable-globals` | mutable globals 사용 |
+
+### 주의사항
+
+1. **wasm-opt 버전**: 최신 버전 권장 (v105 이상 테스트됨)
+2. **최적화 시간**: 373MB 파일 기준 약 1-2분 소요
+3. **원본 백업**: 최적화 전 원본 파일 백업 권장
+
+```bash
+# 원본 백업
+cp execute_query_wasi execute_query_wasi.original
+```
+
+---
+
+## 런타임 테스트
+
+### Python (wasmtime)
+
+```bash
+# 설치
+pip install wasmtime
+
+# 테스트
+python test_wasi.py "SELECT 1 + 2"
+
+# 벤치마크
+python test_wasi.py --benchmark 10 "SELECT 1 + 2"
+```
+
+### Node.js
+
+```bash
+# 테스트 (Node.js 20+ 필요)
+node --experimental-wasi-unstable-preview1 test_wasi.js "SELECT 1 + 2"
+
+# 벤치마크
+node --experimental-wasi-unstable-preview1 test_wasi.js --benchmark 10 "SELECT 1 + 2"
+```
+
+### 성능 비교 (최적화된 25MB 바이너리)
+
+| 런타임 | 모듈 로드 | 쿼리 실행 (첫 번째) | 쿼리 실행 (반복) |
+|--------|----------|-------------------|-----------------|
+| Python (wasmtime) | ~0.5초 | ~0.1초 | ~30ms |
+| Node.js | ~0.3초 | ~0.1초 | ~30ms |
+| Wasmtime CLI | ~0.4초 | ~0.1초 | N/A |
+
+---
+
 ## 변경 이력
 
 | 날짜 | 버전 | 설명 |
 |------|------|------|
 | 2025-11-28 | 1.0 | 초기 WASI 포팅 완료 |
+| 2025-11-29 | 1.1 | wasm-opt 최적화 문서화, Node.js 테스트 스크립트 추가 |
 
 ---
 
