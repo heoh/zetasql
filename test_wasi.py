@@ -6,7 +6,7 @@ import sys
 
 def run_execute_query(wasm_path: str, query: str = None):
     """Load the WASI module and execute a query."""
-    
+
     # Configure the engine with threads support
     config = wasmtime.Config()
     config.wasm_threads = True
@@ -29,7 +29,7 @@ def run_execute_query(wasm_path: str, query: str = None):
     # Instantiate
     print("Instantiating module...")
     instance = linker.instantiate(store, module)
-    
+
     # Get exports
     memory = instance.exports(store)["memory"]
     wasm_malloc = instance.exports(store)["wasm_malloc"]
@@ -44,14 +44,9 @@ def run_execute_query(wasm_path: str, query: str = None):
         print("Calling _initialize...")
         initialize(store)
         print("_initialize completed")
-    
+
     # Prepare arguments
-    if query is None:
-        # Default: show help
-        args = ["execute_query", "--help"]
-    else:
-        # SQL is passed as a positional argument
-        args = ["execute_query", query]
+    args = ["execute_query"] + query
     
     print(f"Arguments: {args}")
     
@@ -117,9 +112,4 @@ def run_execute_query(wasm_path: str, query: str = None):
 if __name__ == "__main__":
     wasm_path = "/mnt/shared/workspaces/opensource/zetasql3/bazel-bin/zetasql/tools/execute_query/execute_query_wasi"
     
-    if len(sys.argv) > 1:
-        query = sys.argv[1]
-    else:
-        query = None
-    
-    run_execute_query(wasm_path, query)
+    run_execute_query(wasm_path, sys.argv[1:])
