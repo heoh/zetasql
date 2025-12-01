@@ -91,9 +91,9 @@ void wasm_free(void* ptr) {
 WASM_EXPORT(execute_query_main)
 int execute_query_main(int argc, char** argv) {
   static bool initialized = false;
+  static const char kUsage[] = "Usage: execute_query \"<sql>\"\n";
 
   if (!initialized) {
-    const char kUsage[] = "Usage: execute_query \"<sql>\"\n";
     absl::SetProgramUsageMessage(kUsage);
     absl::InitializeLog();
     initialized = true;
