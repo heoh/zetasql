@@ -7,38 +7,21 @@ import time
 import os
 
 
-def get_zoneinfo_path() -> str | None:
-    """Get the zoneinfo directory path.
-    
-    Tries in order:
-    1. tzdata Python package (cross-platform)
-    2. System zoneinfo directories (Linux/macOS)
+def get_zoneinfo_path() -> str:
+    """Get the zoneinfo directory path from tzdata package.
     
     Returns:
-        Path to zoneinfo directory or None if not found
+        Path to zoneinfo directory
+        
+    Raises:
+        ImportError: If tzdata package is not installed
+        FileNotFoundError: If zoneinfo directory not found in tzdata
     """
-    # Try tzdata package first (works on all platforms)
-    try:
-        import tzdata
-        tzdata_path = os.path.join(os.path.dirname(tzdata.__file__), "zoneinfo")
-        if os.path.isdir(tzdata_path):
-            return tzdata_path
-    except ImportError:
-        pass
-    
-    # Fallback to system paths
-    system_paths = [
-        "/usr/share/zoneinfo",
-        "/usr/lib/zoneinfo",
-        "/usr/share/lib/zoneinfo",
-        "/var/db/timezone/zoneinfo",  # macOS
-    ]
-    
-    for path in system_paths:
-        if os.path.isdir(path):
-            return path
-    
-    return None
+    import tzdata
+    tzdata_path = os.path.join(os.path.dirname(tzdata.__file__), "zoneinfo")
+    if not os.path.isdir(tzdata_path):
+        raise FileNotFoundError(f"zoneinfo directory not found: {tzdata_path}")
+    return tzdata_path
 
 
 class WasiExecuteQuery:
@@ -71,13 +54,10 @@ class WasiExecuteQuery:
         # Auto-detect and enable zoneinfo for timezone support
         if enable_zoneinfo:
             zoneinfo_path = get_zoneinfo_path()
-            if zoneinfo_path:
-                if self.verbose:
-                    print(f"Enabling timezone support: {zoneinfo_path}")
-                # Mount at standard Linux path for compatibility with abseil
-                wasi_config.preopen_dir(zoneinfo_path, "/usr/share/zoneinfo")
-            elif self.verbose:
-                print("Warning: No zoneinfo found, named timezone functions may not work")
+            if self.verbose:
+                print(f"Enabling timezone support: {zoneinfo_path}")
+            # Mount at standard Linux path for compatibility with abseil
+            wasi_config.preopen_dir(zoneinfo_path, "/usr/share/zoneinfo")
         
         self.store.set_wasi(wasi_config)
         self.linker.define_wasi()
