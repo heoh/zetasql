@@ -4,12 +4,54 @@
 import wasmtime
 import sys
 import time
+import os
+
+
+def get_zoneinfo_path() -> str | None:
+    """Get the zoneinfo directory path.
+    
+    Tries in order:
+    1. tzdata Python package (cross-platform)
+    2. System zoneinfo directories (Linux/macOS)
+    
+    Returns:
+        Path to zoneinfo directory or None if not found
+    """
+    # Try tzdata package first (works on all platforms)
+    try:
+        import tzdata
+        tzdata_path = os.path.join(os.path.dirname(tzdata.__file__), "zoneinfo")
+        if os.path.isdir(tzdata_path):
+            return tzdata_path
+    except ImportError:
+        pass
+    
+    # Fallback to system paths
+    system_paths = [
+        "/usr/share/zoneinfo",
+        "/usr/lib/zoneinfo",
+        "/usr/share/lib/zoneinfo",
+        "/var/db/timezone/zoneinfo",  # macOS
+    ]
+    
+    for path in system_paths:
+        if os.path.isdir(path):
+            return path
+    
+    return None
 
 
 class WasiExecuteQuery:
     """Wrapper class for execute_query WASI module that supports multiple calls."""
     
-    def __init__(self, wasm_path: str, verbose: bool = True):
+    def __init__(self, wasm_path: str, verbose: bool = True, enable_zoneinfo: bool = True):
+        """Initialize the WASI module.
+        
+        Args:
+            wasm_path: Path to the WASM file
+            verbose: Print verbose output
+            enable_zoneinfo: Automatically enable timezone support if available
+        """
         self.wasm_path = wasm_path
         self.verbose = verbose
         
@@ -25,6 +67,18 @@ class WasiExecuteQuery:
         wasi_config = wasmtime.WasiConfig()
         wasi_config.inherit_stdout()
         wasi_config.inherit_stderr()
+        
+        # Auto-detect and enable zoneinfo for timezone support
+        if enable_zoneinfo:
+            zoneinfo_path = get_zoneinfo_path()
+            if zoneinfo_path:
+                if self.verbose:
+                    print(f"Enabling timezone support: {zoneinfo_path}")
+                # Mount at standard Linux path for compatibility with abseil
+                wasi_config.preopen_dir(zoneinfo_path, "/usr/share/zoneinfo")
+            elif self.verbose:
+                print("Warning: No zoneinfo found, named timezone functions may not work")
+        
         self.store.set_wasi(wasi_config)
         self.linker.define_wasi()
         
@@ -143,9 +197,9 @@ class WasiExecuteQuery:
 
 
 def run_execute_query(wasm_path: str, query: list[str] = None):
-    """Load the WASI module and execute a query (legacy function)."""
+    """Load the WASI module and execute a query."""
     executor = WasiExecuteQuery(wasm_path)
-    return executor.execute(query)
+    return executor.execute(query or [])
 
 
 def run_benchmark(wasm_path: str, queries: list[str], iterations: int = 10):
@@ -195,10 +249,12 @@ def run_benchmark(wasm_path: str, queries: list[str], iterations: int = 10):
 if __name__ == "__main__":
     wasm_path = "/mnt/shared/workspaces/opensource/zetasql3/bazel-bin/zetasql/tools/execute_query/execute_query_wasi"
     
-    if len(sys.argv) > 1 and sys.argv[1] == "--benchmark":
+    args = sys.argv[1:]
+    
+    if args and args[0] == "--benchmark":
         # Benchmark mode: --benchmark <iterations> <query>
         iterations = 10
-        query_args = sys.argv[2:]
+        query_args = args[1:]
         
         if query_args and query_args[0].isdigit():
             iterations = int(query_args[0])
@@ -210,4 +266,4 @@ if __name__ == "__main__":
         run_benchmark(wasm_path, query_args, iterations)
     else:
         # Normal mode
-        run_execute_query(wasm_path, sys.argv[1:])
+        run_execute_query(wasm_path, args)
