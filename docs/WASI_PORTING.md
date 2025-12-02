@@ -144,6 +144,9 @@ flags = [
     
     # 릴리스 빌드 (데드락 검사 비활성화)
     "-DNDEBUG",
+    
+    # Abseil 난수 생성: WASI의 getentropy() 사용
+    "-DABSL_RANDOM_USE_GET_ENTROPY=1",
 ]
 ```
 
@@ -393,17 +396,19 @@ python3 test_wasi.py "SELECT CURRENT_TIMESTAMP()"
 
 WASI 환경에서는 일부 SQL 함수가 정상적으로 작동하지 않습니다.
 
-#### ❌ 작동하지 않는 함수
+#### ✅ 난수 함수 지원
 
-| 함수 | 오류 | 원인 |
-|------|------|------|
-| `GENERATE_UUID()` | 크래시 - "Failed generating seed-material for URBG" | WASI에 엔트로피 소스 없음 |
-| `RAND()` | 크래시 - 동일 | abseil 난수 생성기 초기화 실패 |
+`RAND()`, `GENERATE_UUID()` 등 난수 기반 함수가 정상 작동합니다.
 
-**난수 생성 실패 원인:**
-- WASI 환경에는 `/dev/urandom` 같은 엔트로피 소스가 없음
-- Abseil의 URBG(Uniform Random Bit Generator)가 시드를 생성하지 못함
-- 이로 인해 `RAND()`, `GENERATE_UUID()` 등 난수 기반 함수가 크래시
+```sql
+SELECT RAND()           -- 0.86484475206483169
+SELECT GENERATE_UUID()  -- 9f6f8e4b-b979-4882-8ec7-1c36bf35867e
+```
+
+**구현 방법:**
+- `-DABSL_RANDOM_USE_GET_ENTROPY=1` 플래그로 abseil이 WASI의 `getentropy()` 사용
+- WASI SDK의 `getentropy()`는 내부적으로 `__wasi_random_get()` 호출
+- wasmtime 등 런타임에서 엔트로피 제공
 
 #### ⚠️ 조건부 작동 함수 (타임존)
 
@@ -454,6 +459,7 @@ SELECT TIMESTAMP("2025-01-01 12:00:00", "+09:00")
 | **JSON** | `JSON_VALUE()`, `JSON_QUERY()`, `JSON_EXTRACT()` 등 |
 | **배열** | `ARRAY_LENGTH()`, `ARRAY_AGG()`, `UNNEST()` 등 |
 | **네트워크 파싱** | `NET.IP_FROM_STRING()`, `NET.HOST()`, `NET.PUBLIC_SUFFIX()` 등 |
+| **난수** | `RAND()`, `GENERATE_UUID()` |
 | **기타** | `ERROR()`, `COALESCE()`, `IF()`, `CASE` 등 |
 
 ### 2. 타임존

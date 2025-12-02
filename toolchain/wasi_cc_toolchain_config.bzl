@@ -85,6 +85,7 @@ def _wasi_cc_toolchain_config_impl(ctx):
                             # Disable debug mode to avoid deadlock detection 
                             # which calls LowLevelAlloc during mutex operations
                             "-DNDEBUG",
+                            "-DABSL_RANDOM_USE_GET_ENTROPY=1",
                         ],
                     ),
                 ],
