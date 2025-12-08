@@ -95,7 +95,6 @@ build:wasi --copt=-DU_HAVE_TM_GMTOFF=0
 build:wasi --copt=-D__asmjs__=1
 build:wasi --copt=-DABSL_RANDOM_USE_GET_ENTROPY=1
 build:wasi --copt=-DABSL_RANDOM_INTERNAL_AES_DISPATCH=0
-build:wasi --per_file_copt=external/abseil-cpp.*/absl/random/internal/randen_hwaes.*@-DABSL_HAVE_ACCELERATED_AES=0,-UABSL_HAVE_ACCELERATED_AES
 
 # Linker flags
 build:wasi --linkopt=--target=wasm32-wasip1-threads
