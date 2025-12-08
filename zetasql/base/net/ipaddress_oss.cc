@@ -75,7 +75,7 @@ in6_addr IPAddress::ipv6_address_slowpath() const {
   ABSL_CHECK_EQ(AF_INET6, address_family_);
   if (ABSL_PREDICT_FALSE(HasCompactScopeId(addr_.addr6))) {
     in6_addr copy = addr_.addr6;
-    zetasql_base_internal::in6_addr32(copy, 1) = 0;  // clear the scope_id (interface index)
+    zetasql_wasi::in6_addr32(copy, 1) = 0;  // clear the scope_id (interface index)
     return copy;
   }
   return addr_.addr6;
@@ -89,13 +89,13 @@ IPAddress HostUInt32ToIPAddress(uint32_t address) {
 
 IPAddress UInt128ToIPAddress(const absl::uint128 bigint) {
   in6_addr addr6;
-  zetasql_base_internal::in6_addr32(addr6, 0) = zetasql_base::ghtonl(
+  zetasql_wasi::in6_addr32(addr6, 0) = zetasql_base::ghtonl(
       static_cast<uint32_t>(absl::Uint128High64(bigint) >> 32));
-  zetasql_base_internal::in6_addr32(addr6, 1) = zetasql_base::ghtonl(
+  zetasql_wasi::in6_addr32(addr6, 1) = zetasql_base::ghtonl(
       static_cast<uint32_t>(absl::Uint128High64(bigint) & 0xFFFFFFFFULL));
-  zetasql_base_internal::in6_addr32(addr6, 2) = zetasql_base::ghtonl(
+  zetasql_wasi::in6_addr32(addr6, 2) = zetasql_base::ghtonl(
       static_cast<uint32_t>(absl::Uint128Low64(bigint) >> 32));
-  zetasql_base_internal::in6_addr32(addr6, 3) = zetasql_base::ghtonl(
+  zetasql_wasi::in6_addr32(addr6, 3) = zetasql_base::ghtonl(
       static_cast<uint32_t>(absl::Uint128Low64(bigint) & 0xFFFFFFFFULL));
   return IPAddress(addr6);
 }
@@ -129,15 +129,15 @@ int FindLongestZeroWordSequence(const uint16_t* addr) {
 }
 
 void AppendIPv6ToString(const in6_addr& addr, std::string* out) {
-  if (zetasql_base_internal::in6_addr32(addr, 0) == 0 && zetasql_base_internal::in6_addr32(addr, 1) == 0) {
+  if (zetasql_wasi::in6_addr32(addr, 0) == 0 && zetasql_wasi::in6_addr32(addr, 1) == 0) {
     // If lower half of address is zero, it starts with :: and it may be
     // embedded IPv4 address.
     out->push_back(':');
     // Check for IPv6 embedded IPv4 address.
-    if (zetasql_base_internal::in6_addr16(addr, 4) == 0 &&
-        (zetasql_base_internal::in6_addr16(addr, 5) == 0xffff ||
-         (zetasql_base_internal::in6_addr16(addr, 5) == 0 && zetasql_base_internal::in6_addr16(addr, 6) != 0))) {
-      if (zetasql_base_internal::in6_addr16(addr, 5) != 0) {
+    if (zetasql_wasi::in6_addr16(addr, 4) == 0 &&
+      (zetasql_wasi::in6_addr16(addr, 5) == 0xffff ||
+       (zetasql_wasi::in6_addr16(addr, 5) == 0 && zetasql_wasi::in6_addr16(addr, 6) != 0))) {
+      if (zetasql_wasi::in6_addr16(addr, 5) != 0) {
         absl::StrAppend(out, ":ffff");
       }
       out->push_back(':');
@@ -146,24 +146,24 @@ void AppendIPv6ToString(const in6_addr& addr, std::string* out) {
     }
     int i = 4;
     // Skip remaining zero words.
-    while (i < 8 && zetasql_base_internal::in6_addr16(addr, i) == 0) {
+    while (i < 8 && zetasql_wasi::in6_addr16(addr, i) == 0) {
       ++i;
     }
     if (i < 8) {
       for (; i < 8; ++i) {
         absl::StrAppend(out, ":",
-                        absl::Hex(zetasql_base::gntohs(zetasql_base_internal::in6_addr16(addr, i))));
+                        absl::Hex(zetasql_base::gntohs(zetasql_wasi::in6_addr16(addr, i))));
       }
     } else {
       out->push_back(':');
     }
   } else {
-    const int start = FindLongestZeroWordSequence(zetasql_base_internal::in6_addr16_ptr(addr));
+    const int start = FindLongestZeroWordSequence(zetasql_wasi::in6_addr16_ptr(addr));
     for (int i = 0; i < 8; ++i) {
       if (i == start) {
         // At least two words are guaranteed to be zero.
         i += 2;
-        while (i < 8 && zetasql_base_internal::in6_addr16(addr, i) == 0) {
+        while (i < 8 && zetasql_wasi::in6_addr16(addr, i) == 0) {
           ++i;
         }
         out->push_back(':');
@@ -175,7 +175,7 @@ void AppendIPv6ToString(const in6_addr& addr, std::string* out) {
       if (i) {
         out->push_back(':');
       }
-      absl::StrAppend(out, absl::Hex(zetasql_base::gntohs(zetasql_base_internal::in6_addr16(addr, i))));
+      absl::StrAppend(out, absl::Hex(zetasql_base::gntohs(zetasql_wasi::in6_addr16(addr, i))));
     }
   }
 }

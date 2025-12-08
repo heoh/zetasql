@@ -188,7 +188,7 @@ done
 #### IPv6 주소 호환성 (ipaddress_oss.h/cc)
 WASI의 `in6_addr`는 `s6_addr32`/`s6_addr16` 멤버가 없음:
 ```cpp
-namespace zetasql_base_internal {
+namespace zetasql_wasi {
 // Cross-platform accessor for in6_addr
 inline uint32_t GetIn6Addr32(const in6_addr& addr, int index) {
 #ifdef __wasi__
@@ -201,7 +201,7 @@ inline uint32_t GetIn6Addr32(const in6_addr& addr, int index) {
     return addr.s6_addr32[index];
 #endif
 }
-}  // namespace zetasql_base_internal
+}  // namespace zetasql_wasi
 ```
 
 #### 타임존 기본값 (analyzer_options.cc, evaluation.cc)

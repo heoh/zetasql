@@ -61,7 +61,7 @@
 
 // WASI uses a simplified in6_addr with only s6_addr[16] byte array.
 // Provide inline accessors that work across all platforms.
-namespace zetasql_base_internal {
+namespace zetasql_wasi {
 inline uint32_t& in6_addr32(in6_addr& addr, int idx) {
 #if defined(__wasi__)
   return reinterpret_cast<uint32_t*>(addr.s6_addr)[idx];
@@ -111,7 +111,7 @@ inline const uint16_t* in6_addr16_ptr(const in6_addr& addr) {
   return addr.s6_addr16;
 #endif
 }
-}  // namespace zetasql_base_internal
+}  // namespace zetasql_wasi
 
 namespace zetasql::internal {
 
@@ -175,7 +175,7 @@ class IPAddress {
   // may not have had a scope_id assigned; in this case 0U is also returned.
   uint32_t scope_id() const {
     if (is_ipv6() && HasCompactScopeId(addr_.addr6)) {
-      return ntohl(zetasql_base_internal::in6_addr32(addr_.addr6, 1));
+      return ntohl(zetasql_wasi::in6_addr32(addr_.addr6, 1));
     }
     return 0U;
   }
@@ -248,18 +248,18 @@ class IPAddress {
   // A much stricter test for whether in6 is a candidate for the kind of
   // scope_id compaction implemented here (cf. IPAddressMayUseScopeIds()).
   static bool MayUseCompactScopeIds(const in6_addr& in6) {
-    return ((zetasql_base_internal::in6_addr32(in6, 0) == htonl(0xfe800000U)) ||
-            (zetasql_base_internal::in6_addr32(in6, 0) == htonl(0xff020000U)));
+        return ((zetasql_wasi::in6_addr32(in6, 0) == htonl(0xfe800000U)) ||
+          (zetasql_wasi::in6_addr32(in6, 0) == htonl(0xff020000U)));
   }
 
   // Test for whether in6 may safely, compactly store a scope_id.
   static bool MayStoreCompactScopeId(const in6_addr& in6) {
-    return (MayUseCompactScopeIds(in6) && (zetasql_base_internal::in6_addr32(in6, 1) == 0x0U));
+    return (MayUseCompactScopeIds(in6) && (zetasql_wasi::in6_addr32(in6, 1) == 0x0U));
   }
 
   // Test for whether in6 appears to have a compact scope_id stored.
   static bool HasCompactScopeId(const in6_addr& in6) {
-    return (MayUseCompactScopeIds(in6) && (zetasql_base_internal::in6_addr32(in6, 1) != 0x0U));
+    return (MayUseCompactScopeIds(in6) && (zetasql_wasi::in6_addr32(in6, 1) != 0x0U));
   }
 
   // Constructor that also supports an IPv6 link-local address with a scope_id.
@@ -268,7 +268,7 @@ class IPAddress {
     if (ABSL_PREDICT_FALSE(MayUseScopeIds(addr_.addr6))) {
       if (MayUseCompactScopeIds(addr_.addr6)) {
         // May have been asked to explicitly overwrite one scope with another.
-        zetasql_base_internal::in6_addr32(addr_.addr6, 1) = htonl(scope_id);
+        zetasql_wasi::in6_addr32(addr_.addr6, 1) = htonl(scope_id);
       } else if (scope_id != 0) {
         ABSL_LOG(WARNING) << "Discarding scope_id; cannot be compactly stored.";
       }
@@ -279,18 +279,18 @@ class IPAddress {
     ABSL_DCHECK_EQ(address_family_, AF_INET6);
 #if defined(__x86_64__) || defined(__powerpc64__)
     // These 64-bit CPUs have efficient implementations of UNALIGNED_LOAD64().
-    uint64_t a1 = ZETASQL_INTERNAL_UNALIGNED_LOAD64(zetasql_base_internal::in6_addr32_ptr(addr_.addr6));
-    uint64_t a2 = ZETASQL_INTERNAL_UNALIGNED_LOAD64(zetasql_base_internal::in6_addr32_ptr(addr_.addr6) + 2);
+    uint64_t a1 = ZETASQL_INTERNAL_UNALIGNED_LOAD64(zetasql_wasi::in6_addr32_ptr(addr_.addr6));
+    uint64_t a2 = ZETASQL_INTERNAL_UNALIGNED_LOAD64(zetasql_wasi::in6_addr32_ptr(addr_.addr6) + 2);
     uint64_t b1 =
-        ZETASQL_INTERNAL_UNALIGNED_LOAD64(zetasql_base_internal::in6_addr32_ptr(other.addr_.addr6));
+        ZETASQL_INTERNAL_UNALIGNED_LOAD64(zetasql_wasi::in6_addr32_ptr(other.addr_.addr6));
     uint64_t b2 =
-        ZETASQL_INTERNAL_UNALIGNED_LOAD64(zetasql_base_internal::in6_addr32_ptr(other.addr_.addr6) + 2);
+        ZETASQL_INTERNAL_UNALIGNED_LOAD64(zetasql_wasi::in6_addr32_ptr(other.addr_.addr6) + 2);
     return ((a1 ^ b1) | (a2 ^ b2)) == 0;
 #else
-    return zetasql_base_internal::in6_addr32(addr_.addr6, 0) == zetasql_base_internal::in6_addr32(other.addr_.addr6, 0) &&
-           zetasql_base_internal::in6_addr32(addr_.addr6, 1) == zetasql_base_internal::in6_addr32(other.addr_.addr6, 1) &&
-           zetasql_base_internal::in6_addr32(addr_.addr6, 2) == zetasql_base_internal::in6_addr32(other.addr_.addr6, 2) &&
-           zetasql_base_internal::in6_addr32(addr_.addr6, 3) == zetasql_base_internal::in6_addr32(other.addr_.addr6, 3);
+        return zetasql_wasi::in6_addr32(addr_.addr6, 0) == zetasql_wasi::in6_addr32(other.addr_.addr6, 0) &&
+          zetasql_wasi::in6_addr32(addr_.addr6, 1) == zetasql_wasi::in6_addr32(other.addr_.addr6, 1) &&
+          zetasql_wasi::in6_addr32(addr_.addr6, 2) == zetasql_wasi::in6_addr32(other.addr_.addr6, 2) &&
+          zetasql_wasi::in6_addr32(addr_.addr6, 3) == zetasql_wasi::in6_addr32(other.addr_.addr6, 3);
 #endif
   }
 
@@ -514,10 +514,10 @@ IPAddress UInt128ToIPAddress(absl::uint128 bigint);
 inline absl::uint128 IPAddressToUInt128(const IPAddress& addr) {
   struct in6_addr addr6 = addr.ipv6_address();
   return absl::MakeUint128(
-      static_cast<uint64_t>(ntohl(zetasql_base_internal::in6_addr32(addr6, 0))) << 32 |
-          static_cast<uint64_t>(ntohl(zetasql_base_internal::in6_addr32(addr6, 1))),
-      static_cast<uint64_t>(ntohl(zetasql_base_internal::in6_addr32(addr6, 2))) << 32 |
-          static_cast<uint64_t>(ntohl(zetasql_base_internal::in6_addr32(addr6, 3))));
+        static_cast<uint64_t>(ntohl(zetasql_wasi::in6_addr32(addr6, 0))) << 32 |
+          static_cast<uint64_t>(ntohl(zetasql_wasi::in6_addr32(addr6, 1))),
+        static_cast<uint64_t>(ntohl(zetasql_wasi::in6_addr32(addr6, 2))) << 32 |
+          static_cast<uint64_t>(ntohl(zetasql_wasi::in6_addr32(addr6, 3))));
 }
 
 // Parse an IPv4 or IPv6 address in textual form to an IPAddress.
