@@ -35,11 +35,19 @@
 
 ---
 
-## 아키텍처
+### .bazelrc 설정
+`.bazelrc`의 `--config=wasi`가 플래그 단일 출처입니다. 주요 내용:
 
-### 타겟 플랫폼
-```
-Target Triple: wasm32-wasip1-threads
+- 타겟/툴체인: `--target=wasm32-wasip1-threads`, `--sysroot=@wasi_sdk//:sysroot`
+- C++: `-stdlib=libc++`, `-fno-exceptions`, `-pthread`
+- 에뮬레이션/매크로: `_WASI_EMULATED_SIGNAL`, `_WASI_EMULATED_MMAN`, `OPENSSL_NO_SOCK`, ICU TZ 비활성, `__asmjs__`, `-DNDEBUG`
+- 난수/AES 워크어라운드: `ABSL_RANDOM_USE_GET_ENTROPY=1`, `ABSL_RANDOM_INTERNAL_AES_DISPATCH=0`, per-file `ABSL_HAVE_ACCELERATED_AES=0`
+- 링크: libc++/abi, pthread, wasi-emulated-{signal,mman}
+- 메모리: `--initial-memory=1GB`, `--max-memory=1GB`, `--stack-first`, `stack-size=8MB`
+
+빌드는 그대로:
+```bash
+bazel build --config=wasi //zetasql/tools/execute_query:execute_query_wasi
 ```
 
 **`wasm32-wasip1-threads`를 선택한 이유:**
@@ -106,11 +114,18 @@ bazel build --config=wasi //zetasql/tools/execute_query:execute_query_wasi
 ```
 
 ### .bazelrc 설정
-```python
-# WASI configuration
-build:wasi --platforms=//platforms:wasm32-wasi
-build:wasi --incompatible_enable_cc_toolchain_resolution
-build:wasi --action_env=WASI_SDK_PATH=/path/to/wasi-sdk-24.0
+`.bazelrc`의 `--config=wasi`가 플래그 단일 출처입니다. 주요 내용:
+
+- 타겟/툴체인: `--target=wasm32-wasip1-threads`, `--sysroot=@wasi_sdk//:sysroot`
+- C++: `-stdlib=libc++`, `-fno-exceptions`, `-pthread`
+- 에뮬레이션/매크로: `_WASI_EMULATED_SIGNAL`, `_WASI_EMULATED_MMAN`, `OPENSSL_NO_SOCK`, ICU TZ 비활성, `__asmjs__`, `-DNDEBUG`
+- 난수/AES 워크어라운드: `ABSL_RANDOM_USE_GET_ENTROPY=1`, `ABSL_RANDOM_INTERNAL_AES_DISPATCH=0`, per-file `ABSL_HAVE_ACCELERATED_AES=0`
+- 링크: libc++/abi, pthread, wasi-emulated-{signal,mman}
+- 메모리: `--initial-memory=1GB`, `--max-memory=1GB`, `--stack-first`, `stack-size=8MB`
+
+빌드는 그대로:
+```bash
+bazel build --config=wasi //zetasql/tools/execute_query:execute_query_wasi
 ```
 
 ---

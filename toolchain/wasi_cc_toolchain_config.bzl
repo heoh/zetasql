@@ -17,9 +17,6 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 load(
     "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
-    "feature",
-    "flag_group",
-    "flag_set",
     "tool_path",
 )
 load("@wasi_sdk_paths//:paths.bzl", "WASI_CLANG_INCLUDE", "WASI_SDK_PATH", "WASI_SYSROOT", "WASI_SYSROOT_INCLUDE")
@@ -42,12 +39,6 @@ all_link_actions = [
 ]
 
 def _wasi_cc_toolchain_config_impl(ctx):
-    sysroot = ctx.attr.sysroot_path
-
-    # Use pre-computed paths from repository rule
-    wasi_sdk_root = WASI_SDK_PATH
-    clang_include_root = WASI_CLANG_INCLUDE
-
     tool_paths = [
         tool_path(name = "gcc", path = ctx.attr.clang_path),
         tool_path(name = "ld", path = ctx.attr.wasm_ld_path),
@@ -57,95 +48,6 @@ def _wasi_cc_toolchain_config_impl(ctx):
         tool_path(name = "nm", path = ctx.attr.nm_path),
         tool_path(name = "objdump", path = ctx.attr.objdump_path),
         tool_path(name = "strip", path = ctx.attr.strip_path),
-    ]
-
-    default_compile_flags_feature = feature(
-        name = "default_compile_flags",
-        enabled = True,
-        flag_sets = [
-            flag_set(
-                actions = all_compile_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "--target=wasm32-wasip1-threads",
-                            "--sysroot=" + WASI_SYSROOT,
-                            "-fno-exceptions",
-                            "-pthread",
-                            "-D_WASI_EMULATED_SIGNAL",
-                            "-D_WASI_EMULATED_MMAN",
-                            "-DOPENSSL_NO_SOCK",
-                            # ICU timezone workarounds for WASI
-                            "-DU_HAVE_TZSET=0",
-                            "-DU_HAVE_TZNAME=0",
-                            "-DU_HAVE_TIMEZONE=0",
-                            "-DU_HAVE_TM_GMTOFF=0",
-                            # Tell abseil we have mmap (via asmjs check)
-                            "-D__asmjs__=1",
-                            # Disable debug mode to avoid deadlock detection 
-                            # which calls LowLevelAlloc during mutex operations
-                            "-DNDEBUG",
-                            "-DABSL_RANDOM_USE_GET_ENTROPY=1",
-                        ],
-                    ),
-                ],
-            ),
-        ],
-    )
-
-    # C++ specific compile flags
-    cxx_flags_feature = feature(
-        name = "cxx_flags",
-        enabled = True,
-        flag_sets = [
-            flag_set(
-                actions = [ACTION_NAMES.cpp_compile],
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-stdlib=libc++",
-                            "-std=c++20",
-                        ],
-                    ),
-                ],
-            ),
-        ],
-    )
-
-    default_link_flags_feature = feature(
-        name = "default_link_flags",
-        enabled = True,
-        flag_sets = [
-            flag_set(
-                actions = all_link_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "--target=wasm32-wasip1-threads",
-                            "--sysroot=" + WASI_SYSROOT,
-                            "-stdlib=libc++",
-                            "-lc++",
-                            "-lc++abi",
-                            "-pthread",
-                            "-lwasi-emulated-signal",
-                            "-lwasi-emulated-mman",
-                            # Set memory limits for shared memory (threads)
-                            # 1GB initial/max memory (16384 pages * 64KB)
-                            "-Wl,--initial-memory=1073741824",
-                            "-Wl,--max-memory=1073741824",
-                            "-Wl,--stack-first",
-                            "-Wl,-z,stack-size=8388608",
-                        ],
-                    ),
-                ],
-            ),
-        ],
-    )
-
-    features = [
-        default_compile_flags_feature,
-        cxx_flags_feature,
-        default_link_flags_feature,
     ]
 
     return cc_common.create_cc_toolchain_config_info(
@@ -159,7 +61,7 @@ def _wasi_cc_toolchain_config_impl(ctx):
         abi_version = "wasi",
         abi_libc_version = "wasi",
         tool_paths = tool_paths,
-        features = features,
+        features = [],  # Flags are provided via .bazelrc --config=wasi
         builtin_sysroot = WASI_SYSROOT,
         cxx_builtin_include_directories = [
             WASI_SYSROOT_INCLUDE,

@@ -70,7 +70,36 @@ build:wasi --platforms=//platforms:wasm32-wasi
 build:wasi --features=-layering_check
 build:wasi --features=no_legacy_features
 build:wasi --noincompatible_validate_top_level_header_inclusions
-# Disable AES hardware acceleration for WASM (not supported)
+# Compiler/target setup (WASI threads)
+build:wasi --copt=--target=wasm32-wasip1-threads
+build:wasi --copt=-fno-exceptions
+
+# WASI libc/feature toggles
+build:wasi --copt=-pthread
+build:wasi --copt=-D_WASI_EMULATED_SIGNAL
+build:wasi --copt=-D_WASI_EMULATED_MMAN
+build:wasi --copt=-DOPENSSL_NO_SOCK
+build:wasi --copt=-DU_HAVE_TZSET=0
+build:wasi --copt=-DU_HAVE_TZNAME=0
+build:wasi --copt=-DU_HAVE_TIMEZONE=0
+build:wasi --copt=-DU_HAVE_TM_GMTOFF=0
+build:wasi --copt=-D__asmjs__=1
+build:wasi --copt=-DNDEBUG
+build:wasi --copt=-DABSL_RANDOM_USE_GET_ENTROPY=1
+
+# AES / RANDEN workarounds (WASM에서 -maes 등 미지원)
 build:wasi --copt=-DABSL_RANDOM_INTERNAL_AES_DISPATCH=0
-# Force disable RANDEN hardware AES support (abseil adds -maes flag which WASM doesn't support)
 build:wasi --per_file_copt=external/abseil-cpp.*/absl/random/internal/randen_hwaes.*@-DABSL_HAVE_ACCELERATED_AES=0,-UABSL_HAVE_ACCELERATED_AES
+
+# Linker flags (shared memory threads, libc++)
+build:wasi --linkopt=--target=wasm32-wasip1-threads
+build:wasi --linkopt=-stdlib=libc++
+build:wasi --linkopt=-lc++
+build:wasi --linkopt=-lc++abi
+build:wasi --linkopt=-pthread
+build:wasi --linkopt=-lwasi-emulated-signal
+build:wasi --linkopt=-lwasi-emulated-mman
+build:wasi --linkopt=-Wl,--initial-memory=1073741824
+build:wasi --linkopt=-Wl,--max-memory=1073741824
+build:wasi --linkopt=-Wl,--stack-first
+build:wasi --linkopt=-Wl,-z,stack-size=8388608
