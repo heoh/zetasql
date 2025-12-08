@@ -105,8 +105,5 @@ build:wasi --linkopt=-pthread
 build:wasi --linkopt=-lwasi-emulated-signal
 build:wasi --linkopt=-lwasi-emulated-mman
 
-# Memory configuration (1GB initial/max, 8MB stack)
-build:wasi --linkopt=-Wl,--initial-memory=1073741824
-build:wasi --linkopt=-Wl,--max-memory=1073741824
-build:wasi --linkopt=-Wl,--stack-first
-build:wasi --linkopt=-Wl,-z,stack-size=8388608
+# Memory configuration
+build:wasi --linkopt=-Wl,--max-memory=1073741824  # 1GB
