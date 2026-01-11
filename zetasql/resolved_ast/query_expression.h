@@ -24,7 +24,7 @@
 #include <vector>
 
 #include "zetasql/analyzer/query_resolver_helper.h"
-#include "gtest/gtest_prod.h"
+#include "zetasql/base/gtest_prod_compat.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 #include "absl/status/status.h"

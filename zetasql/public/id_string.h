@@ -32,7 +32,7 @@
 
 #include "zetasql/base/arena.h"
 #include "zetasql/common/unicode_utils.h"
-#include "gtest/gtest_prod.h"
+#include "zetasql/base/gtest_prod_compat.h"
 #include "absl/algorithm/container.h"
 #include "absl/base/attributes.h"
 #include "absl/base/const_init.h"

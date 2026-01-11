@@ -787,7 +787,7 @@ absl::partial_ordering JsonCompareNumber(Int x, double y) {
   static_assert(std::numeric_limits<double>::is_iec559);
   static_assert(std::numeric_limits<double>::digits == 53);
   static_assert(std::numeric_limits<double>::radix == 2);
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__wasi__)
   static_assert(std::numeric_limits<int64_t>::max() == (1ULL << 63) - 1);
 #else
   static_assert(std::numeric_limits<int64_t>::max() == (1UL << 63) - 1);
@@ -900,9 +900,20 @@ absl::partial_ordering JsonCompareNumber(double x, Int y) {
 // TODO: Remove this method and directly use <=> once on C++20.
 template <typename Type>
 absl::partial_ordering spaceship_operator(const Type& x, const Type& y) {
+// nlohmann::json has ambiguous <=> operator on some platforms, use fallback
 #if defined(__cpp_impl_three_way_comparison) && \
     __cpp_impl_three_way_comparison >= 201907L
-  return x <=> y;
+  if constexpr (!std::is_same_v<Type, nlohmann::json>) {
+    return x <=> y;
+  } else {
+    if (x < y) {
+      return absl::partial_ordering::less;
+    } else if (x > y) {
+      return absl::partial_ordering::greater;
+    } else {
+      return absl::partial_ordering::equivalent;
+    }
+  }
 #else
   if (x < y) {
     return absl::partial_ordering::less;

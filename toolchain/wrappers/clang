@@ -1,0 +1,31 @@
+#!/bin/bash
+# Wrapper script for clang in WASI SDK
+# Handles both bzlmod (+_repo_rules+) and legacy (wasi_sdk) paths
+# Also filters out unsupported options for WASM targets
+
+# Try bzlmod path first (with _main~ prefix)
+WASI_SDK_DIR="external/_main~_repo_rules~wasi_sdk"
+if [ ! -d "$WASI_SDK_DIR" ]; then
+    # Try alternative bzlmod path
+    WASI_SDK_DIR="external/+_repo_rules+wasi_sdk"
+fi
+if [ ! -d "$WASI_SDK_DIR" ]; then
+    # Try legacy path
+    WASI_SDK_DIR="external/wasi_sdk"
+fi
+
+# Filter out unsupported options for WASM targets
+# -maes, -msse4.1, etc. are x86-specific and not supported on WASM
+FILTERED_ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        -maes|-msse4.1|-msse4.2|-mavx|-mavx2|-msha|-mpclmul)
+            # Skip these x86-specific options
+            ;;
+        *)
+            FILTERED_ARGS+=("$arg")
+            ;;
+    esac
+done
+
+exec "$WASI_SDK_DIR/bin/clang" "${FILTERED_ARGS[@]}"

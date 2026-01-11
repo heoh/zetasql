@@ -21,8 +21,10 @@
 #include "zetasql/base/net/ipaddress_oss.h"
 
 #include <arpa/inet.h>
+#ifndef __wasi__
 #include <net/if.h>
 #include <netdb.h>
+#endif
 
 #include <iterator>
 #include <limits>
@@ -73,7 +75,7 @@ in6_addr IPAddress::ipv6_address_slowpath() const {
   ABSL_CHECK_EQ(AF_INET6, address_family_);
   if (ABSL_PREDICT_FALSE(HasCompactScopeId(addr_.addr6))) {
     in6_addr copy = addr_.addr6;
-    copy.s6_addr32[1] = 0;  // clear the scope_id (interface index)
+    zetasql_wasi::in6_addr32(copy, 1) = 0;  // clear the scope_id (interface index)
     return copy;
   }
   return addr_.addr6;
@@ -87,13 +89,13 @@ IPAddress HostUInt32ToIPAddress(uint32_t address) {
 
 IPAddress UInt128ToIPAddress(const absl::uint128 bigint) {
   in6_addr addr6;
-  addr6.s6_addr32[0] = zetasql_base::ghtonl(
+  zetasql_wasi::in6_addr32(addr6, 0) = zetasql_base::ghtonl(
       static_cast<uint32_t>(absl::Uint128High64(bigint) >> 32));
-  addr6.s6_addr32[1] = zetasql_base::ghtonl(
+  zetasql_wasi::in6_addr32(addr6, 1) = zetasql_base::ghtonl(
       static_cast<uint32_t>(absl::Uint128High64(bigint) & 0xFFFFFFFFULL));
-  addr6.s6_addr32[2] = zetasql_base::ghtonl(
+  zetasql_wasi::in6_addr32(addr6, 2) = zetasql_base::ghtonl(
       static_cast<uint32_t>(absl::Uint128Low64(bigint) >> 32));
-  addr6.s6_addr32[3] = zetasql_base::ghtonl(
+  zetasql_wasi::in6_addr32(addr6, 3) = zetasql_base::ghtonl(
       static_cast<uint32_t>(absl::Uint128Low64(bigint) & 0xFFFFFFFFULL));
   return IPAddress(addr6);
 }
@@ -127,15 +129,15 @@ int FindLongestZeroWordSequence(const uint16_t* addr) {
 }
 
 void AppendIPv6ToString(const in6_addr& addr, std::string* out) {
-  if (addr.s6_addr32[0] == 0 && addr.s6_addr32[1] == 0) {
+  if (zetasql_wasi::in6_addr32(addr, 0) == 0 && zetasql_wasi::in6_addr32(addr, 1) == 0) {
     // If lower half of address is zero, it starts with :: and it may be
     // embedded IPv4 address.
     out->push_back(':');
     // Check for IPv6 embedded IPv4 address.
-    if (addr.s6_addr16[4] == 0 &&
-        (addr.s6_addr16[5] == 0xffff ||
-         (addr.s6_addr16[5] == 0 && addr.s6_addr16[6] != 0))) {
-      if (addr.s6_addr16[5] != 0) {
+    if (zetasql_wasi::in6_addr16(addr, 4) == 0 &&
+      (zetasql_wasi::in6_addr16(addr, 5) == 0xffff ||
+       (zetasql_wasi::in6_addr16(addr, 5) == 0 && zetasql_wasi::in6_addr16(addr, 6) != 0))) {
+      if (zetasql_wasi::in6_addr16(addr, 5) != 0) {
         absl::StrAppend(out, ":ffff");
       }
       out->push_back(':');
@@ -144,24 +146,24 @@ void AppendIPv6ToString(const in6_addr& addr, std::string* out) {
     }
     int i = 4;
     // Skip remaining zero words.
-    while (i < 8 && addr.s6_addr16[i] == 0) {
+    while (i < 8 && zetasql_wasi::in6_addr16(addr, i) == 0) {
       ++i;
     }
     if (i < 8) {
       for (; i < 8; ++i) {
         absl::StrAppend(out, ":",
-                        absl::Hex(zetasql_base::gntohs(addr.s6_addr16[i])));
+                        absl::Hex(zetasql_base::gntohs(zetasql_wasi::in6_addr16(addr, i))));
       }
     } else {
       out->push_back(':');
     }
   } else {
-    const int start = FindLongestZeroWordSequence(addr.s6_addr16);
+    const int start = FindLongestZeroWordSequence(zetasql_wasi::in6_addr16_ptr(addr));
     for (int i = 0; i < 8; ++i) {
       if (i == start) {
         // At least two words are guaranteed to be zero.
         i += 2;
-        while (i < 8 && addr.s6_addr16[i] == 0) {
+        while (i < 8 && zetasql_wasi::in6_addr16(addr, i) == 0) {
           ++i;
         }
         out->push_back(':');
@@ -173,7 +175,7 @@ void AppendIPv6ToString(const in6_addr& addr, std::string* out) {
       if (i) {
         out->push_back(':');
       }
-      absl::StrAppend(out, absl::Hex(zetasql_base::gntohs(addr.s6_addr16[i])));
+      absl::StrAppend(out, absl::Hex(zetasql_base::gntohs(zetasql_wasi::in6_addr16(addr, i))));
     }
   }
 }
@@ -290,6 +292,7 @@ bool StringToIPAddress(const absl::string_view str, IPAddress* out) {
 namespace {
 
 // Maps error values from getaddrinfo(3) to canonical Status codes.
+#ifndef __wasi__
 absl::Status InternalGetaddrinfoErrorToStatus(int rval, int copied_errno) {
   if (rval == 0) return absl::OkStatus();
 
@@ -326,6 +329,7 @@ absl::Status InternalGetaddrinfoErrorToStatus(int rval, int copied_errno) {
           absl::StrCat("getaddrinfo returned ", rval, " (", error_str, ")"));
   }
 }
+#endif  // __wasi__
 
 }  // namespace
 
@@ -341,6 +345,11 @@ absl::StatusOr<IPAddress> StringToIPAddressWithOptionalScope(
     }
   }
 
+#ifdef __wasi__
+  // WASI doesn't support getaddrinfo, so we can't parse scoped addresses.
+  return absl::UnimplementedError(
+      "scoped IPv6 addresses not supported on WASI");
+#else
   // Addresses with a scope delimiter ('%') but without a following zone_id
   // does not seem to comport with any of this text:
   //
@@ -379,6 +388,7 @@ absl::StatusOr<IPAddress> StringToIPAddressWithOptionalScope(
   }
   const auto* sin6 = reinterpret_cast<sockaddr_in6*>(res->ai_addr);
   return MakeIPAddressWithScopeId(sin6->sin6_addr, sin6->sin6_scope_id);
+#endif  // __wasi__
 }
 
 bool PackedStringToIPAddress(absl::string_view str, IPAddress* out) {

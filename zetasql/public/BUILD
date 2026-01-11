@@ -2398,6 +2398,7 @@ cc_library(
         ":options_cc_proto",
         "//zetasql/base",
         "//zetasql/base:case",
+        "//zetasql/base:gtest_prod_compat",
         "//zetasql/base:map_util",
         "//zetasql/base:status",
         "//zetasql/parser:keywords",
@@ -2409,7 +2410,6 @@ cc_library(
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/strings",
-        "@com_google_googletest//:gtest",
         "@com_google_protobuf//:protobuf",
     ],
 )
@@ -2762,6 +2762,7 @@ cc_library(
         "//zetasql/base:arena",
         "//zetasql/base:case",
         "//zetasql/base:endian",
+        "//zetasql/base:gtest_prod_compat",
         "//zetasql/base:map_util",
         "//zetasql/common:unicode_utils",
         "@com_google_absl//absl/algorithm:container",
@@ -2773,7 +2774,6 @@ cc_library(
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/synchronization",
         "@com_google_absl//absl/types:span",
-        "@com_google_googletest//:gtest",
     ],
 )
 

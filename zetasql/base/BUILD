@@ -54,6 +54,15 @@ cc_library(
 )
 
 cc_library(
+    name = "gtest_prod_compat",
+    hdrs = ["gtest_prod_compat.h"],
+    deps = select({
+        "//platforms:is_wasi": [],
+        "//conditions:default": ["@com_google_googletest//:gtest"],
+    }),
+)
+
+cc_library(
     name = "logging",
     srcs = ["logging.cc"],
     hdrs = ["logging.h"],
@@ -444,9 +453,9 @@ cc_library(
     deps = [
         ":check",
         ":endian",
+        ":gtest_prod_compat",
         "@com_google_absl//absl/base",
         "@com_google_absl//absl/numeric:int128",
-        "@com_google_googletest//:gtest",
     ],
 )
 

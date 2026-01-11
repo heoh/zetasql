@@ -76,7 +76,7 @@
 #include "zetasql/resolved_ast/resolved_column.h"
 #include "zetasql/resolved_ast/resolved_node.h"
 #include "zetasql/base/case.h"
-#include "gtest/gtest_prod.h"
+#include "zetasql/base/gtest_prod_compat.h"
 #include "absl/base/attributes.h"
 #include "absl/base/nullability.h"
 #include "absl/cleanup/cleanup.h"

@@ -139,6 +139,32 @@ cc_binary(
     ],
 )
 
+# WASI (WebAssembly) build of execute_query
+# Build with: bazel build --config=wasi //zetasql/tools/execute_query:execute_query_wasi
+cc_binary(
+    name = "execute_query_wasi",
+    srcs = [
+        "execute_query_wasi.cc",
+    ],
+    linkopts = ["-mexec-model=reactor"],
+    target_compatible_with = [
+        "@platforms//os:wasi",
+        "@platforms//cpu:wasm32",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":execute_query_tool",
+        ":execute_query_writer",
+        "//zetasql/base:status",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/flags:usage",
+        "@com_google_absl//absl/log:initialize",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
 cc_library(
     name = "execute_query_prompt",
     srcs = ["execute_query_prompt.cc"],
@@ -146,6 +172,7 @@ cc_library(
     deps = [
         ":execute_query_cc_proto",
         ":execute_query_tool",
+        "//zetasql/base:gtest_prod_compat",
         "//zetasql/base:status",
         "//zetasql/common:status_payload_utils",
         "//zetasql/public:language_options",
@@ -156,7 +183,6 @@ cc_library(
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/strings:cord",
         "@com_google_absl//absl/strings:str_format",
-        "@com_google_googletest//:gtest",
     ],
 )
 

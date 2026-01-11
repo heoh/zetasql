@@ -25,7 +25,7 @@
 #include <vector>
 
 #include "zetasql/tools/execute_query/execute_query_tool.h"
-#include "gtest/gtest_prod.h"
+#include "zetasql/base/gtest_prod_compat.h"
 #include "absl/status/statusor.h"
 #include "absl/strings/cord.h"
 #include "absl/strings/string_view.h"

@@ -1,0 +1,15 @@
+#!/bin/bash
+# Wrapper script for llvm-ar in WASI SDK
+# Handles both bzlmod (+_repo_rules+) and legacy (wasi_sdk) paths
+
+# Try bzlmod path first (with _main~ prefix)
+WASI_SDK_DIR="external/_main~_repo_rules~wasi_sdk"
+if [ ! -d "$WASI_SDK_DIR" ]; then
+    # Try alternative bzlmod path
+    WASI_SDK_DIR="external/+_repo_rules+wasi_sdk"
+fi
+if [ ! -d "$WASI_SDK_DIR" ]; then
+    # Try legacy path
+    WASI_SDK_DIR="external/wasi_sdk"
+fi
+exec "$WASI_SDK_DIR/bin/llvm-ar" "$@"

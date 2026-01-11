@@ -340,7 +340,7 @@ cc_library(
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
-        "@com_google_googletest//:gtest",
+        "//zetasql/base:gtest_prod_compat",
         "@com_google_protobuf//:protobuf",
     ],
 )
@@ -409,7 +409,7 @@ cc_library(
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/strings:str_format",
         "@com_google_absl//absl/types:span",
-        "@com_google_googletest//:gtest",
+        "//zetasql/base:gtest_prod_compat",
         "@com_googlesource_code_re2//:re2",
     ],
 )

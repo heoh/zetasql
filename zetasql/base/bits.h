@@ -56,7 +56,7 @@
 
 #include <type_traits>
 
-#include "gtest/gtest_prod.h"
+#include "zetasql/base/gtest_prod_compat.h"
 #include "zetasql/base/endian.h"
 
 namespace zetasql_base {
